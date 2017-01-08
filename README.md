@@ -4,7 +4,7 @@ A simple photo gallery
 
 ## Running
 
-Install node and npm.
+Install git, node, npm and exiftran.
 
 ```
 $ git clone https://github.com/maxf/waterfall.git
