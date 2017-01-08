@@ -2,7 +2,7 @@ module View exposing (view)
 
 import Html exposing (Html, div, text, ul, li, a)
 import Html.Events exposing (onClick)
-import Html.Attributes exposing (class, style, id, href)
+import Html.Attributes exposing (class, style, href)
 import Model exposing (Model, albums, message)
 import ViewPhotos exposing (viewPhotos)
 import Update exposing (Msg(UserChangedAlbum))
@@ -18,7 +18,7 @@ viewAlbumList model =
                 [ text u ]
     in
         div
-            [ class "calendar", id "calendar" ]
+            [ class "albums" ]
             [ div [] [ a [ href "/" ] [ text "Waterfall" ] ]
             , ul [] (List.map liFn (model |> albums))
             ]

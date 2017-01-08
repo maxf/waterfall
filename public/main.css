@@ -43,15 +43,15 @@ body {
   display: flex;
   height: 100vh;
 }
-.calendar {
-  background: black;
+.albums {
+  background-color: #444b5d;
   color: #dfdfdf;
   width: 13em;
   overflow: scroll;
   max-height: 100vh;
   padding: 1em;
 }
-.calendar ul {
+.albums ul {
   list-style-type: disc;
   padding: 0;
 }
@@ -59,7 +59,7 @@ body {
   border: none;
 }
 
-.calendar table td a {
+.albums table td a {
   color: #aaa;
   text-decoration: none;
   width: 100%;

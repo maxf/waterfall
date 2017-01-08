@@ -12009,12 +12009,8 @@ var _user$project$View$viewAlbumList = function (model) {
 		_elm_lang$html$Html$div,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('calendar'),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$id('calendar'),
-				_1: {ctor: '[]'}
-			}
+			_0: _elm_lang$html$Html_Attributes$class('albums'),
+			_1: {ctor: '[]'}
 		},
 		{
 			ctor: '::',
