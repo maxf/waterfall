@@ -36,15 +36,15 @@ viewSidebar : Html Msg
 viewSidebar =
     div
         [ class "sidebar" ]
-        [ div [] [ a [ href "/" ] [ text "Waterfall" ] ]
+        [ h1 [] [ a [ href "/" ] [ text "Waterfall" ] ]
+        , a [ href "/organise" ] [ text "Manage your pictures" ]
         , ul []
-            [ li [] [ a [ href "#home" ] [ text "Home" ] ]
+            [ li [] [ a [ href "#home" ] [ text "My timeline" ] ]
             , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
             , li [] [ a [ href "#me" ] [ text "My photos" ] ]
             ]
         , span [ onClick Logout ] [ text "Log out" ]
         , br [] []
-        , a [ href "/organise" ] [ text "Manage your pictures" ]
         ]
 
 
