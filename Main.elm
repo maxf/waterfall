@@ -7,6 +7,7 @@ import List exposing (..)
 import Time.Date as Date exposing (Weekday(..))
 
 
+main : Program Never Model Msg
 main =
     Html.beginnerProgram { model = model, view = view, update = update }
 
@@ -31,6 +32,7 @@ type Msg
     | Decrement
 
 
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         Increment ->
