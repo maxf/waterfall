@@ -1,8 +1,16 @@
 #!/bin/bash
-SAVEIFS=$IFS
-IFS=$(echo -en "\n\b")
-for file in $@; do
-    create_date=`exiftool -T -createdate "$file"`
-    echo \"$file\", \"$create_date\"
-done
-IFS=$SAVEIFS
+
+function make_line {
+    echo \"$0\",\"`exiftool -T -createdate "$0"`\"
+}
+export -f make_line
+
+echo "name, create_date"
+find $@ -type f -a \( \
+-name \*.png -o \
+-name \*.PNG -o \
+-name \*.jpg -o \
+-name \*.JPG -o \
+-name \*.jpeg -o \
+-name \*.JPEG \
+\) -exec bash -c make_line {} \;
