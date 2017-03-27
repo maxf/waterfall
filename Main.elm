@@ -6,40 +6,39 @@ import Html.Attributes exposing (class)
 import List exposing (..)
 import Time.Date as Date exposing (Weekday(..))
 
+import Rest
+import Types exposing (..)
 
 main : Program Never Model Msg
 main =
-    Html.beginnerProgram { model = model, view = view, update = update }
+    Html.program
+        { view = view, update = update, init = init, subscriptions = \_ -> Sub.none }
 
 
-type alias Year = Int
-type alias WeekNumber = Int
-type alias DayOfWeek = Int
-type alias DayOfMonth = Int
-
-type alias Model =
-    { year : Year
-    }
 
 
-model : Model
-model =
-    Model 2017
+
+init : (Model, Cmd Msg)
+init =
+    Model 2017 [ PhotoMetadata "" "" ]
+        ! [ Rest.fetchPhotoMetadata ]
 
 
-type Msg
-    = Increment
-    | Decrement
 
-
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Increment ->
-            { model | year = model.year + 1 }
+            ( { model | year = model.year + 1 }, Cmd.none )
 
         Decrement ->
-            { model | year = model.year - 1 }
+            ( { model | year = model.year - 1 }, Cmd.none )
+
+        PhotoMetadataLoaded (Ok csv) ->
+            ( { model | photoMetadata = Types.buildMeta csv }, Cmd.none )
+
+        PhotoMetadataLoaded (Err _) ->
+            ( model, Cmd.none )
 
 
 --------------------------------------------------------------------------------
