@@ -27,11 +27,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Increment ->
-            -- TODO: reload metadata for new year
-            ( { model | year = model.year + 1 }, Cmd.none )
+            ( { model | year = model.year - 1 }, fetchPhotoMetadata )
 
         Decrement ->
-            ( { model | year = model.year - 1 }, Cmd.none )
+            ( { model | year = model.year - 1 }, fetchPhotoMetadata )
 
         PhotoMetadataLoaded (Ok csv) ->
             let
