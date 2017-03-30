@@ -6,8 +6,9 @@ import List exposing (..)
 import Regex exposing (split, HowMany(..), regex)
 import String exposing (toInt)
 import Result exposing (withDefault)
-import Csv
 import Dict exposing (..)
+import Csv
+import Time.Date as Date exposing (Date)
 
 type alias Year =
     Int
@@ -30,6 +31,7 @@ type alias Model =
     , error : String
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
+    , dateShown : Maybe Date
     }
 
 
@@ -43,6 +45,7 @@ type Msg
     = Increment
     | Decrement
     | PhotoMetadataLoaded (Result Http.Error String)
+    | ShowPhotosForDate Date
 
 
 type alias MetadataDict

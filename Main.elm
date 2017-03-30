@@ -19,7 +19,7 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    Model 2016 "" 0 Dict.empty
+    Model 2016 "" 0 Dict.empty Nothing
         ! [ fetchPhotoMetadata ]
 
 
@@ -48,3 +48,6 @@ update msg model =
             ( { model | error = error |> httpErrorToString }
             , Cmd.none
             )
+
+        ShowPhotosForDate date ->
+            ( Debug.log ">" model, Cmd.none )

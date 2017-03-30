@@ -62,8 +62,6 @@ dateColour date metadata =
                     shade =
                         220 - (220 * (min 1 ((List.length r |> toFloat) / 50)))
                           |> toString
-
-                    _ = Debug.log ">>" shade
                 in
                     ( "rgb(" ++ shade ++ ",255, " ++ shade ++ ")"
                     , List.length r
@@ -97,6 +95,7 @@ viewDate offset weekNumber model dayOfWeek =
             [ class monthClass
             , style [("background-color", (Tuple.first dateCol))]
             , title ((dateCol |> Tuple.second |> toString) ++ " photos")
+            , onClick (ShowPhotosForDate thisDate)
             ]
             [ if Date.year thisDate == model.year then
                 text (calendarDate thisDate)
