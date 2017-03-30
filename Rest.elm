@@ -1,13 +1,28 @@
 module Rest exposing (..)
+
 import Http exposing (..)
-import Json.Decode as Decode
 import Types exposing (..)
 
-type alias Url = String
 
-fetchPhotoMetadata: Cmd Msg
+httpErrorToString : Error -> String
+httpErrorToString e =
+    case e of
+        BadUrl msg ->
+            "Bad URL: " ++ msg
+
+        Timeout ->
+            "Network timeout"
+
+        NetworkError ->
+            "Network error"
+
+        BadStatus response ->
+            "Bad status: " ++ (response.status.code |> toString)
+
+        BadPayload msg response ->
+            "Bad payload: " ++ msg
+
+
+fetchPhotoMetadata : Cmd Msg
 fetchPhotoMetadata =
-    let
-        url = "metadata.csv"
-    in
-        Http.send PhotoMetadataLoaded (Http.get url Decode.string)
+    send PhotoMetadataLoaded (getString "metadata.csv")
