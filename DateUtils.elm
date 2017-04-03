@@ -1,6 +1,9 @@
 module DateUtils exposing (..)
 
-import Time.Date as Date exposing (Date, Weekday(..), day, month)
+import Time.Date as Date exposing (..)
+import String exposing (toInt)
+
+import Regex exposing (split, HowMany(..), regex)
 
 monthName : Date -> String
 monthName date =
@@ -29,3 +32,16 @@ dateToExifString date =
     (Date.year date |> toString)
     ++ ":" ++ (Date.month date |> toString |> String.padLeft 2 '0')
     ++ ":" ++ (Date.day date |> toString |> String.padLeft 2 '0')
+
+
+dateStringtoDate : String -> Maybe Date
+dateStringtoDate text =
+    case Regex.split All (regex ":") text of
+        [ year, month, day ] ->
+            Just (date
+                (year |> toInt |> Result.withDefault 1970)
+                (month |> toInt |> Result.withDefault 1)
+                (day |> toInt |> Result.withDefault 1))
+
+        _ ->
+            Nothing

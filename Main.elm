@@ -5,7 +5,7 @@ import Types exposing (..)
 import Html
 import Dict
 import View
-
+import DateUtils exposing (..)
 
 main : Program Never Model Msg
 main =
@@ -27,19 +27,25 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Increment ->
-            ( { model | year = model.year - 1 }, fetchPhotoMetadata )
+            ( { model | year = model.year + 1 }, fetchPhotoMetadata )
 
         Decrement ->
             ( { model | year = model.year - 1 }, fetchPhotoMetadata )
 
         PhotoMetadataLoaded (Ok csv) ->
             let
+                metadata : MetadataDict
                 metadata =
                     Types.buildMeta model.year csv
             in
                 ( { model
                     | photoMetadata = metadata
                     , maxPicturesInADay = maxNbPictures metadata
+                    , dateShown = metadata
+                        |> Dict.keys
+                        |> List.head
+                        |> Maybe.withDefault ""
+                        |> dateStringtoDate
                   }
                 , Cmd.none
                 )
