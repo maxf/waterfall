@@ -89,12 +89,23 @@ viewDate offset weekNumber model dayOfWeek =
             else
                 "even"
 
+        -- if the day to draw is the day of the photos shown
+        -- mark it with class 'today'
+        shownDateClass =
+            case model.dateShown of
+                Nothing -> ""
+                Just date ->
+                    if date == thisDate then
+                        "today"
+                    else
+                        ""
+
         dateCol =
             dateColour thisDate model.photoMetadata
 
     in
         td
-            [ class monthClass
+            [ class (monthClass ++ " " ++ shownDateClass)
             , style [("background-color", (Tuple.first dateCol))]
             , title ((dateCol |> Tuple.second |> toString) ++ " photos")
             , onClick (ShowPhotosForDate thisDate)
