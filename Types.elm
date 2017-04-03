@@ -27,7 +27,7 @@ type alias DayOfMonth =
 
 
 type alias Model =
-    { year : Year
+    { year : Year -- TODO: not needed with dateShow below
     , error : String
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict

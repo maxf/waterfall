@@ -7,6 +7,9 @@ import Time.Date as Date exposing (Weekday(..))
 import Types exposing (..)
 import Dict
 
+import ViewPhotos exposing (viewPhotos)
+import DateUtils exposing (..)
+
 
 newYearsDayOffset : Year -> Int
 newYearsDayOffset year =
@@ -47,10 +50,9 @@ dateColour date metadata =
     let
         dateString : String
         dateString =
-            (Date.year date |> toString)
-            ++ ":" ++ (Date.month date |> toString |> String.padLeft 2 '0')
-            ++ ":" ++ (Date.day date |> toString |> String.padLeft 2 '0')
+            dateToExifString date
 
+        record : Maybe (List String)
         record =
             Dict.get dateString metadata
     in
@@ -120,7 +122,7 @@ viewCalendar model =
         offset =
             newYearsDayOffset model.year
     in
-        div []
+        div [ class "calendar" ]
             [ h1 [] [ text (toString model.year) ]
             , table []
                 [ thead []
@@ -142,8 +144,15 @@ viewCalendar model =
 view : Model -> Html Msg
 view model =
     div []
-        [ button [ onClick Decrement ] [ text "-" ]
-        , button [ onClick Increment ] [ text "+" ]
-        , div [] [ text model.error ]
-        , viewCalendar model
+        [ div
+            [ class "header" ]
+            [ button [ onClick Decrement ] [ text "-" ]
+            , button [ onClick Increment ] [ text "+" ]
+            , div [] [ text model.error ]
+            ]
+        , div
+            [ class "columns" ]
+            [ viewCalendar model
+            , viewPhotos model
+            ]
         ]

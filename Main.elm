@@ -50,4 +50,4 @@ update msg model =
             )
 
         ShowPhotosForDate date ->
-            ( Debug.log ">" model, Cmd.none )
+            ( { model | dateShown = Just date }, Cmd.none )

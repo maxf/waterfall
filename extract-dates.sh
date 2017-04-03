@@ -1,7 +1,8 @@
 #!/bin/bash
 
 function make_line {
-    echo \"`basename "$0"`\",\"`exiftool -T -createdate "$0"`\"
+#    echo \"`basename "$0"`\",\"`exiftool -T -createdate "$0"`\"
+    echo \"$0\",\"`exiftool -T -createdate "$0"`\"
 }
 export -f make_line
 
