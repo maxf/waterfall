@@ -122,8 +122,11 @@ viewCalendar model =
         offset =
             newYearsDayOffset model.year
     in
-        div [ class "calendar" ]
-            [ h1 [] [ text (toString model.year) ]
+        div
+            [ class "calendar" ]
+            [ button [ onClick Decrement ] [ text "-" ]
+            , button [ onClick Increment ] [ text "+" ]
+            , h1 [] [ text (toString model.year) ]
             , table []
                 [ thead []
                     [ tr []
@@ -146,10 +149,7 @@ view model =
     div []
         [ div
             [ class "header" ]
-            [ button [ onClick Decrement ] [ text "-" ]
-            , button [ onClick Increment ] [ text "+" ]
-            , div [] [ text model.error ]
-            ]
+            [ div [] [ text model.error ] ]
         , div
             [ class "columns" ]
             [ viewCalendar model

@@ -15,8 +15,8 @@ viewPhotos model =
     div
         [ class "photos" ]
         [ case model.dateShown of
-              Nothing -> div [] [ text "Select a date on the calendar" ]
-              Just date -> viewPhotosSection model date
+            Nothing -> div [] [ text "Select a date on the calendar" ]
+            Just date -> viewPhotosSection model date
         ]
 
 
