@@ -40,9 +40,13 @@ viewPhotosSection model date =
 
 viewPictureList : List String -> Html Msg
 viewPictureList fileNames =
-    ul
+    div
         []
-        (List.map viewPicture fileNames)
+        [ h2 [] [ text ((List.length fileNames |> toString) ++ " photos") ]
+        , ul
+            []
+            (List.map viewPicture fileNames)
+        ]
 
 
 viewPicture : String -> Html Msg
