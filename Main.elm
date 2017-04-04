@@ -19,7 +19,7 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    Model 2016 "" 0 Dict.empty Nothing
+    Model 2017 "" 0 Dict.empty Nothing -- TODO: get current year
         ! [ fetchPhotoMetadata ]
 
 
