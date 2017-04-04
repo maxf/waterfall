@@ -26,6 +26,7 @@ $ ./extract-dates.sh /folder/where/pictures/are/ > metadata.csv
 - clicking on a date should scroll photos back up but not calendar
 - pop up 'back to top' button on scroll down
 - delineate months
+- Single URL for each photo
 - Electron
 - script with progress bar
 - `grep TODO *.elm`
