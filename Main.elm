@@ -1,11 +1,11 @@
 module Main exposing (..)
-
 import Rest exposing (..)
 import Types exposing (..)
 import Html
 import Dict
 import View
-import DateUtils exposing (..)
+import Time.Date as Date exposing (..)
+
 
 main : Program Never Model Msg
 main =
@@ -19,34 +19,40 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    Model 2017 "" 0 Dict.empty Nothing -- TODO: get current year
+    Model "" 0 Dict.empty (Date.date 2017 1 1) -- TODO: init date with first picture date in current year
         ! [ fetchPhotoMetadata ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        -- TODO: don't fetch metadata every time
         Increment ->
-            ( { model | year = model.year + 1 }, fetchPhotoMetadata )
+            ( { model | dateShown = addYear 1 model.photoMetadata model.dateShown }
+            , fetchPhotoMetadata
+            )
 
         Decrement ->
-            ( { model | year = model.year - 1 }, fetchPhotoMetadata )
+            ( { model | dateShown = addYear -1 model.photoMetadata model.dateShown }
+            , fetchPhotoMetadata
+            )
 
         PhotoMetadataLoaded (Ok csv) ->
             let
                 metadata : MetadataDict
                 metadata =
-                    Types.buildMeta model.year csv
+                    Types.buildMeta (year model.dateShown) csv
+
+                dateShown =
+                    dateOfFirstPhotoOfYear (year model.dateShown) metadata
+
             in
-                ( { model
-                    | photoMetadata = metadata
-                    , maxPicturesInADay = maxNbPictures metadata
-                    , dateShown = metadata
-                        |> Dict.keys
-                        |> List.head
-                        |> Maybe.withDefault ""
-                        |> dateStringtoDate
-                  }
+                (
+                   { model
+                   | photoMetadata = metadata
+                   , maxPicturesInADay = maxNbPictures metadata
+                   , dateShown = dateShown
+                   }
                 , Cmd.none
                 )
 
@@ -56,4 +62,4 @@ update msg model =
             )
 
         ShowPhotosForDate date ->
-            ( { model | dateShown = Just date }, Cmd.none )
+            ( { model | dateShown = date }, Cmd.none )

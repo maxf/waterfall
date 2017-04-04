@@ -79,12 +79,12 @@ dateColour date metadata =
 viewDate : Int -> WeekNumber -> Model -> DayOfWeek -> Html Msg
 viewDate offset weekNumber model dayOfWeek =
     let
-        thisDate =
-            Date.date model.year 1 1
+        dateToDisplay =
+            Date.date (Date.year model.dateShown) 1 1
                 |> Date.addDays (7 * (weekNumber - 1) + dayOfWeek + 1 + offset)
 
         monthClass =
-            if (Date.month thisDate) % 2 == 0 then
+            if (Date.month dateToDisplay) % 2 == 0 then
                 "odd"
             else
                 "even"
@@ -92,26 +92,20 @@ viewDate offset weekNumber model dayOfWeek =
         -- if the day to draw is the day of the photos shown
         -- mark it with class 'today'
         shownDateClass =
-            case model.dateShown of
-                Nothing -> ""
-                Just date ->
-                    if date == thisDate then
-                        "today"
-                    else
-                        ""
+            if dateToDisplay == model.dateShown then "today" else ""
 
         dateCol =
-            dateColour thisDate model.photoMetadata
-
+            dateColour dateToDisplay model.photoMetadata
     in
         td
             [ class (monthClass ++ " " ++ shownDateClass)
             , style [("background-color", (Tuple.first dateCol))]
             , title ((dateCol |> Tuple.second |> toString) ++ " photos")
-            , onClick (ShowPhotosForDate thisDate)
+            , onClick (ShowPhotosForDate dateToDisplay)
             ]
-            [ if Date.year thisDate == model.year then
-                text (calendarDate thisDate)
+            [ if Date.year dateToDisplay == Date.year model.dateShown then
+                -- only show day if this date is in the current year
+                text (calendarDate dateToDisplay)
               else
                 text ""
             ]
@@ -130,14 +124,17 @@ viewWeeks offset model =
 viewCalendar : Model -> Html Msg
 viewCalendar model =
     let
+        yearToDisplay =
+            Date.year model.dateShown
+
         offset =
-            newYearsDayOffset model.year
+            newYearsDayOffset yearToDisplay
     in
         div
             [ class "calendar" ]
             [ button [ onClick Decrement ] [ text "-" ]
             , button [ onClick Increment ] [ text "+" ]
-            , h1 [] [ text (toString model.year) ]
+            , h1 [] [ text (toString yearToDisplay) ]
             , table []
                 [ thead []
                     [ tr []

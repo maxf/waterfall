@@ -2,7 +2,6 @@ module DateUtils exposing (..)
 
 import Time.Date as Date exposing (..)
 import String exposing (toInt)
-
 import Regex exposing (split, HowMany(..), regex)
 
 monthName : Date -> String
@@ -35,8 +34,8 @@ dateToExifString date =
     ++ ":" ++ (Date.day date |> toString |> String.padLeft 2 '0')
 
 
-dateStringtoDate : String -> Maybe Date
-dateStringtoDate text =
+dateStringToDate : String -> Maybe Date
+dateStringToDate text =
     case Regex.split All (regex ":") text of
         [ year, month, day ] ->
             Just (date

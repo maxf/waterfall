@@ -7,6 +7,7 @@ import Result exposing (withDefault)
 import Dict exposing (..)
 import Csv
 import Time.Date as Date exposing (Date)
+import DateUtils exposing (..)
 
 type alias Year =
     Int
@@ -25,11 +26,10 @@ type alias DayOfMonth =
 
 
 type alias Model =
-    { year : Year -- TODO: not needed with dateShow below
-    , error : String
+    { error : String
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
-    , dateShown : Maybe Date
+    , dateShown : Date
     }
 
 
@@ -92,3 +92,18 @@ buildMeta year csvString =
             -- TODO: Sort by date string
             |> List.filter validDateRecord
             |> List.foldl addToMetadataDict Dict.empty
+
+
+dateOfFirstPhotoOfYear : Year -> MetadataDict -> Date
+dateOfFirstPhotoOfYear year metadata =
+    metadata
+        |> keys
+        |> List.head |> Maybe.withDefault "01:01:1970"
+        |> dateStringToDate |> Maybe.withDefault (Date.date 1 1 year)
+
+
+
+-- Return the date of the first picture of the incremented date
+addYear: Year -> MetadataDict -> Date -> Date
+addYear increment metadata date =
+    dateOfFirstPhotoOfYear ((Date.year date) + increment) metadata
