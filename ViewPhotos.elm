@@ -35,19 +35,19 @@ viewPhotosSection model =
             ]
 
 
-viewPictureList : List String -> Html Msg
-viewPictureList fileNames =
+viewPictureList : List PhotoMetadata -> Html Msg
+viewPictureList metadataList =
     div
         []
-        [ h2 [] [ text ((List.length fileNames |> toString) ++ " photos") ]
+        [ h2 [] [ text ((List.length metadataList |> toString) ++ " photos") ]
         , ul
             []
-            (List.map viewPicture fileNames)
+            (List.map viewPicture (List.sortBy .dateCreated metadataList))
         ]
 
 
-viewPicture : String -> Html Msg
-viewPicture filename =
+viewPicture : PhotoMetadata -> Html Msg
+viewPicture metadata =
     li
         []
-        [ img [ src filename ] [] ]
+        [ img [ src metadata.fileName ] [] ]

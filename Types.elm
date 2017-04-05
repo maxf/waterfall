@@ -8,25 +8,32 @@ import Dict exposing (..)
 import Csv
 import Time.Date as Date exposing (Date)
 import DateUtils exposing (..)
+import Regex exposing (..)
 
-type alias Year =
-    Int
+type alias Year = Int
+type alias WeekNumber = Int
+type alias DayOfWeek = Int
+type alias DayOfMonth = Int
+type alias FileName = String
+type alias ErrorMessage = String
+type alias CsvField = String
+type alias CsvData = String
 
+-- Date as a string in Exif Format: YYYY:MM:DD HH:MM:SS
+-- Should be a Date, but Date isn't a comparable type
+-- TODO: try using milliseconds
+type alias ExifDate =
+    String
 
-type alias WeekNumber =
-    Int
-
-
-type alias DayOfWeek =
-    Int
-
-
-type alias DayOfMonth =
-    Int
+isValidExifDate : ExifDate -> Bool
+isValidExifDate date =
+    contains
+        (regex "^\\d{4}:\\d{2}:\\d{2} \\d{2}:\\d{2}:\\d{2}$")
+        date
 
 
 type alias Model =
-    { error : String
+    { error : ErrorMessage
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
     , dateShown : Date
@@ -34,20 +41,20 @@ type alias Model =
 
 
 type alias PhotoMetadata =
-    { fileName : String
-    , dateCreated : String
+    { fileName : FileName
+    , dateCreated : ExifDate
     }
 
 
 type Msg
     = Increment
     | Decrement
-    | PhotoMetadataLoaded (Result Http.Error String)
+    | PhotoMetadataLoaded (Result Http.Error CsvData)
     | ShowPhotosForDate Date
 
 
 type alias MetadataDict
-    = Dict String (List String)
+    = Dict ExifDate (List PhotoMetadata)
 
 
 maxNbPictures : MetadataDict -> Int
@@ -57,22 +64,44 @@ maxNbPictures dict =
         |> List.foldl (\l a -> max (List.length l) a) 0
 
 
-addFileName : String -> Maybe (List String) -> Maybe (List String)
-addFileName filename dict =
-    -- add filename to list
+addPhotoMetadata : PhotoMetadata
+                 -> Maybe (List PhotoMetadata)
+                 -> Maybe (List PhotoMetadata)
+addPhotoMetadata metadata dict =
     case dict of
-        Nothing -> Just [ filename ]
-        Just list -> Just (filename :: list)
+        Nothing -> Just [ metadata ]
+        Just list -> Just (metadata :: list)
 
 
-addToMetadataDict : List String -> MetadataDict -> MetadataDict
-addToMetadataDict twoStrings dict =
---    ["name1", "date1"] -> Dict [] -> { "date1": ["name1"] }
-    case twoStrings of
-        [ filename, dateString ] ->
-            Dict.update (String.left 10 dateString) (addFileName filename) dict
+stringsToMetadata : List CsvField -> Result ErrorMessage PhotoMetadata
+stringsToMetadata csvFields =
+    case csvFields of
+        [ fileName, dateCreated ] ->
+            if isValidExifDate dateCreated then
+                Ok (PhotoMetadata fileName dateCreated)
+            else
+                Err ("Bad exif date: " ++ dateCreated)
+
         _ ->
-            dict
+            Err (
+                "Bad number of CSV fields to photo metadata: " ++
+                 (csvFields |> toString)
+            )
+
+
+addToMetadataDict : List CsvField -> MetadataDict -> MetadataDict
+addToMetadataDict twoStrings dict =
+    let
+        newMetadata = stringsToMetadata twoStrings
+    in
+        case newMetadata of
+            Ok metadata ->
+                Dict.update
+                    (String.left 10 metadata.dateCreated)
+                    (addPhotoMetadata metadata)
+                    dict
+            Err message ->
+                dict
 
 
 buildMeta : Year -> String -> MetadataDict

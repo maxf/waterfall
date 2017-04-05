@@ -22,7 +22,6 @@ $ ./extract-dates.sh /folder/where/pictures/are/ > metadata.csv
 
 ## Todo
 
-- Wrong order of photos for a specific day
 - clicking on a date should scroll photos back up but not calendar
 - pop up 'back to top' button on scroll down
 - delineate months
@@ -38,3 +37,7 @@ $ ./extract-dates.sh /folder/where/pictures/are/ > metadata.csv
 - don't use a script, read photo metadata from browser
 - infinite scroll for calendar
 - make it work online (not just locally)
+
+### Done
+
+- Wrong order of photos for a specific day

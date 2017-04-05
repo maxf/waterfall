@@ -52,7 +52,7 @@ dateColour date metadata =
         dateString =
             dateToExifString date
 
-        record : Maybe (List String)
+        record : Maybe (List PhotoMetadata)
         record =
             Dict.get dateString metadata
     in
