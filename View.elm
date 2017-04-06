@@ -69,11 +69,49 @@ dateColour date metadata =
                     , List.length r
                     )
 
+isInLastWeekOfMonth : Date.Date -> Bool
+isInLastWeekOfMonth date =
+    let
+        nextWeek = Date.addDays 7 date
+    in
+        Date.month date /= Date.month nextWeek
 
+
+isLastDayOfMonth : Date.Date -> Bool
+isLastDayOfMonth date =
+    let
+        nextDay = Date.addDays 1 date
+    in
+        Date.month date /= Date.month nextDay && Date.weekday date /= Sun
 
 --------------------------------------------------------------------------------
 -- HTML generating functions
 --------------------------------------------------------------------------------
+
+
+
+dateStyle : Date.Date -> Model -> List ( String, String )
+dateStyle dateToDisplay model =
+    let
+        dateCol =
+            dateColour dateToDisplay model.photoMetadata
+
+        overrideBorderBottom =
+            if isInLastWeekOfMonth dateToDisplay then
+                ( "border-bottom", "5px solid black" )
+            else
+                ( "", "" )
+
+        overrideBorderRight =
+            if isLastDayOfMonth dateToDisplay then
+                ( "border-right", "5px solid black" )
+            else
+                ( "", "" )
+    in
+        [("background-color", (Tuple.first dateCol))
+        , overrideBorderBottom
+        , overrideBorderRight
+        ]
 
 
 viewDate : Int -> WeekNumber -> Model -> DayOfWeek -> Html Msg
@@ -93,26 +131,13 @@ viewDate offset weekNumber model dayOfWeek =
         -- mark it with class 'today'
         shownDateClass =
             if dateToDisplay == model.dateShown then "today" else ""
-
-        dateCol =
-            dateColour dateToDisplay model.photoMetadata
-
-        class_ =
-            class (monthClass ++ " " ++ shownDateClass)
-
-        style_ =
-            style [("background-color", (Tuple.first dateCol))]
-
-        title_ =
-            title ((dateCol |> Tuple.second |> toString) ++ " photos")
-
-        onClick_ =
-            onClick (ShowPhotosForDate dateToDisplay)
-
     in
         if Date.year dateToDisplay == Date.year model.dateShown then
             td
-                [ class_, style_, title_, onClick_ ]
+                [ class (monthClass ++ " " ++ shownDateClass)
+                , style (dateStyle dateToDisplay model)
+                , onClick (ShowPhotosForDate dateToDisplay)
+                ]
                 [ text (calendarDate dateToDisplay) ]
         else
             td [] [ text "" ]
