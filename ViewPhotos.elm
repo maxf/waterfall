@@ -1,24 +1,17 @@
 module ViewPhotos exposing (viewPhotos)
---import Time.Date as Date exposing (Date, Weekday(..), day, month)
 import Html exposing (..)
---import Html.Events exposing (onClick)
-import Html.Attributes exposing (class, style, title, src)
+import Html.Attributes exposing (class, style, title, src, id)
 import Types exposing (..)
-
 import DateUtils exposing (..)
 import Dict
 
 
+--------------------------------------------------------------------------------
+-- View functions
+--------------------------------------------------------------------------------
 
 viewPhotos : Model -> Html Msg
 viewPhotos model =
-    div
-        [ class "photos" ]
-        [ viewPhotosSection model ]
-
-
-viewPhotosSection : Model -> Html Msg
-viewPhotosSection model =
     let
         dateExifString =
             model.dateShown |> dateToExifString
@@ -27,7 +20,7 @@ viewPhotosSection model =
             Dict.get dateExifString model.photoMetadata
     in
         div
-            [ class "photos" ]
+            [ id "photos" ]
             [ h1 [] [ model.dateShown |> dateToString |> text ]
             , case datePhotos of
                 Nothing -> div [] [ text "No photos for that date" ]

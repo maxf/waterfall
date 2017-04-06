@@ -22,7 +22,6 @@ $ ./extract-dates.sh /folder/where/pictures/are/ > metadata.csv
 
 ## Todo
 
-- clicking on a date should scroll photos back up but not calendar
 - pop up 'back to top' button on scroll down
 - delineate months
 - Single URL for each photo
@@ -31,6 +30,8 @@ $ ./extract-dates.sh /folder/where/pictures/are/ > metadata.csv
 - `grep TODO *.elm`
 - allow user to delete pictures
 - view 360 pictures
+- Use milliseconds for ExifDate instead of Strings
+  (until DateTime becomes comparable)
 
 ### Maybe
 
@@ -41,3 +42,4 @@ $ ./extract-dates.sh /folder/where/pictures/are/ > metadata.csv
 ### Done
 
 - Wrong order of photos for a specific day
+- clicking on a date should scroll photos back up but not calendar

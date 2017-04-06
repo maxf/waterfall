@@ -151,13 +151,20 @@ viewCalendar model =
                 ]
             ]
 
+viewError : Maybe ErrorMessage -> Html Msg
+viewError message =
+    case message of
+        Nothing ->
+            div [ style [("display", "none")] ] []
+
+        Just error ->
+            div [ class "error" ] [ text error ]
+
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ div
-            [ class "header" ]
-            [ div [] [ text model.error ] ]
+    div [ class "outer" ]
+        [ viewError model.error
         , div
             [ class "columns" ]
             [ viewCalendar model

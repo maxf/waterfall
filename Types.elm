@@ -1,6 +1,5 @@
 module Types exposing (..)
 
-import Http exposing (..)
 import List exposing (..)
 import String exposing (toInt)
 import Result exposing (withDefault)
@@ -9,6 +8,7 @@ import Csv
 import Time.Date as Date exposing (Date)
 import DateUtils exposing (..)
 import Regex exposing (..)
+import Http
 
 type alias Year = Int
 type alias WeekNumber = Int
@@ -33,24 +33,24 @@ isValidExifDate date =
 
 
 type alias Model =
-    { error : ErrorMessage
+    { error : Maybe ErrorMessage
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
     , dateShown : Date
     }
-
-
-type alias PhotoMetadata =
-    { fileName : FileName
-    , dateCreated : ExifDate
-    }
-
 
 type Msg
     = Increment
     | Decrement
     | PhotoMetadataLoaded (Result Http.Error CsvData)
     | ShowPhotosForDate Date
+    | ScrollPhotosFinished
+
+
+type alias PhotoMetadata =
+    { fileName : FileName
+    , dateCreated : ExifDate
+    }
 
 
 type alias MetadataDict

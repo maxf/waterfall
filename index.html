@@ -5,6 +5,9 @@
      html {
        font-family: helvetica;
      }
+     body {
+       margin: 0;
+     }
      table {
        border-collapse: collapse;
      }
@@ -21,24 +24,42 @@
      td.today {
        outline: 5px solid red;
      }
+     .outer {
+       height: 100vh;
+     }
+     .error {
+       position: fixed;
+       background: red;
+       color: white;
+       font-size: 200%;
+       font-weight: bold;
+       padding: 1em;
+       margin: 1em;
+     }
      .columns {
        display: flex;
+       height: 100vh;
      }
      .calendar {
        background: white;
        width: 20%;
+       overflow: auto;
+       max-height: 100vh;
+       padding: 1em;
      }
-     .photos {
+     #photos {
        margin: 1em;
        flex: 1;
+       overflow-y: scroll;
+       max-height: 100vh;
      }
-     .photos ul {
+     #photos ul {
        padding: 0;
      }
-     .photos li {
+     #photos li {
        list-style-type: none;
      }
-     .photos img {
+     #photos img {
        max-width: 100%;
        max-height: 100vh;
      }

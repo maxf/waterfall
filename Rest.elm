@@ -1,5 +1,4 @@
 module Rest exposing (..)
-
 import Http exposing (..)
 import Types exposing (..)
 

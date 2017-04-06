@@ -5,6 +5,9 @@ import Html
 import Dict
 import View
 import Time.Date as Date exposing (..)
+import Dom exposing (Error)
+import Dom.Scroll
+import Task
 
 
 main : Program Never Model Msg
@@ -19,7 +22,7 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    Model "" 0 Dict.empty (Date.date 2017 1 1) -- TODO: init date with first picture date in current year
+    Model Nothing 0 Dict.empty (Date.date 2017 1 1)
         ! [ fetchPhotoMetadata ]
 
 
@@ -57,9 +60,19 @@ update msg model =
                 )
 
         PhotoMetadataLoaded (Err error) ->
-            ( { model | error = error |> httpErrorToString }
+            ( { model | error = Just (error |> httpErrorToString) }
             , Cmd.none
             )
 
         ShowPhotosForDate date ->
-            ( { model | dateShown = date }, Cmd.none )
+            ( { model | dateShown = date }
+            , (Task.attempt scrollResult (Dom.Scroll.toTop "photos"))
+            )
+
+        ScrollPhotosFinished ->
+            ( model, Cmd.none )
+
+
+scrollResult : Result Dom.Error () -> Msg
+scrollResult result =
+    ScrollPhotosFinished
