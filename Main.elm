@@ -29,22 +29,23 @@ init =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        -- TODO: don't fetch metadata every time
         Increment ->
-            ( { model | dateShown = addYear 1 model.photoMetadata model.dateShown }
-            , fetchPhotoMetadata
+            ( { model | dateShown =
+                    addYear 1 model.photoMetadata model.dateShown }
+            , Cmd.none
             )
 
         Decrement ->
-            ( { model | dateShown = addYear -1 model.photoMetadata model.dateShown }
-            , fetchPhotoMetadata
+            ( { model | dateShown =
+                    addYear -1 model.photoMetadata model.dateShown }
+            , Cmd.none
             )
 
         PhotoMetadataLoaded (Ok csv) ->
             let
                 metadata : MetadataDict
                 metadata =
-                    Types.buildMeta (year model.dateShown) csv
+                    Types.buildMeta csv
 
                 dateShown =
                     dateOfFirstPhotoOfYear (year model.dateShown) metadata

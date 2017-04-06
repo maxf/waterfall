@@ -96,19 +96,26 @@ viewDate offset weekNumber model dayOfWeek =
 
         dateCol =
             dateColour dateToDisplay model.photoMetadata
+
+        class_ =
+            class (monthClass ++ " " ++ shownDateClass)
+
+        style_ =
+            style [("background-color", (Tuple.first dateCol))]
+
+        title_ =
+            title ((dateCol |> Tuple.second |> toString) ++ " photos")
+
+        onClick_ =
+            onClick (ShowPhotosForDate dateToDisplay)
+
     in
-        td
-            [ class (monthClass ++ " " ++ shownDateClass)
-            , style [("background-color", (Tuple.first dateCol))]
-            , title ((dateCol |> Tuple.second |> toString) ++ " photos")
-            , onClick (ShowPhotosForDate dateToDisplay)
-            ]
-            [ if Date.year dateToDisplay == Date.year model.dateShown then
-                -- only show day if this date is in the current year
-                text (calendarDate dateToDisplay)
-              else
-                text ""
-            ]
+        if Date.year dateToDisplay == Date.year model.dateShown then
+            td
+                [ class_, style_, title_, onClick_ ]
+                [ text (calendarDate dateToDisplay) ]
+        else
+            td [] [ text "" ]
 
 
 viewWeek : Int -> Model -> WeekNumber -> Html Msg

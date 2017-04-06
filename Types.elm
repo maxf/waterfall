@@ -21,7 +21,6 @@ type alias CsvData = String
 
 -- Date as a string in Exif Format: YYYY:MM:DD HH:MM:SS
 -- Should be a Date, but Date isn't a comparable type
--- TODO: try using milliseconds
 type alias ExifDate =
     String
 
@@ -104,31 +103,23 @@ addToMetadataDict twoStrings dict =
                 dict
 
 
-buildMeta : Year -> String -> MetadataDict
-buildMeta year csvString =
-    let
-        validDateRecord : List String -> Bool
-        validDateRecord l =
-            case l of
-                [ filename, dateString ] ->
-                    String.left 4 dateString == toString year
-
-                _ -> False
-    in
-        csvString
-            |> Csv.parse
-            |> .records -- [ ["name1", "date1"], ["name2", "date1"], ["name3", "date2"]]
-            -- TODO: Sort by date string
-            |> List.filter validDateRecord
-            |> List.foldl addToMetadataDict Dict.empty
+buildMeta : CsvData -> MetadataDict
+buildMeta csvString =
+    csvString
+        |> Csv.parse
+        |> .records
+        |> List.foldl addToMetadataDict Dict.empty
 
 
 dateOfFirstPhotoOfYear : Year -> MetadataDict -> Date
 dateOfFirstPhotoOfYear year metadata =
     metadata
         |> keys
-        |> List.head |> Maybe.withDefault "01:01:1970"
-        |> dateStringToDate |> Maybe.withDefault (Date.date 1 1 year)
+        |> List.filter (\key -> (String.left 4 key) == (toString year))
+        |> List.head
+        |> Maybe.withDefault ((toString year) ++ ":01:01")
+        |> dateStringToDate
+        |> Maybe.withDefault (Date.date 1 1 year)
 
 
 
