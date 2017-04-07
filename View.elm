@@ -97,16 +97,15 @@ dateStyle dateToDisplay model =
             dateColour dateToDisplay model.photoMetadata
 
         overrideBorderBottom =
-            if isInLastWeekOfMonth dateToDisplay then
-                ( "border-bottom", "5px solid black" )
-            else
-                ( "", "" )
+            ("border-bottom"
+            , if isInLastWeekOfMonth dateToDisplay then "5px solid black" else ""
+            )
 
         overrideBorderRight =
-            if isLastDayOfMonth dateToDisplay then
-                ( "border-right", "5px solid black" )
-            else
-                ( "", "" )
+            ("border-right"
+            , if isLastDayOfMonth dateToDisplay then "5px solid black" else ""
+            )
+
     in
         [("background-color", (Tuple.first dateCol))
         , overrideBorderBottom
