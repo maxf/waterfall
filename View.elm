@@ -1,5 +1,5 @@
 module View exposing (view)
-import Html exposing (Html, button, div, text, h1, table, thead, tbody, tr, td, th, span)
+import Html exposing (..)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (class, style, title)
 import List exposing (..)
@@ -18,26 +18,13 @@ newYearsDayOffset year =
             Date.weekday (Date.date year 1 1)
     in
         case newYearsDayWeekDay of
-            Mon ->
-                5
-
-            Tue ->
-                4
-
-            Wed ->
-                3
-
-            Thu ->
-                2
-
-            Fri ->
-                1
-
-            Sat ->
-                0
-
-            Sun ->
-                -1
+            Mon -> 5
+            Tue -> 4
+            Wed -> 3
+            Thu -> 2
+            Fri -> 1
+            Sat -> 0
+            Sun -> -1
 
 
 calendarDate : Date.Date -> String
@@ -121,10 +108,7 @@ viewDate offset weekNumber model dayOfWeek =
                 |> Date.addDays (7 * (weekNumber - 1) + dayOfWeek + 1 + offset)
 
         monthClass =
-            if (Date.month dateToDisplay) % 2 == 0 then
-                "odd"
-            else
-                "even"
+            if (Date.month dateToDisplay) % 2 == 0 then "odd" else "even"
 
         -- if the day to draw is the day of the photos shown
         -- mark it with class 'today'
@@ -144,12 +128,12 @@ viewDate offset weekNumber model dayOfWeek =
 
 viewWeek : Int -> Model -> WeekNumber -> Html Msg
 viewWeek offset model weekNumber =
-    tr [] (map (viewDate offset weekNumber model) (range 1 7))
+    tr [] (List.map (viewDate offset weekNumber model) (range 1 7))
 
 
 viewWeeks : Int -> Model -> List (Html Msg)
 viewWeeks offset model =
-    map (viewWeek offset model) (range 0 52)
+    List.map (viewWeek offset model) (range 0 52)
 
 
 viewYearButtons : Year -> Html Msg
