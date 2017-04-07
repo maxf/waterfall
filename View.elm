@@ -1,5 +1,5 @@
 module View exposing (view)
-import Html exposing (Html, button, div, text, h1, table, thead, tbody, tr, td, th)
+import Html exposing (Html, button, div, text, h1, table, thead, tbody, tr, td, th, span)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (class, style, title)
 import List exposing (..)
@@ -152,6 +152,15 @@ viewWeeks offset model =
     map (viewWeek offset model) (range 0 52)
 
 
+viewYearButtons : Year -> Html Msg
+viewYearButtons year =
+    div []
+        [ button [ onClick Decrement ] [ text ( toString (year - 1)) ]
+        , span [] [ text " ... " ]
+        , button [ onClick Increment ] [ text ( toString (year + 1)) ]
+        ]
+
+
 viewCalendar : Model -> Html Msg
 viewCalendar model =
     let
@@ -163,9 +172,8 @@ viewCalendar model =
     in
         div
             [ class "calendar" ]
-            [ button [ onClick Decrement ] [ text "-" ]
-            , button [ onClick Increment ] [ text "+" ]
-            , h1 [] [ text (toString yearToDisplay) ]
+            [ h1 [] [ text (toString yearToDisplay) ]
+            , viewYearButtons yearToDisplay
             , table []
                 [ thead []
                     [ tr []
@@ -180,7 +188,9 @@ viewCalendar model =
                     ]
                 , tbody [] (viewWeeks offset model)
                 ]
+            , viewYearButtons yearToDisplay
             ]
+
 
 viewError : Maybe ErrorMessage -> Html Msg
 viewError message =

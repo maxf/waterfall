@@ -24,7 +24,9 @@ monthName date =
 
 dateToString : Date -> String
 dateToString date =
-    (date |> day |> toString) ++ " " ++ (date |> monthName)
+    (date |> day |> toString) ++ " "
+    ++ (date |> monthName) ++ " "
+    ++ (date |> year |> toString)
 
 
 dateToExifString : Date -> String
