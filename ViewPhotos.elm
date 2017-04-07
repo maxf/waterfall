@@ -1,14 +1,17 @@
 module ViewPhotos exposing (viewPhotos)
 import Html exposing (..)
-import Html.Attributes exposing (class, style, title, src, id)
+import Html.Attributes exposing (class, style, title, src, id, value)
 import Types exposing (..)
 import DateUtils exposing (..)
+import Time.Date as Date exposing (Weekday(..))
+import Html.Events exposing (onClick)
 import Dict
 
 
 --------------------------------------------------------------------------------
 -- View functions
 --------------------------------------------------------------------------------
+
 
 viewPhotos : Model -> Html Msg
 viewPhotos model =
@@ -18,13 +21,16 @@ viewPhotos model =
 
         datePhotos =
             Dict.get dateExifString model.photoMetadata
+
     in
         div
             [ id "photos" ]
             [ h1 [] [ model.dateShown |> dateToString |> text ]
+            , viewPrevNextButtons model.dateShown
             , case datePhotos of
                 Nothing -> div [] [ text "No photos for that date" ]
                 Just photos -> div [] [ viewPictureList photos ]
+            , viewPrevNextButtons model.dateShown
             ]
 
 
@@ -44,3 +50,23 @@ viewPicture metadata =
     li
         []
         [ img [ src metadata.fileName ] [] ]
+
+
+viewOtherDayButton : String -> Date.Date -> Int -> Html Msg
+viewOtherDayButton label date offset =
+    let
+        day =
+            Date.addDays offset date
+    in
+        button
+            [ onClick (ShowPhotosForDate day) ]
+            [ text (label ++ " (" ++ (dateToString day) ++ ")") ]
+
+
+viewPrevNextButtons : Date.Date -> Html Msg
+viewPrevNextButtons date =
+    div []
+        [ viewOtherDayButton "Previous" date -1
+        , span [] [ text "..." ]
+        , viewOtherDayButton "Next" date 1
+        ]
