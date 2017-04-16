@@ -47,7 +47,6 @@ dateColour date metadata =
             Nothing -> ( "", 0 )
             Just r ->
                 let
-                    numPix = List.length r
                     shade =
                         220 - (220 * (min 1 ((List.length r |> toFloat) / 50)))
                           |> toString
