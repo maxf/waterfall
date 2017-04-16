@@ -5,4 +5,5 @@ repl-temp-*
 
 elm.js
 metadata.csv
-
+node_modules
+.tern-port
