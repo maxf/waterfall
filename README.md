@@ -22,8 +22,11 @@ $ ./extract-dates.sh /folder/where/pictures/are/ > metadata.csv
 
 ## Todo
 
+- optional UI change : big calendar
+- delete photos
 - pop up 'back to top' button on scroll down
 - Single URL for each photo
+- Make next/prev day buttons link to next/prev day that has photos
 - Electron
 - script with progress bar
 - allow user to delete pictures
