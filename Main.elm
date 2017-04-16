@@ -73,6 +73,9 @@ update msg model =
         ScrollPhotosFinished ->
             ( model, Cmd.none )
 
+        DeletePhoto metadata ->
+            ( model |> removePhotoFromModel metadata, Cmd.none )
+
 
 scrollResult : Result Dom.Error () -> Msg
 scrollResult result =

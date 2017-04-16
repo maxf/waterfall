@@ -49,7 +49,9 @@ viewPicture : PhotoMetadata -> Html Msg
 viewPicture metadata =
     li
         []
-        [ img [ src metadata.fileName ] [] ]
+        [ img [ src metadata.fileName ] []
+        , button [ onClick (DeletePhoto metadata) ] [ text "Erase" ]
+        ]
 
 
 viewOtherDayButton : String -> Date.Date -> Int -> Html Msg

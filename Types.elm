@@ -38,12 +38,14 @@ type alias Model =
     , dateShown : Date
     }
 
+
 type Msg
     = Increment
     | Decrement
     | PhotoMetadataLoaded (Result Http.Error CsvData)
     | ShowPhotosForDate Date
     | ScrollPhotosFinished
+    | DeletePhoto PhotoMetadata
 
 
 type alias PhotoMetadata =
@@ -127,3 +129,40 @@ dateOfFirstPhotoOfYear year metadata =
 addYear: Year -> MetadataDict -> Date -> Date
 addYear increment metadata date =
     dateOfFirstPhotoOfYear ((Date.year date) + increment) metadata
+
+
+-- Remove a photo from the model
+removePhotoFromModel : PhotoMetadata -> Model -> Model
+removePhotoFromModel metadata model =
+    { model | photoMetadata = removePhoto metadata model.photoMetadata }
+
+
+removePhoto : PhotoMetadata -> MetadataDict -> MetadataDict
+removePhoto metadata dict =
+    -- find the dict entry with the photo
+    -- remove the photo from the array
+    -- if array empty, remove dict entry
+    let
+        date = String.left 10 metadata.dateCreated
+        dictEntry = get date dict
+    in
+        case dictEntry of
+            Nothing ->
+                let
+                    _ = Debug.log
+                        "Error: trying to delete non-existent photo"
+                        metadata
+                in
+                    dict
+
+            Just list ->
+                -- a list of PhotoMetadata including the one we want to remove
+                let
+                    newList =
+                        List.filter (\m -> m.fileName /= metadata.fileName) list
+                in
+                    if newList == [] then
+                        remove date dict
+                    else
+                        -- replace by inserting at same key
+                        insert date newList dict
