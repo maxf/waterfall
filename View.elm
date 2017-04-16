@@ -49,7 +49,7 @@ dateColour date metadata =
                 let
                     shade =
                         220 - (220 * (min 1 ((List.length r |> toFloat) / 50)))
-                          |> toString
+                          |> floor |> toString
                 in
                     ( "rgb(" ++ shade ++ ",255, " ++ shade ++ ")"
                     , List.length r
@@ -91,7 +91,6 @@ dateStyle dateToDisplay model =
             ("border-right"
             , if isLastDayOfMonth dateToDisplay then "5px solid black" else ""
             )
-
     in
         [("background-color", (Tuple.first dateCol))
         , overrideBorderBottom
