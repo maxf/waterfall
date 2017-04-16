@@ -138,7 +138,7 @@ viewWeeks offset model =
 
 viewYearButtons : Year -> Html Msg
 viewYearButtons year =
-    div []
+    div [ class "year-buttons" ]
         [ button [ onClick Decrement ] [ text ( toString (year - 1)) ]
         , span [] [ text " ... " ]
         , button [ onClick Increment ] [ text ( toString (year + 1)) ]

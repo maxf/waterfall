@@ -4,12 +4,14 @@
     <style>
      html {
        font-family: helvetica;
+       background: #000;
      }
      body {
        margin: 0;
      }
      table {
        border-collapse: collapse;
+       width: 100%;
      }
      td {
        border: 1px solid black;
@@ -27,6 +29,9 @@
      .outer {
        height: 100vh;
      }
+     .year-buttons {
+       width: 100%;
+     }
      .error {
        position: fixed;
        background: red;
@@ -42,19 +47,25 @@
      }
      .calendar {
        background: white;
-       width: 22%;
+       max-width: 20%;
        overflow: auto;
        max-height: 100vh;
        padding: 1em;
+     }
+     .year-buttons button {
+       width: 0;
+       padding: 0;
      }
      #photos {
        margin: 1em;
        flex: 1;
        overflow-y: scroll;
        max-height: 100vh;
+       color: white;
      }
      #photos ul {
        padding: 0;
+       text-align: center;
      }
      #photos li {
        list-style-type: none;
