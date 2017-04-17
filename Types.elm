@@ -46,6 +46,7 @@ type Msg
     | ShowPhotosForDate Date
     | ScrollPhotosFinished
     | DeletePhoto PhotoMetadata
+    | DeletePhotoResult Bool
 
 
 type alias PhotoMetadata =

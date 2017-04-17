@@ -1,4 +1,4 @@
-module Main exposing (..)
+port module Main exposing (..)
 import Rest exposing (..)
 import Types exposing (..)
 import Html
@@ -74,8 +74,29 @@ update msg model =
             ( model, Cmd.none )
 
         DeletePhoto metadata ->
-            ( model |> removePhotoFromModel metadata, Cmd.none )
+            ( model |> removePhotoFromModel metadata
+            , deletePhoto metadata.fileName
+            )
 
+        DeletePhotoResult isSuccess ->
+            ( model, Cmd.none) -- TODO: handle errors
+
+
+-- ports
+
+port deletePhoto : String -> Cmd msg
+
+
+-- subscriptions
+
+port deletePhotoResult : (Bool -> msg) -> Sub msg
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+  deletePhotoResult DeletePhotoResult
+
+
+-- Misc
 
 scrollResult : Result Dom.Error () -> Msg
 scrollResult result =
