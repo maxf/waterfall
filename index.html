@@ -83,20 +83,13 @@
     <div id="main">
     </div>
     <script>
-     // move away node requires which interferes with Elm
-     if (window.require) window.nodeRequire = require;
-     delete window.require;
-     delete window.exports;
-     delete window.module;
-    </script>
-    <script src="elm.js"></script>
-    <script>
-     files = window.nodeRequire('./files');
+     files = window.require('./files');
+     Elm = window.require('./elm');
      var node = document.getElementById('main');
      var app = Elm.Main.embed(node);
      app.ports.deletePhoto.subscribe(function(fileName) {
-       var outcome = files.deleteFile(fileName)
-       app.ports.deletePhotoResult.send(outcome);
+       var fileDeleted = files.deleteFile(fileName)
+       app.ports.deletePhotoResult.send(fileDeleted);
      });
     </script>
   </body>

@@ -46,7 +46,7 @@ type Msg
     | ShowPhotosForDate Date
     | ScrollPhotosFinished
     | DeletePhoto PhotoMetadata
-    | DeletePhotoResult Bool
+    | DeletePhotoResult String
 
 
 type alias PhotoMetadata =
@@ -133,37 +133,20 @@ addYear increment metadata date =
 
 
 -- Remove a photo from the model
-removePhotoFromModel : PhotoMetadata -> Model -> Model
-removePhotoFromModel metadata model =
-    { model | photoMetadata = removePhoto metadata model.photoMetadata }
+
+removePhotoFromModel : FileName -> Model -> Model
+removePhotoFromModel fileName model =
+    { model | photoMetadata = removePhotoFromDict fileName model.photoMetadata }
 
 
-removePhoto : PhotoMetadata -> MetadataDict -> MetadataDict
-removePhoto metadata dict =
-    -- find the dict entry with the photo
-    -- remove the photo from the array
-    -- if array empty, remove dict entry
+-- remove the metadata entry of photo with fileName from the dict passed
+removePhotoFromDict : FileName -> MetadataDict -> MetadataDict
+removePhotoFromDict fileName dict =
     let
-        date = String.left 10 metadata.dateCreated
-        dictEntry = get date dict
+        removePhoto2 fileName date list =
+            List.filter (\m -> m.fileName /= fileName) list
     in
-        case dictEntry of
-            Nothing ->
-                let
-                    _ = Debug.log
-                        "Error: trying to delete non-existent photo"
-                        metadata
-                in
-                    dict
-
-            Just list ->
-                -- a list of PhotoMetadata including the one we want to remove
-                let
-                    newList =
-                        List.filter (\m -> m.fileName /= metadata.fileName) list
-                in
-                    if newList == [] then
-                        remove date dict
-                    else
-                        -- replace by inserting at same key
-                        insert date newList dict
+        dict
+            |> Dict.map (removePhoto2 fileName)
+            -- and remove empty dict entries
+            |> Dict.filter (\date metadata -> List.length metadata /= 0)

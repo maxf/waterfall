@@ -16,7 +16,7 @@ main =
         { view = View.view
         , update = update
         , init = init
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }
 
 
@@ -74,12 +74,13 @@ update msg model =
             ( model, Cmd.none )
 
         DeletePhoto metadata ->
-            ( model |> removePhotoFromModel metadata
-            , deletePhoto metadata.fileName
-            )
+            ( model, deletePhoto metadata.fileName )
 
-        DeletePhotoResult isSuccess ->
-            ( model, Cmd.none) -- TODO: handle errors
+        DeletePhotoResult deletedPhotoFileName ->
+            if deletedPhotoFileName /= "" then
+                ( model |> removePhotoFromModel deletedPhotoFileName, Cmd.none )
+            else
+                ( model, Cmd.none )
 
 
 -- ports
@@ -89,7 +90,8 @@ port deletePhoto : String -> Cmd msg
 
 -- subscriptions
 
-port deletePhotoResult : (Bool -> msg) -> Sub msg
+port deletePhotoResult : (String -> msg) -> Sub msg
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
