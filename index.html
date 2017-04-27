@@ -83,13 +83,18 @@
     <div id="main">
     </div>
     <script>
-     files = window.require('./files');
-     Elm = window.require('./elm');
-     var node = document.getElementById('main');
-     var app = Elm.Main.embed(node);
+     const files = window.require('./files');
+     const Elm = window.require('./elm');
+     const node = document.getElementById('main');
+     const app = Elm.Main.embed(node);
+
      app.ports.deletePhoto.subscribe(function(fileName) {
-       var fileDeleted = files.deleteFile(fileName)
+       const fileDeleted = files.deleteFile(fileName)
        app.ports.deletePhotoResult.send(fileDeleted);
+     });
+     app.ports.scanPhotos.subscribe(function(dir) {
+       const fileNames = files.getPhotos(dir);
+       app.ports.scanPhotosResult.send(fileNames);
      });
     </script>
   </body>

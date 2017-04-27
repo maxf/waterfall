@@ -1,5 +1,7 @@
 (function() {
-  fs = require('fs');
+  const fs = require('fs');
+  const exif = require('exif-parser');
+
 
   function doDeleteFile(filepath) {
     console.log('deleting', filepath);
@@ -26,6 +28,34 @@
     return reallyDelete ? doDeleteFile(filePath) : "";
   }
 
-  module.exports = { deleteFile : deleteFile };
+
+  // read all the photos, extract exif information, return a csv as:
+  // name, create_date
+  // "/home/mf/Pictures/MEGA/R0010245_20170401085226.JPG","2017:04:01 08:52:21"
+  // "/home/mf/Pictures/MEGA/2017-02-22 14.12.10.jpg","2017:02:22 14:12:00"
+
+  function readCreateDate(path) {
+    const file = fs.readFileSync(path);
+    const parser = exif.create(file);
+    const exifData = exif.create(file).parse();
+    return exifData.tags.CreateDate;
+  }
+
+
+  function getPhotos(photosDir) {
+    return fs
+      .readdirSync(photosDir)
+      .filter(fileName => /\.(jpg|JPG|jpeg|JPEG)$/.test(fileName))
+      .map(fileName => {
+        const date = readCreateDate(photosDir + '/'+fileName);
+        return photosDir + '/' + fileName + '__' + date;
+      })
+      ;
+  }
+
+  module.exports = {
+    deleteFile : deleteFile,
+    getPhotos: getPhotos
+  };
 
 }());

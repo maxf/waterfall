@@ -1,62 +1,66 @@
 module Types exposing (..)
 
 import List exposing (..)
-import String exposing (toInt)
-import Result exposing (withDefault)
+import String exposing (toInt, split)
 import Dict exposing (..)
-import Csv
-import Time.Date as Date exposing (Date)
-import DateUtils exposing (..)
 import Regex exposing (..)
-import Http
+import Time.DateTime as DateTime exposing (..)
 
-type alias Year = Int
-type alias WeekNumber = Int
-type alias DayOfWeek = Int
-type alias DayOfMonth = Int
-type alias FileName = String
-type alias ErrorMessage = String
-type alias CsvField = String
-type alias CsvData = String
 
--- Date as a string in Exif Format: YYYY:MM:DD HH:MM:SS
--- Should be a Date, but Date isn't a comparable type
-type alias ExifDate =
+type alias Year =
+    Int
+
+
+type alias WeekNumber =
+    Int
+
+
+type alias DayOfWeek =
+    Int
+
+
+type alias DayOfMonth =
+    Int
+
+
+type alias FileName =
     String
 
-isValidExifDate : ExifDate -> Bool
-isValidExifDate date =
-    contains
-        (regex "^\\d{4}:\\d{2}:\\d{2} \\d{2}:\\d{2}:\\d{2}$")
-        date
+
+type alias ErrorMessage =
+    String
+
+
+type alias SecondsSinceEpoch =
+    Int
 
 
 type alias Model =
     { error : Maybe ErrorMessage
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
-    , dateShown : Date
+    , dateShown : DateTime
     }
 
 
 type Msg
     = Increment
     | Decrement
-    | PhotoMetadataLoaded (Result Http.Error CsvData)
-    | ShowPhotosForDate Date
+    | ShowPhotosForDate DateTime
     | ScrollPhotosFinished
     | DeletePhoto PhotoMetadata
     | DeletePhotoResult String
+    | ScanPhotosResult (List String)
 
 
 type alias PhotoMetadata =
     { fileName : FileName
-    , dateCreated : ExifDate
+    , dateCreated : SecondsSinceEpoch
     }
 
 
-type alias MetadataDict
-    = Dict ExifDate (List PhotoMetadata)
+type alias MetadataDict =
+    Dict SecondsSinceEpoch (List PhotoMetadata)
 
 
 maxNbPictures : MetadataDict -> Int
@@ -66,80 +70,162 @@ maxNbPictures dict =
         |> List.foldl (\l a -> max (List.length l) a) 0
 
 
-addPhotoMetadata : PhotoMetadata
-                 -> Maybe (List PhotoMetadata)
-                 -> Maybe (List PhotoMetadata)
+addPhotoMetadata :
+    PhotoMetadata
+    -> Maybe (List PhotoMetadata)
+    -> Maybe (List PhotoMetadata)
 addPhotoMetadata metadata dict =
     case dict of
-        Nothing -> Just [ metadata ]
-        Just list -> Just (metadata :: list)
+        Nothing ->
+            Just [ metadata ]
+
+        Just list ->
+            Just (metadata :: list)
 
 
-stringsToMetadata : List CsvField -> Result ErrorMessage PhotoMetadata
-stringsToMetadata csvFields =
-    case csvFields of
-        [ fileName, dateCreated ] ->
-            if isValidExifDate dateCreated then
-                Ok (PhotoMetadata fileName dateCreated)
-            else
-                Err ("Bad exif date: " ++ dateCreated)
-
-        _ ->
-            Err (
-                "Bad number of CSV fields to photo metadata: " ++
-                 (csvFields |> toString)
-            )
-
-
-addToMetadataDict : List CsvField -> MetadataDict -> MetadataDict
-addToMetadataDict twoStrings dict =
+roundToStartOfDay : SecondsSinceEpoch -> SecondsSinceEpoch
+roundToStartOfDay seconds =
     let
-        newMetadata = stringsToMetadata twoStrings
+        date : DateTime
+        date =
+            addSeconds seconds epoch
+
+        midnight : DateTime
+        midnight =
+            dateTime
+                { zero
+                    | year = date |> year
+                    , month = date |> month
+                    , day = date |> day
+                }
+    in
+        midnight |> toSeconds
+
+
+stringToMetadata : String -> Result ErrorMessage PhotoMetadata
+stringToMetadata metadataString =
+    let
+        matches =
+            Regex.find All (regex "^(.*)__([0-9]+)$") metadataString
+    in
+        case matches of
+            [ match ] ->
+                case match.submatches of
+                    [ Just fileName, Just epochDateCreated ] ->
+                        case String.toInt epochDateCreated of
+                            Ok seconds ->
+                                Ok
+                                (PhotoMetadata
+                                     fileName
+                                     (roundToStartOfDay seconds)
+                                )
+                            Err err ->
+                                Err err
+
+                    _ ->
+                        Err ("Couldn't parse " ++ metadataString)
+
+            _ ->
+                Err ("No matches for " ++ metadataString)
+
+
+addToMetadataDict : String -> MetadataDict -> MetadataDict
+addToMetadataDict metadataString dict =
+    let
+        newMetadata =
+            stringToMetadata metadataString
     in
         case newMetadata of
             Ok metadata ->
                 Dict.update
-                    (String.left 10 metadata.dateCreated)
+                    metadata.dateCreated
                     (addPhotoMetadata metadata)
                     dict
+
             Err message ->
                 dict
 
 
-buildMeta : CsvData -> MetadataDict
-buildMeta csvString =
-    csvString
-        |> Csv.parse
-        |> .records
+yearOfDate : SecondsSinceEpoch -> Year
+yearOfDate seconds =
+    addSeconds seconds epoch |> year
+
+
+dateToString : DateTime -> String
+dateToString date =
+    ((date |> day |> toString)
+        ++ "/"
+        ++ (date |> month |> toString)
+        ++ "/"
+        ++ (date |> year |> toString)
+    )
+
+
+toSeconds : DateTime -> SecondsSinceEpoch
+toSeconds date =
+    (round (toTimestamp date)) // 1000
+
+
+newYearsSeconds : Year -> SecondsSinceEpoch
+newYearsSeconds year =
+    toSeconds (dateTime { zero | year = year })
+
+
+
+-- format of string : "photo name.jpg__29482348"
+-- the number is the epoch of the photo's takenDate
+
+
+buildMeta : List String -> MetadataDict
+buildMeta list =
+    -- csvString
+    --     |> Csv.parse
+    --     |> .records
+    --     |> List.foldl addToMetadataDict Dict.empty
+    list
         |> List.foldl addToMetadataDict Dict.empty
 
 
-dateOfFirstPhotoOfYear : Year -> MetadataDict -> Date
+dateOfFirstPhotoOfYear : Year -> MetadataDict -> DateTime
 dateOfFirstPhotoOfYear year metadata =
-    metadata
-        |> keys
-        |> List.filter (\key -> (String.left 4 key) == (toString year))
-        |> List.head
-        |> Maybe.withDefault ((toString year) ++ ":01:01")
-        |> dateStringToDate
-        |> Maybe.withDefault (Date.date 1 1 year)
+    let
+        firstPhotoSeconds =
+            metadata
+                |> keys
+                |> List.filter (\key -> yearOfDate key == year)
+                |> List.sort
+                |> List.head
+    in
+        case firstPhotoSeconds of
+            Nothing ->
+                dateTime { zero | year = year }
+
+            Just seconds ->
+                addSeconds seconds epoch
 
 
 
 -- Return the date of the first picture of the incremented date
-addYear: Year -> MetadataDict -> Date -> Date
+
+
+addYear : Year -> MetadataDict -> DateTime -> DateTime
 addYear increment metadata date =
-    dateOfFirstPhotoOfYear ((Date.year date) + increment) metadata
+    dateOfFirstPhotoOfYear ((year date) + increment) metadata
+
 
 
 -- Remove a photo from the model
+
 
 removePhotoFromModel : FileName -> Model -> Model
 removePhotoFromModel fileName model =
     { model | photoMetadata = removePhotoFromDict fileName model.photoMetadata }
 
 
+
 -- remove the metadata entry of photo with fileName from the dict passed
+
+
 removePhotoFromDict : FileName -> MetadataDict -> MetadataDict
 removePhotoFromDict fileName dict =
     let

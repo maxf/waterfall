@@ -3,19 +3,19 @@ import Html exposing (..)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (class, style, title)
 import List exposing (..)
-import Time.Date as Date exposing (Weekday(..))
+import Time.DateTime as DateTime exposing (..)
+import Time.Date exposing (Weekday(..))
 import Types exposing (..)
 import Dict
 
 import ViewPhotos exposing (viewPhotos)
-import DateUtils exposing (..)
 
 
 newYearsDayOffset : Year -> Int
 newYearsDayOffset year =
     let
         newYearsDayWeekDay =
-            Date.weekday (Date.date year 1 1)
+            weekday (dateTime { zero | year = year, month = 1, day = 1 })
     in
         case newYearsDayWeekDay of
             Mon -> 5
@@ -27,21 +27,21 @@ newYearsDayOffset year =
             Sun -> -1
 
 
-calendarDate : Date.Date -> String
+calendarDate : DateTime -> String
 calendarDate date =
-    (Date.day date |> toString)
+    day date |> toString
 
 
-dateColour : Date.Date -> MetadataDict -> ( String, Int )
+dateColour : DateTime -> MetadataDict -> ( String, Int )
 dateColour date metadata =
     let
-        dateString : String
-        dateString =
-            dateToExifString date
+        dateSeconds : SecondsSinceEpoch
+        dateSeconds =
+            toSeconds date
 
         record : Maybe (List PhotoMetadata)
         record =
-            Dict.get dateString metadata
+            Dict.get dateSeconds metadata
     in
         case record of
             Nothing -> ( "", 0 )
@@ -55,20 +55,20 @@ dateColour date metadata =
                     , List.length r
                     )
 
-isInLastWeekOfMonth : Date.Date -> Bool
+isInLastWeekOfMonth : DateTime -> Bool
 isInLastWeekOfMonth date =
     let
-        nextWeek = Date.addDays 7 date
+        nextWeek = addDays 7 date
     in
-        Date.month date /= Date.month nextWeek
+        month date /= month nextWeek
 
 
-isLastDayOfMonth : Date.Date -> Bool
+isLastDayOfMonth : DateTime -> Bool
 isLastDayOfMonth date =
     let
-        nextDay = Date.addDays 1 date
+        nextDay = addDays 1 date
     in
-        Date.month date /= Date.month nextDay && Date.weekday date /= Sun
+        month date /= month nextDay && weekday date /= Sun
 
 --------------------------------------------------------------------------------
 -- HTML generating functions
@@ -76,7 +76,7 @@ isLastDayOfMonth date =
 
 
 
-dateStyle : Date.Date -> Model -> List ( String, String )
+dateStyle : DateTime -> Model -> List ( String, String )
 dateStyle dateToDisplay model =
     let
         dateCol =
@@ -102,18 +102,18 @@ viewDate : Int -> WeekNumber -> Model -> DayOfWeek -> Html Msg
 viewDate offset weekNumber model dayOfWeek =
     let
         dateToDisplay =
-            Date.date (Date.year model.dateShown) 1 1
-                |> Date.addDays (7 * (weekNumber - 1) + dayOfWeek + 1 + offset)
+            dateTime { zero | year = year model.dateShown, month = 1, day = 1 }
+                |> addDays (7 * (weekNumber - 1) + dayOfWeek + 1 + offset)
 
         monthClass =
-            if (Date.month dateToDisplay) % 2 == 0 then "odd" else "even"
+            if (month dateToDisplay) % 2 == 0 then "odd" else "even"
 
         -- if the day to draw is the day of the photos shown
         -- mark it with class 'today'
         shownDateClass =
             if dateToDisplay == model.dateShown then "today" else ""
     in
-        if Date.year dateToDisplay == Date.year model.dateShown then
+        if year dateToDisplay == year model.dateShown then
             td
                 [ class (monthClass ++ " " ++ shownDateClass)
                 , style (dateStyle dateToDisplay model)
@@ -147,7 +147,7 @@ viewCalendar : Model -> Html Msg
 viewCalendar model =
     let
         yearToDisplay =
-            Date.year model.dateShown
+            year model.dateShown
 
         offset =
             newYearsDayOffset yearToDisplay

@@ -1,10 +1,9 @@
 port module Main exposing (..)
-import Rest exposing (..)
 import Types exposing (..)
 import Html
 import Dict
 import View
-import Time.Date as Date exposing (..)
+import Time.DateTime exposing (..)
 import Dom exposing (Error)
 import Dom.Scroll
 import Task
@@ -22,8 +21,9 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    Model Nothing 0 Dict.empty (Date.date 2017 1 1)
-        ! [ fetchPhotoMetadata ]
+    Model
+        Nothing 0 Dict.empty (dateTime { zero | year = 2016, month = 1, day = 1})
+        ! [ scanPhotos "/home/mf/Pictures/MEGA" ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -38,30 +38,6 @@ update msg model =
         Decrement ->
             ( { model | dateShown =
                     addYear -1 model.photoMetadata model.dateShown }
-            , Cmd.none
-            )
-
-        PhotoMetadataLoaded (Ok csv) ->
-            let
-                metadata : MetadataDict
-                metadata =
-                    Types.buildMeta csv
-
-                dateShown =
-                    dateOfFirstPhotoOfYear (year model.dateShown) metadata
-
-            in
-                (
-                   { model
-                   | photoMetadata = metadata
-                   , maxPicturesInADay = maxNbPictures metadata
-                   , dateShown = dateShown
-                   }
-                , Cmd.none
-                )
-
-        PhotoMetadataLoaded (Err error) ->
-            ( { model | error = Just (error |> httpErrorToString) }
             , Cmd.none
             )
 
@@ -82,20 +58,45 @@ update msg model =
             else
                 ( model, Cmd.none )
 
+        ScanPhotosResult fileList ->
+            let
+                metadata : MetadataDict
+                metadata =
+                    Types.buildMeta fileList
+
+                dateShown =
+                    dateOfFirstPhotoOfYear (year model.dateShown) metadata
+
+            in
+                (
+                   { model
+                   | photoMetadata = metadata
+                   , maxPicturesInADay = maxNbPictures metadata
+                   , dateShown = dateShown
+                   }
+                , Cmd.none
+                )
+
+
 
 -- ports
 
 port deletePhoto : String -> Cmd msg
-
+port scanPhotos : String -> Cmd msg
 
 -- subscriptions
 
 port deletePhotoResult : (String -> msg) -> Sub msg
+port scanPhotosResult : (List String -> msg) -> Sub msg
+
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  deletePhotoResult DeletePhotoResult
+    Sub.batch
+        [ deletePhotoResult DeletePhotoResult
+        , scanPhotosResult ScanPhotosResult
+        ]
 
 
 -- Misc
