@@ -5,43 +5,42 @@ A simple photo gallery
 ## Building
 
 ```
+$ npm install
 $ elm-package install -y
 $ elm-make --output elm.js Main.elm
 ```
 
 ## Running
 
-1. Generate picture index:
-
 ```
-$ ./extract-dates.sh /folder/where/pictures/are/ > metadata.csv
+$ ./node_modules/.bin/electron .
 ```
-
-2. Open the `index.html` file in a browser
-
 
 ## Todo
 
+- display message while photos are loading
+- dialog to select photo directory
+- save Model in Electron app storage
 - optional UI change : big calendar
-- delete photos
 - pop up 'back to top' button on scroll down
-- Single URL for each photo
 - Make next/prev day buttons link to next/prev day that has photos
-- Electron
-- script with progress bar
-- allow user to delete pictures
+- Package Electron app for download
 - view 360 pictures
-- Use milliseconds for ExifDate instead of Strings
-  (until DateTime becomes comparable)
+- photos in subdirectories
+
 
 ### Maybe
 
-- don't use a script, read photo metadata from browser
 - infinite scroll for calendar
-- make it work online (not just locally)
+- make it work online (not just as an app)
+- Single URL for each photo
 
 ### Done
 
 - Wrong order of photos for a specific day
 - clicking on a date should scroll photos back up but not calendar
 - delineate months
+- delete photos
+- Electron
+- Use seconds for createDate key
+- Read Exif data directly from photos
