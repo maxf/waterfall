@@ -175,10 +175,6 @@ newYearsSeconds year =
 
 buildMeta : List String -> MetadataDict
 buildMeta list =
-    -- csvString
-    --     |> Csv.parse
-    --     |> .records
-    --     |> List.foldl addToMetadataDict Dict.empty
     list
         |> List.foldl addToMetadataDict Dict.empty
 
