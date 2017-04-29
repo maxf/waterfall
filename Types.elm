@@ -115,10 +115,7 @@ stringToMetadata metadataString =
                         case String.toInt epochDateCreated of
                             Ok seconds ->
                                 Ok
-                                (PhotoMetadata
-                                     fileName
-                                     (roundToStartOfDay seconds)
-                                )
+                                (PhotoMetadata fileName seconds)
                             Err err ->
                                 Err err
 
@@ -138,7 +135,7 @@ addToMetadataDict metadataString dict =
         case newMetadata of
             Ok metadata ->
                 Dict.update
-                    metadata.dateCreated
+                    (roundToStartOfDay metadata.dateCreated)
                     (addPhotoMetadata metadata)
                     dict
 
