@@ -41,17 +41,31 @@
     return exifData.tags.CreateDate;
   }
 
+  const flatten = (arr) =>
+    arr.reduce(
+      (flat, toFlatten) =>
+        flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten),
+      []);
 
-  function getPhotos(photosDir) {
-    return fs
-      .readdirSync(photosDir)
-      .filter(fileName => /\.(jpg|JPG|jpeg|JPEG)$/.test(fileName))
-      .map(fileName => {
-        const date = readCreateDate(photosDir + '/'+fileName);
-        return photosDir + '/' + fileName + '__' + date;
-      })
-      ;
+
+  // return list of files in dir and all its subdirectories
+  const readdirRecursive = dir => {
+    const dirContents = fs
+      .readdirSync(dir)
+      .filter(name => !/^\./.test(name))
+      .map(name => {
+        const path = dir + '/' + name;
+        const stat = fs.statSync(path);
+        return stat.isDirectory() ? readdirRecursive(path) : (stat.isFile() ? path : '');
+      });
+    return flatten(dirContents)
+      .filter(name => /\.(jpg|JPG|jpeg|JPEG)$/.test(name));
   }
+
+  const getPhotos = photosDir =>
+    readdirRecursive(photosDir)
+      .map(path => path + '__' + readCreateDate(path));
+
 
   module.exports = {
     deleteFile : deleteFile,
