@@ -51,8 +51,13 @@ viewPicture : PhotoMetadata -> Html Msg
 viewPicture metadata =
     li
         []
-        [ img [ src metadata.fileName ] []
-        , button [ onClick (DeletePhoto metadata) ] [ text "Erase" ]
+        [ div
+            []
+            [ img [ src metadata.fileName ] []
+            , br [] []
+            , span [] [ metadata.fileName |> text ]
+            , button [ onClick (DeletePhoto metadata) ] [ text "Erase" ]
+            ]
         ]
 
 
