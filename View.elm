@@ -1,13 +1,14 @@
 module View exposing (view)
+
 import Html exposing (..)
-import Html.Events exposing (onClick)
-import Html.Attributes exposing (class, style, title)
+import Html.Events exposing (on, onClick, targetValue)
+import Html.Attributes exposing (class, style, title, type_, attribute)
 import List exposing (..)
 import Time.DateTime as DateTime exposing (..)
 import Time.Date exposing (Weekday(..))
 import Types exposing (..)
 import Dict
-
+import Json.Decode as Json
 import ViewPhotos exposing (viewPhotos)
 
 
@@ -18,13 +19,26 @@ newYearsDayOffset year =
             weekday (dateTime { zero | year = year, month = 1, day = 1 })
     in
         case newYearsDayWeekDay of
-            Mon -> 5
-            Tue -> 4
-            Wed -> 3
-            Thu -> 2
-            Fri -> 1
-            Sat -> 0
-            Sun -> -1
+            Mon ->
+                5
+
+            Tue ->
+                4
+
+            Wed ->
+                3
+
+            Thu ->
+                2
+
+            Fri ->
+                1
+
+            Sat ->
+                0
+
+            Sun ->
+                -1
 
 
 calendarDate : DateTime -> String
@@ -44,21 +58,27 @@ dateColour date metadata =
             Dict.get dateSeconds metadata
     in
         case record of
-            Nothing -> ( "", 0 )
+            Nothing ->
+                ( "", 0 )
+
             Just r ->
                 let
                     shade =
-                        220 - (220 * (min 1 ((List.length r |> toFloat) / 50)))
-                          |> floor |> toString
+                        220
+                            - (220 * (min 1 ((List.length r |> toFloat) / 50)))
+                            |> floor
+                            |> toString
                 in
                     ( "rgb(" ++ shade ++ ",255, " ++ shade ++ ")"
                     , List.length r
                     )
 
+
 isInLastWeekOfMonth : DateTime -> Bool
 isInLastWeekOfMonth date =
     let
-        nextWeek = addDays 7 date
+        nextWeek =
+            addDays 7 date
     in
         month date /= month nextWeek
 
@@ -66,14 +86,16 @@ isInLastWeekOfMonth date =
 isLastDayOfMonth : DateTime -> Bool
 isLastDayOfMonth date =
     let
-        nextDay = addDays 1 date
+        nextDay =
+            addDays 1 date
     in
         month date /= month nextDay && weekday date /= Sun
+
+
 
 --------------------------------------------------------------------------------
 -- HTML generating functions
 --------------------------------------------------------------------------------
-
 
 
 dateStyle : DateTime -> Model -> List ( String, String )
@@ -83,16 +105,22 @@ dateStyle dateToDisplay model =
             dateColour dateToDisplay model.photoMetadata
 
         overrideBorderBottom =
-            ("border-bottom"
-            , if isInLastWeekOfMonth dateToDisplay then "5px solid black" else ""
+            ( "border-bottom"
+            , if isInLastWeekOfMonth dateToDisplay then
+                "5px solid black"
+              else
+                ""
             )
 
         overrideBorderRight =
-            ("border-right"
-            , if isLastDayOfMonth dateToDisplay then "5px solid black" else ""
+            ( "border-right"
+            , if isLastDayOfMonth dateToDisplay then
+                "5px solid black"
+              else
+                ""
             )
     in
-        [("background-color", (Tuple.first dateCol))
+        [ ( "background-color", (Tuple.first dateCol) )
         , overrideBorderBottom
         , overrideBorderRight
         ]
@@ -106,12 +134,18 @@ viewDate offset weekNumber model dayOfWeek =
                 |> addDays (7 * (weekNumber - 1) + dayOfWeek + 1 + offset)
 
         monthClass =
-            if (month dateToDisplay) % 2 == 0 then "odd" else "even"
+            if (month dateToDisplay) % 2 == 0 then
+                "odd"
+            else
+                "even"
 
         -- if the day to draw is the day of the photos shown
         -- mark it with class 'today'
         shownDateClass =
-            if dateToDisplay == model.dateShown then "today" else ""
+            if dateToDisplay == model.dateShown then
+                "today"
+            else
+                ""
     in
         if year dateToDisplay == year model.dateShown then
             td
@@ -137,9 +171,9 @@ viewWeeks offset model =
 viewYearButtons : Year -> Html Msg
 viewYearButtons year =
     div [ class "year-buttons" ]
-        [ button [ onClick Decrement ] [ text ( toString (year - 1)) ]
+        [ button [ onClick Decrement ] [ text (toString (year - 1)) ]
         , span [] [ text " ... " ]
-        , button [ onClick Increment ] [ text ( toString (year + 1)) ]
+        , button [ onClick Increment ] [ text (toString (year + 1)) ]
         ]
 
 
@@ -178,19 +212,34 @@ viewError : Maybe ErrorMessage -> Html Msg
 viewError message =
     case message of
         Nothing ->
-            div [ style [("display", "none")] ] []
+            div [ style [ ( "display", "none" ) ] ] []
 
         Just error ->
             div [ class "error" ] [ text error ]
 
 
+onChange : (String -> msg) -> Attribute msg
+onChange tagger =
+    on "change" (Json.map tagger targetValue)
+
+
 view : Model -> Html Msg
 view model =
     div [ class "outer" ]
-        [ viewError model.error
-        , div
-            [ class "columns" ]
-            [ viewCalendar model
-            , viewPhotos model
+        (if model.photoDir == "" then
+            [ p [ style [("color", "white")]] [ text "Directory with pictures:" ]
+            , input
+                [ type_ "text"
+                , onChange DirSelected
+                ]
+                []
             ]
-        ]
+         else
+            [ viewError model.error
+            , div
+                [ class "columns" ]
+                [ viewCalendar model
+                , viewPhotos model
+                ]
+            ]
+        )

@@ -21,9 +21,14 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    Model
-        Nothing 0 Dict.empty (dateTime { zero | year = 2016, month = 1, day = 1})
-        ! [ scanPhotos "/home/mf/Pictures/MEGA" ]
+    (Model
+        ""
+         Nothing
+         0
+         Dict.empty
+         (dateTime { zero | year = 2016, month = 1, day = 1})
+    , Cmd.none
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -77,6 +82,8 @@ update msg model =
                 , Cmd.none
                 )
 
+        DirSelected path ->
+            ({ model | photoDir = path }, scanPhotos path)
 
 
 -- ports

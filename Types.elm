@@ -34,9 +34,13 @@ type alias ErrorMessage =
 type alias SecondsSinceEpoch =
     Int
 
+type alias DirectoryName =
+    String
+
 
 type alias Model =
-    { error : Maybe ErrorMessage
+    { photoDir : DirectoryName
+    , error : Maybe ErrorMessage
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
     , dateShown : DateTime
@@ -51,6 +55,7 @@ type Msg
     | DeletePhoto PhotoMetadata
     | DeletePhotoResult String
     | ScanPhotosResult (List String)
+    | DirSelected String
 
 
 type alias PhotoMetadata =
