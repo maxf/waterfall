@@ -8,7 +8,6 @@ import Time.DateTime as DateTime exposing (..)
 import Time.Date exposing (Weekday(..))
 import Types exposing (..)
 import Dict
-import Json.Decode as Json
 import ViewPhotos exposing (viewPhotos)
 
 
@@ -188,7 +187,8 @@ viewCalendar model =
     in
         div
             [ class "calendar" ]
-            [ h1 [] [ text (toString yearToDisplay) ]
+            [ button [ onClick RequestPhotoDir ] [ text "Choose folder" ]
+            , h1 [] [ text (toString yearToDisplay) ]
             , viewYearButtons yearToDisplay
             , table []
                 [ thead []
@@ -218,28 +218,14 @@ viewError message =
             div [ class "error" ] [ text error ]
 
 
-onChange : (String -> msg) -> Attribute msg
-onChange tagger =
-    on "change" (Json.map tagger targetValue)
-
-
 view : Model -> Html Msg
 view model =
-    div [ class "outer" ]
-        (if model.photoDir == "" then
-            [ p [ style [("color", "white")]] [ text "Directory with pictures:" ]
-            , input
-                [ type_ "text"
-                , onChange DirSelected
-                ]
-                []
-            ]
-         else
-            [ viewError model.error
-            , div
-                [ class "columns" ]
-                [ viewCalendar model
-                , viewPhotos model
-                ]
-            ]
-        )
+    div
+        [ class "outer" ]
+        [ viewError model.error
+        , div
+              [ class "columns" ]
+              [ viewCalendar model
+              , viewPhotos model
+              ]
+        ]

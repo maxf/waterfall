@@ -98,6 +98,10 @@
        const fileNames = files.getPhotos(dir);
        app.ports.scanPhotosResult.send(fileNames);
      });
+     app.ports.requestPhotoDir.subscribe(function() {
+       const dir = files.requestPhotoDir();
+       app.ports.requestPhotoDirResult.send(dir);
+     });
     </script>
   </body>
 </html>

@@ -55,7 +55,8 @@ type Msg
     | DeletePhoto PhotoMetadata
     | DeletePhotoResult String
     | ScanPhotosResult (List String)
-    | DirSelected String
+    | RequestPhotoDir
+    | RequestPhotoDirResult (List String)
 
 
 type alias PhotoMetadata =

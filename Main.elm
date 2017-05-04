@@ -82,26 +82,37 @@ update msg model =
                 , Cmd.none
                 )
 
-        DirSelected path ->
-            ({ model | photoDir = path }, scanPhotos path)
+        RequestPhotoDir ->
+            ( model, requestPhotoDir "" )
+
+        RequestPhotoDirResult paths ->
+            case paths of
+                [ path ] ->
+                    ({ model | photoDir = path }, scanPhotos path)
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 -- ports
 
 port deletePhoto : String -> Cmd msg
 port scanPhotos : String -> Cmd msg
+port requestPhotoDir : String -> Cmd msg
 
 -- subscriptions
 
 port deletePhotoResult : (String -> msg) -> Sub msg
 port scanPhotosResult : (List String -> msg) -> Sub msg
+port requestPhotoDirResult : (List String -> msg) -> Sub msg
 
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ deletePhotoResult DeletePhotoResult
+        [ requestPhotoDirResult RequestPhotoDirResult
+        , deletePhotoResult DeletePhotoResult
         , scanPhotosResult ScanPhotosResult
         ]
 

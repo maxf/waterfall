@@ -1,7 +1,7 @@
 (function() {
   const fs = require('fs');
   const exif = require('exif-parser');
-
+  const electron = require('electron').remote
 
   function doDeleteFile(filepath) {
     console.log('deleting', filepath);
@@ -63,13 +63,23 @@
   }
 
   const getPhotos = photosDir =>
-    readdirRecursive(photosDir)
+    photos = readdirRecursive(photosDir)
       .map(path => path + '__' + readCreateDate(path));
+
+  const requestPhotoDir = () =>
+    // https://github.com/electron/electron/blob/master/docs/api/dialog.md
+    electron.dialog.showOpenDialog(
+      {
+        properties: ['openDirectory'],
+        title: 'Please choose a directory with pictures'
+      }
+    ) || []
 
 
   module.exports = {
     deleteFile : deleteFile,
-    getPhotos: getPhotos
+    getPhotos: getPhotos,
+    requestPhotoDir : requestPhotoDir
   };
 
 }());
