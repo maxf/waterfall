@@ -193,14 +193,10 @@ viewCalendar model =
             , table []
                 [ thead []
                     [ tr []
-                        [ th [] [ text "M" ]
-                        , th [] [ text "T" ]
-                        , th [] [ text "W" ]
-                        , th [] [ text "T" ]
-                        , th [] [ text "F" ]
-                        , th [] [ text "S" ]
-                        , th [] [ text "S" ]
-                        ]
+                        (List.map
+                            (\d -> th [] [ text d ])
+                            [ "M", "T", "W", "T", "F", "S", "S" ]
+                        )
                     ]
                 , tbody [] (viewWeeks offset model)
                 ]
@@ -224,8 +220,8 @@ view model =
         [ class "outer" ]
         [ viewError model.error
         , div
-              [ class "columns" ]
-              [ viewCalendar model
-              , viewPhotos model
-              ]
+            [ class "columns" ]
+            [ viewCalendar model
+            , viewPhotos model
+            ]
         ]
