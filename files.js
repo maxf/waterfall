@@ -76,10 +76,20 @@
     ) || []
 
 
+  const saveMetadata = (metadata, cb) =>
+    fs.writeFile("/tmp/test.json", metadata, cb);
+
+  const loadMetadata = cb =>
+    fs.readFile("/tmp/test.json", cb);
+
+
+
   module.exports = {
     deleteFile : deleteFile,
     getPhotos: getPhotos,
-    requestPhotoDir : requestPhotoDir
+    requestPhotoDir : requestPhotoDir,
+    saveMetadata : saveMetadata,
+    loadMetadata : loadMetadata,
   };
 
 }());

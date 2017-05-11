@@ -90,17 +90,27 @@
      const node = document.getElementById('main');
      const app = Elm.Main.embed(node);
 
-     app.ports.deletePhoto.subscribe(function(fileName) {
+     app.ports.deletePhoto.subscribe(fileName => {
        const fileDeleted = files.deleteFile(fileName)
        app.ports.deletePhotoResult.send(fileDeleted);
      });
-     app.ports.scanPhotos.subscribe(function(dir) {
+     app.ports.scanPhotos.subscribe(dir => {
        const fileNames = files.getPhotos(dir);
        app.ports.scanPhotosResult.send(fileNames);
      });
-     app.ports.requestPhotoDir.subscribe(function() {
+     app.ports.requestPhotoDir.subscribe(() => {
        const dir = files.requestPhotoDir();
        app.ports.requestPhotoDirResult.send(dir);
+     });
+     app.ports.saveMetadata.subscribe(metadata => {
+       files.saveMetadata(metadata, err => {
+         app.ports.saveMetadataResult.send(!err);
+       })
+     });
+     app.ports.loadMetadata.subscribe(() => {
+       files.loadMetadata((err, data) => {
+         app.ports.loadMetadataResult.send(err ? "" : data.toString());
+       })
      });
     </script>
   </body>

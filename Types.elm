@@ -5,7 +5,7 @@ import String exposing (toInt, split)
 import Dict exposing (..)
 import Regex exposing (..)
 import Time.DateTime as DateTime exposing (..)
-
+import Json.Decode exposing (..)
 
 type alias Year =
     Int
@@ -34,6 +34,7 @@ type alias ErrorMessage =
 type alias SecondsSinceEpoch =
     Int
 
+
 type alias DirectoryName =
     String
 
@@ -57,6 +58,10 @@ type Msg
     | ScanPhotosResult (List String)
     | RequestPhotoDir
     | RequestPhotoDirResult (List String)
+    | SaveMetadata
+    | SaveMetadataResult Bool
+    | LoadMetadata
+    | LoadMetadataResult String
 
 
 type alias PhotoMetadata =
@@ -121,7 +126,8 @@ stringToMetadata metadataString =
                         case String.toInt epochDateCreated of
                             Ok seconds ->
                                 Ok
-                                (PhotoMetadata fileName seconds)
+                                    (PhotoMetadata fileName seconds)
+
                             Err err ->
                                 Err err
 
@@ -235,3 +241,42 @@ removePhotoFromDict fileName dict =
             |> Dict.map (removePhoto2 fileName)
             -- and remove empty dict entries
             |> Dict.filter (\date metadata -> List.length metadata /= 0)
+
+
+-- =============== addFileNames ================================================
+-- add a dict entry:
+--   (key, [{file1:, date1:}, {file2:, date2:} ])  as '(key, metadata)'
+-- to a list of strings
+--   ["file3__date3", "file4__date4", ...] as 'acc'
+-- returning:
+--   ["file1_date1, "file2__date2", "file3__date3", "file4__date4"]
+
+
+addFileNames :
+    SecondsSinceEpoch
+    -> List PhotoMetadata
+    -> List String
+    -> List String
+addFileNames key metadata acc =
+    let
+        newEntryNames =
+            List.map (\m -> m.fileName ++ "__" ++ (toString m.dateCreated)) metadata
+    in
+        List.concat [ newEntryNames, acc ]
+
+
+metadataToString : MetadataDict -> String
+metadataToString dict =
+    dict
+        |> Dict.foldl addFileNames []
+        |> toString
+
+
+parseMetadata : String -> MetadataDict
+parseMetadata json =
+    case decodeString (list string) json of
+        Err message ->
+            Dict.empty
+
+        Ok fileNames ->
+            buildMeta fileNames

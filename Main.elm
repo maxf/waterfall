@@ -1,4 +1,5 @@
 port module Main exposing (..)
+
 import Types exposing (..)
 import Html
 import Dict
@@ -21,12 +22,12 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    (Model
+    ( Model
         ""
-         Nothing
-         0
-         Dict.empty
-         (dateTime { zero | year = 2016, month = 1, day = 1})
+        Nothing
+        0
+        Dict.empty
+        (dateTime { zero | year = 2016, month = 1, day = 1 })
     , Cmd.none
     )
 
@@ -35,14 +36,18 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Increment ->
-            ( { model | dateShown =
-                    addYear 1 model.photoMetadata model.dateShown }
+            ( { model
+                | dateShown =
+                    addYear 1 model.photoMetadata model.dateShown
+              }
             , Cmd.none
             )
 
         Decrement ->
-            ( { model | dateShown =
-                    addYear -1 model.photoMetadata model.dateShown }
+            ( { model
+                | dateShown =
+                    addYear -1 model.photoMetadata model.dateShown
+              }
             , Cmd.none
             )
 
@@ -71,14 +76,12 @@ update msg model =
 
                 dateShown =
                     dateOfFirstPhotoOfYear (year model.dateShown) metadata
-
             in
-                (
-                   { model
-                   | photoMetadata = metadata
-                   , maxPicturesInADay = maxNbPictures metadata
-                   , dateShown = dateShown
-                   }
+                ( { model
+                    | photoMetadata = metadata
+                    , maxPicturesInADay = maxNbPictures metadata
+                    , dateShown = dateShown
+                  }
                 , Cmd.none
                 )
 
@@ -88,24 +91,71 @@ update msg model =
         RequestPhotoDirResult paths ->
             case paths of
                 [ path ] ->
-                    ({ model | photoDir = path }, scanPhotos path)
+                    ( { model | photoDir = path }, scanPhotos path )
 
                 _ ->
                     ( model, Cmd.none )
 
+        SaveMetadata ->
+            ( model, saveMetadata (metadataToString model.photoMetadata) )
+
+        SaveMetadataResult success ->
+            ( model, Cmd.none )
+
+        LoadMetadata ->
+            ( model, loadMetadata "" )
+
+        LoadMetadataResult metadata ->
+            let
+                newMetadata =
+                    parseMetadata metadata
+
+                newDateShown =
+                    dateOfFirstPhotoOfYear (year model.dateShown) newMetadata
+            in
+                ( { model
+                    | photoMetadata = newMetadata
+                    , dateShown = newDateShown }
+                , Cmd.none
+                )
+
+
 
 -- ports
 
+
 port deletePhoto : String -> Cmd msg
+
+
 port scanPhotos : String -> Cmd msg
+
+
 port requestPhotoDir : String -> Cmd msg
+
+
+port saveMetadata : String -> Cmd msg
+
+
+port loadMetadata : String -> Cmd msg
+
+
 
 -- subscriptions
 
+
 port deletePhotoResult : (String -> msg) -> Sub msg
+
+
 port scanPhotosResult : (List String -> msg) -> Sub msg
+
+
 port requestPhotoDirResult : (List String -> msg) -> Sub msg
 
+
+port loadMetadataResult : (String -> msg) -> Sub msg
+
+
+port saveMetadataResult : (Bool -> msg) -> Sub msg
 
 
 subscriptions : Model -> Sub Msg
@@ -114,10 +164,14 @@ subscriptions model =
         [ requestPhotoDirResult RequestPhotoDirResult
         , deletePhotoResult DeletePhotoResult
         , scanPhotosResult ScanPhotosResult
+        , saveMetadataResult SaveMetadataResult
+        , loadMetadataResult LoadMetadataResult
         ]
 
 
+
 -- Misc
+
 
 scrollResult : Result Dom.Error () -> Msg
 scrollResult result =
