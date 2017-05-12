@@ -49,6 +49,10 @@
 
 
   // return list of files in dir and all its subdirectories
+  const readDirAsync = (dir, cb) => {
+    process.nextTick(() => cb(readdirRecursive(dir)));
+  }
+
   const readdirRecursive = dir => {
     const dirContents = fs
       .readdirSync(dir)
@@ -62,9 +66,12 @@
       .filter(name => /\.(jpg|JPG|jpeg|JPEG)$/.test(name));
   }
 
-  const getPhotos = photosDir =>
-    photos = readdirRecursive(photosDir)
-      .map(path => path + '__' + readCreateDate(path));
+  const scanPhotos = (photosDir, cb) => {
+    readDirAsync(
+      photosDir,
+      photos => { return cb(photos.map(path => path + '__' + readCreateDate(path))) }
+    )
+  }
 
   const requestPhotoDir = () =>
     // https://github.com/electron/electron/blob/master/docs/api/dialog.md
@@ -86,7 +93,7 @@
 
   module.exports = {
     deleteFile : deleteFile,
-    getPhotos: getPhotos,
+    scanPhotos: scanPhotos,
     requestPhotoDir : requestPhotoDir,
     saveMetadata : saveMetadata,
     loadMetadata : loadMetadata,

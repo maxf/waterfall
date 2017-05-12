@@ -79,6 +79,7 @@ update msg model =
             in
                 ( { model
                     | photoMetadata = metadata
+                    , error = Nothing
                     , maxPicturesInADay = maxNbPictures metadata
                     , dateShown = dateShown
                   }
@@ -91,10 +92,14 @@ update msg model =
         RequestPhotoDirResult paths ->
             case paths of
                 [ path ] ->
-                    ( { model | photoDir = path }, scanPhotos path )
+                    ( { model | photoDir = path, error = Just "Scanning photos" }
+                    , scanPhotos path
+                    )
 
                 _ ->
-                    ( model, Cmd.none )
+                    ( { model | error = Just "Error: bad response from photo dialog" }
+                    , Cmd.none
+                    )
 
         SaveMetadata ->
             ( model, saveMetadata (metadataToString model.photoMetadata) )

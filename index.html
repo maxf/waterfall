@@ -34,7 +34,7 @@
      }
      .error {
        position: fixed;
-       background: red;
+       background: #555;
        color: white;
        font-size: 200%;
        font-weight: bold;
@@ -95,8 +95,9 @@
        app.ports.deletePhotoResult.send(fileDeleted);
      });
      app.ports.scanPhotos.subscribe(dir => {
-       const fileNames = files.getPhotos(dir);
-       app.ports.scanPhotosResult.send(fileNames);
+       files.scanPhotos(dir, fileNames => {
+         app.ports.scanPhotosResult.send(fileNames);
+       })
      });
      app.ports.requestPhotoDir.subscribe(() => {
        const dir = files.requestPhotoDir();
