@@ -35,7 +35,7 @@ init =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Increment ->
+        IncrementYear ->
             ( { model
                 | dateShown =
                     addYear 1 model.photoMetadata model.dateShown
@@ -43,7 +43,7 @@ update msg model =
             , Cmd.none
             )
 
-        Decrement ->
+        DecrementYear ->
             ( { model
                 | dateShown =
                     addYear -1 model.photoMetadata model.dateShown

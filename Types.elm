@@ -49,8 +49,8 @@ type alias Model =
 
 
 type Msg
-    = Increment
-    | Decrement
+    = IncrementYear
+    | DecrementYear
     | ShowPhotosForDate DateTime
     | ScrollPhotosFinished
     | DeletePhoto PhotoMetadata
