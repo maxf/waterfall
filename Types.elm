@@ -58,10 +58,8 @@ type Msg
     | ScanPhotosResult (List String)
     | RequestPhotoDir
     | RequestPhotoDirResult (List String)
-    | SaveMetadata
-    | SaveMetadataResult Bool
-    | LoadMetadata
-    | LoadMetadataResult String
+    | MetadataSaved Bool
+    | MetadataLoaded String
 
 
 type alias PhotoMetadata =

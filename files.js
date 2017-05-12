@@ -2,6 +2,7 @@
   const fs = require('fs');
   const exif = require('exif-parser');
   const electron = require('electron').remote
+  const path = require('path');
 
   function doDeleteFile(filepath) {
     console.log('deleting', filepath);
@@ -83,11 +84,16 @@
     ) || []
 
 
+  // Metadata file save/load
+
+  const metadataFile =
+    path.join(electron.app.getPath('userData'), 'metadata.json');
+
   const saveMetadata = (metadata, cb) =>
-    fs.writeFile("/tmp/test.json", metadata, cb);
+    fs.writeFile(metadataFile, metadata, cb);
 
   const loadMetadata = cb =>
-    fs.readFile("/tmp/test.json", cb);
+    fs.readFile(metadataFile, cb);
 
 
 

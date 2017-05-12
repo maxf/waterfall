@@ -28,7 +28,7 @@ init =
         0
         Dict.empty
         (dateTime { zero | year = 2016, month = 1, day = 1 })
-    , Cmd.none
+    , loadMetadata ""
     )
 
 
@@ -83,7 +83,7 @@ update msg model =
                     , maxPicturesInADay = maxNbPictures metadata
                     , dateShown = dateShown
                   }
-                , Cmd.none
+                , saveMetadata (metadataToString metadata)
                 )
 
         RequestPhotoDir ->
@@ -101,16 +101,10 @@ update msg model =
                     , Cmd.none
                     )
 
-        SaveMetadata ->
-            ( model, saveMetadata (metadataToString model.photoMetadata) )
-
-        SaveMetadataResult success ->
+        MetadataSaved success ->
             ( model, Cmd.none )
 
-        LoadMetadata ->
-            ( model, loadMetadata "" )
-
-        LoadMetadataResult metadata ->
+        MetadataLoaded metadata ->
             let
                 newMetadata =
                     parseMetadata metadata
@@ -169,8 +163,8 @@ subscriptions model =
         [ requestPhotoDirResult RequestPhotoDirResult
         , deletePhotoResult DeletePhotoResult
         , scanPhotosResult ScanPhotosResult
-        , saveMetadataResult SaveMetadataResult
-        , loadMetadataResult LoadMetadataResult
+        , saveMetadataResult MetadataSaved
+        , loadMetadataResult MetadataLoaded
         ]
 
 

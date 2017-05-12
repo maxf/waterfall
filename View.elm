@@ -188,8 +188,6 @@ viewCalendar model =
         div
             [ class "calendar" ]
             [ button [ onClick RequestPhotoDir ] [ text "Choose folder" ]
-            , button [ onClick SaveMetadata ] [ text "Save" ]
-            , button [ onClick LoadMetadata ] [ text "Load" ]
             , h1 [] [ text (toString yearToDisplay) ]
             , viewYearButtons yearToDisplay
             , table []

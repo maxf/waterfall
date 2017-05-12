@@ -18,12 +18,11 @@ $ ./node_modules/.bin/electron .
 
 ## Todo
 
-- use system directory for metadata json file (not /tmp)
-- move top-left buttons in a popup menu (or system menu?)
 - pop up 'back to top' button on scroll down
 - Make next/prev day buttons link to next/prev day that has photos
 - view 360 pictures
-
+- pop up file selector when metadata is empty
+- improve design: CSS, messages, etc.
 
 ### Maybe
 
@@ -34,6 +33,7 @@ $ ./node_modules/.bin/electron .
 
 ### Done
 
+- use system directory for metadata json file (not /tmp)
 - display message while photos are loading
 - photos in subdirectories
 - Package Electron app for download
