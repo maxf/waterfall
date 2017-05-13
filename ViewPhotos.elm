@@ -21,18 +21,46 @@ viewPhotos model =
 
         datePhotos =
             Dict.get dateExifString model.photoMetadata
+
+        dateShownTs =
+            Types.toSeconds model.dateShown
+
+
+        -- the prev day after dateShown that has photos
+        nextDateWithPhotos : DateTime
+        nextDateWithPhotos =
+            Dict.keys model.photoMetadata
+                |> List.filter (\timestamp -> timestamp > dateShownTs)
+                |> List.head
+                |> Maybe.withDefault dateShownTs
+                |> (*) 1000
+                |> toFloat
+                |> fromTimestamp
+
+        -- the next day after dateShown that has photos
+        prevDateWithPhotos : DateTime
+        prevDateWithPhotos =
+            Dict.keys model.photoMetadata
+                |> List.filter (\timestamp -> timestamp < dateShownTs)
+                |> List.reverse
+                |> List.head
+                |> Maybe.withDefault dateShownTs
+                |> (*) 1000
+                |> toFloat
+                |> fromTimestamp
+
     in
         div
             [ id "photos" ]
             [ h1 [] [ model.dateShown |> dateToString |> text ]
-            , viewPrevNextButtons model.dateShown
+            , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
             , case datePhotos of
                 Nothing ->
                     div [] [ text "No photos for that date" ]
 
                 Just photos ->
                     div [] [ viewPictureList photos ]
-            , viewPrevNextButtons model.dateShown
+            , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
             ]
 
 
@@ -61,21 +89,17 @@ viewPicture metadata =
         ]
 
 
-viewOtherDayButton : String -> DateTime -> Int -> Html Msg
-viewOtherDayButton label date offset =
-    let
-        day =
-            addDays offset date
-    in
-        button
-            [ onClick (ShowPhotosForDate day) ]
-            [ text (label ++ " (" ++ (dateToString day) ++ ")") ]
+viewOtherDayButton : String -> DateTime -> Html Msg
+viewOtherDayButton label date =
+    button
+        [ onClick (ShowPhotosForDate date) ]
+        [ text (label ++ " (" ++ (dateToString date) ++ ")") ]
 
 
-viewPrevNextButtons : DateTime -> Html Msg
-viewPrevNextButtons date =
+viewPrevNextButtons : DateTime -> DateTime -> Html Msg
+viewPrevNextButtons prev next =
     div []
-        [ viewOtherDayButton "Previous" date -1
+        [ viewOtherDayButton "Previous" prev
         , span [] [ text "..." ]
-        , viewOtherDayButton "Next" date 1
+        , viewOtherDayButton "Next" next
         ]

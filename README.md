@@ -19,10 +19,10 @@ $ ./node_modules/.bin/electron .
 ## Todo
 
 - pop up 'back to top' button on scroll down
-- Make next/prev day buttons link to next/prev day that has photos
 - view 360 pictures
 - pop up file selector when metadata is empty
 - improve design: CSS, messages, etc.
+- annotations
 
 ### Maybe
 
@@ -33,6 +33,7 @@ $ ./node_modules/.bin/electron .
 
 ### Done
 
+- Make next/prev day buttons link to next/prev day that has photos
 - use system directory for metadata json file (not /tmp)
 - display message while photos are loading
 - photos in subdirectories
