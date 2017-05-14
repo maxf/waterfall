@@ -187,7 +187,8 @@ viewCalendar model =
     in
         div
             [ class "calendar" ]
-            [ button [ onClick RequestPhotoDir ] [ text "Choose folder" ]
+            [ span [] [ text model.photoDir ]
+            , button [ onClick RequestPhotoDir ] [ text "Choose folder" ]
             , h1 [] [ text (toString yearToDisplay) ]
             , viewYearButtons yearToDisplay
             , table []

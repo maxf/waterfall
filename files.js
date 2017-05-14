@@ -86,14 +86,14 @@
 
   // Metadata file save/load
 
-  const metadataFile =
-    path.join(electron.app.getPath('userData'), 'metadata.json');
+  const modelFile =
+    path.join(electron.app.getPath('userData'), 'model.json');
 
-  const saveMetadata = (metadata, cb) =>
-    fs.writeFile(metadataFile, metadata, cb);
+  const saveModel = (model, cb) =>
+    fs.writeFile(modelFile, model, cb);
 
-  const loadMetadata = cb =>
-    fs.readFile(metadataFile, cb);
+  const loadModel = cb =>
+    fs.readFile(modelFile, cb);
 
 
 
@@ -101,8 +101,8 @@
     deleteFile : deleteFile,
     scanPhotos: scanPhotos,
     requestPhotoDir : requestPhotoDir,
-    saveMetadata : saveMetadata,
-    loadMetadata : loadMetadata,
+    saveModel : saveModel,
+    loadModel : loadModel,
   };
 
 }());

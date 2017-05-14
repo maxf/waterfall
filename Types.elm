@@ -5,7 +5,9 @@ import String exposing (toInt, split)
 import Dict exposing (..)
 import Regex exposing (..)
 import Time.DateTime as DateTime exposing (..)
-import Json.Decode exposing (..)
+import Json.Decode as Decode exposing (..)
+import Json.Encode as Encode
+
 
 type alias Year =
     Int
@@ -48,6 +50,16 @@ type alias Model =
     }
 
 
+initialModel : Model
+initialModel =
+    Model
+        ""
+        Nothing
+        0
+        Dict.empty
+        (dateTime { zero | year = 2016, month = 1, day = 1 })
+
+
 type Msg
     = IncrementYear
     | DecrementYear
@@ -58,8 +70,8 @@ type Msg
     | ScanPhotosResult (List String)
     | RequestPhotoDir
     | RequestPhotoDirResult (List String)
-    | MetadataSaved Bool
-    | MetadataLoaded String
+    | ModelSaved Bool
+    | ModelLoaded String
 
 
 type alias PhotoMetadata =
@@ -241,6 +253,7 @@ removePhotoFromDict fileName dict =
             |> Dict.filter (\date metadata -> List.length metadata /= 0)
 
 
+
 -- =============== addFileNames ================================================
 -- add a dict entry:
 --   (key, [{file1:, date1:}, {file2:, date2:} ])  as '(key, metadata)'
@@ -263,18 +276,56 @@ addFileNames key metadata acc =
         List.concat [ newEntryNames, acc ]
 
 
-metadataToString : MetadataDict -> String
-metadataToString dict =
-    dict
-        |> Dict.foldl addFileNames []
-        |> toString
+modelToString : Model -> String
+modelToString model =
+    let
+        metadataAsStrings : List String
+        metadataAsStrings =
+            Dict.foldl addFileNames [] model.photoMetadata
+
+        encodedMetadata : Encode.Value
+        encodedMetadata =
+            Encode.list (List.map Encode.string metadataAsStrings)
+    in
+        Encode.encode
+            0
+            (Encode.object
+                [ ( "photoDir", Encode.string model.photoDir )
+                , ( "error", Encode.string (model.error |> Maybe.withDefault "") )
+                , ( "maxPicturesInADay", Encode.int model.maxPicturesInADay )
+                , ( "photoMetadata", encodedMetadata )
+                , ( "dateShown", Encode.string (toISO8601 model.dateShown) )
+                ]
+            )
 
 
-parseMetadata : String -> MetadataDict
-parseMetadata json =
-    case decodeString (list string) json of
-        Err message ->
-            Dict.empty
+type alias ModelJson =
+    { photoDir : String
+    , error : String
+    , maxPicturesInADay : Int
+    , photoMetadata : List String
+    , dateShown : String
+    }
 
-        Ok fileNames ->
-            buildMeta fileNames
+
+jsonToModel : String -> Model
+jsonToModel json =
+    let
+        modelJson =
+            Decode.decodeString
+                (Decode.map5 ModelJson
+                    (field "photoDir" Decode.string)
+                    (field "error" Decode.string) -- shoudl use nullable
+                    (field "maxPicturesInADay" Decode.int)
+                    (field "photoMetadata" (Decode.list Decode.string))
+                    (field "dateShown" Decode.string)
+                )
+                json
+                |> Result.withDefault (ModelJson "" "" 0 [] "")
+    in
+        Model
+            modelJson.photoDir
+            Nothing -- (Just modelJson.error) Should use nullable
+            modelJson.maxPicturesInADay
+            (buildMeta modelJson.photoMetadata)
+            (fromISO8601 modelJson.dateShown |> Result.withDefault epoch)

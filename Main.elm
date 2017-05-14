@@ -2,7 +2,10 @@ port module Main exposing (..)
 
 import Types exposing (..)
 import Html
-import Dict
+
+
+-- import Dict
+
 import View
 import Time.DateTime exposing (..)
 import Dom exposing (Error)
@@ -22,13 +25,8 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model
-        ""
-        Nothing
-        0
-        Dict.empty
-        (dateTime { zero | year = 2016, month = 1, day = 1 })
-    , loadMetadata ""
+    ( Types.initialModel
+    , loadModel ""
     )
 
 
@@ -64,7 +62,9 @@ update msg model =
 
         DeletePhotoResult deletedPhotoFileName ->
             if deletedPhotoFileName /= "" then
-                ( model |> removePhotoFromModel deletedPhotoFileName, Cmd.none )
+                ( model |> removePhotoFromModel deletedPhotoFileName
+                , saveModel (modelToString model)
+                )
             else
                 ( model, Cmd.none )
 
@@ -76,15 +76,16 @@ update msg model =
 
                 dateShown =
                     dateOfFirstPhotoOfYear (year model.dateShown) metadata
+
+                newModel =
+                    { model
+                        | photoMetadata = metadata
+                        , error = Nothing
+                        , maxPicturesInADay = maxNbPictures metadata
+                        , dateShown = dateShown
+                    }
             in
-                ( { model
-                    | photoMetadata = metadata
-                    , error = Nothing
-                    , maxPicturesInADay = maxNbPictures metadata
-                    , dateShown = dateShown
-                  }
-                , saveMetadata (metadataToString metadata)
-                )
+                ( newModel, saveModel (modelToString newModel) )
 
         RequestPhotoDir ->
             ( model, requestPhotoDir "" )
@@ -101,22 +102,11 @@ update msg model =
                     , Cmd.none
                     )
 
-        MetadataSaved success ->
+        ModelSaved success ->
             ( model, Cmd.none )
 
-        MetadataLoaded metadata ->
-            let
-                newMetadata =
-                    parseMetadata metadata
-
-                newDateShown =
-                    dateOfFirstPhotoOfYear (year model.dateShown) newMetadata
-            in
-                ( { model
-                    | photoMetadata = newMetadata
-                    , dateShown = newDateShown }
-                , Cmd.none
-                )
+        ModelLoaded modelJson ->
+            ( Types.jsonToModel modelJson, Cmd.none )
 
 
 
@@ -132,10 +122,10 @@ port scanPhotos : String -> Cmd msg
 port requestPhotoDir : String -> Cmd msg
 
 
-port saveMetadata : String -> Cmd msg
+port saveModel : String -> Cmd msg
 
 
-port loadMetadata : String -> Cmd msg
+port loadModel : String -> Cmd msg
 
 
 
@@ -151,10 +141,10 @@ port scanPhotosResult : (List String -> msg) -> Sub msg
 port requestPhotoDirResult : (List String -> msg) -> Sub msg
 
 
-port loadMetadataResult : (String -> msg) -> Sub msg
+port loadModelResult : (String -> msg) -> Sub msg
 
 
-port saveMetadataResult : (Bool -> msg) -> Sub msg
+port saveModelResult : (Bool -> msg) -> Sub msg
 
 
 subscriptions : Model -> Sub Msg
@@ -163,8 +153,8 @@ subscriptions model =
         [ requestPhotoDirResult RequestPhotoDirResult
         , deletePhotoResult DeletePhotoResult
         , scanPhotosResult ScanPhotosResult
-        , saveMetadataResult MetadataSaved
-        , loadMetadataResult MetadataLoaded
+        , saveModelResult ModelSaved
+        , loadModelResult ModelLoaded
         ]
 
 

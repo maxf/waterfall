@@ -103,14 +103,14 @@
        const dir = files.requestPhotoDir();
        app.ports.requestPhotoDirResult.send(dir);
      });
-     app.ports.saveMetadata.subscribe(metadata => {
-       files.saveMetadata(metadata, err => {
-         app.ports.saveMetadataResult.send(!err);
+     app.ports.saveModel.subscribe(model => {
+       files.saveModel(model, err => {
+         app.ports.saveModelResult.send(!err);
        })
      });
-     app.ports.loadMetadata.subscribe(() => {
-       files.loadMetadata((err, data) => {
-         app.ports.loadMetadataResult.send(err ? "" : data.toString());
+     app.ports.loadModel.subscribe(() => {
+       files.loadModel((err, data) => {
+         app.ports.loadModelResult.send(err ? "" : data.toString());
        })
      });
     </script>
