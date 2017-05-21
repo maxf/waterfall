@@ -64,7 +64,7 @@ dateColour date metadata =
                 let
                     shade =
                         220
-                            - (220 * (min 1 ((List.length r |> toFloat) / 50)))
+                            - (220 * min 1 ((List.length r |> toFloat) / 50))
                             |> floor
                             |> toString
                 in
@@ -119,7 +119,7 @@ dateStyle dateToDisplay model =
                 ""
             )
     in
-        [ ( "background-color", (Tuple.first dateCol) )
+        [ ( "background-color", Tuple.first dateCol )
         , overrideBorderBottom
         , overrideBorderRight
         ]
@@ -133,7 +133,7 @@ viewDate offset weekNumber model dayOfWeek =
                 |> addDays (7 * (weekNumber - 1) + dayOfWeek + 1 + offset)
 
         monthClass =
-            if (month dateToDisplay) % 2 == 0 then
+            if month dateToDisplay % 2 == 0 then
                 "odd"
             else
                 "even"
@@ -170,9 +170,8 @@ viewWeeks offset model =
 viewYearButtons : Year -> Html Msg
 viewYearButtons year =
     div [ class "year-buttons" ]
-        [ button [ onClick DecrementYear ] [ text (toString (year - 1)) ]
-        , span [] [ text " ... " ]
-        , button [ onClick IncrementYear ] [ text (toString (year + 1)) ]
+        [ button [ onClick DecrementYear ] [ text (toString (year - 1) ++ " ⬅") ]
+        , button [ onClick IncrementYear ] [ text ("➡ " ++ toString (year + 1)) ]
         ]
 
 
@@ -184,12 +183,39 @@ viewCalendar model =
 
         offset =
             newYearsDayOffset yearToDisplay
+
+        dateShownTs =
+            Types.toSeconds model.dateShown
+
+        -- the prev day after dateShown that has photos
+        nextDateWithPhotos : DateTime
+        nextDateWithPhotos =
+            Dict.keys model.photoMetadata
+                |> List.filter (\timestamp -> timestamp > dateShownTs)
+                |> List.head
+                |> Maybe.withDefault dateShownTs
+                |> (*) 1000
+                |> toFloat
+                |> fromTimestamp
+
+        -- the next day after dateShown that has photos
+        prevDateWithPhotos : DateTime
+        prevDateWithPhotos =
+            Dict.keys model.photoMetadata
+                |> List.filter (\timestamp -> timestamp < dateShownTs)
+                |> List.reverse
+                |> List.head
+                |> Maybe.withDefault dateShownTs
+                |> (*) 1000
+                |> toFloat
+                |> fromTimestamp
     in
         div
             [ class "calendar" ]
             [ span [] [ text model.photoDir ]
             , button [ onClick RequestPhotoDir ] [ text "Choose folder" ]
             , h1 [] [ text (toString yearToDisplay) ]
+            , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
             , viewYearButtons yearToDisplay
             , table []
                 [ thead []
@@ -201,6 +227,7 @@ viewCalendar model =
                     ]
                 , tbody [] (viewWeeks offset model)
                 ]
+            , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
             , viewYearButtons yearToDisplay
             ]
 
@@ -213,6 +240,21 @@ viewError message =
 
         Just error ->
             div [ class "error" ] [ text error ]
+
+
+viewOtherDayButton : String -> DateTime -> Html Msg
+viewOtherDayButton label date =
+    button
+        [ onClick (ShowPhotosForDate date) ]
+        [ text label ]
+
+
+viewPrevNextButtons : DateTime -> DateTime -> Html Msg
+viewPrevNextButtons prev next =
+    div [ class "prev-next-buttons" ]
+        [ viewOtherDayButton (dateToString prev ++ " ⬅") prev
+        , viewOtherDayButton ("➡ " ++ dateToString next) next
+        ]
 
 
 view : Model -> Html Msg

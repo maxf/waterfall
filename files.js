@@ -4,42 +4,43 @@
   const electron = require('electron').remote
   const path = require('path');
 
-  function doDeleteFile(filepath) {
-    console.log('deleting', filepath);
+  function doDeleteFile(filePath, fileName) {
+    const fullName = filePath + "/" + fileName;
 
-    if (fs.existsSync(filepath)) {
+    if (fs.existsSync(fullName)) {
       try {
-        fs.unlinkSync(filepath);
+        fs.unlinkSync(fullName);
       } catch(e) {
-        console.log('failed to delete', filepath, e);
-        return "";
+        console.log('failed to delete', fullName, e);
+        return false;
       }
-
-      console.log('delete succeeded:', filepath);
-      return filepath;
+      console.log('delete succeeded:', fullName);
+      return true;
     } else {
-      console.log('failed to find', filepath);
-      return "";
+      console.log('failed to find', fullName);
+      return false;
     }
   }
 
-  function deleteFile(filePath) {
+  function deleteFile(filePath, fileName) {
     const reallyDelete =
-          window.confirm('Are you sure you want to delete this picture?');
-    return reallyDelete ? doDeleteFile(filePath) : "";
+      window.confirm('Are you sure you want to delete this picture?');
+    return reallyDelete ? doDeleteFile(filePath, fileName) : "";
   }
 
-
-  // read all the photos, extract exif information, return a csv as:
-  // name, create_date
-  // "/home/mf/Pictures/MEGA/R0010245_20170401085226.JPG","2017:04:01 08:52:21"
-  // "/home/mf/Pictures/MEGA/2017-02-22 14.12.10.jpg","2017:02:22 14:12:00"
 
   function readCreateDate(path) {
     const file = fs.readFileSync(path);
     const parser = exif.create(file);
-    const exifData = exif.create(file).parse();
-    return exifData.tags.CreateDate;
+    var result;
+    try {
+      const exifData = exif.create(file).parse();
+      result = exifData.tags.CreateDate;
+    } catch (e) {
+      console.log("failed to parse Exif data in ", path);
+      result = null;
+    }
+    return parseInt(result, 10);
   }
 
   const flatten = (arr) =>
@@ -70,7 +71,20 @@
   const scanPhotos = (photosDir, cb) => {
     readDirAsync(
       photosDir,
-      photos => { return cb(photos.map(path => path + '__' + readCreateDate(path))) }
+      photos => cb(
+          photos
+            .map(path => {
+              const createDate = readCreateDate(path);
+              return createDate
+                ?
+                  {
+                    fileName: path.replace(photosDir + '/', ''),
+                    dateCreated: createDate
+                  }
+                : {filename:"", dateCreated:""};
+            })
+            .filter(path => path.fileName && path.dateCreated)
+      )
     )
   }
 

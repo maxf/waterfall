@@ -21,85 +21,42 @@ viewPhotos model =
 
         datePhotos =
             Dict.get dateExifString model.photoMetadata
-
-        dateShownTs =
-            Types.toSeconds model.dateShown
-
-
-        -- the prev day after dateShown that has photos
-        nextDateWithPhotos : DateTime
-        nextDateWithPhotos =
-            Dict.keys model.photoMetadata
-                |> List.filter (\timestamp -> timestamp > dateShownTs)
-                |> List.head
-                |> Maybe.withDefault dateShownTs
-                |> (*) 1000
-                |> toFloat
-                |> fromTimestamp
-
-        -- the next day after dateShown that has photos
-        prevDateWithPhotos : DateTime
-        prevDateWithPhotos =
-            Dict.keys model.photoMetadata
-                |> List.filter (\timestamp -> timestamp < dateShownTs)
-                |> List.reverse
-                |> List.head
-                |> Maybe.withDefault dateShownTs
-                |> (*) 1000
-                |> toFloat
-                |> fromTimestamp
-
     in
         div
             [ id "photos" ]
             [ h1 [] [ model.dateShown |> dateToString |> text ]
-            , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
             , case datePhotos of
                 Nothing ->
                     div [] [ text "No photos for that date" ]
 
                 Just photos ->
-                    div [] [ viewPictureList photos ]
-            , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
+                    div [] [ viewPictureList model.photoDir photos ]
             ]
 
 
-viewPictureList : List PhotoMetadata -> Html Msg
-viewPictureList metadataList =
+viewPictureList : DirectoryName -> List PhotoMetadata -> Html Msg
+viewPictureList baseDir metadataList =
     div
         []
         [ h2 [] [ text ((List.length metadataList |> toString) ++ " photos") ]
         , ul
             []
-            (List.map viewPicture (List.sortBy .dateCreated metadataList))
+            (List.map
+                (viewPicture baseDir)
+                (List.sortBy .dateCreated metadataList)
+            )
         ]
 
 
-viewPicture : PhotoMetadata -> Html Msg
-viewPicture metadata =
+viewPicture : DirectoryName -> PhotoMetadata -> Html Msg
+viewPicture baseDir metadata =
     li
         []
         [ div
             []
-            [ img [ src metadata.fileName ] []
+            [ img [ src (baseDir ++ "/" ++ metadata.fileName) ] []
             , br [] []
             , span [] [ metadata.fileName |> text ]
             , button [ onClick (DeletePhoto metadata) ] [ text "Erase" ]
             ]
-        ]
-
-
-viewOtherDayButton : String -> DateTime -> Html Msg
-viewOtherDayButton label date =
-    button
-        [ onClick (ShowPhotosForDate date) ]
-        [ text (label ++ " (" ++ (dateToString date) ++ ")") ]
-
-
-viewPrevNextButtons : DateTime -> DateTime -> Html Msg
-viewPrevNextButtons prev next =
-    div []
-        [ viewOtherDayButton "Previous" prev
-        , span [] [ text "..." ]
-        , viewOtherDayButton "Next" next
         ]

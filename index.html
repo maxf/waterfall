@@ -47,17 +47,17 @@
      }
      .calendar {
        background: white;
-       max-width: 20%;
+       width: 13em;
        overflow: auto;
        max-height: 100vh;
        padding: 1em;
      }
      .year-buttons {
        margin: .5em 0;
+       text-align: center;
      }
-     .year-buttons button {
-       width: 3em;
-       padding: 0;
+     .prev-next-buttons {
+       text-align: center;
      }
      #photos {
        margin: 1em;
@@ -90,13 +90,16 @@
      const node = document.getElementById('main');
      const app = Elm.Main.embed(node);
 
-     app.ports.deletePhoto.subscribe(fileName => {
-       const fileDeleted = files.deleteFile(fileName)
-       app.ports.deletePhotoResult.send(fileDeleted);
+     app.ports.deletePhoto.subscribe(args => {
+       const fileDir = args[0];
+       const fileName = args[1];
+       const success = files.deleteFile(fileDir, fileName)
+       const result = success ? [fileDir, fileName] : ['', ''];
+       app.ports.deletePhotoResult.send(result);
      });
      app.ports.scanPhotos.subscribe(dir => {
-       files.scanPhotos(dir, fileNames => {
-         app.ports.scanPhotosResult.send(fileNames);
+       files.scanPhotos(dir, metadataList => {
+         app.ports.scanPhotosResult.send(metadataList);
        })
      });
      app.ports.requestPhotoDir.subscribe(() => {

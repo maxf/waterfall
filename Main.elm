@@ -51,28 +51,28 @@ update msg model =
 
         ShowPhotosForDate date ->
             ( { model | dateShown = date }
-            , (Task.attempt scrollResult (Dom.Scroll.toTop "photos"))
+            , Task.attempt scrollResult (Dom.Scroll.toTop "photos")
             )
 
         ScrollPhotosFinished ->
             ( model, Cmd.none )
 
         DeletePhoto metadata ->
-            ( model, deletePhoto metadata.fileName )
+            ( model, deletePhoto ( model.photoDir, metadata.fileName ) )
 
-        DeletePhotoResult deletedPhotoFileName ->
-            if deletedPhotoFileName /= "" then
-                ( model |> removePhotoFromModel deletedPhotoFileName
-                , saveModel (modelToString model)
+        DeletePhotoResult ( _, deletedFileName ) ->
+            if deletedFileName /= "" then
+                ( model |> removePhotoFromModel deletedFileName
+                , saveModel (modelToJson model)
                 )
             else
                 ( model, Cmd.none )
 
-        ScanPhotosResult fileList ->
+        ScanPhotosResult metadataList ->
             let
                 metadata : MetadataDict
                 metadata =
-                    Types.buildMeta fileList
+                    Debug.log "result" (Types.buildMeta metadataList)
 
                 dateShown =
                     dateOfFirstPhotoOfYear (year model.dateShown) metadata
@@ -85,7 +85,7 @@ update msg model =
                         , dateShown = dateShown
                     }
             in
-                ( newModel, saveModel (modelToString newModel) )
+                ( newModel, saveModel (modelToJson newModel) )
 
         RequestPhotoDir ->
             ( model, requestPhotoDir "" )
@@ -102,7 +102,7 @@ update msg model =
                     , Cmd.none
                     )
 
-        ModelSaved success ->
+        ModelSaved _ ->
             ( model, Cmd.none )
 
         ModelLoaded modelJson ->
@@ -113,7 +113,7 @@ update msg model =
 -- ports
 
 
-port deletePhoto : String -> Cmd msg
+port deletePhoto : ( String, String ) -> Cmd msg
 
 
 port scanPhotos : String -> Cmd msg
@@ -132,10 +132,10 @@ port loadModel : String -> Cmd msg
 -- subscriptions
 
 
-port deletePhotoResult : (String -> msg) -> Sub msg
+port deletePhotoResult : (( String, String ) -> msg) -> Sub msg
 
 
-port scanPhotosResult : (List String -> msg) -> Sub msg
+port scanPhotosResult : (List PhotoMetadata -> msg) -> Sub msg
 
 
 port requestPhotoDirResult : (List String -> msg) -> Sub msg
@@ -148,7 +148,7 @@ port saveModelResult : (Bool -> msg) -> Sub msg
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ requestPhotoDirResult RequestPhotoDirResult
         , deletePhotoResult DeletePhotoResult
@@ -163,5 +163,5 @@ subscriptions model =
 
 
 scrollResult : Result Dom.Error () -> Msg
-scrollResult result =
+scrollResult _ =
     ScrollPhotosFinished
