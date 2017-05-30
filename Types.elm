@@ -2,7 +2,7 @@ module Types exposing (..)
 
 import List exposing (..)
 import Dict exposing (..)
-import Time.DateTime as DateTime exposing (..)
+import Time.DateTime exposing (..)
 import Json.Decode as Decode exposing (..)
 import Json.Encode as Encode exposing (..)
 import Json.Helpers
@@ -71,6 +71,7 @@ type Msg
     | RequestPhotoDirResult (List String)
     | ModelSaved Bool
     | ModelLoaded String
+    | SaveModel
 
 
 type alias PhotoMetadata =
@@ -154,7 +155,6 @@ newYearsSeconds year =
     toSeconds (dateTime { zero | year = year })
 
 
-
 buildMeta : List PhotoMetadata -> MetadataDict
 buildMeta list =
     list
@@ -224,19 +224,18 @@ modelToJson model =
         metadataEncoder metadata =
             Encode.object
                 [ ( "fileName", Encode.string metadata.fileName )
-                , ( "dateCreated", Encode.string (toString metadata.dateCreated))
+                , ( "dateCreated", Encode.int metadata.dateCreated )
                 ]
 
         metadataListEncoder : List PhotoMetadata -> Encode.Value
         metadataListEncoder metadataList =
-            Encode.list ((List.map metadataEncoder) metadataList)
+            Encode.list (List.map metadataEncoder metadataList)
 
         metadataDictEncoder =
             Json.Helpers.encodeMap
                 Encode.int
                 metadataListEncoder
                 model.photoMetadata
-
     in
         Encode.encode
             0
@@ -256,10 +255,15 @@ jsonToModel json =
         dateTimeDecoder : Decoder DateTime
         dateTimeDecoder =
             Decode.string
-                |> andThen (\val ->
-                    case fromISO8601 val of
-                        Err err -> fail err
-                        Ok date -> succeed date)
+                |> andThen
+                    (\val ->
+                        case fromISO8601 val of
+                            Err err ->
+                                fail err
+
+                            Ok date ->
+                                succeed date
+                    )
 
         metadataDecoder =
             Decode.map2 PhotoMetadata

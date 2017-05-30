@@ -1,7 +1,7 @@
 (function() {
   const fs = require('fs');
   const exif = require('exif-parser');
-  const electron = require('electron').remote
+  const electron = require('electron');
   const path = require('path');
 
   function doDeleteFile(filePath, fileName) {
@@ -90,26 +90,28 @@
 
   const requestPhotoDir = () =>
     // https://github.com/electron/electron/blob/master/docs/api/dialog.md
-    electron.dialog.showOpenDialog(
+    electron.remote.dialog.showOpenDialog(
       {
         properties: ['openDirectory'],
         title: 'Please choose a directory with pictures'
       }
     ) || []
 
-
   // Metadata file save/load
 
+  let modelObj = {}; // keep the metadata here so we can save it quickly on exit
+
   const modelFile =
-    path.join(electron.app.getPath('userData'), 'model.json');
+    path.join(electron.remote.app.getPath('userData'), 'model.json');
 
   const saveModel = (model, cb) =>
-    fs.writeFile(modelFile, model, cb);
+    fs.writeFile(modelFile, modelObj = model, cb);
 
-  const loadModel = cb =>
-    fs.readFile(modelFile, cb);
-
-
+  const loadModel = cb => {
+    fs.readFile(modelFile, (err, data) => {
+        err || (modelObj = data); cb(err, data)
+    });
+  }
 
   module.exports = {
     deleteFile : deleteFile,

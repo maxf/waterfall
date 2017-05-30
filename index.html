@@ -116,6 +116,10 @@
          app.ports.loadModelResult.send(err ? "" : data.toString());
        })
      });
+
+     window.onbeforeunload = function() {
+       app.ports.applicationQuitting.send("save model now");
+     }
     </script>
   </body>
 </html>

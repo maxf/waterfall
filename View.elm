@@ -1,10 +1,10 @@
 module View exposing (view)
 
 import Html exposing (..)
-import Html.Events exposing (on, onClick, targetValue)
-import Html.Attributes exposing (class, style, title, type_, attribute)
+import Html.Events exposing (onClick)
+import Html.Attributes exposing (class, style)
 import List exposing (..)
-import Time.DateTime as DateTime exposing (..)
+import Time.DateTime exposing (..)
 import Time.Date exposing (Weekday(..))
 import Types exposing (..)
 import Dict
@@ -214,6 +214,7 @@ viewCalendar model =
             [ class "calendar" ]
             [ span [] [ text model.photoDir ]
             , button [ onClick RequestPhotoDir ] [ text "Choose folder" ]
+            , button [ onClick SaveModel ] [ text "Save" ]
             , h1 [] [ text (toString yearToDisplay) ]
             , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
             , viewYearButtons yearToDisplay

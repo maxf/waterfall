@@ -70,9 +70,8 @@ update msg model =
 
         ScanPhotosResult metadataList ->
             let
-                metadata : MetadataDict
                 metadata =
-                    Debug.log "result" (Types.buildMeta metadataList)
+                    Types.buildMeta metadataList
 
                 dateShown =
                     dateOfFirstPhotoOfYear (year model.dateShown) metadata
@@ -107,6 +106,9 @@ update msg model =
 
         ModelLoaded modelJson ->
             ( Types.jsonToModel modelJson, Cmd.none )
+
+        SaveModel ->
+            ( model, saveModel (modelToJson model) )
 
 
 

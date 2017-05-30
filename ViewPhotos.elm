@@ -1,7 +1,7 @@
 module ViewPhotos exposing (viewPhotos)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, style, title, src, id, value)
+import Html.Attributes exposing (src, id)
 import Types exposing (..)
 import Time.DateTime exposing (..)
 import Html.Events exposing (onClick)
