@@ -71,7 +71,7 @@ type Msg
     | RequestPhotoDirResult (List String)
     | ModelSaved Bool
     | ModelLoaded String
-    | SaveModel
+    | SaveModel String
 
 
 type alias PhotoMetadata =

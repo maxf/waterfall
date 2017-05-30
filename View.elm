@@ -214,7 +214,6 @@ viewCalendar model =
             [ class "calendar" ]
             [ span [] [ text model.photoDir ]
             , button [ onClick RequestPhotoDir ] [ text "Choose folder" ]
-            , button [ onClick SaveModel ] [ text "Save" ]
             , h1 [] [ text (toString yearToDisplay) ]
             , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
             , viewYearButtons yearToDisplay

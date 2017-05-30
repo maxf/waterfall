@@ -107,7 +107,7 @@ update msg model =
         ModelLoaded modelJson ->
             ( Types.jsonToModel modelJson, Cmd.none )
 
-        SaveModel ->
+        SaveModel _ ->
             ( model, saveModel (modelToJson model) )
 
 
@@ -149,6 +149,9 @@ port loadModelResult : (String -> msg) -> Sub msg
 port saveModelResult : (Bool -> msg) -> Sub msg
 
 
+port applicationQuitting : (String -> msg) -> Sub msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
@@ -157,6 +160,7 @@ subscriptions _ =
         , scanPhotosResult ScanPhotosResult
         , saveModelResult ModelSaved
         , loadModelResult ModelLoaded
+        , applicationQuitting SaveModel
         ]
 
 
