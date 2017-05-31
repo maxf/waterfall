@@ -1,12 +1,10 @@
-port module Main exposing (main)
+module Main exposing (main)
 
-import Types exposing (Model, Msg(ShowPhotosForDate, IncrementYear, DecrementYear, ScrollPhotosFinished, DeletePhoto, DeletePhotoResult, ScanPhotosResult, RequestPhotoDir, RequestPhotoDirResult, ModelSaved, ModelLoaded, SaveModel), addYear, removePhotoFromModel, modelToJson, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata)
 import Html
 import View
-import Time.DateTime exposing (year)
-import Dom exposing (Error)
-import Dom.Scroll
-import Task
+import Model exposing (Model)
+import Update exposing (Msg(RequestPhotoDirResult, DeletePhotoResult, ScanPhotosResult, ModelSaved, ModelLoaded, SaveModel), update)
+import Ports exposing (requestPhotoDirResult, deletePhotoResult, scanPhotosResult, saveModelResult, loadModel, loadModelResult, applicationQuitting)
 
 
 main : Program Never Model Msg
@@ -21,131 +19,9 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Types.initialModel
+    ( Model.initialModel
     , loadModel ""
     )
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        IncrementYear ->
-            ( { model
-                | dateShown =
-                    addYear 1 model.photoMetadata model.dateShown
-              }
-            , Cmd.none
-            )
-
-        DecrementYear ->
-            ( { model
-                | dateShown =
-                    addYear -1 model.photoMetadata model.dateShown
-              }
-            , Cmd.none
-            )
-
-        ShowPhotosForDate date ->
-            ( { model | dateShown = date }
-            , Task.attempt scrollResult (Dom.Scroll.toTop "photos")
-            )
-
-        ScrollPhotosFinished ->
-            ( model, Cmd.none )
-
-        DeletePhoto metadata ->
-            ( model, deletePhoto ( model.photoDir, metadata.fileName ) )
-
-        DeletePhotoResult ( _, deletedFileName ) ->
-            if deletedFileName /= "" then
-                ( model |> removePhotoFromModel deletedFileName
-                , saveModel (modelToJson model)
-                )
-            else
-                ( model, Cmd.none )
-
-        ScanPhotosResult metadataList ->
-            let
-                metadata =
-                    Types.buildMeta metadataList
-
-                dateShown =
-                    dateOfFirstPhotoOfYear (year model.dateShown) metadata
-
-                newModel =
-                    { model
-                        | photoMetadata = metadata
-                        , error = Nothing
-                        , maxPicturesInADay = maxNbPictures metadata
-                        , dateShown = dateShown
-                    }
-            in
-                ( newModel, saveModel (modelToJson newModel) )
-
-        RequestPhotoDir ->
-            ( model, requestPhotoDir "" )
-
-        RequestPhotoDirResult paths ->
-            case paths of
-                [ path ] ->
-                    ( { model | photoDir = path, error = Just "Scanning photos" }
-                    , scanPhotos path
-                    )
-
-                _ ->
-                    ( { model | error = Just "Error: bad response from photo dialog" }
-                    , Cmd.none
-                    )
-
-        ModelSaved _ ->
-            ( model, Cmd.none )
-
-        ModelLoaded modelJson ->
-            ( Types.jsonToModel modelJson, Cmd.none )
-
-        SaveModel _ ->
-            ( model, saveModel (modelToJson model) )
-
-
-
--- ports
-
-
-port deletePhoto : ( String, String ) -> Cmd msg
-
-
-port scanPhotos : String -> Cmd msg
-
-
-port requestPhotoDir : String -> Cmd msg
-
-
-port saveModel : String -> Cmd msg
-
-
-port loadModel : String -> Cmd msg
-
-
-
--- subscriptions
-
-
-port deletePhotoResult : (( String, String ) -> msg) -> Sub msg
-
-
-port scanPhotosResult : (List PhotoMetadata -> msg) -> Sub msg
-
-
-port requestPhotoDirResult : (List String -> msg) -> Sub msg
-
-
-port loadModelResult : (String -> msg) -> Sub msg
-
-
-port saveModelResult : (Bool -> msg) -> Sub msg
-
-
-port applicationQuitting : (String -> msg) -> Sub msg
 
 
 subscriptions : Model -> Sub Msg
@@ -158,12 +34,3 @@ subscriptions _ =
         , loadModelResult ModelLoaded
         , applicationQuitting SaveModel
         ]
-
-
-
--- Misc
-
-
-scrollResult : Result Dom.Error () -> Msg
-scrollResult _ =
-    ScrollPhotosFinished

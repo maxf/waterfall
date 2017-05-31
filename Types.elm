@@ -1,10 +1,7 @@
-module Types exposing (Msg(DeletePhoto, ShowPhotosForDate, IncrementYear, DecrementYear, RequestPhotoDir, ScrollPhotosFinished, DeletePhotoResult, DeletePhoto, ScanPhotosResult, RequestPhotoDirResult, ModelSaved, ModelLoaded, SaveModel), Model, DirectoryName, PhotoMetadata, Year, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, ErrorMessage, dateToString, addYear, removePhotoFromModel, modelToJson, dateOfFirstPhotoOfYear, maxNbPictures, initialModel, buildMeta, jsonToModel)
+module Types exposing (DirectoryName, PhotoMetadata, Year, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, ErrorMessage, dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, buildMeta, FileName, JsonString)
 
 import Dict exposing (Dict, keys)
-import Time.DateTime exposing (DateTime, dateTime, zero, epoch, year, month, day, addSeconds, toTimestamp, toISO8601, fromISO8601)
-import Json.Decode as Decode exposing (Decoder, andThen, fail, succeed, field)
-import Json.Encode as Encode
-import Json.Helpers
+import Time.DateTime exposing (DateTime, dateTime, zero, epoch, year, month, day, addSeconds, toTimestamp)
 
 
 type alias Year =
@@ -35,38 +32,8 @@ type alias DirectoryName =
     String
 
 
-type alias Model =
-    { photoDir : DirectoryName
-    , error : Maybe ErrorMessage
-    , maxPicturesInADay : Int
-    , photoMetadata : MetadataDict
-    , dateShown : DateTime
-    }
-
-
-initialModel : Model
-initialModel =
-    Model
-        ""
-        Nothing
-        0
-        Dict.empty
-        (dateTime { zero | year = 2012, month = 1, day = 1 })
-
-
-type Msg
-    = IncrementYear
-    | DecrementYear
-    | ShowPhotosForDate DateTime
-    | ScrollPhotosFinished
-    | DeletePhoto PhotoMetadata
-    | DeletePhotoResult ( String, String )
-    | ScanPhotosResult (List PhotoMetadata)
-    | RequestPhotoDir
-    | RequestPhotoDirResult (List String)
-    | ModelSaved Bool
-    | ModelLoaded String
-    | SaveModel String
+type alias JsonString =
+    String
 
 
 type alias PhotoMetadata =
@@ -176,102 +143,3 @@ dateOfFirstPhotoOfYear theYear metadata =
 addYear : Year -> MetadataDict -> DateTime -> DateTime
 addYear increment metadata date =
     dateOfFirstPhotoOfYear (year date + increment) metadata
-
-
-
--- Remove a photo from the model
-
-
-removePhotoFromModel : FileName -> Model -> Model
-removePhotoFromModel fileName model =
-    { model | photoMetadata = removePhotoFromDict fileName model.photoMetadata }
-
-
-
--- remove the metadata entry of photo with fileName from the dict passed
-
-
-removePhotoFromDict : FileName -> MetadataDict -> MetadataDict
-removePhotoFromDict fileName dict =
-    let
-        removePhoto2 filename _ list =
-            List.filter (\m -> m.fileName /= filename) list
-    in
-        dict
-            |> Dict.map (removePhoto2 fileName)
-            -- and remove empty dict entries
-            |> Dict.filter (\_ metadata -> List.length metadata /= 0)
-
-
-
--- ======= Model Encoder / Decoder =============================================
-
-
-modelToJson : Model -> String
-modelToJson model =
-    let
-        metadataEncoder : PhotoMetadata -> Encode.Value
-        metadataEncoder metadata =
-            Encode.object
-                [ ( "fileName", Encode.string metadata.fileName )
-                , ( "dateCreated", Encode.int metadata.dateCreated )
-                ]
-
-        metadataListEncoder : List PhotoMetadata -> Encode.Value
-        metadataListEncoder metadataList =
-            Encode.list (List.map metadataEncoder metadataList)
-
-        metadataDictEncoder =
-            Json.Helpers.encodeMap
-                Encode.int
-                metadataListEncoder
-                model.photoMetadata
-    in
-        Encode.encode
-            0
-            (Encode.object
-                [ ( "photoDir", Encode.string model.photoDir )
-                , ( "error", Json.Helpers.maybeEncode Encode.string model.error )
-                , ( "maxPicturesInADay", Encode.int model.maxPicturesInADay )
-                , ( "photoMetadata", metadataDictEncoder )
-                , ( "dateShown", Encode.string (toISO8601 model.dateShown) )
-                ]
-            )
-
-
-jsonToModel : String -> Model
-jsonToModel json =
-    let
-        dateTimeDecoder : Decoder DateTime
-        dateTimeDecoder =
-            Decode.string
-                |> andThen
-                    (\val ->
-                        case fromISO8601 val of
-                            Err err ->
-                                fail err
-
-                            Ok date ->
-                                succeed date
-                    )
-
-        metadataDecoder =
-            Decode.map2 PhotoMetadata
-                (field "fileName" Decode.string)
-                (field "dateCreated" Decode.int)
-
-        metadataDictDecoder =
-            Json.Helpers.decodeMap
-                Decode.int
-                (Decode.list metadataDecoder)
-
-        modelDecoder =
-            Decode.map5 Model
-                (field "photoDir" Decode.string)
-                (field "error" (Decode.nullable Decode.string))
-                (field "maxPicturesInADay" Decode.int)
-                (field "photoMetadata" metadataDictDecoder)
-                (field "dateShown" dateTimeDecoder)
-    in
-        Decode.decodeString modelDecoder json
-            |> Result.withDefault initialModel

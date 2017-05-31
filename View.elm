@@ -6,9 +6,11 @@ import Html.Attributes exposing (class, style)
 import List exposing (range)
 import Time.DateTime as Date exposing (DateTime, weekday, dateTime, zero, day, addDays, month, year, fromTimestamp)
 import Time.Date as Date
-import Types exposing (Year, Msg(ShowPhotosForDate, IncrementYear, DecrementYear, RequestPhotoDir), toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, Model, WeekNumber, DayOfWeek, ErrorMessage, dateToString)
 import Dict
+import Types exposing (Year, toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, ErrorMessage, dateToString)
+import Model exposing (Model, photoMetadata, dateShown, photoDir, error)
 import ViewPhotos exposing (viewPhotos)
+import Update exposing (Msg(ShowPhotosForDate, DecrementYear, IncrementYear, RequestPhotoDir))
 
 
 newYearsDayOffset : Year -> Int
@@ -101,7 +103,7 @@ dateStyle : DateTime -> Model -> List ( String, String )
 dateStyle dateToDisplay model =
     let
         dateCol =
-            dateColour dateToDisplay model.photoMetadata
+            dateColour dateToDisplay (photoMetadata model)
 
         overrideBorderBottom =
             ( "border-bottom"
@@ -129,7 +131,7 @@ viewDate : Int -> WeekNumber -> Model -> DayOfWeek -> Html Msg
 viewDate offset weekNumber model dayOfWeek =
     let
         dateToDisplay =
-            dateTime { zero | year = year model.dateShown, month = 1, day = 1 }
+            dateTime { zero | year = year (dateShown model), month = 1, day = 1 }
                 |> addDays (7 * (weekNumber - 1) + dayOfWeek + 1 + offset)
 
         monthClass =
@@ -141,12 +143,12 @@ viewDate offset weekNumber model dayOfWeek =
         -- if the day to draw is the day of the photos shown
         -- mark it with class 'today'
         shownDateClass =
-            if dateToDisplay == model.dateShown then
+            if dateToDisplay == dateShown model then
                 "today"
             else
                 ""
     in
-        if year dateToDisplay == year model.dateShown then
+        if year dateToDisplay == (model |> dateShown |> year) then
             td
                 [ class (monthClass ++ " " ++ shownDateClass)
                 , style (dateStyle dateToDisplay model)
@@ -183,18 +185,20 @@ viewCalendar : Model -> Html Msg
 viewCalendar model =
     let
         yearToDisplay =
-            year model.dateShown
+            model |> dateShown |> year
 
         offset =
             newYearsDayOffset yearToDisplay
 
         dateShownTs =
-            Types.toSeconds model.dateShown
+            model |> dateShown |> Types.toSeconds
 
         -- the prev day after dateShown that has photos
         nextDateWithPhotos : DateTime
         nextDateWithPhotos =
-            Dict.keys model.photoMetadata
+            model
+                |> photoMetadata
+                |> Dict.keys
                 |> List.filter (\timestamp -> timestamp > dateShownTs)
                 |> List.head
                 |> Maybe.withDefault dateShownTs
@@ -205,7 +209,9 @@ viewCalendar model =
         -- the next day after dateShown that has photos
         prevDateWithPhotos : DateTime
         prevDateWithPhotos =
-            Dict.keys model.photoMetadata
+            model
+                |> photoMetadata
+                |> Dict.keys
                 |> List.filter (\timestamp -> timestamp < dateShownTs)
                 |> List.reverse
                 |> List.head
@@ -216,7 +222,7 @@ viewCalendar model =
     in
         div
             [ class "calendar" ]
-            [ span [] [ text model.photoDir ]
+            [ span [] [ model |> photoDir |> text ]
             , button [ onClick RequestPhotoDir ] [ text "Choose folder" ]
             , h1 [] [ text (toString yearToDisplay) ]
             , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
@@ -242,8 +248,8 @@ viewError message =
         Nothing ->
             div [ style [ ( "display", "none" ) ] ] []
 
-        Just error ->
-            div [ class "error" ] [ text error ]
+        Just errorMessage ->
+            div [ class "error" ] [ text errorMessage ]
 
 
 viewOtherDayButton : String -> DateTime -> Html Msg
@@ -265,7 +271,7 @@ view : Model -> Html Msg
 view model =
     div
         [ class "outer" ]
-        [ viewError model.error
+        [ model |> error |> viewError
         , div
             [ class "columns" ]
             [ viewCalendar model

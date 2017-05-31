@@ -2,39 +2,36 @@ module ViewPhotos exposing (viewPhotos)
 
 import Html exposing (Html, div, h1, h2, ul, li, button, span, img, br, text)
 import Html.Attributes exposing (src, id)
-import Types exposing (Msg(DeletePhoto), DirectoryName)
+import Update exposing (Msg(DeletePhoto))
 import Time.DateTime exposing (toTimestamp)
 import Html.Events exposing (onClick)
 import Dict
+import Model exposing (Model, dateShown, photoMetadata, photoDir)
+import Types exposing (PhotoMetadata, DirectoryName)
 
 
---------------------------------------------------------------------------------
--- View functions
---------------------------------------------------------------------------------
-
-
-viewPhotos : Types.Model -> Html Types.Msg
+viewPhotos : Model -> Html Msg
 viewPhotos model =
     let
         dateExifString =
-            (model.dateShown |> toTimestamp) / 1000 |> round
+            (model |> dateShown |> toTimestamp) / 1000 |> round
 
         datePhotos =
-            Dict.get dateExifString model.photoMetadata
+            Dict.get dateExifString (photoMetadata model)
     in
         div
             [ id "photos" ]
-            [ h1 [] [ model.dateShown |> Types.dateToString |> text ]
+            [ h1 [] [ model |> dateShown |> Types.dateToString |> text ]
             , case datePhotos of
                 Nothing ->
                     div [] [ text "No photos for that date" ]
 
                 Just photos ->
-                    div [] [ viewPictureList model.photoDir photos ]
+                    div [] [ viewPictureList (photoDir model) photos ]
             ]
 
 
-viewPictureList : Types.DirectoryName -> List Types.PhotoMetadata -> Html Types.Msg
+viewPictureList : Types.DirectoryName -> List Types.PhotoMetadata -> Html Msg
 viewPictureList baseDir metadataList =
     div
         []
@@ -48,7 +45,7 @@ viewPictureList baseDir metadataList =
         ]
 
 
-viewPicture : DirectoryName -> Types.PhotoMetadata -> Html Types.Msg
+viewPicture : DirectoryName -> Types.PhotoMetadata -> Html Msg
 viewPicture baseDir metadata =
     li
         []
