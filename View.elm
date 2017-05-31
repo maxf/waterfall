@@ -1,42 +1,42 @@
 module View exposing (view)
 
-import Html exposing (..)
+import Html exposing (Html, div, button, td, text, tr, span, h1, table, thead, tbody, th)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (class, style)
-import List exposing (..)
-import Time.DateTime exposing (..)
-import Time.Date exposing (Weekday(..))
-import Types exposing (..)
+import List exposing (range)
+import Time.DateTime as Date exposing (DateTime, weekday, dateTime, zero, day, addDays, month, year, fromTimestamp)
+import Time.Date as Date
+import Types exposing (Year, Msg(ShowPhotosForDate, IncrementYear, DecrementYear, RequestPhotoDir), toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, Model, WeekNumber, DayOfWeek, ErrorMessage, dateToString)
 import Dict
 import ViewPhotos exposing (viewPhotos)
 
 
 newYearsDayOffset : Year -> Int
-newYearsDayOffset year =
+newYearsDayOffset thisYear =
     let
         newYearsDayWeekDay =
-            weekday (dateTime { zero | year = year, month = 1, day = 1 })
+            weekday (dateTime { zero | year = thisYear, month = 1, day = 1 })
     in
         case newYearsDayWeekDay of
-            Mon ->
+            Date.Mon ->
                 5
 
-            Tue ->
+            Date.Tue ->
                 4
 
-            Wed ->
+            Date.Wed ->
                 3
 
-            Thu ->
+            Date.Thu ->
                 2
 
-            Fri ->
+            Date.Fri ->
                 1
 
-            Sat ->
+            Date.Sat ->
                 0
 
-            Sun ->
+            Date.Sun ->
                 -1
 
 
@@ -88,7 +88,7 @@ isLastDayOfMonth date =
         nextDay =
             addDays 1 date
     in
-        month date /= month nextDay && weekday date /= Sun
+        month date /= month nextDay && weekday date /= Date.Sun
 
 
 
@@ -168,10 +168,14 @@ viewWeeks offset model =
 
 
 viewYearButtons : Year -> Html Msg
-viewYearButtons year =
+viewYearButtons thisYear =
     div [ class "year-buttons" ]
-        [ button [ onClick DecrementYear ] [ text (toString (year - 1) ++ " ⬅") ]
-        , button [ onClick IncrementYear ] [ text ("➡ " ++ toString (year + 1)) ]
+        [ button
+            [ onClick DecrementYear ]
+            [ text (toString (thisYear - 1) ++ " ⬅") ]
+        , button
+            [ onClick IncrementYear ]
+            [ text ("➡ " ++ toString (thisYear + 1)) ]
         ]
 
 

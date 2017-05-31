@@ -1,13 +1,9 @@
-port module Main exposing (..)
+port module Main exposing (main)
 
-import Types exposing (..)
+import Types exposing (Model, Msg(ShowPhotosForDate, IncrementYear, DecrementYear, ScrollPhotosFinished, DeletePhoto, DeletePhotoResult, ScanPhotosResult, RequestPhotoDir, RequestPhotoDirResult, ModelSaved, ModelLoaded, SaveModel), addYear, removePhotoFromModel, modelToJson, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata)
 import Html
-
-
--- import Dict
-
 import View
-import Time.DateTime exposing (..)
+import Time.DateTime exposing (year)
 import Dom exposing (Error)
 import Dom.Scroll
 import Task

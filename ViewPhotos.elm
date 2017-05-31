@@ -1,9 +1,9 @@
 module ViewPhotos exposing (viewPhotos)
 
-import Html exposing (..)
+import Html exposing (Html, div, h1, h2, ul, li, button, span, img, br, text)
 import Html.Attributes exposing (src, id)
-import Types exposing (..)
-import Time.DateTime exposing (..)
+import Types exposing (Msg(DeletePhoto), DirectoryName)
+import Time.DateTime exposing (toTimestamp)
 import Html.Events exposing (onClick)
 import Dict
 
@@ -13,7 +13,7 @@ import Dict
 --------------------------------------------------------------------------------
 
 
-viewPhotos : Model -> Html Msg
+viewPhotos : Types.Model -> Html Types.Msg
 viewPhotos model =
     let
         dateExifString =
@@ -24,7 +24,7 @@ viewPhotos model =
     in
         div
             [ id "photos" ]
-            [ h1 [] [ model.dateShown |> dateToString |> text ]
+            [ h1 [] [ model.dateShown |> Types.dateToString |> text ]
             , case datePhotos of
                 Nothing ->
                     div [] [ text "No photos for that date" ]
@@ -34,7 +34,7 @@ viewPhotos model =
             ]
 
 
-viewPictureList : DirectoryName -> List PhotoMetadata -> Html Msg
+viewPictureList : Types.DirectoryName -> List Types.PhotoMetadata -> Html Types.Msg
 viewPictureList baseDir metadataList =
     div
         []
@@ -48,7 +48,7 @@ viewPictureList baseDir metadataList =
         ]
 
 
-viewPicture : DirectoryName -> PhotoMetadata -> Html Msg
+viewPicture : DirectoryName -> Types.PhotoMetadata -> Html Types.Msg
 viewPicture baseDir metadata =
     li
         []

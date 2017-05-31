@@ -1,10 +1,9 @@
-module Types exposing (..)
+module Types exposing (Msg(DeletePhoto, ShowPhotosForDate, IncrementYear, DecrementYear, RequestPhotoDir, ScrollPhotosFinished, DeletePhotoResult, DeletePhoto, ScanPhotosResult, RequestPhotoDirResult, ModelSaved, ModelLoaded, SaveModel), Model, DirectoryName, PhotoMetadata, Year, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, ErrorMessage, dateToString, addYear, removePhotoFromModel, modelToJson, dateOfFirstPhotoOfYear, maxNbPictures, initialModel, buildMeta, jsonToModel)
 
-import List exposing (..)
-import Dict exposing (..)
-import Time.DateTime exposing (..)
-import Json.Decode as Decode exposing (..)
-import Json.Encode as Encode exposing (..)
+import Dict exposing (Dict, keys)
+import Time.DateTime exposing (DateTime, dateTime, zero, epoch, year, month, day, addSeconds, toTimestamp, toISO8601, fromISO8601)
+import Json.Decode as Decode exposing (Decoder, andThen, fail, succeed, field)
+import Json.Encode as Encode
 import Json.Helpers
 
 
@@ -17,10 +16,6 @@ type alias WeekNumber =
 
 
 type alias DayOfWeek =
-    Int
-
-
-type alias DayOfMonth =
     Int
 
 
@@ -150,11 +145,6 @@ toSeconds date =
     round (toTimestamp date) // 1000
 
 
-newYearsSeconds : Year -> SecondsSinceEpoch
-newYearsSeconds year =
-    toSeconds (dateTime { zero | year = year })
-
-
 buildMeta : List PhotoMetadata -> MetadataDict
 buildMeta list =
     list
@@ -162,18 +152,18 @@ buildMeta list =
 
 
 dateOfFirstPhotoOfYear : Year -> MetadataDict -> DateTime
-dateOfFirstPhotoOfYear year metadata =
+dateOfFirstPhotoOfYear theYear metadata =
     let
         firstPhotoSeconds =
             metadata
                 |> keys
-                |> List.filter (\key -> yearOfDate key == year)
+                |> List.filter (\key -> yearOfDate key == theYear)
                 |> List.sort
                 |> List.head
     in
         case firstPhotoSeconds of
             Nothing ->
-                dateTime { zero | year = year }
+                dateTime { zero | year = theYear }
 
             Just seconds ->
                 addSeconds seconds epoch
