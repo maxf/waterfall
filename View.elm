@@ -65,12 +65,12 @@ dateColour date metadata =
             Just r ->
                 let
                     shade =
-                        220
-                            - (220 * min 1 ((List.length r |> toFloat) / 50))
+                        100
+                            - (100 * min 1 ((List.length r |> toFloat) / 50))
                             |> floor
                             |> toString
                 in
-                    ( "rgb(" ++ shade ++ ",255, " ++ shade ++ ")"
+                    ( "rgb(" ++ shade ++ "," ++ shade ++ ", 128)"
                     , List.length r
                     )
 
@@ -90,7 +90,7 @@ isLastDayOfMonth date =
         nextDay =
             addDays 1 date
     in
-        month date /= month nextDay && weekday date /= Date.Sun
+        (month date /= month nextDay) && (weekday date /= Date.Sun)
 
 
 
@@ -104,27 +104,26 @@ dateStyle dateToDisplay model =
     let
         dateCol =
             dateColour dateToDisplay (photoMetadata model)
-
-        overrideBorderBottom =
-            ( "border-bottom"
-            , if isInLastWeekOfMonth dateToDisplay then
-                "5px solid black"
-              else
-                ""
-            )
-
-        overrideBorderRight =
-            ( "border-right"
-            , if isLastDayOfMonth dateToDisplay then
-                "5px solid black"
-              else
-                ""
-            )
     in
-        [ ( "background-color", Tuple.first dateCol )
-        , overrideBorderBottom
-        , overrideBorderRight
-        ]
+        [ ( "background-color", Tuple.first dateCol ) ]
+
+
+dateBorderClasses : DateTime -> String
+dateBorderClasses dateToDisplay =
+    let
+        borderBottomClass =
+            if isInLastWeekOfMonth dateToDisplay then
+                "last-week"
+            else
+                ""
+
+        borderRightClass =
+            if isLastDayOfMonth dateToDisplay then
+                "last-day"
+            else
+                ""
+    in
+        String.join " " [ borderBottomClass, borderRightClass ]
 
 
 viewDate : Int -> WeekNumber -> Model -> DayOfWeek -> Html Msg
@@ -147,10 +146,13 @@ viewDate offset weekNumber model dayOfWeek =
                 "today"
             else
                 ""
+
+        borderClasses =
+            dateBorderClasses dateToDisplay
     in
         if year dateToDisplay == (model |> dateShown |> year) then
             td
-                [ class (monthClass ++ " " ++ shownDateClass)
+                [ class (monthClass ++ " " ++ shownDateClass ++ " " ++ borderClasses)
                 , style (dateStyle dateToDisplay model)
                 , onClick (ShowPhotosForDate dateToDisplay)
                 ]

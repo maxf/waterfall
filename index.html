@@ -14,14 +14,11 @@
        width: 100%;
      }
      td {
-       border: 1px solid black;
+       border: 1px solid #7e7e7e;
        width: 1.3em;
        height: 1.3em;
        text-align: center;
        cursor: pointer;
-     }
-     td.even {
-       background: #fcf;
      }
      td.today {
        outline: 5px solid red;
@@ -46,11 +43,18 @@
        height: 100vh;
      }
      .calendar {
-       background: white;
+       background: black;
+       color: #dfdfdf;
        width: 13em;
        overflow: auto;
        max-height: 100vh;
        padding: 1em;
+     }
+     .calendar td.last-week {
+       border-bottom: 5px solid #ccc;
+     }
+     .calendar td.last-day {
+       border-right: 5px solid #ccc;
      }
      .year-buttons {
        margin: .5em 0;

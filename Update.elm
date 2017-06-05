@@ -41,7 +41,9 @@ update msg model =
             )
 
         ShowPhotosForDate date ->
-            ( model |> withDateShown date
+            ( model
+                |> withDateShown date
+                |> withError Nothing
             , Task.attempt scrollResult (Dom.Scroll.toTop "photos")
             )
 
