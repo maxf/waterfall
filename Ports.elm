@@ -35,7 +35,7 @@ port loadModel : String -> Cmd msg
 -- subscriptions
 
 
-port deletePhotoResult : (( String, String ) -> msg) -> Sub msg
+port deletePhotoResult : (String -> msg) -> Sub msg
 
 
 port scanPhotosResult : (List PhotoMetadata -> msg) -> Sub msg

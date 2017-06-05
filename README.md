@@ -23,6 +23,10 @@ $ ./node_modules/.bin/electron .
 - pop up file selector when metadata is empty
 - improve design: CSS, messages, etc.
 - annotations
+- view videos
+- Better dialog to remove file (merge delete-related)
+- Delete directory when removing last file in it
+
 
 ### Maybe
 

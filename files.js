@@ -4,28 +4,65 @@
   const electron = require('electron');
   const path = require('path');
 
-  function doDeleteFile(filePath, fileName) {
-    const fullName = filePath + "/" + fileName;
+
+  // returns the filePath or '' if error
+  function doDeleteFile(baseDir, filePath) {
+    const fullName = baseDir + "/" + filePath;
+    var result = '';
 
     if (fs.existsSync(fullName)) {
       try {
         fs.unlinkSync(fullName);
       } catch(e) {
         console.log('failed to delete', fullName, e);
-        return false;
+        result = '';
       }
       console.log('delete succeeded:', fullName);
-      return true;
+      result = filePath;
     } else {
       console.log('failed to find', fullName);
-      return false;
+      result = '';
+    }
+    return result;
+  }
+
+
+  function deleteRelatedFiles(baseDir, filePath) {
+    const filePathNoExt =
+      filePath.replace(/(.*)\.[^.]+/, '$1');
+    const fileDir =
+      (baseDir + '/' + filePath).replace(/(.*)\/[^/]+/, '$1');
+
+    const relatedFilesNames =
+      fs
+        .readdirSync(fileDir)
+        .filter(fileName =>
+          (fileDir + '/' + fileName).indexOf(filePathNoExt) !== -1
+        );
+
+    if (relatedFilesNames.length) {
+      const confirm =
+        window.confirm('Would you also like to delete:\n' + relatedFilesNames.join('\n') + '?');
+      if (confirm) {
+        relatedFilesNames.map(fileName => doDeleteFile(fileDir, fileName))
+      }
     }
   }
 
-  function deleteFile(filePath, fileName) {
+
+  // returns the name of the file
+  function deleteFile(baseDir, filePath) {
+    var deletedFilePath = '';
     const reallyDelete =
       window.confirm('Are you sure you want to delete this picture?');
-    return reallyDelete ? doDeleteFile(filePath, fileName) : "";
+
+    if (reallyDelete) {
+      deletedFilePath = doDeleteFile(baseDir, filePath);
+      deleteRelatedFiles(baseDir, filePath);
+    } else {
+      deletedFilePath = '';
+    }
+    return deletedFilePath;
   }
 
 

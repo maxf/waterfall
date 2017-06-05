@@ -15,7 +15,7 @@ type Msg
     | ShowPhotosForDate DateTime
     | ScrollPhotosFinished
     | DeletePhoto PhotoMetadata
-    | DeletePhotoResult ( String, String )
+    | DeletePhotoResult String
     | ScanPhotosResult (List PhotoMetadata)
     | RequestPhotoDir
     | RequestPhotoDirResult (List String)
@@ -53,9 +53,9 @@ update msg model =
         DeletePhoto metadata ->
             ( model, deletePhoto ( model |> photoDir, metadata.fileName ) )
 
-        DeletePhotoResult ( _, deletedFileName ) ->
-            if deletedFileName /= "" then
-                ( model |> removePhoto deletedFileName
+        DeletePhotoResult deletedFilePath ->
+            if deletedFilePath /= "" then
+                ( model |> removePhoto deletedFilePath
                 , saveModel (toJson model)
                 )
             else
