@@ -51,7 +51,7 @@ update msg model =
             ( model, Cmd.none )
 
         DeletePhoto metadata ->
-            ( model, deletePhoto ( model |> photoDir, metadata.fileName ) )
+            ( model, deletePhoto ( model |> photoDir, metadata.relativeFilePath ) )
 
         DeletePhotoResult deletedFilePath ->
             if deletedFilePath /= "" then

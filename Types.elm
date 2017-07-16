@@ -37,7 +37,7 @@ type alias JsonString =
 
 
 type alias PhotoMetadata =
-    { fileName : FileName
+    { relativeFilePath : FileName
     , dateCreated : SecondsSinceEpoch
     }
 

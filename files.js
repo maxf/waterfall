@@ -105,23 +105,45 @@
       .filter(name => /\.(jpg|JPG|jpeg|JPEG)$/.test(name));
   }
 
+
+  // array of { absoluteFilePath: "", created: "" }
+  // persisted from the previous file scan
+  var currentList = []; // TODO: must be reset on directory change
+
+  const extractExifInfo = (photosDir, absoluteFilePath) => {
+    const createDate = readCreateDate(absoluteFilePath);
+    const res = createDate
+      ?
+        {
+          relativeFilePath: absoluteFilePath.replace(photosDir + '/', ''),
+          dateCreated: createDate
+        }
+      : {relativeFilePath:"", dateCreated:""};
+    return res;
+  }
+
+  const addExifInfo2 = photosDir => absoluteFilePath => {
+    const relPath = absoluteFilePath.replace(photosDir + '/', '');
+    const existing = currentList.find(el => {
+      return el.relativeFilePath === relPath
+    });
+
+    if (existing) {
+      return existing;
+    } else {
+      return extractExifInfo(photosDir, absoluteFilePath);
+    }
+  }
+
   const scanPhotos = (photosDir, cb) => {
     readDirAsync(
       photosDir,
-      photos => cb(
-          photos
-            .map(path => {
-              const createDate = readCreateDate(path);
-              return createDate
-                ?
-                  {
-                    fileName: path.replace(photosDir + '/', ''),
-                    dateCreated: createDate
-                  }
-                : {filename:"", dateCreated:""};
-            })
-            .filter(path => path.fileName && path.dateCreated)
-      )
+      photos => {
+        currentList = photos
+          .map(addExifInfo2(photosDir))
+          .filter(path => path.relativeFilePath && path.dateCreated);
+        return cb(currentList);
+      }
     )
   }
 

@@ -115,7 +115,7 @@ removePhotoFromDict : FileName -> MetadataDict -> MetadataDict
 removePhotoFromDict fileName dict =
     let
         removePhoto2 filename _ list =
-            List.filter (\m -> m.fileName /= filename) list
+            List.filter (\m -> m.relativeFilePath /= filename) list
     in
         dict
             |> Dict.map (removePhoto2 fileName)
@@ -133,7 +133,7 @@ toJson (Model model) =
         metadataEncoder : PhotoMetadata -> Encode.Value
         metadataEncoder metadata =
             Encode.object
-                [ ( "fileName", Encode.string metadata.fileName )
+                [ ( "relativeFilePath", Encode.string metadata.relativeFilePath )
                 , ( "dateCreated", Encode.int metadata.dateCreated )
                 ]
 
@@ -191,7 +191,7 @@ fromJsonInternal json =
 
         metadataDecoder =
             Decode.map2 PhotoMetadata
-                (field "fileName" Decode.string)
+                (field "relativeFilePath" Decode.string)
                 (field "dateCreated" Decode.int)
 
         metadataDictDecoder =
