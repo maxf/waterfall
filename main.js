@@ -25,24 +25,3 @@ app.ports.loadModel.subscribe(() => {
     app.ports.loadModelResult.send(err ? "" : data.toString());
   })
 });
-
-
-
-let closeWindow = false
-
-window.addEventListener('beforeunload', evt => {
-  if (closeWindow) return;
-  evt.returnValue = false;
-  // save the model (even if user doesn't quit
-  app.ports.applicationQuitting.send("save model now");
-  setTimeout(() => {
-    let result = dialog.showMessageBox({
-      message: 'Quit app?',
-      buttons: ['Yes', 'No']
-    });
-    if (result == 0) {
-      closeWindow = true
-      remote.getCurrentWindow().close();
-    }
-  })
-})
