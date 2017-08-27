@@ -3,8 +3,8 @@ module Main exposing (main)
 import Html
 import View
 import Model exposing (Model)
-import Update exposing (Msg(RequestPhotoDirResult, DeletePhotoResult, ScanPhotosResult, ModelSaved, ModelLoaded, SaveModel), update)
-import Ports exposing (requestPhotoDirResult, deletePhotoResult, scanPhotosResult, saveModelResult, loadModel, loadModelResult, applicationQuitting)
+import Update exposing (Msg(DeletePhotoResult, ScanPhotosResult, ModelSaved, ModelLoaded, SaveModel), update)
+import Ports exposing (deletePhotoResult, scanPhotosResult, saveModelResult, loadModel, loadModelResult, applicationQuitting)
 
 
 main : Program Never Model Msg
@@ -27,8 +27,7 @@ init =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ requestPhotoDirResult RequestPhotoDirResult
-        , deletePhotoResult DeletePhotoResult
+        [ deletePhotoResult DeletePhotoResult
         , scanPhotosResult ScanPhotosResult
         , saveModelResult ModelSaved
         , loadModelResult ModelLoaded

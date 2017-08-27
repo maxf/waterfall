@@ -10,7 +10,7 @@ import Dict
 import Types exposing (Year, toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, ErrorMessage, dateToString)
 import Model exposing (Model, photoMetadata, dateShown, photoDir, error)
 import ViewPhotos exposing (viewPhotos)
-import Update exposing (Msg(ShowPhotosForDate, DecrementYear, IncrementYear, RequestPhotoDir))
+import Update exposing (Msg(ShowPhotosForDate, DecrementYear, IncrementYear))
 
 
 newYearsDayOffset : Year -> Int
@@ -225,7 +225,6 @@ viewCalendar model =
         div
             [ class "calendar" ]
             [ span [] [ model |> photoDir |> text ]
-            , button [ onClick RequestPhotoDir ] [ text "Choose folder" ]
             , h1 [] [ text (toString yearToDisplay) ]
             , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
             , viewYearButtons yearToDisplay

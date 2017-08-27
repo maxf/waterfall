@@ -1,11 +1,11 @@
-module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, ShowPhotosForDate, DecrementYear, IncrementYear, RequestPhotoDir, RequestPhotoDirResult, ModelSaved, ModelLoaded, SaveModel), update)
+module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, ShowPhotosForDate, DecrementYear, IncrementYear, ModelSaved, ModelLoaded, SaveModel), update)
 
 import Dom exposing (Error)
 import Dom.Scroll
 import Task
 import Time.DateTime exposing (DateTime, year)
 import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorMessage, JsonString)
-import Ports exposing (deletePhoto, saveModel, requestPhotoDir, scanPhotos)
+import Ports exposing (deletePhoto, saveModel, scanPhotos)
 import Model exposing (Model, withDateShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, toJson, fromJson, photoMetadata, dateShown, photoDir)
 
 
@@ -17,8 +17,6 @@ type Msg
     | DeletePhoto PhotoMetadata
     | DeletePhotoResult String
     | ScanPhotosResult (List PhotoMetadata)
-    | RequestPhotoDir
-    | RequestPhotoDirResult (List String)
     | ModelSaved Bool
       --    | ModelLoaded (Result ErrorMessage JsonString) ### CANT work because the value is returned from a port
     | ModelLoaded JsonString
@@ -77,24 +75,6 @@ update msg model =
                         |> withDateShown date
             in
                 ( newModel, saveModel (toJson newModel) )
-
-        RequestPhotoDir ->
-            ( model, requestPhotoDir "" )
-
-        RequestPhotoDirResult paths ->
-            case paths of
-                [ path ] ->
-                    ( model
-                        |> withPhotoDir path
-                        |> withError (Just "Scanning photos")
-                    , scanPhotos path
-                    )
-
-                _ ->
-                    ( model
-                        |> withError (Just "Error: bad response from photo dialog")
-                    , Cmd.none
-                    )
 
         ModelSaved _ ->
             ( model, Cmd.none )

@@ -11987,11 +11987,6 @@ var _user$project$Ports$scanPhotos = _elm_lang$core$Native_Platform.outgoingPort
 	function (v) {
 		return v;
 	});
-var _user$project$Ports$requestPhotoDir = _elm_lang$core$Native_Platform.outgoingPort(
-	'requestPhotoDir',
-	function (v) {
-		return v;
-	});
 var _user$project$Ports$saveModel = _elm_lang$core$Native_Platform.outgoingPort(
 	'saveModel',
 	function (v) {
@@ -12018,9 +12013,6 @@ var _user$project$Ports$scanPhotosResult = _elm_lang$core$Native_Platform.incomi
 					A2(_elm_lang$core$Json_Decode$field, 'dateCreated', _elm_lang$core$Json_Decode$int));
 			},
 			A2(_elm_lang$core$Json_Decode$field, 'relativeFilePath', _elm_lang$core$Json_Decode$string))));
-var _user$project$Ports$requestPhotoDirResult = _elm_lang$core$Native_Platform.incomingPort(
-	'requestPhotoDirResult',
-	_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string));
 var _user$project$Ports$loadModelResult = _elm_lang$core$Native_Platform.incomingPort('loadModelResult', _elm_lang$core$Json_Decode$string);
 var _user$project$Ports$saveModelResult = _elm_lang$core$Native_Platform.incomingPort('saveModelResult', _elm_lang$core$Json_Decode$bool);
 var _user$project$Ports$applicationQuitting = _elm_lang$core$Native_Platform.incomingPort('applicationQuitting', _elm_lang$core$Json_Decode$string);
@@ -12034,10 +12026,6 @@ var _user$project$Update$ModelLoaded = function (a) {
 var _user$project$Update$ModelSaved = function (a) {
 	return {ctor: 'ModelSaved', _0: a};
 };
-var _user$project$Update$RequestPhotoDirResult = function (a) {
-	return {ctor: 'RequestPhotoDirResult', _0: a};
-};
-var _user$project$Update$RequestPhotoDir = {ctor: 'RequestPhotoDir'};
 var _user$project$Update$ScanPhotosResult = function (a) {
 	return {ctor: 'ScanPhotosResult', _0: a};
 };
@@ -12137,39 +12125,11 @@ var _user$project$Update$update = F2(
 					_1: _user$project$Ports$saveModel(
 						_user$project$Model$toJson(newModel))
 				};
-			case 'RequestPhotoDir':
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Ports$requestPhotoDir('')
-				};
-			case 'RequestPhotoDirResult':
-				var _p3 = _p1._0;
-				if ((_p3.ctor === '::') && (_p3._1.ctor === '[]')) {
-					var _p4 = _p3._0;
-					return {
-						ctor: '_Tuple2',
-						_0: A2(
-							_user$project$Model$withError,
-							_elm_lang$core$Maybe$Just('Scanning photos'),
-							A2(_user$project$Model$withPhotoDir, _p4, model)),
-						_1: _user$project$Ports$scanPhotos(_p4)
-					};
-				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: A2(
-							_user$project$Model$withError,
-							_elm_lang$core$Maybe$Just('Error: bad response from photo dialog'),
-							model),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				}
 			case 'ModelSaved':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'ModelLoaded':
-				var _p6 = _p1._0;
-				if (_elm_lang$core$Native_Utils.eq(_p6, '')) {
+				var _p4 = _p1._0;
+				if (_elm_lang$core$Native_Utils.eq(_p4, '')) {
 					return {
 						ctor: '_Tuple2',
 						_0: A2(
@@ -12179,18 +12139,18 @@ var _user$project$Update$update = F2(
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var _p5 = _user$project$Model$fromJson(_p6);
-					if (_p5.ctor === 'Err') {
+					var _p3 = _user$project$Model$fromJson(_p4);
+					if (_p3.ctor === 'Err') {
 						return {
 							ctor: '_Tuple2',
 							_0: A2(
 								_user$project$Model$withError,
-								_elm_lang$core$Maybe$Just(_p5._0),
+								_elm_lang$core$Maybe$Just(_p3._0),
 								model),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
 					} else {
-						return {ctor: '_Tuple2', _0: _p5._0, _1: _elm_lang$core$Platform_Cmd$none};
+						return {ctor: '_Tuple2', _0: _p3._0, _1: _elm_lang$core$Platform_Cmd$none};
 					}
 				}
 			default:
@@ -12752,109 +12712,94 @@ var _user$project$View$viewCalendar = function (model) {
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$button,
+					_elm_lang$html$Html$h1,
+					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(_user$project$Update$RequestPhotoDir),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text('Choose folder'),
+						_0: _elm_lang$html$Html$text(
+							_elm_lang$core$Basics$toString(yearToDisplay)),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$h1,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								_elm_lang$core$Basics$toString(yearToDisplay)),
-							_1: {ctor: '[]'}
-						}),
+					_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
 					_1: {
 						ctor: '::',
-						_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
+						_0: _user$project$View$viewYearButtons(yearToDisplay),
 						_1: {
 							ctor: '::',
-							_0: _user$project$View$viewYearButtons(yearToDisplay),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$table,
-									{ctor: '[]'},
-									{
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$thead,
-											{ctor: '[]'},
-											{
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$tr,
-													{ctor: '[]'},
-													A2(
-														_elm_lang$core$List$map,
-														function (d) {
-															return A2(
-																_elm_lang$html$Html$th,
-																{ctor: '[]'},
-																{
-																	ctor: '::',
-																	_0: _elm_lang$html$Html$text(d),
-																	_1: {ctor: '[]'}
-																});
-														},
-														{
+							_0: A2(
+								_elm_lang$html$Html$table,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$thead,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$tr,
+												{ctor: '[]'},
+												A2(
+													_elm_lang$core$List$map,
+													function (d) {
+														return A2(
+															_elm_lang$html$Html$th,
+															{ctor: '[]'},
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html$text(d),
+																_1: {ctor: '[]'}
+															});
+													},
+													{
+														ctor: '::',
+														_0: 'M',
+														_1: {
 															ctor: '::',
-															_0: 'M',
+															_0: 'T',
 															_1: {
 																ctor: '::',
-																_0: 'T',
+																_0: 'W',
 																_1: {
 																	ctor: '::',
-																	_0: 'W',
+																	_0: 'T',
 																	_1: {
 																		ctor: '::',
-																		_0: 'T',
+																		_0: 'F',
 																		_1: {
 																			ctor: '::',
-																			_0: 'F',
+																			_0: 'S',
 																			_1: {
 																				ctor: '::',
 																				_0: 'S',
-																				_1: {
-																					ctor: '::',
-																					_0: 'S',
-																					_1: {ctor: '[]'}
-																				}
+																				_1: {ctor: '[]'}
 																			}
 																		}
 																	}
 																}
 															}
-														})),
-												_1: {ctor: '[]'}
-											}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$tbody,
-												{ctor: '[]'},
-												A2(_user$project$View$viewWeeks, offset, model)),
+														}
+													})),
 											_1: {ctor: '[]'}
-										}
-									}),
-								_1: {
-									ctor: '::',
-									_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
+										}),
 									_1: {
 										ctor: '::',
-										_0: _user$project$View$viewYearButtons(yearToDisplay),
+										_0: A2(
+											_elm_lang$html$Html$tbody,
+											{ctor: '[]'},
+											A2(_user$project$View$viewWeeks, offset, model)),
 										_1: {ctor: '[]'}
 									}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
+								_1: {
+									ctor: '::',
+									_0: _user$project$View$viewYearButtons(yearToDisplay),
+									_1: {ctor: '[]'}
 								}
 							}
 						}
@@ -12902,24 +12847,20 @@ var _user$project$Main$subscriptions = function (_p0) {
 	return _elm_lang$core$Platform_Sub$batch(
 		{
 			ctor: '::',
-			_0: _user$project$Ports$requestPhotoDirResult(_user$project$Update$RequestPhotoDirResult),
+			_0: _user$project$Ports$deletePhotoResult(_user$project$Update$DeletePhotoResult),
 			_1: {
 				ctor: '::',
-				_0: _user$project$Ports$deletePhotoResult(_user$project$Update$DeletePhotoResult),
+				_0: _user$project$Ports$scanPhotosResult(_user$project$Update$ScanPhotosResult),
 				_1: {
 					ctor: '::',
-					_0: _user$project$Ports$scanPhotosResult(_user$project$Update$ScanPhotosResult),
+					_0: _user$project$Ports$saveModelResult(_user$project$Update$ModelSaved),
 					_1: {
 						ctor: '::',
-						_0: _user$project$Ports$saveModelResult(_user$project$Update$ModelSaved),
+						_0: _user$project$Ports$loadModelResult(_user$project$Update$ModelLoaded),
 						_1: {
 							ctor: '::',
-							_0: _user$project$Ports$loadModelResult(_user$project$Update$ModelLoaded),
-							_1: {
-								ctor: '::',
-								_0: _user$project$Ports$applicationQuitting(_user$project$Update$SaveModel),
-								_1: {ctor: '[]'}
-							}
+							_0: _user$project$Ports$applicationQuitting(_user$project$Update$SaveModel),
+							_1: {ctor: '[]'}
 						}
 					}
 				}
@@ -12976,7 +12917,6 @@ for (var publicModule in Elm)
 (function() {
   const fs = require('fs');
   const exif = require('exif-parser');
-  const electron = require('electron');
   const path = require('path');
 
 
@@ -13122,21 +13062,12 @@ for (var publicModule in Elm)
     )
   }
 
-  const requestPhotoDir = () =>
-    // https://github.com/electron/electron/blob/master/docs/api/dialog.md
-    electron.remote.dialog.showOpenDialog(
-      {
-        properties: ['openDirectory'],
-        title: 'Please choose a directory with pictures'
-      }
-    ) || []
 
   // Metadata file save/load
 
   let modelObj = {}; // keep the metadata here so we can save it quickly on exit
 
-  const modelFile =
-    path.join(electron.remote.app.getPath('userData'), 'model.json');
+  const modelFile = 'model.json';
 
   const saveModel = (model, cb) =>
     fs.writeFile(modelFile, modelObj = model, cb);
@@ -13150,7 +13081,6 @@ for (var publicModule in Elm)
   module.exports = {
     deleteFile : deleteFile,
     scanPhotos: scanPhotos,
-    requestPhotoDir : requestPhotoDir,
     saveModel : saveModel,
     loadModel : loadModel,
   };
@@ -13158,7 +13088,7 @@ for (var publicModule in Elm)
 }());
 
 }).call(this,require('_process'))
-},{"_process":16,"electron":4,"exif-parser":5,"fs":14,"path":15}],3:[function(require,module,exports){
+},{"_process":15,"exif-parser":4,"fs":13,"path":14}],3:[function(require,module,exports){
 const Elm = require('./elm.js');
 const files = require('./files.js');
 const node = document.getElementById('main');
@@ -13175,10 +13105,6 @@ app.ports.scanPhotos.subscribe(dir => {
   files.scanPhotos(dir, metadataList => {
     app.ports.scanPhotosResult.send(metadataList);
   })
-});
-app.ports.requestPhotoDir.subscribe(() => {
-  const dir = files.requestPhotoDir();
-  app.ports.requestPhotoDirResult.send(dir);
 });
 app.ports.saveModel.subscribe(model => {
   files.saveModel(model, err => {
@@ -13213,20 +13139,6 @@ window.addEventListener('beforeunload', evt => {
 })
 
 },{"./elm.js":1,"./files.js":2}],4:[function(require,module,exports){
-(function (__dirname){
-var fs = require('fs')
-var path = require('path')
-
-var pathFile = path.join(__dirname, 'path.txt')
-
-if (fs.existsSync(pathFile)) {
-  module.exports = path.join(__dirname, fs.readFileSync(pathFile, 'utf-8'))
-} else {
-  throw new Error('Electron failed to install correctly, please delete node_modules/electron and try installing again')
-}
-
-}).call(this,"/node_modules/electron")
-},{"fs":14,"path":15}],5:[function(require,module,exports){
 var Parser = require('./lib/parser');
 
 function getGlobal() {
@@ -13245,7 +13157,7 @@ module.exports = {
 		}
 	}
 };
-},{"./lib/bufferstream":6,"./lib/dom-bufferstream":8,"./lib/parser":12}],6:[function(require,module,exports){
+},{"./lib/bufferstream":5,"./lib/dom-bufferstream":7,"./lib/parser":11}],5:[function(require,module,exports){
 function BufferStream(buffer, offset, length, bigEndian) {
 	this.buffer = buffer;
 	this.offset = offset || 0;
@@ -13335,7 +13247,7 @@ BufferStream.prototype = {
 
 module.exports = BufferStream;
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 function parseNumber(s) {
 	return parseInt(s, 10);
 }
@@ -13421,7 +13333,7 @@ module.exports = {
 	parseDateWithTimezoneFormat: parseDateWithTimezoneFormat,
 	parseExifDate: parseExifDate
 };
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*jslint browser: true, devel: true, bitwise: false, debug: true, eqeq: false, es5: true, evil: false, forin: false, newcap: false, nomen: true, plusplus: true, regexp: false, unparam: false, sloppy: true, stupid: false, sub: false, todo: true, vars: true, white: true */
 
 function DOMBufferStream(arrayBuffer, offset, length, bigEndian, global, parentOffset) {
@@ -13521,7 +13433,7 @@ DOMBufferStream.prototype = {
 
 module.exports = DOMBufferStream;
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = {
 	exif : {
 		0x0001 : "InteropIndex",
@@ -13990,7 +13902,7 @@ module.exports = {
 		0x001F : 'GPSHPositioningError'
 	}
 };
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*jslint browser: true, devel: true, bitwise: false, debug: true, eqeq: false, es5: true, evil: false, forin: false, newcap: false, nomen: true, plusplus: true, regexp: false, unparam: false, sloppy: true, stupid: false, sub: false, todo: true, vars: true, white: true */
 
 function readExifValue(format, stream) {
@@ -14156,7 +14068,7 @@ module.exports = {
 		return true;
 	}
 };
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*jslint browser: true, devel: true, bitwise: false, debug: true, eqeq: false, es5: true, evil: false, forin: false, newcap: false, nomen: true, plusplus: true, regexp: false, unparam: false, sloppy: true, stupid: false, sub: false, todo: true, vars: true, white: true */
 
 module.exports = {
@@ -14223,7 +14135,7 @@ module.exports = {
 		return nameStruct;
 	}
 };
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*jslint browser: true, devel: true, bitwise: false, debug: true, eqeq: false, es5: true, evil: false, forin: false, newcap: false, nomen: true, plusplus: true, regexp: false, unparam: false, sloppy: true, stupid: false, sub: false, todo: true, vars: true, white: true */
 
 var jpeg = require('./jpeg'),
@@ -14426,7 +14338,7 @@ Parser.prototype = {
 
 
 module.exports = Parser;
-},{"./exif":10,"./exif-tags":9,"./jpeg":11,"./simplify":13}],13:[function(require,module,exports){
+},{"./exif":9,"./exif-tags":8,"./jpeg":10,"./simplify":12}],12:[function(require,module,exports){
 var exif = require('./exif');
 var date = require('./date');
 
@@ -14497,9 +14409,9 @@ module.exports = {
 	}
 };
 
-},{"./date":7,"./exif":10}],14:[function(require,module,exports){
+},{"./date":6,"./exif":9}],13:[function(require,module,exports){
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -14727,7 +14639,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":16}],16:[function(require,module,exports){
+},{"_process":15}],15:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 

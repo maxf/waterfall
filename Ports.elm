@@ -3,8 +3,6 @@ port module Ports
         ( deletePhoto
         , scanPhotos
         , saveModel
-        , requestPhotoDir
-        , requestPhotoDirResult
         , deletePhotoResult
         , scanPhotosResult
         , saveModelResult
@@ -22,9 +20,6 @@ port deletePhoto : ( String, String ) -> Cmd msg
 port scanPhotos : String -> Cmd msg
 
 
-port requestPhotoDir : String -> Cmd msg
-
-
 port saveModel : String -> Cmd msg
 
 
@@ -39,9 +34,6 @@ port deletePhotoResult : (String -> msg) -> Sub msg
 
 
 port scanPhotosResult : (List PhotoMetadata -> msg) -> Sub msg
-
-
-port requestPhotoDirResult : (List String -> msg) -> Sub msg
 
 
 port loadModelResult : (String -> msg) -> Sub msg

@@ -15,10 +15,6 @@ app.ports.scanPhotos.subscribe(dir => {
     app.ports.scanPhotosResult.send(metadataList);
   })
 });
-app.ports.requestPhotoDir.subscribe(() => {
-  const dir = files.requestPhotoDir();
-  app.ports.requestPhotoDirResult.send(dir);
-});
 app.ports.saveModel.subscribe(model => {
   files.saveModel(model, err => {
     app.ports.saveModelResult.send(!err);
