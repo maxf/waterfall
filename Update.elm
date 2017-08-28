@@ -4,11 +4,10 @@ import Dom exposing (Error)
 import Dom.Scroll
 import Task
 import Http
-import Json.Decode exposing (list, string)
 import Time.DateTime exposing (DateTime, year)
 import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorMessage, JsonString, iso8601ToEpochSeconds)
 import Ports exposing (deletePhoto)
-import Model exposing (Model, withDateShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, toJson, fromJson, photoMetadata, dateShown, photoDir)
+import Model exposing (Model, withDateShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, toJson, fromJson, photoMetadata, dateShown, photoDir, lastDateWithPhotos)
 
 
 type Msg
@@ -58,11 +57,11 @@ update msg model =
                 ( model, Cmd.none )
 
         ScanPhotosResult (Err httpErrorMsg) ->
-                ( model |> withError (Just "Error"), Cmd.none )
+            ( model |> withError (Just "Error"), Cmd.none )
 
         ScanPhotosResult (Ok photoList) ->
             let
-                fileNameToMetadata: String -> PhotoMetadata
+                fileNameToMetadata : String -> PhotoMetadata
                 fileNameToMetadata filename =
                     PhotoMetadata
                         filename
@@ -75,8 +74,9 @@ update msg model =
                     Types.buildMeta metadataList
 
                 date =
-                    dateOfFirstPhotoOfYear (model |> dateShown |> year) metadata
+                    lastDateWithPhotos metadata
 
+                -- dateOfFirstPhotoOfYear (model |> dateShown |> year) metadata
                 newModel =
                     model
                         |> withPhotoMetadata metadata
@@ -85,6 +85,7 @@ update msg model =
                         |> withDateShown date
             in
                 ( newModel, Cmd.none )
+
 
 
 -- Misc

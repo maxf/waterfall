@@ -146,16 +146,16 @@ addYear increment metadata date =
     dateOfFirstPhotoOfYear (year date + increment) metadata
 
 
-iso8601ToEpochSeconds: String -> SecondsSinceEpoch
+iso8601ToEpochSeconds : String -> SecondsSinceEpoch
 iso8601ToEpochSeconds s =
-    let
-        _ = Debug.log ">>" s
-        _ = Debug.log ">>>" (fromISO8601 s)
-    in
-        case fromISO8601 s of
-            Err _ -> 0
-            Ok dateTime ->
-                (dateTime
+    case fromISO8601 s of
+        Err _ ->
+            0
+
+        Ok dateTime ->
+            (dateTime
                 |> toTimestamp
                 |> inMilliseconds
-                |> round) // 1000
+                |> round
+            )
+                // 1000

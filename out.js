@@ -15962,18 +15962,13 @@ var _elm_lang$http$Http$StringPart = F2(
 var _elm_lang$http$Http$stringPart = _elm_lang$http$Http$StringPart;
 
 var _user$project$Types$iso8601ToEpochSeconds = function (s) {
-	var _p0 = A2(
-		_elm_lang$core$Debug$log,
-		'>>>',
-		_elm_community$elm_time$Time_DateTime$fromISO8601(s));
-	var _p1 = A2(_elm_lang$core$Debug$log, '>>', s);
-	var _p2 = _elm_community$elm_time$Time_DateTime$fromISO8601(s);
-	if (_p2.ctor === 'Err') {
+	var _p0 = _elm_community$elm_time$Time_DateTime$fromISO8601(s);
+	if (_p0.ctor === 'Err') {
 		return 0;
 	} else {
 		return (_elm_lang$core$Basics$round(
 			_elm_lang$core$Time$inMilliseconds(
-				_elm_community$elm_time$Time_DateTime$toTimestamp(_p2._0))) / 1000) | 0;
+				_elm_community$elm_time$Time_DateTime$toTimestamp(_p0._0))) / 1000) | 0;
 	}
 };
 var _user$project$Types$toSeconds = function (date) {
@@ -16014,14 +16009,14 @@ var _user$project$Types$dateOfFirstPhotoOfYear = F2(
 							theYear);
 					},
 					_elm_lang$core$Dict$keys(metadata))));
-		var _p3 = firstPhotoSeconds;
-		if (_p3.ctor === 'Nothing') {
+		var _p1 = firstPhotoSeconds;
+		if (_p1.ctor === 'Nothing') {
 			return _elm_community$elm_time$Time_DateTime$dateTime(
 				_elm_lang$core$Native_Utils.update(
 					_elm_community$elm_time$Time_DateTime$zero,
 					{year: theYear}));
 		} else {
-			return A2(_elm_community$elm_time$Time_DateTime$addSeconds, _p3._0, _elm_community$elm_time$Time_DateTime$epoch);
+			return A2(_elm_community$elm_time$Time_DateTime$addSeconds, _p1._0, _elm_community$elm_time$Time_DateTime$epoch);
 		}
 	});
 var _user$project$Types$addYear = F3(
@@ -16045,8 +16040,8 @@ var _user$project$Types$roundToStartOfDay = function (seconds) {
 };
 var _user$project$Types$addPhotoMetadata = F2(
 	function (metadata, dict) {
-		var _p4 = dict;
-		if (_p4.ctor === 'Nothing') {
+		var _p2 = dict;
+		if (_p2.ctor === 'Nothing') {
 			return _elm_lang$core$Maybe$Just(
 				{
 					ctor: '::',
@@ -16055,7 +16050,7 @@ var _user$project$Types$addPhotoMetadata = F2(
 				});
 		} else {
 			return _elm_lang$core$Maybe$Just(
-				{ctor: '::', _0: metadata, _1: _p4._0});
+				{ctor: '::', _0: metadata, _1: _p2._0});
 		}
 	});
 var _user$project$Types$addToMetadataDict = F2(
@@ -16087,6 +16082,22 @@ var _user$project$Types$PhotoMetadata = F2(
 		return {relativeFilePath: a, dateCreated: b};
 	});
 
+var _user$project$Model$lastDateWithPhotos = function (dict) {
+	return _elm_community$elm_time$Time_DateTime$fromTimestamp(
+		_elm_lang$core$Basics$toFloat(
+			A2(
+				F2(
+					function (x, y) {
+						return x * y;
+					}),
+				1000,
+				A2(
+					_elm_lang$core$Maybe$withDefault,
+					1503957375,
+					_elm_lang$core$List$head(
+						_elm_lang$core$List$reverse(
+							_elm_lang$core$Dict$keys(dict)))))));
+};
 var _user$project$Model$toJson = function (_p0) {
 	var _p1 = _p0;
 	var _p2 = _p1._0;
@@ -16249,7 +16260,7 @@ var _user$project$Model$initialModel = _user$project$Model$Model(
 		_elm_community$elm_time$Time_DateTime$dateTime(
 			_elm_lang$core$Native_Utils.update(
 				_elm_community$elm_time$Time_DateTime$zero,
-				{year: 2012, month: 1, day: 1}))));
+				{year: 2017, month: 1, day: 1}))));
 var _user$project$Model$withPhotoDir = F2(
 	function (dir, _p14) {
 		var _p15 = _p14;
@@ -16414,11 +16425,7 @@ var _user$project$Update$update = F2(
 					};
 					var metadataList = A2(_elm_lang$core$List$map, fileNameToMetadata, _p1._0._0);
 					var metadata = _user$project$Types$buildMeta(metadataList);
-					var date = A2(
-						_user$project$Types$dateOfFirstPhotoOfYear,
-						_elm_community$elm_time$Time_DateTime$year(
-							_user$project$Model$dateShown(model)),
-						metadata);
+					var date = _user$project$Model$lastDateWithPhotos(metadata);
 					var newModel = A2(
 						_user$project$Model$withDateShown,
 						date,

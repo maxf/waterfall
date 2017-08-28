@@ -14,10 +14,11 @@ module Model
         , withPhotoMetadata
         , withPhotoDir
         , withMaxPicturesInADay
+        , lastDateWithPhotos
         )
 
 import Types exposing (DirectoryName, ErrorMessage, MetadataDict, FileName, PhotoMetadata, JsonString)
-import Time.DateTime exposing (DateTime, dateTime, zero, toISO8601, fromISO8601)
+import Time.DateTime exposing (DateTime, dateTime, zero, toISO8601, fromISO8601, fromTimestamp)
 import Json.Decode as Decode exposing (Decoder, andThen, fail, succeed, field)
 import Json.Encode as Encode
 import Json.Helpers
@@ -45,7 +46,7 @@ initialModel =
             Nothing
             0
             Dict.empty
-            (dateTime { zero | year = 2012, month = 1, day = 1 })
+            (dateTime { zero | year = 2017, month = 1, day = 1 })
         )
 
 
@@ -209,3 +210,15 @@ fromJsonInternal json =
                 (field "dateShown" dateTimeDecoder)
     in
         Decode.decodeString modelDecoder json
+
+
+lastDateWithPhotos : MetadataDict -> DateTime
+lastDateWithPhotos dict =
+    dict
+        |> Dict.keys
+        |> List.reverse
+        |> List.head
+        |> Maybe.withDefault 1503957375 -- Some date in 2017
+        |> (*) 1000
+        |> toFloat
+        |> fromTimestamp
