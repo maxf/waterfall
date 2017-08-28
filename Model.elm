@@ -41,7 +41,7 @@ initialModel : Model
 initialModel =
     Model
         (InternalModel
-            ""
+            "uploads"
             Nothing
             0
             Dict.empty

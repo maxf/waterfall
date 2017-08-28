@@ -5,6 +5,13 @@ var saveBtn = document.getElementById('bt_save');
 var exifDateEl = document.getElementById('exif_date');
 var fileUploadEl = document.getElementById('inp_files');
 
+// from file names like: 2017:07:28 20:21:49
+// to ISO8601 strings : 2017-07-28T20:21:49
+function exifDateToIso(s) {
+  return s.slice(0, 4) + '-' + s.slice(5, 7) + '-' + s.slice(8, 10) +
+    'T' + s.slice(11, 13) + ':' + s.slice(14, 16) + ':' + s.slice(17, 19) + 'Z';
+}
+
 function fileChange(e) {
   inpImgEl.value = '';
   saveBtn.setAttribute('disabled', 'true')
@@ -45,7 +52,7 @@ function fileChange(e) {
           inpImgEl.value += dataURL + '|';
           EXIF.getData(image, function() {
             var dateCreated = EXIF.getTag(this, "DateTimeOriginal");
-            exifDateEl.value += dateCreated + '|';
+            exifDateEl.value += exifDateToIso(dateCreated) + '|';
             counterEl.value = counterEl.value - 1;
             if (counterEl.value == 0) {
               messageEl.innerHTML = 'Ready to upload';

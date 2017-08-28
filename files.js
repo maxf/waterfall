@@ -134,21 +134,9 @@
     }
   }
 
-  const scanPhotos = (photosDir, cb) => {
-    readDirAsync(
-      photosDir,
-      photos => {
-        currentList = photos
-          .map(addExifInfo2(photosDir))
-          .filter(path => path.relativeFilePath && path.dateCreated);
-        return cb(currentList);
-      }
-    )
-  }
-
 
   // Metadata file save/load
-
+/*
   let modelObj = {}; // keep the metadata here so we can save it quickly on exit
 
   const modelFile = 'model.json';
@@ -161,12 +149,12 @@
         err || (modelObj = data); cb(err, data)
     });
   }
-
+*/
   module.exports = {
-    deleteFile : deleteFile,
-    scanPhotos: scanPhotos,
-    saveModel : saveModel,
-    loadModel : loadModel,
+    deleteFile : deleteFile//,
+//    scanPhotos: scanPhotos,
+//    saveModel : saveModel,
+//    loadModel : loadModel,
   };
 
 }());

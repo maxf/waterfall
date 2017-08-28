@@ -8,6 +8,7 @@ A simple photo gallery
 $ npm install
 $ elm-package install -y
 $ elm-make --output elm.js Main.elm
+$ browserify -o out.js main.js
 ```
 
 ## Running

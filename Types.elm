@@ -1,7 +1,8 @@
-module Types exposing (DirectoryName, PhotoMetadata, Year, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, ErrorMessage, dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, buildMeta, FileName, JsonString)
+module Types exposing (DirectoryName, PhotoMetadata, Year, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, ErrorMessage, dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, buildMeta, FileName, JsonString, iso8601ToEpochSeconds)
 
 import Dict exposing (Dict, keys)
-import Time.DateTime exposing (DateTime, dateTime, zero, epoch, year, month, day, addSeconds, toTimestamp)
+import Time.DateTime exposing (DateTime, dateTime, zero, epoch, year, month, day, addSeconds, toTimestamp, fromISO8601)
+import Time exposing (inMilliseconds)
 
 
 type alias Year =
@@ -143,3 +144,18 @@ dateOfFirstPhotoOfYear theYear metadata =
 addYear : Year -> MetadataDict -> DateTime -> DateTime
 addYear increment metadata date =
     dateOfFirstPhotoOfYear (year date + increment) metadata
+
+
+iso8601ToEpochSeconds: String -> SecondsSinceEpoch
+iso8601ToEpochSeconds s =
+    let
+        _ = Debug.log ">>" s
+        _ = Debug.log ">>>" (fromISO8601 s)
+    in
+        case fromISO8601 s of
+            Err _ -> 0
+            Ok dateTime ->
+                (dateTime
+                |> toTimestamp
+                |> inMilliseconds
+                |> round) // 1000

@@ -1,11 +1,13 @@
-module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, ShowPhotosForDate, DecrementYear, IncrementYear, ModelSaved, ModelLoaded, SaveModel), update)
+module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, ShowPhotosForDate, DecrementYear, IncrementYear), update)
 
 import Dom exposing (Error)
 import Dom.Scroll
 import Task
+import Http
+import Json.Decode exposing (list, string)
 import Time.DateTime exposing (DateTime, year)
-import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorMessage, JsonString)
-import Ports exposing (deletePhoto, saveModel, scanPhotos)
+import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorMessage, JsonString, iso8601ToEpochSeconds)
+import Ports exposing (deletePhoto)
 import Model exposing (Model, withDateShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, toJson, fromJson, photoMetadata, dateShown, photoDir)
 
 
@@ -16,11 +18,7 @@ type Msg
     | ScrollPhotosFinished
     | DeletePhoto PhotoMetadata
     | DeletePhotoResult String
-    | ScanPhotosResult (List PhotoMetadata)
-    | ModelSaved Bool
-      --    | ModelLoaded (Result ErrorMessage JsonString) ### CANT work because the value is returned from a port
-    | ModelLoaded JsonString
-    | SaveModel String
+    | ScanPhotosResult (Result Http.Error (List String))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -54,13 +52,25 @@ update msg model =
         DeletePhotoResult deletedFilePath ->
             if deletedFilePath /= "" then
                 ( model |> removePhoto deletedFilePath
-                , saveModel (toJson model)
+                , Cmd.none
                 )
             else
                 ( model, Cmd.none )
 
-        ScanPhotosResult metadataList ->
+        ScanPhotosResult (Err httpErrorMsg) ->
+                ( model |> withError (Just "Error"), Cmd.none )
+
+        ScanPhotosResult (Ok photoList) ->
             let
+                fileNameToMetadata: String -> PhotoMetadata
+                fileNameToMetadata filename =
+                    PhotoMetadata
+                        filename
+                        (iso8601ToEpochSeconds (String.slice 4 24 filename))
+
+                metadataList =
+                    List.map fileNameToMetadata photoList
+
                 metadata =
                     Types.buildMeta metadataList
 
@@ -74,25 +84,7 @@ update msg model =
                         |> withMaxPicturesInADay (maxNbPictures metadata)
                         |> withDateShown date
             in
-                ( newModel, saveModel (toJson newModel) )
-
-        ModelSaved _ ->
-            ( model, Cmd.none )
-
-        ModelLoaded json ->
-            if json == "" then
-                ( model |> withError (Just "Failed to load model"), Cmd.none )
-            else
-                case fromJson json of
-                    Err message ->
-                        ( model |> withError (Just message), Cmd.none )
-
-                    Ok newModel ->
-                        ( newModel, Cmd.none )
-
-        SaveModel _ ->
-            ( model, saveModel (toJson model) )
-
+                ( newModel, Cmd.none )
 
 
 -- Misc

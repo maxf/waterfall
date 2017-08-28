@@ -1,10 +1,12 @@
 module Main exposing (main)
 
+import Http
+import Json.Decode exposing (list, string)
 import Html
 import View
 import Model exposing (Model)
-import Update exposing (Msg(DeletePhotoResult, ScanPhotosResult, ModelSaved, ModelLoaded, SaveModel), update)
-import Ports exposing (deletePhotoResult, scanPhotosResult, saveModelResult, loadModel, loadModelResult, applicationQuitting)
+import Update exposing (Msg(DeletePhotoResult, ScanPhotosResult), update)
+import Ports exposing (deletePhotoResult)
 
 
 main : Program Never Model Msg
@@ -20,16 +22,21 @@ main =
 init : ( Model, Cmd Msg )
 init =
     ( Model.initialModel
-    , loadModel ""
+    , scanPhotos
     )
+
+
+scanPhotos : Cmd Msg
+scanPhotos =
+    let
+        request =
+            Http.get "photos.php" (Json.Decode.list Json.Decode.string)
+    in
+        Http.send ScanPhotosResult request
 
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ deletePhotoResult DeletePhotoResult
-        , scanPhotosResult ScanPhotosResult
-        , saveModelResult ModelSaved
-        , loadModelResult ModelLoaded
-        , applicationQuitting SaveModel
         ]
