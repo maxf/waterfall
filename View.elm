@@ -1,8 +1,8 @@
 module View exposing (view)
 
-import Html exposing (Html, div, button, td, text, tr, span, h1, table, thead, tbody, th)
+import Html exposing (Html, div, button, td, text, tr, span, h1, table, thead, tbody, th, a, br)
 import Html.Events exposing (onClick)
-import Html.Attributes exposing (class, style)
+import Html.Attributes exposing (class, style, href)
 import List exposing (range)
 import Time.DateTime as Date exposing (DateTime, weekday, dateTime, zero, day, addDays, month, year, fromTimestamp)
 import Time.Date as Date
@@ -224,7 +224,9 @@ viewCalendar model =
     in
         div
             [ class "calendar" ]
-            [ span [] [ model |> photoDir |> text ]
+            [ a [ href "upload.php" ] [ text "Upload photos" ]
+            , br [] []
+            , span [] [ model |> photoDir |> text ]
             , h1 [] [ text (toString yearToDisplay) ]
             , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
             , viewYearButtons yearToDisplay

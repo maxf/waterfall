@@ -16979,105 +16979,127 @@ var _user$project$View$viewCalendar = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$span,
-				{ctor: '[]'},
+				_elm_lang$html$Html$a,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(
-						_user$project$Model$photoDir(model)),
+					_0: _elm_lang$html$Html_Attributes$href('upload.php'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Upload photos'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$h1,
+					_elm_lang$html$Html$br,
 					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							_elm_lang$core$Basics$toString(yearToDisplay)),
-						_1: {ctor: '[]'}
-					}),
+					{ctor: '[]'}),
 				_1: {
 					ctor: '::',
-					_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
+					_0: A2(
+						_elm_lang$html$Html$span,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								_user$project$Model$photoDir(model)),
+							_1: {ctor: '[]'}
+						}),
 					_1: {
 						ctor: '::',
-						_0: _user$project$View$viewYearButtons(yearToDisplay),
+						_0: A2(
+							_elm_lang$html$Html$h1,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									_elm_lang$core$Basics$toString(yearToDisplay)),
+								_1: {ctor: '[]'}
+							}),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$table,
-								{ctor: '[]'},
-								{
+							_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
+							_1: {
+								ctor: '::',
+								_0: _user$project$View$viewYearButtons(yearToDisplay),
+								_1: {
 									ctor: '::',
 									_0: A2(
-										_elm_lang$html$Html$thead,
+										_elm_lang$html$Html$table,
 										{ctor: '[]'},
 										{
 											ctor: '::',
 											_0: A2(
-												_elm_lang$html$Html$tr,
+												_elm_lang$html$Html$thead,
 												{ctor: '[]'},
-												A2(
-													_elm_lang$core$List$map,
-													function (d) {
-														return A2(
-															_elm_lang$html$Html$th,
-															{ctor: '[]'},
+												{
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$tr,
+														{ctor: '[]'},
+														A2(
+															_elm_lang$core$List$map,
+															function (d) {
+																return A2(
+																	_elm_lang$html$Html$th,
+																	{ctor: '[]'},
+																	{
+																		ctor: '::',
+																		_0: _elm_lang$html$Html$text(d),
+																		_1: {ctor: '[]'}
+																	});
+															},
 															{
 																ctor: '::',
-																_0: _elm_lang$html$Html$text(d),
-																_1: {ctor: '[]'}
-															});
-													},
-													{
-														ctor: '::',
-														_0: 'M',
-														_1: {
-															ctor: '::',
-															_0: 'T',
-															_1: {
-																ctor: '::',
-																_0: 'W',
+																_0: 'M',
 																_1: {
 																	ctor: '::',
 																	_0: 'T',
 																	_1: {
 																		ctor: '::',
-																		_0: 'F',
+																		_0: 'W',
 																		_1: {
 																			ctor: '::',
-																			_0: 'S',
+																			_0: 'T',
 																			_1: {
 																				ctor: '::',
-																				_0: 'S',
-																				_1: {ctor: '[]'}
+																				_0: 'F',
+																				_1: {
+																					ctor: '::',
+																					_0: 'S',
+																					_1: {
+																						ctor: '::',
+																						_0: 'S',
+																						_1: {ctor: '[]'}
+																					}
+																				}
 																			}
 																		}
 																	}
 																}
-															}
-														}
-													})),
-											_1: {ctor: '[]'}
+															})),
+													_1: {ctor: '[]'}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$tbody,
+													{ctor: '[]'},
+													A2(_user$project$View$viewWeeks, offset, model)),
+												_1: {ctor: '[]'}
+											}
 										}),
 									_1: {
 										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$tbody,
-											{ctor: '[]'},
-											A2(_user$project$View$viewWeeks, offset, model)),
-										_1: {ctor: '[]'}
+										_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
+										_1: {
+											ctor: '::',
+											_0: _user$project$View$viewYearButtons(yearToDisplay),
+											_1: {ctor: '[]'}
+										}
 									}
-								}),
-							_1: {
-								ctor: '::',
-								_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
-								_1: {
-									ctor: '::',
-									_0: _user$project$View$viewYearButtons(yearToDisplay),
-									_1: {ctor: '[]'}
 								}
 							}
 						}
