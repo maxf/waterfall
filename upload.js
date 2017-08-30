@@ -1,9 +1,12 @@
 var messageEl = document.getElementById('message');
 var counterEl = document.getElementById('counter');
 var inpImgEl = document.getElementById('inp_img');
+var inpFiles = document.getElementById('inp_files');
 var saveBtn = document.getElementById('bt_save');
 var exifDateEl = document.getElementById('exif_date');
 var fileUploadEl = document.getElementById('inp_files');
+
+var max_size = 800;
 
 // from file names like: 2017:07:28 20:21:49
 // to ISO8601 strings : 2017-07-28T20:21:49
@@ -13,12 +16,15 @@ function exifDateToIso(s) {
 }
 
 function fileChange(e) {
-  inpImgEl.value = '';
-  saveBtn.setAttribute('disabled', 'true')
-  messageEl.innerHTML = 'Resizing images';
-  counterEl.value = e.target.files.length;
+  var numImages = e.target.files.length;
+  var counter = numImages;
 
-  for (var i = 0; i < e.target.files.length; i++) {
+  inpImgEl.value = '';
+  saveBtn.setAttribute('disabled', 'true');
+  messageEl.innerHTML = 'Resizing images (' + numImages  + ' to go)';
+  inpFiles.style.display = 'none';
+
+  for (var i = 0; i < numImages; i++) {
 
     var file = e.target.files[i];
 
@@ -30,7 +36,6 @@ function fileChange(e) {
         var image = new Image();
         image.onload = function(imageEvent) {
 
-          var max_size = 300;
           var w = image.width;
           var h = image.height;
 
@@ -53,10 +58,13 @@ function fileChange(e) {
           EXIF.getData(image, function() {
             var dateCreated = EXIF.getTag(this, "DateTimeOriginal");
             exifDateEl.value += exifDateToIso(dateCreated) + '|';
-            counterEl.value = counterEl.value - 1;
-            if (counterEl.value == 0) {
+            if (counter === 1) {
               messageEl.innerHTML = 'Ready to upload';
               saveBtn.removeAttribute('disabled');
+              saveBtn.style.display = 'inline';
+            } else {
+              counter--;
+              messageEl.innerHTML = 'Resizing images (' + counter + ' to go)'
             }
           });
         }
