@@ -4,10 +4,9 @@ import Http
 import Json.Decode exposing (list, string)
 import Html
 import View
-import Model exposing (Model)
-import Update exposing (Msg(DeletePhotoResult, ScanPhotosResult), update)
+import Model exposing (Model, photoDir)
+import Update exposing (Msg(DeletePhotoResult, ScanPhotosResult, GetUsersResult), update)
 import Ports exposing (deletePhotoResult)
-
 
 main : Program Never Model Msg
 main =
@@ -21,18 +20,18 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model.initialModel
-    , scanPhotos
-    )
+    ( Model.initialModel, getUserList )
 
 
-scanPhotos : Cmd Msg
-scanPhotos =
+getUserList : Cmd Msg
+getUserList =
     let
+        apiUrl =
+            "api.php?cmd=dirs"
         request =
-            Http.get "photos.php" (Json.Decode.list Json.Decode.string)
+            Http.get apiUrl (Json.Decode.list Json.Decode.string)
     in
-        Http.send ScanPhotosResult request
+        Http.send GetUsersResult request
 
 
 subscriptions : Model -> Sub Msg

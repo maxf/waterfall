@@ -1,13 +1,14 @@
-module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, ShowPhotosForDate, DecrementYear, IncrementYear), update)
+module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, ShowPhotosForDate, DecrementYear, IncrementYear, GetUsersResult, UserSelected), update)
 
 import Dom exposing (Error)
 import Dom.Scroll
 import Task
 import Http
+import Json.Decode exposing (list, string)
 import Time.DateTime exposing (DateTime, year)
-import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorMessage, JsonString, iso8601ToEpochSeconds)
+import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorMessage, JsonString, iso8601ToEpochSeconds, DirectoryName, UserName)
 import Ports exposing (deletePhoto)
-import Model exposing (Model, withDateShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, toJson, fromJson, photoMetadata, dateShown, photoDir, lastDateWithPhotos)
+import Model exposing (Model, withDateShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, photoMetadata, dateShown, photoDir, lastDateWithPhotos, withUsers)
 
 
 type Msg
@@ -18,6 +19,8 @@ type Msg
     | DeletePhoto PhotoMetadata
     | DeletePhotoResult String
     | ScanPhotosResult (Result Http.Error (List String))
+    | GetUsersResult (Result Http.Error (List String))
+    | UserSelected UserName
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -86,6 +89,18 @@ update msg model =
             in
                 ( newModel, Cmd.none )
 
+        GetUsersResult (Err httpErrorMsg) ->
+            ( model |> withError (Just "Error getting users")
+            , Cmd.none
+            )
+
+        GetUsersResult (Ok userList) ->
+            ( model |> withUsers userList
+            , scanPhotos ""
+            )
+
+        UserSelected userName ->
+            ( model, Cmd.none )
 
 
 -- Misc
@@ -94,3 +109,15 @@ update msg model =
 scrollResult : Result Dom.Error () -> Msg
 scrollResult _ =
     ScrollPhotosFinished
+
+
+
+scanPhotos : DirectoryName -> Cmd Msg
+scanPhotos photoDir =
+    let
+        apiUrl =
+            "api.php?cmd=scan&dir=" ++ photoDir
+        request =
+            Http.get apiUrl (Json.Decode.list Json.Decode.string)
+    in
+        Http.send ScanPhotosResult request

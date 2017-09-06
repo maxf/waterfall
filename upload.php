@@ -13,6 +13,7 @@
       if (count($_POST)) {
         $img = explode('|', $_POST['img']);
         $dates = explode('|', $_POST['date']);
+        $dir = $_POST['dir'];
 
         for ($i = 0; $i < count($img) - 1; $i++) {
           $img[$i] = str_replace('data:image/jpeg;base64,', '', $img[$i]);
@@ -20,12 +21,12 @@
 
           $data = base64_decode($img[$i]);
           $date = str_replace(' ', '_', $dates[$i]);
-          $file = 'uploads/img_'.$date.'_'.$i.'.jpg';
+          $file = "uploads/${dir}/img_${date}_${i}.jpg";
 
           if (file_put_contents($file, $data)) {
             echo "<p>Image $i was saved as $file.</p>";
           } else {
-            echo '<p>Image $i could not be saved.</p>';
+            echo "<p>Image $i could not be saved as <code>$file</code>.</p>";
           }
         }
 
@@ -40,6 +41,13 @@
     <input id="inp_files" type="file" multiple="multiple">
 
     <form method="post" action="">
+      <select name="dir">
+        <option>Unknown</option>
+        <option>Max</option>
+        <option>Steph</option>
+        <option>Claire</option>
+        <option>Antoine</option>
+      </select>
       <input id="inp_img" name="img" type="hidden" style="width:100%">
       <input id="exif_date" name="date" type="hidden" value="" style="width:100%">
       <div id="message">Please choose the images you want to send</div>

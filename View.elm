@@ -1,16 +1,17 @@
 module View exposing (view)
 
-import Html exposing (Html, div, button, td, text, tr, span, h1, table, thead, tbody, th, a, br)
-import Html.Events exposing (onClick)
+import Html exposing (Html, div, button, td, text, tr, span, h1, table, thead, tbody, th, a, br, select, option)
+import Html.Events exposing (onClick, on, targetValue)
 import Html.Attributes exposing (class, style, href)
+import Json.Decode exposing (map)
 import List exposing (range)
 import Time.DateTime as Date exposing (DateTime, weekday, dateTime, zero, day, addDays, month, year, fromTimestamp)
 import Time.Date as Date
 import Dict
-import Types exposing (Year, toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, ErrorMessage, dateToString)
-import Model exposing (Model, photoMetadata, dateShown, photoDir, error)
+import Types exposing (Year, toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, ErrorMessage, UserName, dateToString)
+import Model exposing (Model, photoMetadata, dateShown, photoDir, error, users)
 import ViewPhotos exposing (viewPhotos)
-import Update exposing (Msg(ShowPhotosForDate, DecrementYear, IncrementYear))
+import Update exposing (Msg(ShowPhotosForDate, DecrementYear, IncrementYear, UserSelected))
 
 
 newYearsDayOffset : Year -> Int
@@ -226,7 +227,8 @@ viewCalendar model =
             [ class "calendar" ]
             [ a [ href "upload.php" ] [ text "Upload photos" ]
             , br [] []
-            , span [] [ model |> photoDir |> text ]
+--            , span [] [ model |> photoDir |> text ]
+            , viewUserList (model |> users)
             , h1 [] [ text (toString yearToDisplay) ]
             , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
             , viewYearButtons yearToDisplay
@@ -243,6 +245,13 @@ viewCalendar model =
             , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
             , viewYearButtons yearToDisplay
             ]
+
+
+viewUserList : List UserName -> Html Msg
+viewUserList users =
+    select
+        [ on "change" (Json.Decode.map UserSelected targetValue) ]
+        (List.map (\u -> option [] [ text u ]) users)
 
 
 viewError : Maybe ErrorMessage -> Html Msg

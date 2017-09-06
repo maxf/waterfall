@@ -16098,81 +16098,10 @@ var _user$project$Model$lastDateWithPhotos = function (dict) {
 						_elm_lang$core$List$reverse(
 							_elm_lang$core$Dict$keys(dict)))))));
 };
-var _user$project$Model$toJson = function (_p0) {
-	var _p1 = _p0;
-	var _p2 = _p1._0;
-	var metadataEncoder = function (metadata) {
-		return _elm_lang$core$Json_Encode$object(
-			{
-				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: 'relativeFilePath',
-					_1: _elm_lang$core$Json_Encode$string(metadata.relativeFilePath)
-				},
-				_1: {
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'dateCreated',
-						_1: _elm_lang$core$Json_Encode$int(metadata.dateCreated)
-					},
-					_1: {ctor: '[]'}
-				}
-			});
-	};
-	var metadataListEncoder = function (metadataList) {
-		return _elm_lang$core$Json_Encode$list(
-			A2(_elm_lang$core$List$map, metadataEncoder, metadataList));
-	};
-	var metadataDictEncoder = A3(_bartavelle$json_helpers$Json_Helpers$encodeMap, _elm_lang$core$Json_Encode$int, metadataListEncoder, _p2.photoMetadata);
-	return A2(
-		_elm_lang$core$Json_Encode$encode,
-		0,
-		_elm_lang$core$Json_Encode$object(
-			{
-				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: 'photoDir',
-					_1: _elm_lang$core$Json_Encode$string(_p2.photoDir)
-				},
-				_1: {
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'error',
-						_1: A2(_bartavelle$json_helpers$Json_Helpers$maybeEncode, _elm_lang$core$Json_Encode$string, _p2.error)
-					},
-					_1: {
-						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: 'maxPicturesInADay',
-							_1: _elm_lang$core$Json_Encode$int(_p2.maxPicturesInADay)
-						},
-						_1: {
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'photoMetadata', _1: metadataDictEncoder},
-							_1: {
-								ctor: '::',
-								_0: {
-									ctor: '_Tuple2',
-									_0: 'dateShown',
-									_1: _elm_lang$core$Json_Encode$string(
-										_elm_community$elm_time$Time_DateTime$toISO8601(_p2.dateShown))
-								},
-								_1: {ctor: '[]'}
-							}
-						}
-					}
-				}
-			}));
-};
 var _user$project$Model$removePhotoFromDict = F2(
 	function (fileName, dict) {
 		var removePhoto2 = F3(
-			function (filename, _p3, list) {
+			function (filename, _p0, list) {
 				return A2(
 					_elm_lang$core$List$filter,
 					function (m) {
@@ -16183,7 +16112,7 @@ var _user$project$Model$removePhotoFromDict = F2(
 		return A2(
 			_elm_lang$core$Dict$filter,
 			F2(
-				function (_p4, metadata) {
+				function (_p1, metadata) {
 					return !_elm_lang$core$Native_Utils.eq(
 						_elm_lang$core$List$length(metadata),
 						0);
@@ -16193,67 +16122,38 @@ var _user$project$Model$removePhotoFromDict = F2(
 				removePhoto2(fileName),
 				dict));
 	});
-var _user$project$Model$error = function (_p5) {
-	var _p6 = _p5;
-	return _p6._0.error;
+var _user$project$Model$users = function (_p2) {
+	var _p3 = _p2;
+	return _p3._0.users;
 };
-var _user$project$Model$photoMetadata = function (_p7) {
-	var _p8 = _p7;
-	return _p8._0.photoMetadata;
+var _user$project$Model$error = function (_p4) {
+	var _p5 = _p4;
+	return _p5._0.error;
 };
-var _user$project$Model$dateShown = function (_p9) {
-	var _p10 = _p9;
-	return _p10._0.dateShown;
+var _user$project$Model$photoMetadata = function (_p6) {
+	var _p7 = _p6;
+	return _p7._0.photoMetadata;
 };
-var _user$project$Model$photoDir = function (_p11) {
-	var _p12 = _p11;
-	return _p12._0.photoDir;
+var _user$project$Model$dateShown = function (_p8) {
+	var _p9 = _p8;
+	return _p9._0.dateShown;
 };
-var _user$project$Model$InternalModel = F5(
-	function (a, b, c, d, e) {
-		return {photoDir: a, error: b, maxPicturesInADay: c, photoMetadata: d, dateShown: e};
+var _user$project$Model$photoDir = function (_p10) {
+	var _p11 = _p10;
+	return _p11._0.photoDir;
+};
+var _user$project$Model$InternalModel = F6(
+	function (a, b, c, d, e, f) {
+		return {photoDir: a, users: b, error: c, maxPicturesInADay: d, photoMetadata: e, dateShown: f};
 	});
-var _user$project$Model$fromJsonInternal = function (json) {
-	var metadataDecoder = A3(
-		_elm_lang$core$Json_Decode$map2,
-		_user$project$Types$PhotoMetadata,
-		A2(_elm_lang$core$Json_Decode$field, 'relativeFilePath', _elm_lang$core$Json_Decode$string),
-		A2(_elm_lang$core$Json_Decode$field, 'dateCreated', _elm_lang$core$Json_Decode$int));
-	var metadataDictDecoder = A2(
-		_bartavelle$json_helpers$Json_Helpers$decodeMap,
-		_elm_lang$core$Json_Decode$int,
-		_elm_lang$core$Json_Decode$list(metadataDecoder));
-	var dateTimeDecoder = A2(
-		_elm_lang$core$Json_Decode$andThen,
-		function (val) {
-			var _p13 = _elm_community$elm_time$Time_DateTime$fromISO8601(val);
-			if (_p13.ctor === 'Err') {
-				return _elm_lang$core$Json_Decode$fail(_p13._0);
-			} else {
-				return _elm_lang$core$Json_Decode$succeed(_p13._0);
-			}
-		},
-		_elm_lang$core$Json_Decode$string);
-	var modelDecoder = A6(
-		_elm_lang$core$Json_Decode$map5,
-		_user$project$Model$InternalModel,
-		A2(_elm_lang$core$Json_Decode$field, 'photoDir', _elm_lang$core$Json_Decode$string),
-		A2(
-			_elm_lang$core$Json_Decode$field,
-			'error',
-			_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$string)),
-		A2(_elm_lang$core$Json_Decode$field, 'maxPicturesInADay', _elm_lang$core$Json_Decode$int),
-		A2(_elm_lang$core$Json_Decode$field, 'photoMetadata', metadataDictDecoder),
-		A2(_elm_lang$core$Json_Decode$field, 'dateShown', dateTimeDecoder));
-	return A2(_elm_lang$core$Json_Decode$decodeString, modelDecoder, json);
-};
 var _user$project$Model$Model = function (a) {
 	return {ctor: 'Model', _0: a};
 };
 var _user$project$Model$initialModel = _user$project$Model$Model(
-	A5(
+	A6(
 		_user$project$Model$InternalModel,
 		'uploads',
+		{ctor: '[]'},
 		_elm_lang$core$Maybe$Nothing,
 		0,
 		_elm_lang$core$Dict$empty,
@@ -16262,12 +16162,20 @@ var _user$project$Model$initialModel = _user$project$Model$Model(
 				_elm_community$elm_time$Time_DateTime$zero,
 				{year: 2017, month: 1, day: 1}))));
 var _user$project$Model$withPhotoDir = F2(
-	function (dir, _p14) {
+	function (dir, _p12) {
+		var _p13 = _p12;
+		return _user$project$Model$Model(
+			_elm_lang$core$Native_Utils.update(
+				_p13._0,
+				{photoDir: dir}));
+	});
+var _user$project$Model$withUsers = F2(
+	function (userList, _p14) {
 		var _p15 = _p14;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
 				_p15._0,
-				{photoDir: dir}));
+				{users: userList}));
 	});
 var _user$project$Model$withDateShown = F2(
 	function (date, _p16) {
@@ -16312,16 +16220,6 @@ var _user$project$Model$removePhoto = F2(
 					photoMetadata: A2(_user$project$Model$removePhotoFromDict, fileName, _p26.photoMetadata)
 				}));
 	});
-var _user$project$Model$fromJson = function (json) {
-	var modelInternalResult = _user$project$Model$fromJsonInternal(json);
-	var _p27 = modelInternalResult;
-	if (_p27.ctor === 'Err') {
-		return _elm_lang$core$Result$Err(_p27._0);
-	} else {
-		return _elm_lang$core$Result$Ok(
-			_user$project$Model$Model(_p27._0));
-	}
-};
 
 var _user$project$Ports$deletePhoto = _elm_lang$core$Native_Platform.outgoingPort(
 	'deletePhoto',
@@ -16330,8 +16228,22 @@ var _user$project$Ports$deletePhoto = _elm_lang$core$Native_Platform.outgoingPor
 	});
 var _user$project$Ports$deletePhotoResult = _elm_lang$core$Native_Platform.incomingPort('deletePhotoResult', _elm_lang$core$Json_Decode$string);
 
+var _user$project$Update$UserSelected = function (a) {
+	return {ctor: 'UserSelected', _0: a};
+};
+var _user$project$Update$GetUsersResult = function (a) {
+	return {ctor: 'GetUsersResult', _0: a};
+};
 var _user$project$Update$ScanPhotosResult = function (a) {
 	return {ctor: 'ScanPhotosResult', _0: a};
+};
+var _user$project$Update$scanPhotos = function (photoDir) {
+	var apiUrl = A2(_elm_lang$core$Basics_ops['++'], 'api.php?cmd=scan&dir=', photoDir);
+	var request = A2(
+		_elm_lang$http$Http$get,
+		apiUrl,
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string));
+	return A2(_elm_lang$http$Http$send, _user$project$Update$ScanPhotosResult, request);
 };
 var _user$project$Update$DeletePhotoResult = function (a) {
 	return {ctor: 'DeletePhotoResult', _0: a};
@@ -16405,7 +16317,7 @@ var _user$project$Update$update = F2(
 					_0: A2(_user$project$Model$removePhoto, _p2, model),
 					_1: _elm_lang$core$Platform_Cmd$none
 				} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-			default:
+			case 'ScanPhotosResult':
 				if (_p1._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
@@ -16438,6 +16350,25 @@ var _user$project$Update$update = F2(
 								A2(_user$project$Model$withPhotoMetadata, metadata, model))));
 					return {ctor: '_Tuple2', _0: newModel, _1: _elm_lang$core$Platform_Cmd$none};
 				}
+			case 'GetUsersResult':
+				if (_p1._0.ctor === 'Err') {
+					return {
+						ctor: '_Tuple2',
+						_0: A2(
+							_user$project$Model$withError,
+							_elm_lang$core$Maybe$Just('Error getting users'),
+							model),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: A2(_user$project$Model$withUsers, _p1._0._0, model),
+						_1: _user$project$Update$scanPhotos('')
+					};
+				}
+			default:
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
 var _user$project$Update$ShowPhotosForDate = function (a) {
@@ -16462,11 +16393,7 @@ var _user$project$ViewPhotos$viewPicture = F2(
 							_elm_lang$html$Html$img,
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$src(
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										baseDir,
-										A2(_elm_lang$core$Basics_ops['++'], '/', metadata.relativeFilePath))),
+								_0: _elm_lang$html$Html_Attributes$src(metadata.relativeFilePath),
 								_1: {ctor: '[]'}
 							},
 							{ctor: '[]'}),
@@ -16684,6 +16611,31 @@ var _user$project$View$viewError = function (message) {
 				_1: {ctor: '[]'}
 			});
 	}
+};
+var _user$project$View$viewUserList = function (users) {
+	return A2(
+		_elm_lang$html$Html$select,
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html_Events$on,
+				'change',
+				A2(_elm_lang$core$Json_Decode$map, _user$project$Update$UserSelected, _elm_lang$html$Html_Events$targetValue)),
+			_1: {ctor: '[]'}
+		},
+		A2(
+			_elm_lang$core$List$map,
+			function (u) {
+				return A2(
+					_elm_lang$html$Html$option,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(u),
+						_1: {ctor: '[]'}
+					});
+			},
+			users));
 };
 var _user$project$View$viewYearButtons = function (thisYear) {
 	return A2(
@@ -16998,15 +16950,8 @@ var _user$project$View$viewCalendar = function (model) {
 					{ctor: '[]'}),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$span,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								_user$project$Model$photoDir(model)),
-							_1: {ctor: '[]'}
-						}),
+					_0: _user$project$View$viewUserList(
+						_user$project$Model$users(model)),
 					_1: {
 						ctor: '::',
 						_0: A2(
@@ -17151,21 +17096,22 @@ var _user$project$Main$subscriptions = function (_p0) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Main$scanPhotos = function () {
+var _user$project$Main$getUserList = function () {
+	var apiUrl = 'api.php?cmd=dirs';
 	var request = A2(
 		_elm_lang$http$Http$get,
-		'photos.php',
+		apiUrl,
 		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string));
-	return A2(_elm_lang$http$Http$send, _user$project$Update$ScanPhotosResult, request);
+	return A2(_elm_lang$http$Http$send, _user$project$Update$GetUsersResult, request);
 }();
-var _user$project$Main$init = {ctor: '_Tuple2', _0: _user$project$Model$initialModel, _1: _user$project$Main$scanPhotos};
+var _user$project$Main$init = {ctor: '_Tuple2', _0: _user$project$Model$initialModel, _1: _user$project$Main$getUserList};
 var _user$project$Main$main = _elm_lang$html$Html$program(
 	{view: _user$project$View$view, update: _user$project$Update$update, init: _user$project$Main$init, subscriptions: _user$project$Main$subscriptions})();
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Time.Date.Date":{"args":[],"tags":{"Date":["{ year : Int, month : Int, day : Int }"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Time.DateTime.DateTime":{"args":[],"tags":{"DateTime":["{ date : Time.Date.Date, offset : Int }"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Update.Msg":{"args":[],"tags":{"DeletePhotoResult":["String"],"DeletePhoto":["Types.PhotoMetadata"],"ShowPhotosForDate":["Time.DateTime.DateTime"],"ScanPhotosResult":["Result.Result Http.Error (List String)"],"DecrementYear":[],"ScrollPhotosFinished":[],"IncrementYear":[]}}},"aliases":{"Types.PhotoMetadata":{"args":[],"type":"{ relativeFilePath : Types.FileName , dateCreated : Types.SecondsSinceEpoch }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.SecondsSinceEpoch":{"args":[],"type":"Int"},"Types.FileName":{"args":[],"type":"String"}},"message":"Update.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Time.Date.Date":{"args":[],"tags":{"Date":["{ year : Int, month : Int, day : Int }"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Time.DateTime.DateTime":{"args":[],"tags":{"DateTime":["{ date : Time.Date.Date, offset : Int }"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Update.Msg":{"args":[],"tags":{"DeletePhotoResult":["String"],"DeletePhoto":["Types.PhotoMetadata"],"UserSelected":["Types.UserName"],"ShowPhotosForDate":["Time.DateTime.DateTime"],"ScanPhotosResult":["Result.Result Http.Error (List String)"],"GetUsersResult":["Result.Result Http.Error (List String)"],"DecrementYear":[],"ScrollPhotosFinished":[],"IncrementYear":[]}}},"aliases":{"Types.PhotoMetadata":{"args":[],"type":"{ relativeFilePath : Types.FileName , dateCreated : Types.SecondsSinceEpoch }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.SecondsSinceEpoch":{"args":[],"type":"Int"},"Types.FileName":{"args":[],"type":"String"},"Types.UserName":{"args":[],"type":"String"}},"message":"Update.Msg"},"versions":{"elm":"0.18.0"}});
 }
 Elm['Model'] = Elm['Model'] || {};
 if (typeof _user$project$Model$main !== 'undefined') {

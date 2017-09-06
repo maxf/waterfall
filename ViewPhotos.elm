@@ -51,7 +51,8 @@ viewPicture baseDir metadata =
         []
         [ div
             []
-            [ img [ src (baseDir ++ "/" ++ metadata.relativeFilePath) ] []
+--            [ img [ src (baseDir ++ "/" ++ metadata.relativeFilePath) ] []
+            [ img [ src (metadata.relativeFilePath) ] []
             , br [] []
             , span [] [ (metadata.relativeFilePath ++ " - ") |> text ]
             , button [ onClick (DeletePhoto metadata) ] [ text "Erase" ]
