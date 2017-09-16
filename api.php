@@ -29,7 +29,6 @@ switch($_GET['cmd']) {
     if ($baseDir !== NULL) {
       $dir .= DIRECTORY_SEPARATOR.$baseDir;
     }
-
     $files = getDirContents($dir);
     $imgFiles = array_values(array_filter($files, "starts_with_img"));
     print(json_encode($imgFiles));
@@ -39,7 +38,7 @@ switch($_GET['cmd']) {
     $files = scandir($dir);
     $dirs = [];
     foreach($files as $key => $value){
-      if ($value[0] != "." && is_dir(realpath($shortPath))) {
+      if ($value[0] != "." && is_dir(realpath($dir."/".$value))) {
         array_push($dirs, $value);
       }
     }

@@ -68,7 +68,7 @@ update msg model =
                 fileNameToMetadata filename =
                     PhotoMetadata
                         filename
-                        (iso8601ToEpochSeconds (String.slice 4 24 filename))
+                        (iso8601ToEpochSeconds (String.slice -26 -6 filename))
 
                 metadataList =
                     List.map fileNameToMetadata photoList
@@ -100,7 +100,12 @@ update msg model =
             )
 
         UserSelected userName ->
-            ( model, Cmd.none )
+            let
+                userDir = if userName == "Everyone" then "" else userName
+            in
+                ( model |> withPhotoDir userDir
+                , scanPhotos userDir
+                )
 
 
 -- Misc

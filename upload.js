@@ -57,6 +57,21 @@ function fileChange(e) {
           inpImgEl.value += dataURL + '|';
           EXIF.getData(image, function() {
             var dateCreated = EXIF.getTag(this, "DateTimeOriginal");
+            if (!dateCreated) {
+              var today = new Date();
+              var Y = today.getFullYear();
+              var M = today.getMonth();
+              var D = today.getDay();
+              var h = today.getHours();
+              var m = today.getMinutes();
+              var s = today.getSeconds();
+              dateCreated =
+                Y + ":" + (M < 10 ? 0 : "") + M + ":" + (D < 10 ? 0 : "") + D +
+                " " + (h < 10 ? 0 : "") + h +
+                ":" + (m < 10 ? 0 : "") + m +
+                ":" + (s < 10 ? 0 : "") + s;
+                console.log(dateCreated);
+            }
             exifDateEl.value += exifDateToIso(dateCreated) + '|';
             if (counter === 1) {
               messageEl.innerHTML = 'Ready to upload';

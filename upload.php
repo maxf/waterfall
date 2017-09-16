@@ -42,7 +42,7 @@
 
     <form method="post" action="">
       <select name="dir">
-        <option>Unknown</option>
+        <option value="">Unknown</option>
         <option>Max</option>
         <option>Steph</option>
         <option>Claire</option>

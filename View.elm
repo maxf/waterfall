@@ -249,9 +249,12 @@ viewCalendar model =
 
 viewUserList : List UserName -> Html Msg
 viewUserList users =
-    select
-        [ on "change" (Json.Decode.map UserSelected targetValue) ]
-        (List.map (\u -> option [] [ text u ]) users)
+    let
+        usersWithAll = "Everyone" :: users
+    in
+        select
+            [ on "change" (Json.Decode.map UserSelected targetValue) ]
+            (List.map (\u -> option [] [ text u ]) usersWithAll)
 
 
 viewError : Maybe ErrorMessage -> Html Msg

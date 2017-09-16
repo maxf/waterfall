@@ -16152,7 +16152,7 @@ var _user$project$Model$Model = function (a) {
 var _user$project$Model$initialModel = _user$project$Model$Model(
 	A6(
 		_user$project$Model$InternalModel,
-		'uploads',
+		'',
 		{ctor: '[]'},
 		_elm_lang$core$Maybe$Nothing,
 		0,
@@ -16333,7 +16333,7 @@ var _user$project$Update$update = F2(
 							_user$project$Types$PhotoMetadata,
 							filename,
 							_user$project$Types$iso8601ToEpochSeconds(
-								A3(_elm_lang$core$String$slice, 4, 24, filename)));
+								A3(_elm_lang$core$String$slice, -26, -6, filename)));
 					};
 					var metadataList = A2(_elm_lang$core$List$map, fileNameToMetadata, _p1._0._0);
 					var metadata = _user$project$Types$buildMeta(metadataList);
@@ -16368,7 +16368,13 @@ var _user$project$Update$update = F2(
 					};
 				}
 			default:
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				var _p3 = _p1._0;
+				var userDir = _elm_lang$core$Native_Utils.eq(_p3, 'Everyone') ? '' : _p3;
+				return {
+					ctor: '_Tuple2',
+					_0: A2(_user$project$Model$withPhotoDir, userDir, model),
+					_1: _user$project$Update$scanPhotos(userDir)
+				};
 		}
 	});
 var _user$project$Update$ShowPhotosForDate = function (a) {
@@ -16613,6 +16619,7 @@ var _user$project$View$viewError = function (message) {
 	}
 };
 var _user$project$View$viewUserList = function (users) {
+	var usersWithAll = {ctor: '::', _0: 'Everyone', _1: users};
 	return A2(
 		_elm_lang$html$Html$select,
 		{
@@ -16635,7 +16642,7 @@ var _user$project$View$viewUserList = function (users) {
 						_1: {ctor: '[]'}
 					});
 			},
-			users));
+			usersWithAll));
 };
 var _user$project$View$viewYearButtons = function (thisYear) {
 	return A2(
