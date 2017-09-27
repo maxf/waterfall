@@ -19,9 +19,6 @@ module Model
 
 import Types exposing (DirectoryName, ErrorMessage, MetadataDict, FileName, PhotoMetadata, JsonString, UserName)
 import Time.DateTime exposing (DateTime, dateTime, zero, toISO8601, fromISO8601, fromTimestamp)
-import Json.Decode as Decode exposing (Decoder, andThen, fail, succeed, field)
-import Json.Encode as Encode
-import Json.Helpers
 import Dict
 
 

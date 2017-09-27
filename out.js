@@ -5402,137 +5402,6 @@ var _elm_lang$core$Dict$diff = F2(
 			t2);
 	});
 
-var _elm_lang$core$Set$foldr = F3(
-	function (f, b, _p0) {
-		var _p1 = _p0;
-		return A3(
-			_elm_lang$core$Dict$foldr,
-			F3(
-				function (k, _p2, b) {
-					return A2(f, k, b);
-				}),
-			b,
-			_p1._0);
-	});
-var _elm_lang$core$Set$foldl = F3(
-	function (f, b, _p3) {
-		var _p4 = _p3;
-		return A3(
-			_elm_lang$core$Dict$foldl,
-			F3(
-				function (k, _p5, b) {
-					return A2(f, k, b);
-				}),
-			b,
-			_p4._0);
-	});
-var _elm_lang$core$Set$toList = function (_p6) {
-	var _p7 = _p6;
-	return _elm_lang$core$Dict$keys(_p7._0);
-};
-var _elm_lang$core$Set$size = function (_p8) {
-	var _p9 = _p8;
-	return _elm_lang$core$Dict$size(_p9._0);
-};
-var _elm_lang$core$Set$member = F2(
-	function (k, _p10) {
-		var _p11 = _p10;
-		return A2(_elm_lang$core$Dict$member, k, _p11._0);
-	});
-var _elm_lang$core$Set$isEmpty = function (_p12) {
-	var _p13 = _p12;
-	return _elm_lang$core$Dict$isEmpty(_p13._0);
-};
-var _elm_lang$core$Set$Set_elm_builtin = function (a) {
-	return {ctor: 'Set_elm_builtin', _0: a};
-};
-var _elm_lang$core$Set$empty = _elm_lang$core$Set$Set_elm_builtin(_elm_lang$core$Dict$empty);
-var _elm_lang$core$Set$singleton = function (k) {
-	return _elm_lang$core$Set$Set_elm_builtin(
-		A2(
-			_elm_lang$core$Dict$singleton,
-			k,
-			{ctor: '_Tuple0'}));
-};
-var _elm_lang$core$Set$insert = F2(
-	function (k, _p14) {
-		var _p15 = _p14;
-		return _elm_lang$core$Set$Set_elm_builtin(
-			A3(
-				_elm_lang$core$Dict$insert,
-				k,
-				{ctor: '_Tuple0'},
-				_p15._0));
-	});
-var _elm_lang$core$Set$fromList = function (xs) {
-	return A3(_elm_lang$core$List$foldl, _elm_lang$core$Set$insert, _elm_lang$core$Set$empty, xs);
-};
-var _elm_lang$core$Set$map = F2(
-	function (f, s) {
-		return _elm_lang$core$Set$fromList(
-			A2(
-				_elm_lang$core$List$map,
-				f,
-				_elm_lang$core$Set$toList(s)));
-	});
-var _elm_lang$core$Set$remove = F2(
-	function (k, _p16) {
-		var _p17 = _p16;
-		return _elm_lang$core$Set$Set_elm_builtin(
-			A2(_elm_lang$core$Dict$remove, k, _p17._0));
-	});
-var _elm_lang$core$Set$union = F2(
-	function (_p19, _p18) {
-		var _p20 = _p19;
-		var _p21 = _p18;
-		return _elm_lang$core$Set$Set_elm_builtin(
-			A2(_elm_lang$core$Dict$union, _p20._0, _p21._0));
-	});
-var _elm_lang$core$Set$intersect = F2(
-	function (_p23, _p22) {
-		var _p24 = _p23;
-		var _p25 = _p22;
-		return _elm_lang$core$Set$Set_elm_builtin(
-			A2(_elm_lang$core$Dict$intersect, _p24._0, _p25._0));
-	});
-var _elm_lang$core$Set$diff = F2(
-	function (_p27, _p26) {
-		var _p28 = _p27;
-		var _p29 = _p26;
-		return _elm_lang$core$Set$Set_elm_builtin(
-			A2(_elm_lang$core$Dict$diff, _p28._0, _p29._0));
-	});
-var _elm_lang$core$Set$filter = F2(
-	function (p, _p30) {
-		var _p31 = _p30;
-		return _elm_lang$core$Set$Set_elm_builtin(
-			A2(
-				_elm_lang$core$Dict$filter,
-				F2(
-					function (k, _p32) {
-						return p(k);
-					}),
-				_p31._0));
-	});
-var _elm_lang$core$Set$partition = F2(
-	function (p, _p33) {
-		var _p34 = _p33;
-		var _p35 = A2(
-			_elm_lang$core$Dict$partition,
-			F2(
-				function (k, _p36) {
-					return p(k);
-				}),
-			_p34._0);
-		var p1 = _p35._0;
-		var p2 = _p35._1;
-		return {
-			ctor: '_Tuple2',
-			_0: _elm_lang$core$Set$Set_elm_builtin(p1),
-			_1: _elm_lang$core$Set$Set_elm_builtin(p2)
-		};
-	});
-
 //import Native.List //
 
 var _elm_lang$core$Native_Array = function() {
@@ -7204,297 +7073,6 @@ var _elm_lang$core$Json_Decode$int = _elm_lang$core$Native_Json.decodePrimitive(
 var _elm_lang$core$Json_Decode$bool = _elm_lang$core$Native_Json.decodePrimitive('bool');
 var _elm_lang$core$Json_Decode$string = _elm_lang$core$Native_Json.decodePrimitive('string');
 var _elm_lang$core$Json_Decode$Decoder = {ctor: 'Decoder'};
-
-var _bartavelle$json_helpers$Json_Helpers_ops = _bartavelle$json_helpers$Json_Helpers_ops || {};
-_bartavelle$json_helpers$Json_Helpers_ops[':='] = _elm_lang$core$Json_Decode$field;
-var _bartavelle$json_helpers$Json_Helpers_ops = _bartavelle$json_helpers$Json_Helpers_ops || {};
-_bartavelle$json_helpers$Json_Helpers_ops['>>='] = _elm_lang$core$Basics$flip(_elm_lang$core$Json_Decode$andThen);
-var _bartavelle$json_helpers$Json_Helpers$decodeSet = function (d) {
-	return A2(
-		_elm_lang$core$Json_Decode$map,
-		_elm_lang$core$Set$fromList,
-		_elm_lang$core$Json_Decode$list(d));
-};
-var _bartavelle$json_helpers$Json_Helpers$encodeSet = F2(
-	function (e, s) {
-		return _elm_lang$core$Json_Encode$list(
-			A2(
-				_elm_lang$core$List$map,
-				e,
-				_elm_lang$core$Set$toList(s)));
-	});
-var _bartavelle$json_helpers$Json_Helpers$encodeMap = F2(
-	function (encKey, encVal) {
-		var encKey_ = function (x) {
-			var _p0 = A2(
-				_elm_lang$core$Json_Decode$decodeValue,
-				_elm_lang$core$Json_Decode$string,
-				encKey(x));
-			if (_p0.ctor === 'Err') {
-				return _elm_lang$core$Basics$toString(x);
-			} else {
-				return _p0._0;
-			}
-		};
-		return function (_p1) {
-			return _elm_lang$core$Json_Encode$object(
-				A2(
-					_elm_lang$core$List$map,
-					function (_p2) {
-						var _p3 = _p2;
-						return {
-							ctor: '_Tuple2',
-							_0: encKey_(_p3._0),
-							_1: encVal(_p3._1)
-						};
-					},
-					_elm_lang$core$Dict$toList(_p1)));
-		};
-	});
-var _bartavelle$json_helpers$Json_Helpers$jsonEncDict = _bartavelle$json_helpers$Json_Helpers$encodeMap;
-var _bartavelle$json_helpers$Json_Helpers$decodeSumNullaries = F2(
-	function (typename, mapping) {
-		return A2(
-			_elm_lang$core$Json_Decode$andThen,
-			function (s) {
-				var _p4 = A2(_elm_lang$core$Dict$get, s, mapping);
-				if (_p4.ctor === 'Nothing') {
-					return _elm_lang$core$Json_Decode$fail(
-						A2(_elm_lang$core$Basics_ops['++'], 'Could not decode ', typename));
-				} else {
-					return _elm_lang$core$Json_Decode$succeed(_p4._0);
-				}
-			},
-			_elm_lang$core$Json_Decode$string);
-	});
-var _bartavelle$json_helpers$Json_Helpers$decodeSumUnaries = _bartavelle$json_helpers$Json_Helpers$decodeSumNullaries;
-var _bartavelle$json_helpers$Json_Helpers$encodeSumTaggedObject = F4(
-	function (fieldname, contentname, mkkeyval, v) {
-		var _p5 = mkkeyval(v);
-		var key = _p5._0;
-		var $eval = _p5._1;
-		var kp = {
-			ctor: '_Tuple2',
-			_0: fieldname,
-			_1: _elm_lang$core$Json_Encode$string(key)
-		};
-		var _p6 = $eval;
-		if (_p6.ctor === 'EValue') {
-			return _elm_lang$core$Json_Encode$object(
-				{
-					ctor: '::',
-					_0: kp,
-					_1: {
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: contentname, _1: _p6._0},
-						_1: {ctor: '[]'}
-					}
-				});
-		} else {
-			return _elm_lang$core$Json_Encode$object(
-				{ctor: '::', _0: kp, _1: _p6._0});
-		}
-	});
-var _bartavelle$json_helpers$Json_Helpers$decodeSumFinal = F4(
-	function (name, key, value, mapping) {
-		var _p7 = A2(_elm_lang$core$Dict$get, key, mapping);
-		if (_p7.ctor === 'Nothing') {
-			return _elm_lang$core$Result$Err(
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'Unknown constructor ',
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						key,
-						A2(_elm_lang$core$Basics_ops['++'], ' for type ', name))));
-		} else {
-			return A2(_elm_lang$core$Json_Decode$decodeValue, _p7._0, value);
-		}
-	});
-var _bartavelle$json_helpers$Json_Helpers$customDecoder = F2(
-	function (decoder, toResult) {
-		return A2(
-			_elm_lang$core$Json_Decode$andThen,
-			function (a) {
-				var _p8 = toResult(a);
-				if (_p8.ctor === 'Ok') {
-					return _elm_lang$core$Json_Decode$succeed(_p8._0);
-				} else {
-					return _elm_lang$core$Json_Decode$fail(_p8._0);
-				}
-			},
-			decoder);
-	});
-var _bartavelle$json_helpers$Json_Helpers$decodeSumObjectWithSingleField = F2(
-	function (name, mapping) {
-		return A2(
-			_bartavelle$json_helpers$Json_Helpers$customDecoder,
-			_elm_lang$core$Json_Decode$keyValuePairs(_elm_lang$core$Json_Decode$value),
-			function (lst) {
-				var _p9 = lst;
-				if (((_p9.ctor === '::') && (_p9._0.ctor === '_Tuple2')) && (_p9._1.ctor === '[]')) {
-					return A4(_bartavelle$json_helpers$Json_Helpers$decodeSumFinal, name, _p9._0._0, _p9._0._1, mapping);
-				} else {
-					return _elm_lang$core$Result$Err(
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							'Can\'t decode ',
-							A2(_elm_lang$core$Basics_ops['++'], name, ': object has too many keys')));
-				}
-			});
-	});
-var _bartavelle$json_helpers$Json_Helpers$decodeSumNullaryOrSingleField = F3(
-	function (name, nullary, singlefield) {
-		return _elm_lang$core$Json_Decode$oneOf(
-			{
-				ctor: '::',
-				_0: A2(_bartavelle$json_helpers$Json_Helpers$decodeSumUnaries, name, nullary),
-				_1: {
-					ctor: '::',
-					_0: A2(_bartavelle$json_helpers$Json_Helpers$decodeSumObjectWithSingleField, name, singlefield),
-					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _bartavelle$json_helpers$Json_Helpers$decodeSumTaggedObject = F5(
-	function (name, fieldname, contentname, mapping, objectKeys) {
-		return A2(
-			_elm_lang$core$Json_Decode$andThen,
-			function (key) {
-				var decoder = A2(_elm_lang$core$Set$member, key, objectKeys) ? _elm_lang$core$Json_Decode$value : A2(_elm_lang$core$Json_Decode$field, contentname, _elm_lang$core$Json_Decode$value);
-				return A2(
-					_bartavelle$json_helpers$Json_Helpers$customDecoder,
-					decoder,
-					function (value) {
-						return A4(_bartavelle$json_helpers$Json_Helpers$decodeSumFinal, name, key, value, mapping);
-					});
-			},
-			A2(_elm_lang$core$Json_Decode$field, fieldname, _elm_lang$core$Json_Decode$string));
-	});
-var _bartavelle$json_helpers$Json_Helpers$tuple2 = F3(
-	function (abv, da, db) {
-		return A3(
-			_elm_lang$core$Json_Decode$map2,
-			abv,
-			A2(_elm_lang$core$Json_Decode$index, 0, da),
-			A2(_elm_lang$core$Json_Decode$index, 1, db));
-	});
-var _bartavelle$json_helpers$Json_Helpers$decodeSumTwoElemArray = F2(
-	function (name, mapping) {
-		return A2(
-			_bartavelle$json_helpers$Json_Helpers$customDecoder,
-			A3(
-				_bartavelle$json_helpers$Json_Helpers$tuple2,
-				F2(
-					function (v0, v1) {
-						return {ctor: '_Tuple2', _0: v0, _1: v1};
-					}),
-				_elm_lang$core$Json_Decode$string,
-				_elm_lang$core$Json_Decode$value),
-			function (_p10) {
-				var _p11 = _p10;
-				return A4(_bartavelle$json_helpers$Json_Helpers$decodeSumFinal, name, _p11._0, _p11._1, mapping);
-			});
-	});
-var _bartavelle$json_helpers$Json_Helpers$resmapM = F2(
-	function (f, lst) {
-		var _p12 = lst;
-		if (_p12.ctor === '[]') {
-			return _elm_lang$core$Result$Ok(
-				{ctor: '[]'});
-		} else {
-			return A2(
-				_elm_lang$core$Result$andThen,
-				function (nx) {
-					return A2(
-						_elm_lang$core$Result$andThen,
-						function (nxs) {
-							return _elm_lang$core$Result$Ok(
-								{ctor: '::', _0: nx, _1: nxs});
-						},
-						A2(_bartavelle$json_helpers$Json_Helpers$resmapM, f, _p12._1));
-				},
-				f(_p12._0));
-		}
-	});
-var _bartavelle$json_helpers$Json_Helpers$decodeMap = F2(
-	function (decKey, decVal) {
-		var decodeKey = function (_p13) {
-			var _p14 = _p13;
-			return A2(
-				_elm_lang$core$Result$map,
-				function (nk) {
-					return {ctor: '_Tuple2', _0: nk, _1: _p14._1};
-				},
-				A2(_elm_lang$core$Json_Decode$decodeString, decKey, _p14._0));
-		};
-		var decodeKeys = _bartavelle$json_helpers$Json_Helpers$resmapM(decodeKey);
-		return A2(
-			_elm_lang$core$Json_Decode$map,
-			_elm_lang$core$Dict$fromList,
-			A2(
-				_bartavelle$json_helpers$Json_Helpers$customDecoder,
-				_elm_lang$core$Json_Decode$keyValuePairs(decVal),
-				decodeKeys));
-	});
-var _bartavelle$json_helpers$Json_Helpers$jsonDecDict = _bartavelle$json_helpers$Json_Helpers$decodeMap;
-var _bartavelle$json_helpers$Json_Helpers$maybeEncode = F2(
-	function (e, v) {
-		var _p15 = v;
-		if (_p15.ctor === 'Nothing') {
-			return _elm_lang$core$Json_Encode$null;
-		} else {
-			return e(_p15._0);
-		}
-	});
-var _bartavelle$json_helpers$Json_Helpers$oeValue = function (x) {
-	var _p16 = x;
-	if (_p16.ctor === 'EObject') {
-		return _elm_lang$core$Json_Encode$object(_p16._0);
-	} else {
-		return _p16._0;
-	}
-};
-var _bartavelle$json_helpers$Json_Helpers$encodeSumObjectWithSingleField = F2(
-	function (mkkeyval, v) {
-		var _p17 = mkkeyval(v);
-		var key = _p17._0;
-		var val = _p17._1;
-		return _elm_lang$core$Json_Encode$object(
-			{
-				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: key,
-					_1: _bartavelle$json_helpers$Json_Helpers$oeValue(val)
-				},
-				_1: {ctor: '[]'}
-			});
-	});
-var _bartavelle$json_helpers$Json_Helpers$encodeSumTwoElementArray = F2(
-	function (mkkeyval, v) {
-		var _p18 = mkkeyval(v);
-		var key = _p18._0;
-		var val = _p18._1;
-		return _elm_lang$core$Json_Encode$list(
-			{
-				ctor: '::',
-				_0: _elm_lang$core$Json_Encode$string(key),
-				_1: {
-					ctor: '::',
-					_0: _bartavelle$json_helpers$Json_Helpers$oeValue(val),
-					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _bartavelle$json_helpers$Json_Helpers$EValue = function (a) {
-	return {ctor: 'EValue', _0: a};
-};
-var _bartavelle$json_helpers$Json_Helpers$encodeValue = _bartavelle$json_helpers$Json_Helpers$EValue;
-var _bartavelle$json_helpers$Json_Helpers$EObject = function (a) {
-	return {ctor: 'EObject', _0: a};
-};
-var _bartavelle$json_helpers$Json_Helpers$encodeObject = _bartavelle$json_helpers$Json_Helpers$EObject;
 
 var _elm_community$elm_time$Time_Internal$digitsInRange = F3(
 	function (digitsToParse, lo, hi) {
@@ -16228,6 +15806,21 @@ var _user$project$Ports$deletePhoto = _elm_lang$core$Native_Platform.outgoingPor
 	});
 var _user$project$Ports$deletePhotoResult = _elm_lang$core$Native_Platform.incomingPort('deletePhotoResult', _elm_lang$core$Json_Decode$string);
 
+var _user$project$Update$toString = function (error) {
+	var _p0 = error;
+	switch (_p0.ctor) {
+		case 'BadUrl':
+			return A2(_elm_lang$core$Basics_ops['++'], 'Bad URL: ', _p0._0);
+		case 'Timeout':
+			return 'Timeout';
+		case 'NetworkError':
+			return 'Network error';
+		case 'BadStatus':
+			return 'Bad status ';
+		default:
+			return A2(_elm_lang$core$Basics_ops['++'], 'Bad payload: ', _p0._0);
+	}
+};
 var _user$project$Update$UserSelected = function (a) {
 	return {ctor: 'UserSelected', _0: a};
 };
@@ -16239,10 +15832,15 @@ var _user$project$Update$ScanPhotosResult = function (a) {
 };
 var _user$project$Update$scanPhotos = function (photoDir) {
 	var apiUrl = A2(_elm_lang$core$Basics_ops['++'], 'api.php?cmd=scan&dir=', photoDir);
+	var photoMetadataDecoder = A3(
+		_elm_lang$core$Json_Decode$map2,
+		_user$project$Types$PhotoMetadata,
+		A2(_elm_lang$core$Json_Decode$field, 'path', _elm_lang$core$Json_Decode$string),
+		A2(_elm_lang$core$Json_Decode$field, 'date', _elm_lang$core$Json_Decode$int));
 	var request = A2(
 		_elm_lang$http$Http$get,
 		apiUrl,
-		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string));
+		_elm_lang$core$Json_Decode$list(photoMetadataDecoder));
 	return A2(_elm_lang$http$Http$send, _user$project$Update$ScanPhotosResult, request);
 };
 var _user$project$Update$DeletePhotoResult = function (a) {
@@ -16252,13 +15850,13 @@ var _user$project$Update$DeletePhoto = function (a) {
 	return {ctor: 'DeletePhoto', _0: a};
 };
 var _user$project$Update$ScrollPhotosFinished = {ctor: 'ScrollPhotosFinished'};
-var _user$project$Update$scrollResult = function (_p0) {
+var _user$project$Update$scrollResult = function (_p1) {
 	return _user$project$Update$ScrollPhotosFinished;
 };
 var _user$project$Update$update = F2(
 	function (msg, model) {
-		var _p1 = msg;
-		switch (_p1.ctor) {
+		var _p2 = msg;
+		switch (_p2.ctor) {
 			case 'IncrementYear':
 				return {
 					ctor: '_Tuple2',
@@ -16291,7 +15889,7 @@ var _user$project$Update$update = F2(
 					_0: A2(
 						_user$project$Model$withError,
 						_elm_lang$core$Maybe$Nothing,
-						A2(_user$project$Model$withDateShown, _p1._0, model)),
+						A2(_user$project$Model$withDateShown, _p2._0, model)),
 					_1: A2(
 						_elm_lang$core$Task$attempt,
 						_user$project$Update$scrollResult,
@@ -16307,36 +15905,31 @@ var _user$project$Update$update = F2(
 						{
 							ctor: '_Tuple2',
 							_0: _user$project$Model$photoDir(model),
-							_1: _p1._0.relativeFilePath
+							_1: _p2._0.relativeFilePath
 						})
 				};
 			case 'DeletePhotoResult':
-				var _p2 = _p1._0;
-				return (!_elm_lang$core$Native_Utils.eq(_p2, '')) ? {
+				var _p3 = _p2._0;
+				return (!_elm_lang$core$Native_Utils.eq(_p3, '')) ? {
 					ctor: '_Tuple2',
-					_0: A2(_user$project$Model$removePhoto, _p2, model),
+					_0: A2(_user$project$Model$removePhoto, _p3, model),
 					_1: _elm_lang$core$Platform_Cmd$none
 				} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'ScanPhotosResult':
-				if (_p1._0.ctor === 'Err') {
+				if (_p2._0.ctor === 'Err') {
+					var _p4 = A2(_elm_lang$core$Debug$log, '>>', 'meh');
 					return {
 						ctor: '_Tuple2',
 						_0: A2(
 							_user$project$Model$withError,
-							_elm_lang$core$Maybe$Just('Error'),
+							_elm_lang$core$Maybe$Just(
+								_user$project$Update$toString(_p2._0._0)),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var fileNameToMetadata = function (filename) {
-						return A2(
-							_user$project$Types$PhotoMetadata,
-							filename,
-							_user$project$Types$iso8601ToEpochSeconds(
-								A3(_elm_lang$core$String$slice, -26, -6, filename)));
-					};
-					var metadataList = A2(_elm_lang$core$List$map, fileNameToMetadata, _p1._0._0);
-					var metadata = _user$project$Types$buildMeta(metadataList);
+					var metadata = _user$project$Types$buildMeta(
+						A2(_elm_lang$core$Debug$log, '>>', _p2._0._0));
 					var date = _user$project$Model$lastDateWithPhotos(metadata);
 					var newModel = A2(
 						_user$project$Model$withDateShown,
@@ -16351,7 +15944,7 @@ var _user$project$Update$update = F2(
 					return {ctor: '_Tuple2', _0: newModel, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'GetUsersResult':
-				if (_p1._0.ctor === 'Err') {
+				if (_p2._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: A2(
@@ -16363,13 +15956,13 @@ var _user$project$Update$update = F2(
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: A2(_user$project$Model$withUsers, _p1._0._0, model),
+						_0: A2(_user$project$Model$withUsers, _p2._0._0, model),
 						_1: _user$project$Update$scanPhotos('')
 					};
 				}
 			default:
-				var _p3 = _p1._0;
-				var userDir = _elm_lang$core$Native_Utils.eq(_p3, 'Everyone') ? '' : _p3;
+				var _p5 = _p2._0;
+				var userDir = _elm_lang$core$Native_Utils.eq(_p5, 'Everyone') ? '' : _p5;
 				return {
 					ctor: '_Tuple2',
 					_0: A2(_user$project$Model$withPhotoDir, userDir, model),
@@ -17118,7 +16711,7 @@ var _user$project$Main$main = _elm_lang$html$Html$program(
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Time.Date.Date":{"args":[],"tags":{"Date":["{ year : Int, month : Int, day : Int }"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Time.DateTime.DateTime":{"args":[],"tags":{"DateTime":["{ date : Time.Date.Date, offset : Int }"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Update.Msg":{"args":[],"tags":{"DeletePhotoResult":["String"],"DeletePhoto":["Types.PhotoMetadata"],"UserSelected":["Types.UserName"],"ShowPhotosForDate":["Time.DateTime.DateTime"],"ScanPhotosResult":["Result.Result Http.Error (List String)"],"GetUsersResult":["Result.Result Http.Error (List String)"],"DecrementYear":[],"ScrollPhotosFinished":[],"IncrementYear":[]}}},"aliases":{"Types.PhotoMetadata":{"args":[],"type":"{ relativeFilePath : Types.FileName , dateCreated : Types.SecondsSinceEpoch }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.SecondsSinceEpoch":{"args":[],"type":"Int"},"Types.FileName":{"args":[],"type":"String"},"Types.UserName":{"args":[],"type":"String"}},"message":"Update.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Time.Date.Date":{"args":[],"tags":{"Date":["{ year : Int, month : Int, day : Int }"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Time.DateTime.DateTime":{"args":[],"tags":{"DateTime":["{ date : Time.Date.Date, offset : Int }"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Update.Msg":{"args":[],"tags":{"DeletePhotoResult":["String"],"DeletePhoto":["Types.PhotoMetadata"],"UserSelected":["Types.UserName"],"ShowPhotosForDate":["Time.DateTime.DateTime"],"ScanPhotosResult":["Result.Result Http.Error (List Types.PhotoMetadata)"],"GetUsersResult":["Result.Result Http.Error (List String)"],"DecrementYear":[],"ScrollPhotosFinished":[],"IncrementYear":[]}}},"aliases":{"Types.PhotoMetadata":{"args":[],"type":"{ relativeFilePath : Types.FileName , dateCreated : Types.SecondsSinceEpoch }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.SecondsSinceEpoch":{"args":[],"type":"Int"},"Types.FileName":{"args":[],"type":"String"},"Types.UserName":{"args":[],"type":"String"}},"message":"Update.Msg"},"versions":{"elm":"0.18.0"}});
 }
 Elm['Model'] = Elm['Model'] || {};
 if (typeof _user$project$Model$main !== 'undefined') {
