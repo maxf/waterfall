@@ -18,25 +18,22 @@ function createDate($path) {
 }
 
 
-function is_image($path) {
-  return !is_dir(realpath($path)) and preg_match('/\.(jpg|JPG|jpeg|JPEG)$/', $path);
-}
-
 
 function getDirContents($dir, &$results = array()){
   $files = scandir($dir);
 
   foreach($files as $key => $value){
     $shortPath = $dir.DIRECTORY_SEPARATOR.$value;
-    if(is_image($shortPath)) {
-      $results[] = array( 'path' => $shortPath, 'date' => createDate($shortPath) );
-    } else if($value != "." && $value != "..") {
+    if (is_dir(realpath($shortPath)) && $value != "." && $value != "..") {
       getDirContents($shortPath, $results);
+    } else {
+      if (preg_match('/\.(jpg|JPG|jpeg|JPEG)$/', $shortPath)) {
+        $results[] = array( 'path' => $shortPath, 'date' => createDate($shortPath) );
+      }
     }
   }
   return $results;
 }
-
 
 $dir = "uploads";
 
@@ -64,9 +61,6 @@ switch($_GET['cmd']) {
   default:
     print "[]";
 }
-
-
-
 
 
 ?>
