@@ -3,16 +3,16 @@
 function createDate($path) {
   $exif = exif_read_data($path, 'ANY_TAG');
   if ($exif) {
-    return $exif['DateTimeOriginal'];
+    return strtotime($exif['DateTimeOriginal']);
   } else {
     // No exif. Look for date in filename if file was uploaded by us
     $m = array();
     $r = preg_match('/img_(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z[^\/]+/', $path, $m);
     if ($r == 1) {
-      return "$m[1]:$m[2]:$m[3] $m[4]:$m[5]:$m[6]";
+      return strtotime("$m[1]:$m[2]:$m[3] $m[4]:$m[5]:$m[6]");
     } else {
       // No filename date. Take the file's mtime
-      return date("Y:m:d H:i:s", filemtime($path));
+      return filemtime($path);
     }
   }
 }
