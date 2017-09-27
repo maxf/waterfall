@@ -43,7 +43,7 @@ $dir = "uploads";
 switch($_GET['cmd']) {
   case "scan":
     $baseDir = $_GET['dir'];
-    if ($baseDir !== NULL) {
+    if ($baseDir) {
       $dir .= DIRECTORY_SEPARATOR.$baseDir;
     }
     print(json_encode(getDirContents($dir)));
