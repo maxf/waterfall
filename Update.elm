@@ -3,8 +3,8 @@ module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, Sh
 import Dom exposing (Error)
 import Dom.Scroll
 import Task
-import Http
-import Json.Decode exposing (list, string)
+import Http exposing (Error(..), Response)
+import Json.Decode exposing (Decoder, map2, list, string, field)
 import Time.DateTime exposing (DateTime, year)
 import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorMessage, JsonString, iso8601ToEpochSeconds, DirectoryName, UserName)
 import Ports exposing (deletePhoto)
@@ -18,7 +18,7 @@ type Msg
     | ScrollPhotosFinished
     | DeletePhoto PhotoMetadata
     | DeletePhotoResult String
-    | ScanPhotosResult (Result Http.Error (List String))
+    | ScanPhotosResult (Result Http.Error (List PhotoMetadata))
     | GetUsersResult (Result Http.Error (List String))
     | UserSelected UserName
 
@@ -59,22 +59,16 @@ update msg model =
             else
                 ( model, Cmd.none )
 
-        ScanPhotosResult (Err httpErrorMsg) ->
-            ( model |> withError (Just "Error"), Cmd.none )
-
-        ScanPhotosResult (Ok photoList) ->
+        ScanPhotosResult (Err httpError) ->
             let
-                fileNameToMetadata : String -> PhotoMetadata
-                fileNameToMetadata filename =
-                    PhotoMetadata
-                        filename
-                        (iso8601ToEpochSeconds (String.slice -26 -6 filename))
+                _ = Debug.log ">>" "meh"
+            in
+                ( model |> withError (Just (httpError |> toString)), Cmd.none )
 
-                metadataList =
-                    List.map fileNameToMetadata photoList
-
+        ScanPhotosResult (Ok metadataList) ->
+            let
                 metadata =
-                    Types.buildMeta metadataList
+                    Types.buildMeta (Debug.log ">>" metadataList)
 
                 date =
                     lastDateWithPhotos metadata
@@ -116,13 +110,34 @@ scrollResult _ =
     ScrollPhotosFinished
 
 
-
 scanPhotos : DirectoryName -> Cmd Msg
 scanPhotos photoDir =
     let
+        photoMetadataDecoder =
+            Json.Decode.map2
+                PhotoMetadata
+                (Json.Decode.field "path" Json.Decode.string)
+                (Json.Decode.field "date" Json.Decode.int)
+
         apiUrl =
             "api.php?cmd=scan&dir=" ++ photoDir
+
         request =
-            Http.get apiUrl (Json.Decode.list Json.Decode.string)
+            Http.get apiUrl (Json.Decode.list photoMetadataDecoder)
     in
         Http.send ScanPhotosResult request
+
+
+toString : Http.Error -> String
+toString error =
+    case error of
+        BadUrl url ->
+            "Bad URL: " ++ url
+        Timeout ->
+            "Timeout"
+        NetworkError ->
+            "Network error"
+        BadStatus r ->
+            "Bad status "
+        BadPayload s r ->
+            "Bad payload: " ++ s
