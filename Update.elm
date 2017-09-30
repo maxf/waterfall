@@ -60,15 +60,12 @@ update msg model =
                 ( model, Cmd.none )
 
         ScanPhotosResult (Err httpError) ->
-            let
-                _ = Debug.log ">>" "meh"
-            in
-                ( model |> withError (Just (httpError |> toString)), Cmd.none )
+            ( model |> withError (Just (httpError |> toString)), Cmd.none )
 
         ScanPhotosResult (Ok metadataList) ->
             let
                 metadata =
-                    Types.buildMeta (Debug.log ">>" metadataList)
+                    Types.buildMeta metadataList
 
                 date =
                     lastDateWithPhotos metadata
