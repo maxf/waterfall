@@ -95,7 +95,7 @@ update msg model =
 
         UserSelected userName ->
             let
-                userDir = if userName == "Everyone" then "" else userName
+                userDir = if userName == "All" then "" else userName
             in
                 ( model |> withPhotoDir userDir
                 , scanPhotos userDir

@@ -250,7 +250,7 @@ viewCalendar model =
 viewUserList : List UserName -> Html Msg
 viewUserList users =
     let
-        usersWithAll = "Everyone" :: users
+        usersWithAll = "All" :: users
     in
         select
             [ on "change" (Json.Decode.map UserSelected targetValue) ]

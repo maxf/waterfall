@@ -15962,7 +15962,7 @@ var _user$project$Update$update = F2(
 				}
 			default:
 				var _p5 = _p2._0;
-				var userDir = _elm_lang$core$Native_Utils.eq(_p5, 'Everyone') ? '' : _p5;
+				var userDir = _elm_lang$core$Native_Utils.eq(_p5, 'All') ? '' : _p5;
 				return {
 					ctor: '_Tuple2',
 					_0: A2(_user$project$Model$withPhotoDir, userDir, model),
@@ -16212,7 +16212,7 @@ var _user$project$View$viewError = function (message) {
 	}
 };
 var _user$project$View$viewUserList = function (users) {
-	var usersWithAll = {ctor: '::', _0: 'Everyone', _1: users};
+	var usersWithAll = {ctor: '::', _0: 'All', _1: users};
 	return A2(
 		_elm_lang$html$Html$select,
 		{
