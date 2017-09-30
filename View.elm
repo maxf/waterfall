@@ -71,7 +71,7 @@ dateColour date metadata =
                             |> floor
                             |> toString
                 in
-                    ( "rgb(" ++ shade ++ "," ++ shade ++ ", 128)"
+                    ( "rgb(128, " ++ shade ++ "," ++ shade ++ ")"
                     , List.length r
                     )
 
