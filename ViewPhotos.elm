@@ -1,6 +1,7 @@
 module ViewPhotos exposing (viewPhotos)
 
-import Html exposing (Html, div, h1, h2, ul, li, button, span, img, br, text)
+import Html exposing (Html, div, h1, h2, li, button, span, img, br, text)
+import Html.Keyed exposing (ul)
 import Html.Attributes exposing (src, id)
 import Update exposing (Msg(DeletePhoto))
 import Time.DateTime exposing (toTimestamp)
@@ -45,9 +46,10 @@ viewPictureList baseDir metadataList =
         ]
 
 
-viewPicture : DirectoryName -> Types.PhotoMetadata -> Html Msg
+viewPicture : DirectoryName -> Types.PhotoMetadata -> (String, Html Msg)
 viewPicture baseDir metadata =
-    li
+    ( metadata.relativeFilePath
+    , li
         []
         [ div
             []
@@ -57,3 +59,4 @@ viewPicture baseDir metadata =
             , button [ onClick (DeletePhoto metadata) ] [ text "Erase" ]
             ]
         ]
+    )

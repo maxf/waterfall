@@ -15178,6 +15178,10 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
+var _elm_lang$html$Html_Keyed$node = _elm_lang$virtual_dom$VirtualDom$keyedNode;
+var _elm_lang$html$Html_Keyed$ol = _elm_lang$html$Html_Keyed$node('ol');
+var _elm_lang$html$Html_Keyed$ul = _elm_lang$html$Html_Keyed$node('ul');
+
 var _elm_lang$http$Native_Http = function() {
 
 
@@ -15917,7 +15921,6 @@ var _user$project$Update$update = F2(
 				} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'ScanPhotosResult':
 				if (_p2._0.ctor === 'Err') {
-					var _p4 = A2(_elm_lang$core$Debug$log, '>>', 'meh');
 					return {
 						ctor: '_Tuple2',
 						_0: A2(
@@ -15928,8 +15931,7 @@ var _user$project$Update$update = F2(
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var metadata = _user$project$Types$buildMeta(
-						A2(_elm_lang$core$Debug$log, '>>', _p2._0._0));
+					var metadata = _user$project$Types$buildMeta(_p2._0._0);
 					var date = _user$project$Model$lastDateWithPhotos(metadata);
 					var newModel = A2(
 						_user$project$Model$withDateShown,
@@ -15961,8 +15963,8 @@ var _user$project$Update$update = F2(
 					};
 				}
 			default:
-				var _p5 = _p2._0;
-				var userDir = _elm_lang$core$Native_Utils.eq(_p5, 'All') ? '' : _p5;
+				var _p4 = _p2._0;
+				var userDir = _elm_lang$core$Native_Utils.eq(_p4, 'All') ? '' : _p4;
 				return {
 					ctor: '_Tuple2',
 					_0: A2(_user$project$Model$withPhotoDir, userDir, model),
@@ -15978,63 +15980,67 @@ var _user$project$Update$IncrementYear = {ctor: 'IncrementYear'};
 
 var _user$project$ViewPhotos$viewPicture = F2(
 	function (baseDir, metadata) {
-		return A2(
-			_elm_lang$html$Html$li,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$img,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$src(metadata.relativeFilePath),
-								_1: {ctor: '[]'}
-							},
-							{ctor: '[]'}),
-						_1: {
+		return {
+			ctor: '_Tuple2',
+			_0: metadata.relativeFilePath,
+			_1: A2(
+				_elm_lang$html$Html$li,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{ctor: '[]'},
+						{
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$br,
-								{ctor: '[]'},
+								_elm_lang$html$Html$img,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$src(metadata.relativeFilePath),
+									_1: {ctor: '[]'}
+								},
 								{ctor: '[]'}),
 							_1: {
 								ctor: '::',
 								_0: A2(
-									_elm_lang$html$Html$span,
+									_elm_lang$html$Html$br,
 									{ctor: '[]'},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text(
-											A2(_elm_lang$core$Basics_ops['++'], metadata.relativeFilePath, ' - ')),
-										_1: {ctor: '[]'}
-									}),
+									{ctor: '[]'}),
 								_1: {
 									ctor: '::',
 									_0: A2(
-										_elm_lang$html$Html$button,
+										_elm_lang$html$Html$span,
+										{ctor: '[]'},
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html_Events$onClick(
-												_user$project$Update$DeletePhoto(metadata)),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('Erase'),
+											_0: _elm_lang$html$Html$text(
+												A2(_elm_lang$core$Basics_ops['++'], metadata.relativeFilePath, ' - ')),
 											_1: {ctor: '[]'}
 										}),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$button,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(
+													_user$project$Update$DeletePhoto(metadata)),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('Erase'),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}
 								}
 							}
-						}
-					}),
-				_1: {ctor: '[]'}
-			});
+						}),
+					_1: {ctor: '[]'}
+				})
+		};
 	});
 var _user$project$ViewPhotos$viewPictureList = F2(
 	function (baseDir, metadataList) {
@@ -16059,7 +16065,7 @@ var _user$project$ViewPhotos$viewPictureList = F2(
 				_1: {
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$ul,
+						_elm_lang$html$Html_Keyed$ul,
 						{ctor: '[]'},
 						A2(
 							_elm_lang$core$List$map,
@@ -16335,14 +16341,14 @@ var _user$project$View$dateColour = F2(
 				ctor: '_Tuple2',
 				_0: A2(
 					_elm_lang$core$Basics_ops['++'],
-					'rgb(',
+					'rgb(128, ',
 					A2(
 						_elm_lang$core$Basics_ops['++'],
 						shade,
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							',',
-							A2(_elm_lang$core$Basics_ops['++'], shade, ', 128)')))),
+							A2(_elm_lang$core$Basics_ops['++'], shade, ')')))),
 				_1: _elm_lang$core$List$length(_p2)
 			};
 		}
