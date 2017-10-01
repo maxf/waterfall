@@ -1,5 +1,10 @@
 <?php
 
+# display errors in output
+ini_set('display_errors', 1);
+error_reporting(E_ALL ^ E_NOTICE);
+
+
 function createDate($path) {
   $exif = exif_read_data($path, 'ANY_TAG');
   if ($exif) {
@@ -36,6 +41,8 @@ function getDirContents($dir, &$results = array()){
 }
 
 $dir = "uploads";
+
+header('Content-Type: image/jpeg');
 
 switch($_GET['cmd']) {
   case "scan":
