@@ -74,7 +74,7 @@ function fileChange(e) {
             }
             exifDateEl.value += exifDateToIso(dateCreated) + '|';
             if (counter === 1) {
-              messageEl.innerHTML = 'Ready to upload';
+              messageEl.innerHTML = 'OK';
               saveBtn.removeAttribute('disabled');
               saveBtn.style.display = 'inline';
             } else {
