@@ -15997,7 +15997,8 @@ var _user$project$ViewPhotos$viewPicture = F2(
 								_elm_lang$html$Html$img,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$src(metadata.relativeFilePath),
+									_0: _elm_lang$html$Html_Attributes$src(
+										A2(_elm_lang$core$Basics_ops['++'], 'picture.php?w=800&path=', metadata.relativeFilePath)),
 									_1: {ctor: '[]'}
 								},
 								{ctor: '[]'}),

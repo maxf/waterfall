@@ -53,7 +53,7 @@ viewPicture baseDir metadata =
         []
         [ div
             []
-            [ img [ src (metadata.relativeFilePath) ] []
+            [ img [ src ("picture.php?w=800&path=" ++ metadata.relativeFilePath) ] []
             , br [] []
             , span [] [ (metadata.relativeFilePath ++ " - ") |> text ]
             , button [ onClick (DeletePhoto metadata) ] [ text "Erase" ]
