@@ -1,4 +1,4 @@
-module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, ShowPhotosForDate, DecrementYear, IncrementYear, GetUsersResult, UserSelected), update)
+module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, ShowPhotosForDate, DecrementYear, IncrementYear, GetUsersResult, UserSelected, UrlChange), update)
 
 import Dom exposing (Error)
 import Dom.Scroll
@@ -6,6 +6,7 @@ import Task
 import Http exposing (Error(..), Response)
 import Json.Decode exposing (Decoder, map2, list, string, field)
 import Time.DateTime exposing (DateTime, year)
+import Navigation
 import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorMessage, JsonString, iso8601ToEpochSeconds, DirectoryName, UserName)
 import Ports exposing (deletePhoto)
 import Model exposing (Model, withDateShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, photoMetadata, dateShown, photoDir, lastDateWithPhotos, withUsers)
@@ -21,6 +22,7 @@ type Msg
     | ScanPhotosResult (Result Http.Error (List PhotoMetadata))
     | GetUsersResult (Result Http.Error (List String))
     | UserSelected UserName
+    | UrlChange Navigation.Location
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -97,6 +99,9 @@ update msg model =
                 ( model |> withPhotoDir userDir
                 , scanPhotos userDir
                 )
+
+        UrlChange location ->
+            ( model, Cmd.none )
 
 
 -- Misc
