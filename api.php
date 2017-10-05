@@ -6,7 +6,7 @@ error_reporting(E_ALL ^ E_NOTICE);
 
 
 function createDate($path) {
-  $exif = exif_read_data($path, 'ANY_TAG');
+  $exif = @exif_read_data($path, 'ANY_TAG');
   if ($exif) {
     return strtotime($exif['DateTimeOriginal']);
   } else {
