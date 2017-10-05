@@ -35,6 +35,5 @@ if (! file_exists($thumbFileName)) {
   $img->writeImage($thumbFileName);
 }
 
-passthru("cat $thumbFileName");
-
+passthru("cat \"$thumbFileName\"");
 ?>
