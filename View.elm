@@ -11,7 +11,7 @@ import Dict
 import Types exposing (Year, toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, ErrorMessage, UserName, dateToString)
 import Model exposing (Model, photoMetadata, dateShown, photoDir, error, users, lastDateWithPhotos, photoMetadata)
 import ViewPhotos exposing (viewPhotos)
-import Update exposing (Msg(DecrementYear, IncrementYear, UserSelected), hashForDate)
+import Update exposing (Msg(UserSelected), hashForDate)
 
 
 newYearsDayOffset : Year -> Int

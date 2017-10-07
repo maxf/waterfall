@@ -1,4 +1,4 @@
-module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, DecrementYear, IncrementYear, GetUsersResult, UserSelected, UrlChange), update, hashForDate, dateFromUrl)
+module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, GetUsersResult, UserSelected, UrlChange), update, hashForDate, dateFromUrl)
 
 import String exposing (dropLeft, left, cons)
 import Dom exposing (Error)
@@ -15,9 +15,7 @@ import Model exposing (Model, withDateShown, withError, withPhotoMetadata, withP
 
 
 type Msg
-    = IncrementYear
-    | DecrementYear
-    | ScrollPhotosFinished
+    = ScrollPhotosFinished
     | DeletePhoto PhotoMetadata
     | DeletePhotoResult String
     | ScanPhotosResult (Result Http.Error (List PhotoMetadata))
@@ -39,16 +37,6 @@ offsetYear offset model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        IncrementYear ->
-            ( model |> withDateShown (offsetYear 1 model)
-            , Cmd.none
-            )
-
-        DecrementYear ->
-            ( model |> withDateShown (offsetYear -1 model)
-            , Cmd.none
-            )
-
         ScrollPhotosFinished ->
             ( model, Cmd.none )
 
