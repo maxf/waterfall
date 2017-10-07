@@ -4,25 +4,25 @@ import Html exposing (Html, div, h1, h2, li, button, span, img, br, text)
 import Html.Keyed exposing (ul)
 import Html.Attributes exposing (src, id)
 import Update exposing (Msg(DeletePhoto))
-import Time.DateTime exposing (toTimestamp)
+import Time.DateTime exposing (DateTime, toTimestamp)
 import Html.Events exposing (onClick)
 import Dict
 import Model exposing (Model, dateShown, photoMetadata, photoDir)
 import Types exposing (PhotoMetadata, DirectoryName)
 
 
-viewPhotos : Model -> Html Msg
-viewPhotos model =
+viewPhotos : Model -> DateTime -> Html Msg
+viewPhotos model dateShown =
     let
         dateExifString =
-            (model |> dateShown |> toTimestamp) / 1000 |> round
+            (dateShown |> toTimestamp) / 1000 |> round
 
         datePhotos =
             Dict.get dateExifString (photoMetadata model)
     in
         div
             [ id "photos" ]
-            [ h1 [] [ model |> dateShown |> Types.dateToString |> text ]
+            [ h1 [] [ dateShown |> Types.dateToString |> text ]
             , case datePhotos of
                 Nothing ->
                     div [] [ text "No photos for that date" ]
@@ -46,7 +46,7 @@ viewPictureList baseDir metadataList =
         ]
 
 
-viewPicture : DirectoryName -> Types.PhotoMetadata -> (String, Html Msg)
+viewPicture : DirectoryName -> Types.PhotoMetadata -> ( String, Html Msg )
 viewPicture baseDir metadata =
     ( metadata.relativeFilePath
     , li

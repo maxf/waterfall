@@ -32,7 +32,7 @@ type alias InternalModel =
     , error : Maybe ErrorMessage
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
-    , dateShown : DateTime
+    , dateShown : Maybe DateTime
     }
 
 
@@ -45,7 +45,7 @@ initialModel =
             Nothing
             0
             Dict.empty
-            (dateTime { zero | year = 2017, month = 1, day = 1 })
+            Nothing
         )
 
 
@@ -58,7 +58,7 @@ photoDir (Model model) =
     model.photoDir
 
 
-dateShown : Model -> DateTime
+dateShown : Model -> Maybe DateTime
 dateShown (Model model) =
     model.dateShown
 
@@ -88,7 +88,7 @@ withUsers userList (Model model) =
     Model { model | users = userList }
 
 
-withDateShown : DateTime -> Model -> Model
+withDateShown : Maybe DateTime -> Model -> Model
 withDateShown date (Model model) =
     Model { model | dateShown = date }
 
@@ -133,14 +133,14 @@ removePhotoFromDict fileName dict =
             |> Dict.filter (\_ metadata -> List.length metadata /= 0)
 
 
-
 lastDateWithPhotos : MetadataDict -> DateTime
 lastDateWithPhotos dict =
     dict
         |> Dict.keys
         |> List.reverse
         |> List.head
-        |> Maybe.withDefault 1503957375 -- Some date in 2017
+        -- If no photos, pick some random date:
+        |> Maybe.withDefault 1503957375
         |> (*) 1000
         |> toFloat
         |> fromTimestamp

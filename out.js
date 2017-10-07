@@ -16138,10 +16138,7 @@ var _user$project$Model$initialModel = _user$project$Model$Model(
 		_elm_lang$core$Maybe$Nothing,
 		0,
 		_elm_lang$core$Dict$empty,
-		_elm_community$elm_time$Time_DateTime$dateTime(
-			_elm_lang$core$Native_Utils.update(
-				_elm_community$elm_time$Time_DateTime$zero,
-				{year: 2017, month: 1, day: 1}))));
+		_elm_lang$core$Maybe$Nothing));
 var _user$project$Model$withPhotoDir = F2(
 	function (dir, _p12) {
 		var _p13 = _p12;
@@ -16209,6 +16206,23 @@ var _user$project$Ports$deletePhoto = _elm_lang$core$Native_Platform.outgoingPor
 	});
 var _user$project$Ports$deletePhotoResult = _elm_lang$core$Native_Platform.incomingPort('deletePhotoResult', _elm_lang$core$Json_Decode$string);
 
+var _user$project$Update$dateFromUrl = function (location) {
+	return _elm_lang$core$Result$toMaybe(
+		_elm_community$elm_time$Time_DateTime$fromISO8601(
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				A2(_elm_lang$core$String$dropLeft, 1, location.hash),
+				'T00:00:00Z')));
+};
+var _user$project$Update$hashForDate = function (date) {
+	return A2(
+		_elm_lang$core$String$cons,
+		_elm_lang$core$Native_Utils.chr('#'),
+		A2(
+			_elm_lang$core$String$left,
+			10,
+			_elm_community$elm_time$Time_DateTime$toISO8601(date)));
+};
 var _user$project$Update$toString = function (error) {
 	var _p0 = error;
 	switch (_p0.ctor) {
@@ -16224,6 +16238,20 @@ var _user$project$Update$toString = function (error) {
 			return A2(_elm_lang$core$Basics_ops['++'], 'Bad payload: ', _p0._0);
 	}
 };
+var _user$project$Update$offsetYear = F2(
+	function (offset, model) {
+		var _p1 = _user$project$Model$dateShown(model);
+		if (_p1.ctor === 'Nothing') {
+			return _elm_lang$core$Maybe$Nothing;
+		} else {
+			return _elm_lang$core$Maybe$Just(
+				A3(
+					_user$project$Types$addYear,
+					offset,
+					_user$project$Model$photoMetadata(model),
+					_p1._0));
+		}
+	});
 var _user$project$Update$UrlChange = function (a) {
 	return {ctor: 'UrlChange', _0: a};
 };
@@ -16256,23 +16284,19 @@ var _user$project$Update$DeletePhoto = function (a) {
 	return {ctor: 'DeletePhoto', _0: a};
 };
 var _user$project$Update$ScrollPhotosFinished = {ctor: 'ScrollPhotosFinished'};
-var _user$project$Update$scrollResult = function (_p1) {
+var _user$project$Update$scrollResult = function (_p2) {
 	return _user$project$Update$ScrollPhotosFinished;
 };
 var _user$project$Update$update = F2(
 	function (msg, model) {
-		var _p2 = msg;
-		switch (_p2.ctor) {
+		var _p3 = msg;
+		switch (_p3.ctor) {
 			case 'IncrementYear':
 				return {
 					ctor: '_Tuple2',
 					_0: A2(
 						_user$project$Model$withDateShown,
-						A3(
-							_user$project$Types$addYear,
-							1,
-							_user$project$Model$photoMetadata(model),
-							_user$project$Model$dateShown(model)),
+						A2(_user$project$Update$offsetYear, 1, model),
 						model),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -16281,25 +16305,9 @@ var _user$project$Update$update = F2(
 					ctor: '_Tuple2',
 					_0: A2(
 						_user$project$Model$withDateShown,
-						A3(
-							_user$project$Types$addYear,
-							-1,
-							_user$project$Model$photoMetadata(model),
-							_user$project$Model$dateShown(model)),
+						A2(_user$project$Update$offsetYear, -1, model),
 						model),
 					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'ShowPhotosForDate':
-				return {
-					ctor: '_Tuple2',
-					_0: A2(
-						_user$project$Model$withError,
-						_elm_lang$core$Maybe$Nothing,
-						A2(_user$project$Model$withDateShown, _p2._0, model)),
-					_1: A2(
-						_elm_lang$core$Task$attempt,
-						_user$project$Update$scrollResult,
-						_elm_lang$dom$Dom_Scroll$toTop('photos'))
 				};
 			case 'ScrollPhotosFinished':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
@@ -16311,44 +16319,41 @@ var _user$project$Update$update = F2(
 						{
 							ctor: '_Tuple2',
 							_0: _user$project$Model$photoDir(model),
-							_1: _p2._0.relativeFilePath
+							_1: _p3._0.relativeFilePath
 						})
 				};
 			case 'DeletePhotoResult':
-				var _p3 = _p2._0;
-				return (!_elm_lang$core$Native_Utils.eq(_p3, '')) ? {
+				var _p4 = _p3._0;
+				return (!_elm_lang$core$Native_Utils.eq(_p4, '')) ? {
 					ctor: '_Tuple2',
-					_0: A2(_user$project$Model$removePhoto, _p3, model),
+					_0: A2(_user$project$Model$removePhoto, _p4, model),
 					_1: _elm_lang$core$Platform_Cmd$none
 				} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'ScanPhotosResult':
-				if (_p2._0.ctor === 'Err') {
+				if (_p3._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: A2(
 							_user$project$Model$withError,
 							_elm_lang$core$Maybe$Just(
-								_user$project$Update$toString(_p2._0._0)),
+								_user$project$Update$toString(_p3._0._0)),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var metadata = _user$project$Types$buildMeta(_p2._0._0);
+					var metadata = _user$project$Types$buildMeta(_p3._0._0);
 					var date = _user$project$Model$lastDateWithPhotos(metadata);
 					var newModel = A2(
-						_user$project$Model$withDateShown,
-						date,
+						_user$project$Model$withMaxPicturesInADay,
+						_user$project$Types$maxNbPictures(metadata),
 						A2(
-							_user$project$Model$withMaxPicturesInADay,
-							_user$project$Types$maxNbPictures(metadata),
-							A2(
-								_user$project$Model$withError,
-								_elm_lang$core$Maybe$Nothing,
-								A2(_user$project$Model$withPhotoMetadata, metadata, model))));
+							_user$project$Model$withError,
+							_elm_lang$core$Maybe$Nothing,
+							A2(_user$project$Model$withPhotoMetadata, metadata, model)));
 					return {ctor: '_Tuple2', _0: newModel, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'GetUsersResult':
-				if (_p2._0.ctor === 'Err') {
+				if (_p3._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: A2(
@@ -16360,25 +16365,35 @@ var _user$project$Update$update = F2(
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: A2(_user$project$Model$withUsers, _p2._0._0, model),
+						_0: A2(_user$project$Model$withUsers, _p3._0._0, model),
 						_1: _user$project$Update$scanPhotos('')
 					};
 				}
 			case 'UserSelected':
-				var _p4 = _p2._0;
-				var userDir = _elm_lang$core$Native_Utils.eq(_p4, 'All') ? '' : _p4;
+				var _p5 = _p3._0;
+				var userDir = _elm_lang$core$Native_Utils.eq(_p5, 'All') ? '' : _p5;
 				return {
 					ctor: '_Tuple2',
 					_0: A2(_user$project$Model$withPhotoDir, userDir, model),
 					_1: _user$project$Update$scanPhotos(userDir)
 				};
 			default:
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				return {
+					ctor: '_Tuple2',
+					_0: A2(
+						_user$project$Model$withError,
+						_elm_lang$core$Maybe$Nothing,
+						A2(
+							_user$project$Model$withDateShown,
+							_user$project$Update$dateFromUrl(_p3._0),
+							model)),
+					_1: A2(
+						_elm_lang$core$Task$attempt,
+						_user$project$Update$scrollResult,
+						_elm_lang$dom$Dom_Scroll$toTop('photos'))
+				};
 		}
 	});
-var _user$project$Update$ShowPhotosForDate = function (a) {
-	return {ctor: 'ShowPhotosForDate', _0: a};
-};
 var _user$project$Update$DecrementYear = {ctor: 'DecrementYear'};
 var _user$project$Update$IncrementYear = {ctor: 'IncrementYear'};
 
@@ -16485,73 +16500,72 @@ var _user$project$ViewPhotos$viewPictureList = F2(
 				}
 			});
 	});
-var _user$project$ViewPhotos$viewPhotos = function (model) {
-	var dateExifString = _elm_lang$core$Basics$round(
-		_elm_community$elm_time$Time_DateTime$toTimestamp(
-			_user$project$Model$dateShown(model)) / 1000);
-	var datePhotos = A2(
-		_elm_lang$core$Dict$get,
-		dateExifString,
-		_user$project$Model$photoMetadata(model));
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$id('photos'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$h1,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text(
-						_user$project$Types$dateToString(
-							_user$project$Model$dateShown(model))),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
+var _user$project$ViewPhotos$viewPhotos = F2(
+	function (model, dateShown) {
+		var dateExifString = _elm_lang$core$Basics$round(
+			_elm_community$elm_time$Time_DateTime$toTimestamp(dateShown) / 1000);
+		var datePhotos = A2(
+			_elm_lang$core$Dict$get,
+			dateExifString,
+			_user$project$Model$photoMetadata(model));
+		return A2(
+			_elm_lang$html$Html$div,
+			{
 				ctor: '::',
-				_0: function () {
-					var _p0 = datePhotos;
-					if (_p0.ctor === 'Nothing') {
-						return A2(
-							_elm_lang$html$Html$div,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('No photos for that date'),
-								_1: {ctor: '[]'}
-							});
-					} else {
-						return A2(
-							_elm_lang$html$Html$div,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: A2(
-									_user$project$ViewPhotos$viewPictureList,
-									_user$project$Model$photoDir(model),
-									_p0._0),
-								_1: {ctor: '[]'}
-							});
-					}
-				}(),
+				_0: _elm_lang$html$Html_Attributes$id('photos'),
 				_1: {ctor: '[]'}
-			}
-		});
-};
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$h1,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							_user$project$Types$dateToString(dateShown)),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: function () {
+						var _p0 = datePhotos;
+						if (_p0.ctor === 'Nothing') {
+							return A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('No photos for that date'),
+									_1: {ctor: '[]'}
+								});
+						} else {
+							return A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: A2(
+										_user$project$ViewPhotos$viewPictureList,
+										_user$project$Model$photoDir(model),
+										_p0._0),
+									_1: {ctor: '[]'}
+								});
+						}
+					}(),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
 
 var _user$project$View$viewOtherDayButton = F2(
 	function (label, date) {
 		return A2(
-			_elm_lang$html$Html$button,
+			_elm_lang$html$Html$a,
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html_Events$onClick(
-					_user$project$Update$ShowPhotosForDate(date)),
+				_0: _elm_lang$html$Html_Attributes$href(
+					_user$project$Update$hashForDate(date)),
 				_1: {ctor: '[]'}
 			},
 			{
@@ -16648,7 +16662,7 @@ var _user$project$View$viewUserList = function (users) {
 			},
 			usersWithAll));
 };
-var _user$project$View$viewYearButtons = function (thisYear) {
+var _user$project$View$viewYearButtons = function (date) {
 	return A2(
 		_elm_lang$html$Html$div,
 		{
@@ -16659,10 +16673,12 @@ var _user$project$View$viewYearButtons = function (thisYear) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$button,
+				_elm_lang$html$Html$a,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Events$onClick(_user$project$Update$DecrementYear),
+					_0: _elm_lang$html$Html_Attributes$href(
+						_user$project$Update$hashForDate(
+							A2(_elm_community$elm_time$Time_DateTime$addYears, -1, date))),
 					_1: {ctor: '[]'}
 				},
 				{
@@ -16670,17 +16686,20 @@ var _user$project$View$viewYearButtons = function (thisYear) {
 					_0: _elm_lang$html$Html$text(
 						A2(
 							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(thisYear - 1),
+							_elm_lang$core$Basics$toString(
+								_elm_community$elm_time$Time_DateTime$year(date) - 1),
 							' ⬅')),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$button,
+					_elm_lang$html$Html$a,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(_user$project$Update$IncrementYear),
+						_0: _elm_lang$html$Html_Attributes$href(
+							_user$project$Update$hashForDate(
+								A2(_elm_community$elm_time$Time_DateTime$addYears, 1, date))),
 						_1: {ctor: '[]'}
 					},
 					{
@@ -16689,7 +16708,8 @@ var _user$project$View$viewYearButtons = function (thisYear) {
 							A2(
 								_elm_lang$core$Basics_ops['++'],
 								'➡ ',
-								_elm_lang$core$Basics$toString(thisYear + 1))),
+								_elm_lang$core$Basics$toString(
+									_elm_community$elm_time$Time_DateTime$year(date) + 1))),
 						_1: {ctor: '[]'}
 					}),
 				_1: {ctor: '[]'}
@@ -16778,8 +16798,8 @@ var _user$project$View$calendarDate = function (date) {
 	return _elm_lang$core$Basics$toString(
 		_elm_community$elm_time$Time_DateTime$day(date));
 };
-var _user$project$View$viewDate = F4(
-	function (offset, weekNumber, model, dayOfWeek) {
+var _user$project$View$viewDate = F5(
+	function (date, offset, weekNumber, model, dayOfWeek) {
 		var dateToDisplay = A2(
 			_elm_community$elm_time$Time_DateTime$addDays,
 			(((7 * (weekNumber - 1)) + dayOfWeek) + 1) + offset,
@@ -16787,8 +16807,7 @@ var _user$project$View$viewDate = F4(
 				_elm_lang$core$Native_Utils.update(
 					_elm_community$elm_time$Time_DateTime$zero,
 					{
-						year: _elm_community$elm_time$Time_DateTime$year(
-							_user$project$Model$dateShown(model)),
+						year: _elm_community$elm_time$Time_DateTime$year(date),
 						month: 1,
 						day: 1
 					})));
@@ -16798,14 +16817,11 @@ var _user$project$View$viewDate = F4(
 				_elm_community$elm_time$Time_DateTime$month(dateToDisplay),
 				2),
 			0) ? 'odd' : 'even';
-		var shownDateClass = _elm_lang$core$Native_Utils.eq(
-			dateToDisplay,
-			_user$project$Model$dateShown(model)) ? 'today' : '';
+		var shownDateClass = _elm_lang$core$Native_Utils.eq(dateToDisplay, date) ? 'today' : '';
 		var borderClasses = _user$project$View$dateBorderClasses(dateToDisplay);
 		return _elm_lang$core$Native_Utils.eq(
 			_elm_community$elm_time$Time_DateTime$year(dateToDisplay),
-			_elm_community$elm_time$Time_DateTime$year(
-				_user$project$Model$dateShown(model))) ? A2(
+			_elm_community$elm_time$Time_DateTime$year(date)) ? A2(
 			_elm_lang$html$Html$td,
 			{
 				ctor: '::',
@@ -16824,18 +16840,25 @@ var _user$project$View$viewDate = F4(
 					ctor: '::',
 					_0: _elm_lang$html$Html_Attributes$style(
 						A2(_user$project$View$dateStyle, dateToDisplay, model)),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(
-							_user$project$Update$ShowPhotosForDate(dateToDisplay)),
-						_1: {ctor: '[]'}
-					}
+					_1: {ctor: '[]'}
 				}
 			},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text(
-					_user$project$View$calendarDate(dateToDisplay)),
+				_0: A2(
+					_elm_lang$html$Html$a,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$href(
+							_user$project$Update$hashForDate(dateToDisplay)),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							_user$project$View$calendarDate(dateToDisplay)),
+						_1: {ctor: '[]'}
+					}),
 				_1: {ctor: '[]'}
 			}) : A2(
 			_elm_lang$html$Html$td,
@@ -16846,21 +16869,21 @@ var _user$project$View$viewDate = F4(
 				_1: {ctor: '[]'}
 			});
 	});
-var _user$project$View$viewWeek = F3(
-	function (offset, model, weekNumber) {
+var _user$project$View$viewWeek = F4(
+	function (date, offset, model, weekNumber) {
 		return A2(
 			_elm_lang$html$Html$tr,
 			{ctor: '[]'},
 			A2(
 				_elm_lang$core$List$map,
-				A3(_user$project$View$viewDate, offset, weekNumber, model),
+				A4(_user$project$View$viewDate, date, offset, weekNumber, model),
 				A2(_elm_lang$core$List$range, 1, 7)));
 	});
-var _user$project$View$viewWeeks = F2(
-	function (offset, model) {
+var _user$project$View$viewWeeks = F3(
+	function (date, offset, model) {
 		return A2(
 			_elm_lang$core$List$map,
-			A2(_user$project$View$viewWeek, offset, model),
+			A3(_user$project$View$viewWeek, date, offset, model),
 			A2(_elm_lang$core$List$range, 0, 52));
 	});
 var _user$project$View$newYearsDayOffset = function (thisYear) {
@@ -16887,173 +16910,173 @@ var _user$project$View$newYearsDayOffset = function (thisYear) {
 			return -1;
 	}
 };
-var _user$project$View$viewCalendar = function (model) {
-	var dateShownTs = _user$project$Types$toSeconds(
-		_user$project$Model$dateShown(model));
-	var nextDateWithPhotos = _elm_community$elm_time$Time_DateTime$fromTimestamp(
-		_elm_lang$core$Basics$toFloat(
-			A2(
-				F2(
-					function (x, y) {
-						return x * y;
-					}),
-				1000,
+var _user$project$View$viewCalendar = F2(
+	function (model, dateToShow) {
+		var dateShownTs = _user$project$Types$toSeconds(dateToShow);
+		var nextDateWithPhotos = _elm_community$elm_time$Time_DateTime$fromTimestamp(
+			_elm_lang$core$Basics$toFloat(
 				A2(
-					_elm_lang$core$Maybe$withDefault,
-					dateShownTs,
-					_elm_lang$core$List$head(
-						A2(
-							_elm_lang$core$List$filter,
-							function (timestamp) {
-								return _elm_lang$core$Native_Utils.cmp(timestamp, dateShownTs) > 0;
-							},
-							_elm_lang$core$Dict$keys(
-								_user$project$Model$photoMetadata(model))))))));
-	var prevDateWithPhotos = _elm_community$elm_time$Time_DateTime$fromTimestamp(
-		_elm_lang$core$Basics$toFloat(
-			A2(
-				F2(
-					function (x, y) {
-						return x * y;
-					}),
-				1000,
-				A2(
-					_elm_lang$core$Maybe$withDefault,
-					dateShownTs,
-					_elm_lang$core$List$head(
-						_elm_lang$core$List$reverse(
+					F2(
+						function (x, y) {
+							return x * y;
+						}),
+					1000,
+					A2(
+						_elm_lang$core$Maybe$withDefault,
+						dateShownTs,
+						_elm_lang$core$List$head(
 							A2(
 								_elm_lang$core$List$filter,
 								function (timestamp) {
-									return _elm_lang$core$Native_Utils.cmp(timestamp, dateShownTs) < 0;
+									return _elm_lang$core$Native_Utils.cmp(timestamp, dateShownTs) > 0;
 								},
 								_elm_lang$core$Dict$keys(
-									_user$project$Model$photoMetadata(model)))))))));
-	var yearToDisplay = _elm_community$elm_time$Time_DateTime$year(
-		_user$project$Model$dateShown(model));
-	var offset = _user$project$View$newYearsDayOffset(yearToDisplay);
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('calendar'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$a,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$href('upload.php'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('Upload photos'),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
+									_user$project$Model$photoMetadata(model))))))));
+		var prevDateWithPhotos = _elm_community$elm_time$Time_DateTime$fromTimestamp(
+			_elm_lang$core$Basics$toFloat(
+				A2(
+					F2(
+						function (x, y) {
+							return x * y;
+						}),
+					1000,
+					A2(
+						_elm_lang$core$Maybe$withDefault,
+						dateShownTs,
+						_elm_lang$core$List$head(
+							_elm_lang$core$List$reverse(
+								A2(
+									_elm_lang$core$List$filter,
+									function (timestamp) {
+										return _elm_lang$core$Native_Utils.cmp(timestamp, dateShownTs) < 0;
+									},
+									_elm_lang$core$Dict$keys(
+										_user$project$Model$photoMetadata(model)))))))));
+		var yearToDisplay = _elm_community$elm_time$Time_DateTime$year(dateToShow);
+		var offset = _user$project$View$newYearsDayOffset(yearToDisplay);
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('calendar'),
+				_1: {ctor: '[]'}
+			},
+			{
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$br,
-					{ctor: '[]'},
-					{ctor: '[]'}),
+					_elm_lang$html$Html$a,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$href('upload.php'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Upload photos'),
+						_1: {ctor: '[]'}
+					}),
 				_1: {
 					ctor: '::',
-					_0: _user$project$View$viewUserList(
-						_user$project$Model$users(model)),
+					_0: A2(
+						_elm_lang$html$Html$br,
+						{ctor: '[]'},
+						{ctor: '[]'}),
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$h1,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text(
-									_elm_lang$core$Basics$toString(yearToDisplay)),
-								_1: {ctor: '[]'}
-							}),
+						_0: _user$project$View$viewUserList(
+							_user$project$Model$users(model)),
 						_1: {
 							ctor: '::',
-							_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
+							_0: A2(
+								_elm_lang$html$Html$h1,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(
+										_elm_lang$core$Basics$toString(yearToDisplay)),
+									_1: {ctor: '[]'}
+								}),
 							_1: {
 								ctor: '::',
-								_0: _user$project$View$viewYearButtons(yearToDisplay),
+								_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
 								_1: {
 									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$table,
-										{ctor: '[]'},
-										{
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$thead,
-												{ctor: '[]'},
-												{
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$tr,
-														{ctor: '[]'},
-														A2(
-															_elm_lang$core$List$map,
-															function (d) {
-																return A2(
-																	_elm_lang$html$Html$th,
-																	{ctor: '[]'},
-																	{
-																		ctor: '::',
-																		_0: _elm_lang$html$Html$text(d),
-																		_1: {ctor: '[]'}
-																	});
-															},
-															{
-																ctor: '::',
-																_0: 'M',
-																_1: {
+									_0: _user$project$View$viewYearButtons(dateToShow),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$table,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$thead,
+													{ctor: '[]'},
+													{
+														ctor: '::',
+														_0: A2(
+															_elm_lang$html$Html$tr,
+															{ctor: '[]'},
+															A2(
+																_elm_lang$core$List$map,
+																function (d) {
+																	return A2(
+																		_elm_lang$html$Html$th,
+																		{ctor: '[]'},
+																		{
+																			ctor: '::',
+																			_0: _elm_lang$html$Html$text(d),
+																			_1: {ctor: '[]'}
+																		});
+																},
+																{
 																	ctor: '::',
-																	_0: 'T',
+																	_0: 'M',
 																	_1: {
 																		ctor: '::',
-																		_0: 'W',
+																		_0: 'T',
 																		_1: {
 																			ctor: '::',
-																			_0: 'T',
+																			_0: 'W',
 																			_1: {
 																				ctor: '::',
-																				_0: 'F',
+																				_0: 'T',
 																				_1: {
 																					ctor: '::',
-																					_0: 'S',
+																					_0: 'F',
 																					_1: {
 																						ctor: '::',
 																						_0: 'S',
-																						_1: {ctor: '[]'}
+																						_1: {
+																							ctor: '::',
+																							_0: 'S',
+																							_1: {ctor: '[]'}
+																						}
 																					}
 																				}
 																			}
 																		}
 																	}
-																}
-															})),
+																})),
+														_1: {ctor: '[]'}
+													}),
+												_1: {
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$tbody,
+														{ctor: '[]'},
+														A3(_user$project$View$viewWeeks, dateToShow, offset, model)),
 													_1: {ctor: '[]'}
-												}),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$tbody,
-													{ctor: '[]'},
-													A2(_user$project$View$viewWeeks, offset, model)),
-												_1: {ctor: '[]'}
-											}
-										}),
-									_1: {
-										ctor: '::',
-										_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
+												}
+											}),
 										_1: {
 											ctor: '::',
-											_0: _user$project$View$viewYearButtons(yearToDisplay),
-											_1: {ctor: '[]'}
+											_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
+											_1: {
+												ctor: '::',
+												_0: _user$project$View$viewYearButtons(dateToShow),
+												_1: {ctor: '[]'}
+											}
 										}
 									}
 								}
@@ -17061,10 +17084,14 @@ var _user$project$View$viewCalendar = function (model) {
 						}
 					}
 				}
-			}
-		});
-};
+			});
+	});
 var _user$project$View$view = function (model) {
+	var dateToShow = A2(
+		_elm_lang$core$Maybe$withDefault,
+		_user$project$Model$lastDateWithPhotos(
+			_user$project$Model$photoMetadata(model)),
+		_user$project$Model$dateShown(model));
 	return A2(
 		_elm_lang$html$Html$div,
 		{
@@ -17087,10 +17114,10 @@ var _user$project$View$view = function (model) {
 					},
 					{
 						ctor: '::',
-						_0: _user$project$View$viewCalendar(model),
+						_0: A2(_user$project$View$viewCalendar, model, dateToShow),
 						_1: {
 							ctor: '::',
-							_0: _user$project$ViewPhotos$viewPhotos(model),
+							_0: A2(_user$project$ViewPhotos$viewPhotos, model, dateToShow),
 							_1: {ctor: '[]'}
 						}
 					}),
@@ -17116,7 +17143,14 @@ var _user$project$Main$getUserList = function () {
 	return A2(_elm_lang$http$Http$send, _user$project$Update$GetUsersResult, request);
 }();
 var _user$project$Main$init = function (location) {
-	return {ctor: '_Tuple2', _0: _user$project$Model$initialModel, _1: _user$project$Main$getUserList};
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_user$project$Model$withDateShown,
+			_user$project$Update$dateFromUrl(location),
+			_user$project$Model$initialModel),
+		_1: _user$project$Main$getUserList
+	};
 };
 var _user$project$Main$main = A2(
 	_elm_lang$navigation$Navigation$program,
@@ -17126,7 +17160,7 @@ var _user$project$Main$main = A2(
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Time.Date.Date":{"args":[],"tags":{"Date":["{ year : Int, month : Int, day : Int }"]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Time.DateTime.DateTime":{"args":[],"tags":{"DateTime":["{ date : Time.Date.Date, offset : Int }"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Update.Msg":{"args":[],"tags":{"DeletePhotoResult":["String"],"DeletePhoto":["Types.PhotoMetadata"],"UserSelected":["Types.UserName"],"ShowPhotosForDate":["Time.DateTime.DateTime"],"ScanPhotosResult":["Result.Result Http.Error (List Types.PhotoMetadata)"],"UrlChange":["Navigation.Location"],"GetUsersResult":["Result.Result Http.Error (List String)"],"DecrementYear":[],"ScrollPhotosFinished":[],"IncrementYear":[]}}},"aliases":{"Types.PhotoMetadata":{"args":[],"type":"{ relativeFilePath : Types.FileName , dateCreated : Types.SecondsSinceEpoch }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.SecondsSinceEpoch":{"args":[],"type":"Int"},"Types.FileName":{"args":[],"type":"String"},"Types.UserName":{"args":[],"type":"String"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Update.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Update.Msg":{"args":[],"tags":{"DeletePhotoResult":["String"],"DeletePhoto":["Types.PhotoMetadata"],"UserSelected":["Types.UserName"],"ScanPhotosResult":["Result.Result Http.Error (List Types.PhotoMetadata)"],"UrlChange":["Navigation.Location"],"GetUsersResult":["Result.Result Http.Error (List String)"],"DecrementYear":[],"ScrollPhotosFinished":[],"IncrementYear":[]}}},"aliases":{"Types.PhotoMetadata":{"args":[],"type":"{ relativeFilePath : Types.FileName , dateCreated : Types.SecondsSinceEpoch }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.SecondsSinceEpoch":{"args":[],"type":"Int"},"Types.FileName":{"args":[],"type":"String"},"Types.UserName":{"args":[],"type":"String"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Update.Msg"},"versions":{"elm":"0.18.0"}});
 }
 Elm['Model'] = Elm['Model'] || {};
 if (typeof _user$project$Model$main !== 'undefined') {

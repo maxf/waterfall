@@ -5,13 +5,13 @@ import Html.Events exposing (onClick, on, targetValue)
 import Html.Attributes exposing (class, style, href)
 import Json.Decode exposing (map)
 import List exposing (range)
-import Time.DateTime as Date exposing (DateTime, weekday, dateTime, zero, day, addDays, month, year, fromTimestamp)
+import Time.DateTime as Date exposing (DateTime, weekday, dateTime, zero, day, addDays, month, year, fromTimestamp, toISO8601, addYears)
 import Time.Date as Date
 import Dict
 import Types exposing (Year, toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, ErrorMessage, UserName, dateToString)
-import Model exposing (Model, photoMetadata, dateShown, photoDir, error, users)
+import Model exposing (Model, photoMetadata, dateShown, photoDir, error, users, lastDateWithPhotos, photoMetadata)
 import ViewPhotos exposing (viewPhotos)
-import Update exposing (Msg(ShowPhotosForDate, DecrementYear, IncrementYear, UserSelected))
+import Update exposing (Msg(DecrementYear, IncrementYear, UserSelected), hashForDate)
 
 
 newYearsDayOffset : Year -> Int
@@ -127,11 +127,11 @@ dateBorderClasses dateToDisplay =
         String.join " " [ borderBottomClass, borderRightClass ]
 
 
-viewDate : Int -> WeekNumber -> Model -> DayOfWeek -> Html Msg
-viewDate offset weekNumber model dayOfWeek =
+viewDate : DateTime -> Int -> WeekNumber -> Model -> DayOfWeek -> Html Msg
+viewDate date offset weekNumber model dayOfWeek =
     let
         dateToDisplay =
-            dateTime { zero | year = year (dateShown model), month = 1, day = 1 }
+            dateTime { zero | year = year date, month = 1, day = 1 }
                 |> addDays (7 * (weekNumber - 1) + dayOfWeek + 1 + offset)
 
         monthClass =
@@ -143,7 +143,7 @@ viewDate offset weekNumber model dayOfWeek =
         -- if the day to draw is the day of the photos shown
         -- mark it with class 'today'
         shownDateClass =
-            if dateToDisplay == dateShown model then
+            if dateToDisplay == date then
                 "today"
             else
                 ""
@@ -151,52 +151,51 @@ viewDate offset weekNumber model dayOfWeek =
         borderClasses =
             dateBorderClasses dateToDisplay
     in
-        if year dateToDisplay == (model |> dateShown |> year) then
+        if year dateToDisplay == year date then
             td
                 [ class (monthClass ++ " " ++ shownDateClass ++ " " ++ borderClasses)
                 , style (dateStyle dateToDisplay model)
-                , onClick (ShowPhotosForDate dateToDisplay)
                 ]
-                [ text (calendarDate dateToDisplay) ]
+                [ a [ href (hashForDate dateToDisplay) ] [ text (calendarDate dateToDisplay) ] ]
         else
             td [] [ text "" ]
 
 
-viewWeek : Int -> Model -> WeekNumber -> Html Msg
-viewWeek offset model weekNumber =
-    tr [] (List.map (viewDate offset weekNumber model) (range 1 7))
+viewWeek : DateTime -> Int -> Model -> WeekNumber -> Html Msg
+viewWeek date offset model weekNumber =
+    tr [] (List.map (viewDate date offset weekNumber model) (range 1 7))
 
 
-viewWeeks : Int -> Model -> List (Html Msg)
-viewWeeks offset model =
-    List.map (viewWeek offset model) (range 0 52)
+viewWeeks : DateTime -> Int -> Model -> List (Html Msg)
+viewWeeks date offset model =
+    List.map (viewWeek date offset model) (range 0 52)
 
 
-viewYearButtons : Year -> Html Msg
-viewYearButtons thisYear =
+viewYearButtons : DateTime -> Html Msg
+viewYearButtons date =
     div [ class "year-buttons" ]
-        [ button
-            [ onClick DecrementYear ]
-            [ text (toString (thisYear - 1) ++ " ⬅") ]
-        , button
-            [ onClick IncrementYear ]
-            [ text ("➡ " ++ toString (thisYear + 1)) ]
+        [ a
+            [ href (hashForDate (addYears -1 date)) ]
+            [ text (toString ((year date) - 1) ++ " ⬅") ]
+        , a
+            [ href (hashForDate (addYears 1 date)) ]
+            [ text ("➡ " ++ toString ((year date) + 1)) ]
         ]
 
 
-viewCalendar : Model -> Html Msg
-viewCalendar model =
+viewCalendar : Model -> DateTime -> Html Msg
+viewCalendar model dateToShow =
     let
         yearToDisplay =
-            model |> dateShown |> year
+            dateToShow |> year
 
         offset =
             newYearsDayOffset yearToDisplay
 
         dateShownTs =
-            model |> dateShown |> Types.toSeconds
+            dateToShow |> Types.toSeconds
 
-        -- the prev day after dateShown that has photos
+        -- the prev day after dateToShow that has photos
         nextDateWithPhotos : DateTime
         nextDateWithPhotos =
             model
@@ -227,11 +226,10 @@ viewCalendar model =
             [ class "calendar" ]
             [ a [ href "upload.php" ] [ text "Upload photos" ]
             , br [] []
---            , span [] [ model |> photoDir |> text ]
             , viewUserList (model |> users)
             , h1 [] [ text (toString yearToDisplay) ]
             , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
-            , viewYearButtons yearToDisplay
+            , viewYearButtons dateToShow
             , table []
                 [ thead []
                     [ tr []
@@ -240,17 +238,18 @@ viewCalendar model =
                             [ "M", "T", "W", "T", "F", "S", "S" ]
                         )
                     ]
-                , tbody [] (viewWeeks offset model)
+                , tbody [] (viewWeeks dateToShow offset model)
                 ]
             , viewPrevNextButtons prevDateWithPhotos nextDateWithPhotos
-            , viewYearButtons yearToDisplay
+            , viewYearButtons dateToShow
             ]
 
 
 viewUserList : List UserName -> Html Msg
 viewUserList users =
     let
-        usersWithAll = "All" :: users
+        usersWithAll =
+            "All" :: users
     in
         select
             [ on "change" (Json.Decode.map UserSelected targetValue) ]
@@ -269,9 +268,7 @@ viewError message =
 
 viewOtherDayButton : String -> DateTime -> Html Msg
 viewOtherDayButton label date =
-    button
-        [ onClick (ShowPhotosForDate date) ]
-        [ text label ]
+    a [ href (hashForDate date) ] [ text label ]
 
 
 viewPrevNextButtons : DateTime -> DateTime -> Html Msg
@@ -284,12 +281,17 @@ viewPrevNextButtons prev next =
 
 view : Model -> Html Msg
 view model =
-    div
-        [ class "outer" ]
-        [ model |> error |> viewError
-        , div
-            [ class "columns" ]
-            [ viewCalendar model
-            , viewPhotos model
+    let
+        dateToShow =
+            dateShown model
+                |> Maybe.withDefault (lastDateWithPhotos (photoMetadata model))
+    in
+        div
+            [ class "outer" ]
+            [ model |> error |> viewError
+            , div
+                [ class "columns" ]
+                [ viewCalendar model dateToShow
+                , viewPhotos model dateToShow
+                ]
             ]
-        ]

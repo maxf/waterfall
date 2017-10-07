@@ -1,12 +1,14 @@
-module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, ShowPhotosForDate, DecrementYear, IncrementYear, GetUsersResult, UserSelected, UrlChange), update)
+module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, DecrementYear, IncrementYear, GetUsersResult, UserSelected, UrlChange), update, hashForDate, dateFromUrl)
 
+import String exposing (dropLeft, left, cons)
 import Dom exposing (Error)
 import Dom.Scroll
 import Task
 import Http exposing (Error(..), Response)
 import Json.Decode exposing (Decoder, map2, list, string, field)
-import Time.DateTime exposing (DateTime, year)
+import Time.DateTime exposing (DateTime, year, toISO8601, fromISO8601, zero, dateTime)
 import Navigation
+import Result exposing (withDefault, toMaybe)
 import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorMessage, JsonString, iso8601ToEpochSeconds, DirectoryName, UserName)
 import Ports exposing (deletePhoto)
 import Model exposing (Model, withDateShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, photoMetadata, dateShown, photoDir, lastDateWithPhotos, withUsers)
@@ -15,7 +17,6 @@ import Model exposing (Model, withDateShown, withError, withPhotoMetadata, withP
 type Msg
     = IncrementYear
     | DecrementYear
-    | ShowPhotosForDate DateTime
     | ScrollPhotosFinished
     | DeletePhoto PhotoMetadata
     | DeletePhotoResult String
@@ -25,26 +26,27 @@ type Msg
     | UrlChange Navigation.Location
 
 
+offsetYear : Int -> Model -> Maybe DateTime
+offsetYear offset model =
+    case model |> dateShown of
+        Nothing ->
+            Nothing
+
+        Just realDate ->
+            Just (addYear offset (photoMetadata model) realDate)
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         IncrementYear ->
-            ( model
-                |> withDateShown (addYear 1 (photoMetadata model) (dateShown model))
+            ( model |> withDateShown (offsetYear 1 model)
             , Cmd.none
             )
 
         DecrementYear ->
-            ( model
-                |> withDateShown (addYear -1 (photoMetadata model) (dateShown model))
+            ( model |> withDateShown (offsetYear -1 model)
             , Cmd.none
-            )
-
-        ShowPhotosForDate date ->
-            ( model
-                |> withDateShown date
-                |> withError Nothing
-            , Task.attempt scrollResult (Dom.Scroll.toTop "photos")
             )
 
         ScrollPhotosFinished ->
@@ -72,13 +74,11 @@ update msg model =
                 date =
                     lastDateWithPhotos metadata
 
-                -- dateOfFirstPhotoOfYear (model |> dateShown |> year) metadata
                 newModel =
                     model
                         |> withPhotoMetadata metadata
                         |> withError Nothing
                         |> withMaxPicturesInADay (maxNbPictures metadata)
-                        |> withDateShown date
             in
                 ( newModel, Cmd.none )
 
@@ -94,14 +94,23 @@ update msg model =
 
         UserSelected userName ->
             let
-                userDir = if userName == "All" then "" else userName
+                userDir =
+                    if userName == "All" then
+                        ""
+                    else
+                        userName
             in
                 ( model |> withPhotoDir userDir
                 , scanPhotos userDir
                 )
 
         UrlChange location ->
-            ( model, Cmd.none )
+            ( model
+                |> withDateShown (dateFromUrl location)
+                |> withError Nothing
+            , Task.attempt scrollResult (Dom.Scroll.toTop "photos")
+            )
+
 
 
 -- Misc
@@ -135,11 +144,31 @@ toString error =
     case error of
         BadUrl url ->
             "Bad URL: " ++ url
+
         Timeout ->
             "Timeout"
+
         NetworkError ->
             "Network error"
+
         BadStatus r ->
             "Bad status "
+
         BadPayload s r ->
             "Bad payload: " ++ s
+
+
+hashForDate : DateTime -> String
+hashForDate date =
+    date
+        |> toISO8601
+        |> left 10
+        |> cons '#'
+
+
+dateFromUrl : Navigation.Location -> Maybe DateTime
+dateFromUrl location =
+    dropLeft 1 location.hash
+        ++ "T00:00:00Z"
+        |> fromISO8601
+        |> toMaybe

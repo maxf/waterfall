@@ -30,6 +30,23 @@
      }
      .year-buttons {
        width: 100%;
+       padding: .1em;
+       margin: .5em 0;
+       text-align: center;
+     }
+     .year-buttons a {
+       color: black;
+       background-color: #ddd;
+       text-decoration: none;
+     }
+     .prev-next-buttons {
+       margin: .5em 0;
+       text-align: center;
+     }
+     .prev-next-buttons a {
+       color: black;
+       background-color: #ddd;
+       text-decoration: none;
      }
      .error {
        position: fixed;
@@ -52,18 +69,15 @@
        max-height: 100vh;
        padding: 1em;
      }
+     .calendar table td a {
+       color: #aaa;
+       text-decoration: none;
+     }
      .calendar td.last-week {
        border-bottom: 5px solid #ccc;
      }
      .calendar td.last-day {
        border-right: 5px solid #ccc;
-     }
-     .year-buttons {
-       margin: .5em 0;
-       text-align: center;
-     }
-     .prev-next-buttons {
-       text-align: center;
      }
      #photos {
        margin: 1em;

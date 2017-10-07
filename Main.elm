@@ -5,7 +5,7 @@ import Json.Decode exposing (list, string)
 import Navigation
 import View
 import Model exposing (Model, photoDir)
-import Update exposing (Msg(DeletePhotoResult, ScanPhotosResult, GetUsersResult, UrlChange), update)
+import Update exposing (Msg(DeletePhotoResult, ScanPhotosResult, GetUsersResult, UrlChange), update, hashForDate, dateFromUrl)
 import Ports exposing (deletePhotoResult)
 
 
@@ -21,7 +21,9 @@ main =
 
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
-    ( Model.initialModel, getUserList )
+    ( Model.initialModel |> Model.withDateShown (dateFromUrl location)
+    , getUserList
+    )
 
 
 getUserList : Cmd Msg
