@@ -16284,9 +16284,21 @@ var _user$project$Update$DeletePhoto = function (a) {
 	return {ctor: 'DeletePhoto', _0: a};
 };
 var _user$project$Update$ScrollPhotosFinished = {ctor: 'ScrollPhotosFinished'};
-var _user$project$Update$scrollResult = function (_p2) {
-	return _user$project$Update$ScrollPhotosFinished;
-};
+var _user$project$Update$scrollPanes = A2(
+	_elm_lang$core$Task$attempt,
+	function (_p2) {
+		return _user$project$Update$ScrollPhotosFinished;
+	},
+	_elm_lang$core$Task$sequence(
+		{
+			ctor: '::',
+			_0: _elm_lang$dom$Dom_Scroll$toTop('photos'),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_lang$dom$Dom_Scroll$toY, 'calendar', 300),
+				_1: {ctor: '[]'}
+			}
+		}));
 var _user$project$Update$update = F2(
 	function (msg, model) {
 		var _p3 = msg;
@@ -16324,7 +16336,6 @@ var _user$project$Update$update = F2(
 					};
 				} else {
 					var metadata = _user$project$Types$buildMeta(_p3._0._0);
-					var date = _user$project$Model$lastDateWithPhotos(metadata);
 					var newModel = A2(
 						_user$project$Model$withMaxPicturesInADay,
 						_user$project$Types$maxNbPictures(metadata),
@@ -16332,7 +16343,7 @@ var _user$project$Update$update = F2(
 							_user$project$Model$withError,
 							_elm_lang$core$Maybe$Nothing,
 							A2(_user$project$Model$withPhotoMetadata, metadata, model)));
-					return {ctor: '_Tuple2', _0: newModel, _1: _elm_lang$core$Platform_Cmd$none};
+					return {ctor: '_Tuple2', _0: newModel, _1: _user$project$Update$scrollPanes};
 				}
 			case 'GetUsersResult':
 				if (_p3._0.ctor === 'Err') {
@@ -16369,10 +16380,7 @@ var _user$project$Update$update = F2(
 							_user$project$Model$withDateShown,
 							_user$project$Update$dateFromUrl(_p3._0),
 							model)),
-					_1: A2(
-						_elm_lang$core$Task$attempt,
-						_user$project$Update$scrollResult,
-						_elm_lang$dom$Dom_Scroll$toTop('photos'))
+					_1: _user$project$Update$scrollPanes
 				};
 		}
 	});
@@ -16939,7 +16947,11 @@ var _user$project$View$viewCalendar = F2(
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$class('calendar'),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$id('calendar'),
+					_1: {ctor: '[]'}
+				}
 			},
 			{
 				ctor: '::',

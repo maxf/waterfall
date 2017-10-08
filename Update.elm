@@ -1,7 +1,6 @@
 module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, GetUsersResult, UserSelected, UrlChange), update, hashForDate, dateFromUrl)
 
 import String exposing (dropLeft, left, cons)
-import Dom exposing (Error)
 import Dom.Scroll
 import Task
 import Http exposing (Error(..), Response)
@@ -59,16 +58,13 @@ update msg model =
                 metadata =
                     Types.buildMeta metadataList
 
-                date =
-                    lastDateWithPhotos metadata
-
                 newModel =
                     model
                         |> withPhotoMetadata metadata
                         |> withError Nothing
                         |> withMaxPicturesInADay (maxNbPictures metadata)
             in
-                ( newModel, Cmd.none )
+                ( newModel, scrollPanes )
 
         GetUsersResult (Err httpErrorMsg) ->
             ( model |> withError (Just "Error getting users")
@@ -96,17 +92,21 @@ update msg model =
             ( model
                 |> withDateShown (dateFromUrl location)
                 |> withError Nothing
-            , Task.attempt scrollResult (Dom.Scroll.toTop "photos")
+            , scrollPanes
             )
-
 
 
 -- Misc
 
-
-scrollResult : Result Dom.Error () -> Msg
-scrollResult _ =
-    ScrollPhotosFinished
+scrollPanes : Cmd Msg
+scrollPanes =
+    Task.attempt
+        (\_ -> ScrollPhotosFinished)
+        (Task.sequence
+             [ Dom.Scroll.toTop "photos"
+             , Dom.Scroll.toY "calendar" 300
+             ]
+        )
 
 
 scanPhotos : DirectoryName -> Cmd Msg

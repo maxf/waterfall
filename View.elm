@@ -2,7 +2,7 @@ module View exposing (view)
 
 import Html exposing (Html, div, button, td, text, tr, span, h1, table, thead, tbody, th, a, br, select, option)
 import Html.Events exposing (onClick, on, targetValue)
-import Html.Attributes exposing (class, style, href)
+import Html.Attributes exposing (class, style, href, id)
 import Json.Decode exposing (map)
 import List exposing (range)
 import Time.DateTime as Date exposing (DateTime, weekday, dateTime, zero, day, addDays, month, year, fromTimestamp, toISO8601, addYears)
@@ -223,7 +223,7 @@ viewCalendar model dateToShow =
                 |> fromTimestamp
     in
         div
-            [ class "calendar" ]
+            [ class "calendar", id "calendar" ]
             [ a [ href "upload.php" ] [ text "Upload photos" ]
             , br [] []
             , viewUserList (model |> users)
