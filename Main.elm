@@ -5,7 +5,7 @@ import Json.Decode exposing (list, string)
 import Navigation
 import View
 import Model exposing (Model, photoDir)
-import Update exposing (Msg(DeletePhotoResult, ScanPhotosResult, GetUsersResult, UrlChange), update, hashForDate, dateFromUrl)
+import Update exposing (Msg(DeletePhotoResult, GetUsersResult, UrlChange), update, hashForDate, dateFromUrl)
 import Ports exposing (deletePhotoResult)
 
 

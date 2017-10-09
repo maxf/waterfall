@@ -8,9 +8,9 @@ import Json.Decode exposing (Decoder, map2, list, string, field)
 import Time.DateTime exposing (DateTime, year, toISO8601, fromISO8601, zero, dateTime)
 import Navigation
 import Result exposing (withDefault, toMaybe)
-import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorMessage, JsonString, iso8601ToEpochSeconds, DirectoryName, UserName)
+import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, Error(ErrorMessage, NoError), JsonString, iso8601ToEpochSeconds, DirectoryName, UserName)
 import Ports exposing (deletePhoto)
-import Model exposing (Model, withDateShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, photoMetadata, dateShown, photoDir, lastDateWithPhotos, withUsers)
+import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), withDateShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, photoMetadata, dateShown, photoDir, lastDateWithPhotos, withUsers)
 
 
 type Msg
@@ -21,16 +21,6 @@ type Msg
     | GetUsersResult (Result Http.Error (List String))
     | UserSelected UserName
     | UrlChange Navigation.Location
-
-
-offsetYear : Int -> Model -> Maybe DateTime
-offsetYear offset model =
-    case model |> dateShown of
-        Nothing ->
-            Nothing
-
-        Just realDate ->
-            Just (addYear offset (photoMetadata model) realDate)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -51,7 +41,7 @@ update msg model =
                 ( model, Cmd.none )
 
         ScanPhotosResult (Err httpError) ->
-            ( model |> withError (Just (httpError |> toString)), Cmd.none )
+            ( model |> withError (ErrorMessage (httpError |> toString)), Cmd.none )
 
         ScanPhotosResult (Ok metadataList) ->
             let
@@ -61,13 +51,13 @@ update msg model =
                 newModel =
                     model
                         |> withPhotoMetadata metadata
-                        |> withError Nothing
+                        |> withError NoError
                         |> withMaxPicturesInADay (maxNbPictures metadata)
             in
                 ( newModel, scrollPanes )
 
         GetUsersResult (Err httpErrorMsg) ->
-            ( model |> withError (Just "Error getting users")
+            ( model |> withError (ErrorMessage "Error getting users")
             , Cmd.none
             )
 
@@ -91,7 +81,7 @@ update msg model =
         UrlChange location ->
             ( model
                 |> withDateShown (dateFromUrl location)
-                |> withError Nothing
+                |> withError NoError
             , scrollPanes
             )
 
@@ -154,9 +144,16 @@ hashForDate date =
         |> cons '#'
 
 
-dateFromUrl : Navigation.Location -> Maybe DateTime
+dateFromUrl : Navigation.Location -> DisplayDate
 dateFromUrl location =
-    dropLeft 1 location.hash
-        ++ "T00:00:00Z"
-        |> fromISO8601
-        |> toMaybe
+    let
+        fullDate =
+            dropLeft 1 location.hash
+            ++ "T00:00:00Z"
+            |> fromISO8601
+    in
+        case fullDate of
+            Ok date ->
+                Date date
+            Err message ->
+                BadDate

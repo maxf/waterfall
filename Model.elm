@@ -1,6 +1,7 @@
 module Model
     exposing
         ( Model
+        , DisplayDate(Date, DateNotSpecified, BadDate)
         , initialModel
         , removePhoto
         , dateShown
@@ -17,7 +18,7 @@ module Model
         , lastDateWithPhotos
         )
 
-import Types exposing (DirectoryName, ErrorMessage, MetadataDict, FileName, PhotoMetadata, JsonString, UserName)
+import Types exposing (DirectoryName, Error(ErrorMessage, NoError), MetadataDict, FileName, PhotoMetadata, JsonString, UserName)
 import Time.DateTime exposing (DateTime, dateTime, zero, toISO8601, fromISO8601, fromTimestamp)
 import Dict
 
@@ -26,13 +27,19 @@ type Model
     = Model InternalModel
 
 
+type DisplayDate
+    = Date DateTime
+    | DateNotSpecified
+    | BadDate
+
+
 type alias InternalModel =
     { photoDir : DirectoryName
     , users : List UserName
-    , error : Maybe ErrorMessage
+    , error : Error
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
-    , dateShown : Maybe DateTime
+    , dateShown : DisplayDate
     }
 
 
@@ -42,10 +49,10 @@ initialModel =
         (InternalModel
             ""
             []
-            Nothing
+            NoError
             0
             Dict.empty
-            Nothing
+            DateNotSpecified
         )
 
 
@@ -58,7 +65,7 @@ photoDir (Model model) =
     model.photoDir
 
 
-dateShown : Model -> Maybe DateTime
+dateShown : Model -> DisplayDate
 dateShown (Model model) =
     model.dateShown
 
@@ -68,7 +75,7 @@ photoMetadata (Model model) =
     model.photoMetadata
 
 
-error : Model -> Maybe String
+error : Model -> Error
 error (Model model) =
     model.error
 
@@ -88,12 +95,12 @@ withUsers userList (Model model) =
     Model { model | users = userList }
 
 
-withDateShown : Maybe DateTime -> Model -> Model
+withDateShown : DisplayDate -> Model -> Model
 withDateShown date (Model model) =
     Model { model | dateShown = date }
 
 
-withError : Maybe ErrorMessage -> Model -> Model
+withError : Error -> Model -> Model
 withError message (Model model) =
     Model { model | error = message }
 

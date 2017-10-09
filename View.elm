@@ -8,8 +8,8 @@ import List exposing (range)
 import Time.DateTime as Date exposing (DateTime, weekday, dateTime, zero, day, addDays, month, year, fromTimestamp, toISO8601, addYears)
 import Time.Date as Date
 import Dict
-import Types exposing (Year, toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, ErrorMessage, UserName, dateToString)
-import Model exposing (Model, photoMetadata, dateShown, photoDir, error, users, lastDateWithPhotos, photoMetadata)
+import Types exposing (Year, toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, Error(ErrorMessage, NoError), UserName, dateToString)
+import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), photoMetadata, dateShown, photoDir, error, users, lastDateWithPhotos, photoMetadata)
 import ViewPhotos exposing (viewPhotos)
 import Update exposing (Msg(UserSelected), hashForDate)
 
@@ -256,14 +256,14 @@ viewUserList users =
             (List.map (\u -> option [] [ text u ]) usersWithAll)
 
 
-viewError : Maybe ErrorMessage -> Html Msg
+viewError : Error -> Html Msg
 viewError message =
     case message of
-        Nothing ->
+        NoError ->
             div [ style [ ( "display", "none" ) ] ] []
 
-        Just errorMessage ->
-            div [ class "error" ] [ text errorMessage ]
+        ErrorMessage message ->
+            div [ class "error" ] [ text message ]
 
 
 viewOtherDayButton : String -> DateTime -> Html Msg
@@ -283,8 +283,12 @@ view : Model -> Html Msg
 view model =
     let
         dateToShow =
-            dateShown model
-                |> Maybe.withDefault (lastDateWithPhotos (photoMetadata model))
+            case dateShown model of
+                Date date ->
+                    date
+
+                _ ->
+                    lastDateWithPhotos (photoMetadata model)
     in
         div
             [ class "outer" ]
