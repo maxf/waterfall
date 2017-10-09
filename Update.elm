@@ -94,7 +94,8 @@ scrollPanes =
         (\_ -> ScrollPhotosFinished)
         (Task.sequence
              [ Dom.Scroll.toTop "photos"
-             , Dom.Scroll.toY "calendar" 300
+             , Dom.Scroll.toY "calendar" 180
+--             , Dom.Scroll.toBottom "calendar"
              ]
         )
 

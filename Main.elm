@@ -22,8 +22,16 @@ main =
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
     ( Model.initialModel |> Model.withDateShown (dateFromUrl location)
-    , getUserList
+    -- , Task.attempt
+    --     (\_ -> InitFinished)
+    --     (Task.sequence
+    --          [ getUserList
+    --          , scanPhotos ""
+    --          ]
+    --     )
+    ,getUserList
     )
+
 
 
 getUserList : Cmd Msg
