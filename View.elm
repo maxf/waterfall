@@ -8,7 +8,7 @@ import List exposing (range)
 import Time.DateTime as Date exposing (DateTime, weekday, dateTime, zero, day, addDays, month, year, fromTimestamp, toISO8601, addYears)
 import Time.Date as Date
 import Dict
-import Types exposing (Year, toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, Error(ErrorMessage, NoError), UserName, dateToString)
+import Types exposing (Year, toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, ErrorState(Error, NoError), UserName, dateToString)
 import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), photoMetadata, dateShown, photoDir, error, users, lastDateWithPhotos, photoMetadata)
 import ViewPhotos exposing (viewPhotos)
 import Update exposing (Msg(UserSelected), hashForDate)
@@ -256,13 +256,13 @@ viewUserList users =
             (List.map (\u -> option [] [ text u ]) usersWithAll)
 
 
-viewError : Error -> Html Msg
+viewError : ErrorState -> Html Msg
 viewError message =
     case message of
         NoError ->
             div [ style [ ( "display", "none" ) ] ] []
 
-        ErrorMessage message ->
+        Error message ->
             div [ class "error" ] [ text message ]
 
 

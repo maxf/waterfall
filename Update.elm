@@ -8,7 +8,7 @@ import Json.Decode exposing (Decoder, map2, list, string, field)
 import Time.DateTime exposing (DateTime, year, toISO8601, fromISO8601, zero, dateTime)
 import Navigation
 import Result exposing (withDefault, toMaybe)
-import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, Error(ErrorMessage, NoError), JsonString, iso8601ToEpochSeconds, DirectoryName, UserName)
+import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), JsonString, iso8601ToEpochSeconds, DirectoryName, UserName)
 import Ports exposing (deletePhoto)
 import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), withDateShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, photoMetadata, dateShown, photoDir, lastDateWithPhotos, withUsers)
 
@@ -41,7 +41,7 @@ update msg model =
                 ( model, Cmd.none )
 
         ScanPhotosResult (Err httpError) ->
-            ( model |> withError (ErrorMessage (httpError |> toString)), Cmd.none )
+            ( model |> withError (Error (httpError |> toString)), Cmd.none )
 
         ScanPhotosResult (Ok metadataList) ->
             let
@@ -57,7 +57,7 @@ update msg model =
                 ( newModel, scrollPanes )
 
         GetUsersResult (Err httpErrorMsg) ->
-            ( model |> withError (ErrorMessage "Error getting users")
+            ( model |> withError (Error "Error getting users")
             , Cmd.none
             )
 

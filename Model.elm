@@ -18,7 +18,7 @@ module Model
         , lastDateWithPhotos
         )
 
-import Types exposing (DirectoryName, Error(ErrorMessage, NoError), MetadataDict, FileName, PhotoMetadata, JsonString, UserName)
+import Types exposing (DirectoryName, ErrorState(Error, NoError), MetadataDict, FileName, PhotoMetadata, JsonString, UserName)
 import Time.DateTime exposing (DateTime, dateTime, zero, toISO8601, fromISO8601, fromTimestamp)
 import Dict
 
@@ -36,7 +36,7 @@ type DisplayDate
 type alias InternalModel =
     { photoDir : DirectoryName
     , users : List UserName
-    , error : Error
+    , error : ErrorState
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
     , dateShown : DisplayDate
@@ -75,7 +75,7 @@ photoMetadata (Model model) =
     model.photoMetadata
 
 
-error : Model -> Error
+error : Model -> ErrorState
 error (Model model) =
     model.error
 
@@ -100,7 +100,7 @@ withDateShown date (Model model) =
     Model { model | dateShown = date }
 
 
-withError : Error -> Model -> Model
+withError : ErrorState -> Model -> Model
 withError message (Model model) =
     Model { model | error = message }
 
