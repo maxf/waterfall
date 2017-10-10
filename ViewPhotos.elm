@@ -3,7 +3,7 @@ module ViewPhotos exposing (viewPhotos)
 import Html exposing (Html, div, h1, h2, li, button, span, img, br, text)
 import Html.Keyed exposing (ul)
 import Html.Attributes exposing (src, id)
-import Update exposing (Msg(DeletePhoto))
+import Update exposing (Msg(UserAskedToDeleteAPhoto))
 import Time.DateTime exposing (DateTime, toTimestamp)
 import Html.Events exposing (onClick)
 import Dict
@@ -56,7 +56,7 @@ viewPicture baseDir metadata =
             [ img [ src ("picture.php?w=800&path=" ++ metadata.relativeFilePath) ] []
             , br [] []
             , span [] [ (metadata.relativeFilePath ++ " - ") |> text ]
-            , button [ onClick (DeletePhoto metadata) ] [ text "Erase" ]
+            , button [ onClick (UserAskedToDeleteAPhoto metadata) ] [ text "Erase" ]
             ]
         ]
     )

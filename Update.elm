@@ -1,4 +1,4 @@
-module Update exposing (Msg(DeletePhoto, DeletePhotoResult, ScanPhotosResult, GetUsersResult, UserSelected, UrlChange), update, hashForDate, dateFromUrl)
+module Update exposing (Msg(UserAskedToDeleteAPhoto, PhotoWasDeleted, ScanPhotosResult, GetUsersResult, UserSelected, UrlChange), update, hashForDate, dateFromUrl)
 
 import String exposing (dropLeft, left, cons)
 import Dom.Scroll
@@ -15,8 +15,8 @@ import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), with
 
 type Msg
     = ScrollPhotosFinished
-    | DeletePhoto PhotoMetadata
-    | DeletePhotoResult String
+    | UserAskedToDeleteAPhoto PhotoMetadata
+    | PhotoWasDeleted String
     | ScanPhotosResult (Result Http.Error (List PhotoMetadata))
     | GetUsersResult (Result Http.Error (List String))
     | UserSelected UserName
@@ -29,10 +29,10 @@ update msg model =
         ScrollPhotosFinished ->
             ( model, Cmd.none )
 
-        DeletePhoto metadata ->
+        UserAskedToDeleteAPhoto metadata ->
             ( model, deletePhoto ( model |> photoDir, metadata.relativeFilePath ) )
 
-        DeletePhotoResult deletedFilePath ->
+        PhotoWasDeleted deletedFilePath ->
             if deletedFilePath /= "" then
                 ( model |> removePhoto deletedFilePath
                 , Cmd.none
