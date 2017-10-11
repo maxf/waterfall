@@ -5,7 +5,7 @@ import Dom.Scroll
 import Task
 import Http exposing (Error(..), Response)
 import Json.Decode exposing (Decoder, map2, list, string, field)
-import Time.DateTime exposing (DateTime, year, toISO8601, fromISO8601, zero, dateTime)
+import Time.DateTime exposing (DateTime, year, month, toISO8601, fromISO8601, zero, dateTime)
 import Navigation
 import Result exposing (withDefault, toMaybe)
 import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), JsonString, iso8601ToEpochSeconds, DirectoryName, UserName)
@@ -53,8 +53,16 @@ update msg model =
                         |> withPhotoMetadata metadata
                         |> withError NoError
                         |> withMaxPicturesInADay (maxNbPictures metadata)
+
+                monthForScroll =
+                    case model |> dateShown of
+                        Date date ->
+                            date |> month
+
+                        _ ->
+                            1
             in
-                ( newModel, scrollPanes )
+                ( newModel, scrollPanes monthForScroll )
 
         GetUsersResult (Err httpErrorMsg) ->
             ( model |> withError (Error "Error getting users")
@@ -82,22 +90,27 @@ update msg model =
             ( model
                 |> withDateShown (dateFromUrl location)
                 |> withError NoError
-            , scrollPanes
+            , Cmd.none
             )
+
 
 
 -- Misc
 
-scrollPanes : Cmd Msg
-scrollPanes =
-    Task.attempt
-        (\_ -> ScrollPhotosFinished)
-        (Task.sequence
-             [ Dom.Scroll.toTop "photos"
-             , Dom.Scroll.toY "calendar" 180
---             , Dom.Scroll.toBottom "calendar"
-             ]
-        )
+
+scrollPanes : Int -> Cmd Msg
+scrollPanes month =
+    let
+        calendarYScroll =
+            1000 * ((toFloat (month - 1)) / 12)
+    in
+        Task.attempt
+            (\_ -> ScrollPhotosFinished)
+            (Task.sequence
+                [ Dom.Scroll.toTop "photos"
+                , Dom.Scroll.toY "calendar" calendarYScroll
+                ]
+            )
 
 
 scanPhotos : DirectoryName -> Cmd Msg
@@ -150,11 +163,12 @@ dateFromUrl location =
     let
         fullDate =
             dropLeft 1 location.hash
-            ++ "T00:00:00Z"
-            |> fromISO8601
+                ++ "T00:00:00Z"
+                |> fromISO8601
     in
         case fullDate of
             Ok date ->
                 Date date
+
             Err message ->
                 BadDate
