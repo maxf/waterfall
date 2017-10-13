@@ -193,7 +193,7 @@ viewCalendar model dateToShow =
             newYearsDayOffset yearToDisplay
 
         dateShownTs =
-            dateToShow |> Types.toSeconds
+            dateToShow |> toSeconds
 
         -- the prev day after dateToShow that has photos
         nextDateWithPhotos : DateTime

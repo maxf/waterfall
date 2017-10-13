@@ -1,14 +1,15 @@
-module Update exposing (Msg(UserAskedToDeleteAPhoto, UserClickedThumbnail, UserClickedOnPhoto, PhotoWasDeleted, ScanPhotosResult, GetUsersResult, UserSelected, UrlChange), update, hashForDate, dateFromUrl)
+module Update exposing (Msg(UserAskedToDeleteAPhoto, UserClickedOnPhoto, PhotoWasDeleted, ScanPhotosResult, GetUsersResult, UserSelected, UrlChange), update, hashForDate, hashForTimestamp, dateFromUrl, filenameFromUrl)
 
-import String exposing (dropLeft, left, cons)
+import String exposing (slice, left, cons)
 import Dom.Scroll
 import Task
 import Http exposing (Error(..), Response)
 import Json.Decode exposing (Decoder, map2, list, string, field)
-import Time.DateTime exposing (DateTime, year, month, toISO8601, fromISO8601, zero, dateTime)
-import Navigation
+import Time.DateTime exposing (DateTime, year, month, toISO8601, fromISO8601, zero, dateTime, fromTimestamp)
+import Navigation exposing (Location, modifyUrl)
+import Regex exposing (regex, HowMany(All, AtMost), replace, find)
 import Result exposing (withDefault, toMaybe)
-import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), JsonString, iso8601ToEpochSeconds, DirectoryName, UserName)
+import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), JsonString, iso8601ToEpochSeconds, DirectoryName, UserName, SecondsSinceEpoch, FileName, buildMeta)
 import Ports exposing (deletePhoto)
 import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), withDateShown, withPhotoShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, photoMetadata, dateShown, photoDir, lastDateWithPhotos, withUsers)
 
@@ -16,13 +17,12 @@ import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), with
 type Msg
     = ScrollPhotosFinished
     | UserAskedToDeleteAPhoto PhotoMetadata
-    | UserClickedThumbnail PhotoMetadata
     | UserClickedOnPhoto
     | PhotoWasDeleted String
     | ScanPhotosResult (Result Http.Error (List PhotoMetadata))
     | GetUsersResult (Result Http.Error (List String))
     | UserSelected UserName
-    | UrlChange Navigation.Location
+    | UrlChange Location
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -33,10 +33,6 @@ update msg model =
 
         UserAskedToDeleteAPhoto metadata ->
             ( model, deletePhoto ( model |> photoDir, metadata.relativeFilePath ) )
-
-        UserClickedThumbnail metadata ->
-            ( model |> withPhotoShown (Just metadata), Cmd.none )
-
 
         UserClickedOnPhoto ->
             ( model |> withPhotoShown Nothing, Cmd.none )
@@ -55,7 +51,7 @@ update msg model =
         ScanPhotosResult (Ok metadataList) ->
             let
                 metadata =
-                    Types.buildMeta metadataList
+                    buildMeta metadataList
 
                 newModel =
                     model
@@ -98,6 +94,7 @@ update msg model =
         UrlChange location ->
             ( model
                 |> withDateShown (dateFromUrl location)
+                |> withPhotoShown (filenameFromUrl location)
                 |> withError NoError
             , Cmd.none
             )
@@ -167,11 +164,20 @@ hashForDate date =
         |> cons '#'
 
 
-dateFromUrl : Navigation.Location -> DisplayDate
+
+-- convert from 28429847298 to "#2012-12-22"
+
+
+hashForTimestamp : SecondsSinceEpoch -> String
+hashForTimestamp s =
+    hashForDate (fromTimestamp (toFloat s * 1000))
+
+
+dateFromUrl : Location -> DisplayDate
 dateFromUrl location =
     let
         fullDate =
-            dropLeft 1 location.hash
+            slice 1 11 location.hash
                 ++ "T00:00:00Z"
                 |> fromISO8601
     in
@@ -180,4 +186,20 @@ dateFromUrl location =
                 Date date
 
             Err message ->
-                BadDate
+                Debug.log "BadDate" BadDate
+
+
+filenameFromUrl : Location -> Maybe FileName
+filenameFromUrl location =
+    -- converts from #2017-09-07_uploads-Misc-2017-09-06 20.14.25.jpg
+    -- to uploads/Mist/2017-09-06 20.14.25.jpg
+    let
+        matches =
+            find (AtMost 1) (regex "^#[^_]+_(.+)$") location.hash
+    in
+        case matches |> List.map .submatches of
+            [ [ Just name ] ] ->
+                Just (name |> replace All (regex "=") (\_ -> "/"))
+
+            _ ->
+                Nothing

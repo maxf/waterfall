@@ -4,8 +4,8 @@ import Http
 import Json.Decode exposing (list, string)
 import Navigation
 import View
-import Model exposing (Model, photoDir)
-import Update exposing (Msg(PhotoWasDeleted, GetUsersResult, UrlChange), update, hashForDate, dateFromUrl)
+import Model exposing (Model, photoDir, withDateShown, withPhotoShown)
+import Update exposing (Msg(PhotoWasDeleted, GetUsersResult, UrlChange), update, hashForDate, dateFromUrl, filenameFromUrl)
 import Ports exposing (deletePhotoResult)
 
 
@@ -21,7 +21,9 @@ main =
 
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
-    ( Model.initialModel |> Model.withDateShown (dateFromUrl location)
+    ( Model.initialModel
+        |> Model.withDateShown (dateFromUrl location)
+        |> Model.withPhotoShown (filenameFromUrl location)
     , getUserList
     )
 

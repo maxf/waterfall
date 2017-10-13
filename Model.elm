@@ -42,7 +42,7 @@ type alias InternalModel =
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
     , dateShown : DisplayDate
-    , photoShown : Maybe PhotoMetadata
+    , photoShown : Maybe FileName
     }
 
 
@@ -74,7 +74,7 @@ dateShown (Model model) =
     model.dateShown
 
 
-photoShown : Model -> Maybe PhotoMetadata
+photoShown : Model -> Maybe FileName
 photoShown (Model model) =
     model.photoShown
 
@@ -109,9 +109,9 @@ withDateShown date (Model model) =
     Model { model | dateShown = date }
 
 
-withPhotoShown : Maybe PhotoMetadata -> Model -> Model
-withPhotoShown metadata (Model model) =
-    Model { model | photoShown = metadata }
+withPhotoShown : Maybe FileName -> Model -> Model
+withPhotoShown filename (Model model) =
+    Model { model | photoShown = filename }
 
 
 withError : ErrorState -> Model -> Model

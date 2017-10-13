@@ -1,28 +1,15 @@
 module ViewPhotos exposing (viewPhotos)
 
-import Html exposing (Html, div, h1, h2, li, button, span, img, br, text)
+import Html exposing (Html, div, h1, h2, li, button, span, img, br, text, a)
 import Html.Keyed exposing (ul)
-import Html.Attributes exposing (src, id, style, class)
-import Update exposing (Msg(UserAskedToDeleteAPhoto, UserClickedThumbnail, UserClickedOnPhoto))
+import Html.Attributes exposing (src, id, style, class, href)
 import Time.DateTime exposing (DateTime, toTimestamp)
 import Html.Events exposing (onClick)
 import Dict
+import Regex exposing (HowMany(All), regex, replace)
 import Model exposing (Model, dateShown, photoShown, photoMetadata, photoDir)
-import Types exposing (PhotoMetadata, DirectoryName)
-
-
-viewPhoto : Maybe PhotoMetadata -> Html Msg
-viewPhoto metadata =
-    case metadata of
-        Nothing ->
-            div [ style [ ( "display", "none" ) ] ] []
-
-        Just photo ->
-            div [ class "photobox"
-                , onClick UserClickedOnPhoto
-                ]
-                [ img [ src (photo.relativeFilePath) ] [] ]
-
+import Types exposing (PhotoMetadata, DirectoryName, FileName, dateToString)
+import Update exposing (Msg(UserAskedToDeleteAPhoto, UserClickedOnPhoto), hashForTimestamp, hashForDate)
 
 
 viewPhotos : Model -> DateTime -> Html Msg
@@ -31,51 +18,71 @@ viewPhotos model dateShown =
         dateExifString =
             (dateShown |> toTimestamp) / 1000 |> round
 
-        datePhotos =
+        photosForDate =
             Dict.get dateExifString (photoMetadata model)
     in
         div
             [ id "photos" ]
-            [ h1 [] [ dateShown |> Types.dateToString |> text ]
-            , case datePhotos of
+            [ h1 [] [ dateShown |> dateToString |> text ]
+            , case photosForDate of
                 Nothing ->
                     div [] [ text "No photos for that date" ]
 
                 Just photos ->
-                    div [] [ viewPictureList (model |> photoDir) photos ]
-            , viewPhoto (model |> photoShown)
+                    div [] [ viewThumbnails model photos ]
+            , viewPhoto (Debug.log ">>" dateShown) (model |> photoShown)
             ]
 
 
-viewPictureList : Types.DirectoryName -> List Types.PhotoMetadata -> Html Msg
-viewPictureList baseDir metadataList =
+viewThumbnails : Model -> List PhotoMetadata -> Html Msg
+viewThumbnails model metadataList =
     div
         []
         [ h2 [] [ text ((List.length metadataList |> toString) ++ " photos") ]
         , ul
             []
             (List.map
-                (viewPicture baseDir)
+                (viewThumbnail model)
                 (List.sortBy .dateCreated metadataList)
             )
         ]
 
 
-viewPicture : DirectoryName -> Types.PhotoMetadata -> ( String, Html Msg )
-viewPicture baseDir metadata =
-    ( metadata.relativeFilePath
-    , li
-        []
-        [ div
+viewThumbnail : model -> PhotoMetadata -> ( String, Html Msg )
+viewThumbnail model metadata =
+    let
+        photoId =
+            (hashForTimestamp metadata.dateCreated)
+                ++ "_"
+                ++ (replace All (regex "/") (\_ -> "=") metadata.relativeFilePath)
+    in
+        ( metadata.relativeFilePath
+        , li
             []
-            [ img
-                [ src ("picture.php?w=800&path=" ++ metadata.relativeFilePath)
-                , onClick (UserClickedThumbnail metadata)
-                ]
+            [ div
                 []
-            , br [] []
-            , span [] [ (metadata.relativeFilePath ++ " - ") |> text ]
-            , button [ onClick (UserAskedToDeleteAPhoto metadata) ] [ text "Erase" ]
+                [ a [ href photoId ]
+                    [ img
+                        [ src ("picture.php?w=800&path=" ++ metadata.relativeFilePath)
+                        ]
+                        []
+                    ]
+                , br [] []
+                , span [] [ (metadata.relativeFilePath ++ " - ") |> text ]
+                , button [ onClick (UserAskedToDeleteAPhoto metadata) ] [ text "Erase" ]
+                ]
             ]
-        ]
-    )
+        )
+
+
+viewPhoto : DateTime -> Maybe FileName -> Html Msg
+viewPhoto photoDate fileName =
+    case fileName of
+        Nothing ->
+            div [ style [ ( "display", "none" ) ] ] []
+
+        Just name ->
+            div [ class "lightbox" ]
+                [ a [ href (hashForDate (Debug.log ">2" photoDate)) ]
+                    [ img [ src name ] [] ]
+                ]
