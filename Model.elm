@@ -5,11 +5,13 @@ module Model
         , initialModel
         , removePhoto
         , dateShown
+        , photoShown
         , photoMetadata
         , photoDir
         , error
         , users
         , withDateShown
+        , withPhotoShown
         , withUsers
         , withError
         , withPhotoMetadata
@@ -40,6 +42,7 @@ type alias InternalModel =
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
     , dateShown : DisplayDate
+    , photoShown : Maybe PhotoMetadata
     }
 
 
@@ -53,6 +56,7 @@ initialModel =
             0
             Dict.empty
             DateNotSpecified
+            Nothing
         )
 
 
@@ -68,6 +72,11 @@ photoDir (Model model) =
 dateShown : Model -> DisplayDate
 dateShown (Model model) =
     model.dateShown
+
+
+photoShown : Model -> Maybe PhotoMetadata
+photoShown (Model model) =
+    model.photoShown
 
 
 photoMetadata : Model -> MetadataDict
@@ -98,6 +107,11 @@ withUsers userList (Model model) =
 withDateShown : DisplayDate -> Model -> Model
 withDateShown date (Model model) =
     Model { model | dateShown = date }
+
+
+withPhotoShown : Maybe PhotoMetadata -> Model -> Model
+withPhotoShown metadata (Model model) =
+    Model { model | photoShown = metadata }
 
 
 withError : ErrorState -> Model -> Model

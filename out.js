@@ -16119,91 +16119,104 @@ var _user$project$Model$photoMetadata = function (_p6) {
 	var _p7 = _p6;
 	return _p7._0.photoMetadata;
 };
-var _user$project$Model$dateShown = function (_p8) {
+var _user$project$Model$photoShown = function (_p8) {
 	var _p9 = _p8;
-	return _p9._0.dateShown;
+	return _p9._0.photoShown;
 };
-var _user$project$Model$photoDir = function (_p10) {
+var _user$project$Model$dateShown = function (_p10) {
 	var _p11 = _p10;
-	return _p11._0.photoDir;
+	return _p11._0.dateShown;
 };
-var _user$project$Model$InternalModel = F6(
-	function (a, b, c, d, e, f) {
-		return {photoDir: a, users: b, error: c, maxPicturesInADay: d, photoMetadata: e, dateShown: f};
+var _user$project$Model$photoDir = function (_p12) {
+	var _p13 = _p12;
+	return _p13._0.photoDir;
+};
+var _user$project$Model$InternalModel = F7(
+	function (a, b, c, d, e, f, g) {
+		return {photoDir: a, users: b, error: c, maxPicturesInADay: d, photoMetadata: e, dateShown: f, photoShown: g};
 	});
 var _user$project$Model$Model = function (a) {
 	return {ctor: 'Model', _0: a};
 };
 var _user$project$Model$withPhotoDir = F2(
-	function (dir, _p12) {
-		var _p13 = _p12;
-		return _user$project$Model$Model(
-			_elm_lang$core$Native_Utils.update(
-				_p13._0,
-				{photoDir: dir}));
-	});
-var _user$project$Model$withUsers = F2(
-	function (userList, _p14) {
+	function (dir, _p14) {
 		var _p15 = _p14;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
 				_p15._0,
-				{users: userList}));
+				{photoDir: dir}));
 	});
-var _user$project$Model$withDateShown = F2(
-	function (date, _p16) {
+var _user$project$Model$withUsers = F2(
+	function (userList, _p16) {
 		var _p17 = _p16;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
 				_p17._0,
-				{dateShown: date}));
+				{users: userList}));
 	});
-var _user$project$Model$withError = F2(
-	function (message, _p18) {
+var _user$project$Model$withDateShown = F2(
+	function (date, _p18) {
 		var _p19 = _p18;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
 				_p19._0,
-				{error: message}));
+				{dateShown: date}));
 	});
-var _user$project$Model$withPhotoMetadata = F2(
+var _user$project$Model$withPhotoShown = F2(
 	function (metadata, _p20) {
 		var _p21 = _p20;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
 				_p21._0,
-				{photoMetadata: metadata}));
+				{photoShown: metadata}));
 	});
-var _user$project$Model$withMaxPicturesInADay = F2(
-	function (maxpics, _p22) {
+var _user$project$Model$withError = F2(
+	function (message, _p22) {
 		var _p23 = _p22;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
 				_p23._0,
+				{error: message}));
+	});
+var _user$project$Model$withPhotoMetadata = F2(
+	function (metadata, _p24) {
+		var _p25 = _p24;
+		return _user$project$Model$Model(
+			_elm_lang$core$Native_Utils.update(
+				_p25._0,
+				{photoMetadata: metadata}));
+	});
+var _user$project$Model$withMaxPicturesInADay = F2(
+	function (maxpics, _p26) {
+		var _p27 = _p26;
+		return _user$project$Model$Model(
+			_elm_lang$core$Native_Utils.update(
+				_p27._0,
 				{maxPicturesInADay: maxpics}));
 	});
 var _user$project$Model$removePhoto = F2(
-	function (fileName, _p24) {
-		var _p25 = _p24;
-		var _p26 = _p25._0;
+	function (fileName, _p28) {
+		var _p29 = _p28;
+		var _p30 = _p29._0;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p26,
+				_p30,
 				{
-					photoMetadata: A2(_user$project$Model$removePhotoFromDict, fileName, _p26.photoMetadata)
+					photoMetadata: A2(_user$project$Model$removePhotoFromDict, fileName, _p30.photoMetadata)
 				}));
 	});
 var _user$project$Model$BadDate = {ctor: 'BadDate'};
 var _user$project$Model$DateNotSpecified = {ctor: 'DateNotSpecified'};
 var _user$project$Model$initialModel = _user$project$Model$Model(
-	A6(
+	A7(
 		_user$project$Model$InternalModel,
 		'',
 		{ctor: '[]'},
 		_user$project$Types$NoError,
 		0,
 		_elm_lang$core$Dict$empty,
-		_user$project$Model$DateNotSpecified));
+		_user$project$Model$DateNotSpecified,
+		_elm_lang$core$Maybe$Nothing));
 var _user$project$Model$Date = function (a) {
 	return {ctor: 'Date', _0: a};
 };
@@ -16280,6 +16293,10 @@ var _user$project$Update$scanPhotos = function (photoDir) {
 var _user$project$Update$PhotoWasDeleted = function (a) {
 	return {ctor: 'PhotoWasDeleted', _0: a};
 };
+var _user$project$Update$UserClickedOnPhoto = {ctor: 'UserClickedOnPhoto'};
+var _user$project$Update$UserClickedThumbnail = function (a) {
+	return {ctor: 'UserClickedThumbnail', _0: a};
+};
 var _user$project$Update$UserAskedToDeleteAPhoto = function (a) {
 	return {ctor: 'UserAskedToDeleteAPhoto', _0: a};
 };
@@ -16318,6 +16335,21 @@ var _user$project$Update$update = F2(
 							_0: _user$project$Model$photoDir(model),
 							_1: _p3._0.relativeFilePath
 						})
+				};
+			case 'UserClickedThumbnail':
+				return {
+					ctor: '_Tuple2',
+					_0: A2(
+						_user$project$Model$withPhotoShown,
+						_elm_lang$core$Maybe$Just(_p3._0),
+						model),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'UserClickedOnPhoto':
+				return {
+					ctor: '_Tuple2',
+					_0: A2(_user$project$Model$withPhotoShown, _elm_lang$core$Maybe$Nothing, model),
+					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'PhotoWasDeleted':
 				var _p4 = _p3._0;
@@ -16421,7 +16453,12 @@ var _user$project$ViewPhotos$viewPicture = F2(
 									ctor: '::',
 									_0: _elm_lang$html$Html_Attributes$src(
 										A2(_elm_lang$core$Basics_ops['++'], 'picture.php?w=800&path=', metadata.relativeFilePath)),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onClick(
+											_user$project$Update$UserClickedThumbnail(metadata)),
+										_1: {ctor: '[]'}
+									}
 								},
 								{ctor: '[]'}),
 							_1: {
@@ -16503,6 +16540,48 @@ var _user$project$ViewPhotos$viewPictureList = F2(
 				}
 			});
 	});
+var _user$project$ViewPhotos$viewPhoto = function (metadata) {
+	var _p0 = metadata;
+	if (_p0.ctor === 'Nothing') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$style(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'display', _1: 'none'},
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			},
+			{ctor: '[]'});
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('photobox'),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onClick(_user$project$Update$UserClickedOnPhoto),
+					_1: {ctor: '[]'}
+				}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$img,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$src(_p0._0.relativeFilePath),
+						_1: {ctor: '[]'}
+					},
+					{ctor: '[]'}),
+				_1: {ctor: '[]'}
+			});
+	}
+};
 var _user$project$ViewPhotos$viewPhotos = F2(
 	function (model, dateShown) {
 		var dateExifString = _elm_lang$core$Basics$round(
@@ -16532,8 +16611,8 @@ var _user$project$ViewPhotos$viewPhotos = F2(
 				_1: {
 					ctor: '::',
 					_0: function () {
-						var _p0 = datePhotos;
-						if (_p0.ctor === 'Nothing') {
+						var _p1 = datePhotos;
+						if (_p1.ctor === 'Nothing') {
 							return A2(
 								_elm_lang$html$Html$div,
 								{ctor: '[]'},
@@ -16551,12 +16630,17 @@ var _user$project$ViewPhotos$viewPhotos = F2(
 									_0: A2(
 										_user$project$ViewPhotos$viewPictureList,
 										_user$project$Model$photoDir(model),
-										_p0._0),
+										_p1._0),
 									_1: {ctor: '[]'}
 								});
 						}
 					}(),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: _user$project$ViewPhotos$viewPhoto(
+							_user$project$Model$photoShown(model)),
+						_1: {ctor: '[]'}
+					}
 				}
 			});
 	});
@@ -17171,7 +17255,7 @@ var _user$project$Main$main = A2(
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Update.Msg":{"args":[],"tags":{"PhotoWasDeleted":["String"],"UserSelected":["Types.UserName"],"ScanPhotosResult":["Result.Result Http.Error (List Types.PhotoMetadata)"],"UrlChange":["Navigation.Location"],"GetUsersResult":["Result.Result Http.Error (List String)"],"ScrollPhotosFinished":[],"UserAskedToDeleteAPhoto":["Types.PhotoMetadata"]}}},"aliases":{"Types.PhotoMetadata":{"args":[],"type":"{ relativeFilePath : Types.FileName , dateCreated : Types.SecondsSinceEpoch }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.SecondsSinceEpoch":{"args":[],"type":"Int"},"Types.FileName":{"args":[],"type":"String"},"Types.UserName":{"args":[],"type":"String"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Update.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Update.Msg":{"args":[],"tags":{"PhotoWasDeleted":["String"],"UserClickedThumbnail":["Types.PhotoMetadata"],"UserSelected":["Types.UserName"],"UserClickedOnPhoto":[],"ScanPhotosResult":["Result.Result Http.Error (List Types.PhotoMetadata)"],"UrlChange":["Navigation.Location"],"GetUsersResult":["Result.Result Http.Error (List String)"],"ScrollPhotosFinished":[],"UserAskedToDeleteAPhoto":["Types.PhotoMetadata"]}}},"aliases":{"Types.PhotoMetadata":{"args":[],"type":"{ relativeFilePath : Types.FileName , dateCreated : Types.SecondsSinceEpoch }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.SecondsSinceEpoch":{"args":[],"type":"Int"},"Types.FileName":{"args":[],"type":"String"},"Types.UserName":{"args":[],"type":"String"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Update.Msg"},"versions":{"elm":"0.18.0"}});
 }
 Elm['Model'] = Elm['Model'] || {};
 if (typeof _user$project$Model$main !== 'undefined') {

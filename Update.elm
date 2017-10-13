@@ -1,4 +1,4 @@
-module Update exposing (Msg(UserAskedToDeleteAPhoto, PhotoWasDeleted, ScanPhotosResult, GetUsersResult, UserSelected, UrlChange), update, hashForDate, dateFromUrl)
+module Update exposing (Msg(UserAskedToDeleteAPhoto, UserClickedThumbnail, UserClickedOnPhoto, PhotoWasDeleted, ScanPhotosResult, GetUsersResult, UserSelected, UrlChange), update, hashForDate, dateFromUrl)
 
 import String exposing (dropLeft, left, cons)
 import Dom.Scroll
@@ -10,12 +10,14 @@ import Navigation
 import Result exposing (withDefault, toMaybe)
 import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), JsonString, iso8601ToEpochSeconds, DirectoryName, UserName)
 import Ports exposing (deletePhoto)
-import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), withDateShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, photoMetadata, dateShown, photoDir, lastDateWithPhotos, withUsers)
+import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), withDateShown, withPhotoShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, photoMetadata, dateShown, photoDir, lastDateWithPhotos, withUsers)
 
 
 type Msg
     = ScrollPhotosFinished
     | UserAskedToDeleteAPhoto PhotoMetadata
+    | UserClickedThumbnail PhotoMetadata
+    | UserClickedOnPhoto
     | PhotoWasDeleted String
     | ScanPhotosResult (Result Http.Error (List PhotoMetadata))
     | GetUsersResult (Result Http.Error (List String))
@@ -31,6 +33,13 @@ update msg model =
 
         UserAskedToDeleteAPhoto metadata ->
             ( model, deletePhoto ( model |> photoDir, metadata.relativeFilePath ) )
+
+        UserClickedThumbnail metadata ->
+            ( model |> withPhotoShown (Just metadata), Cmd.none )
+
+
+        UserClickedOnPhoto ->
+            ( model |> withPhotoShown Nothing, Cmd.none )
 
         PhotoWasDeleted deletedFilePath ->
             if deletedFilePath /= "" then

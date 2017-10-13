@@ -2,13 +2,27 @@ module ViewPhotos exposing (viewPhotos)
 
 import Html exposing (Html, div, h1, h2, li, button, span, img, br, text)
 import Html.Keyed exposing (ul)
-import Html.Attributes exposing (src, id)
-import Update exposing (Msg(UserAskedToDeleteAPhoto))
+import Html.Attributes exposing (src, id, style, class)
+import Update exposing (Msg(UserAskedToDeleteAPhoto, UserClickedThumbnail, UserClickedOnPhoto))
 import Time.DateTime exposing (DateTime, toTimestamp)
 import Html.Events exposing (onClick)
 import Dict
-import Model exposing (Model, dateShown, photoMetadata, photoDir)
+import Model exposing (Model, dateShown, photoShown, photoMetadata, photoDir)
 import Types exposing (PhotoMetadata, DirectoryName)
+
+
+viewPhoto : Maybe PhotoMetadata -> Html Msg
+viewPhoto metadata =
+    case metadata of
+        Nothing ->
+            div [ style [ ( "display", "none" ) ] ] []
+
+        Just photo ->
+            div [ class "photobox"
+                , onClick UserClickedOnPhoto
+                ]
+                [ img [ src (photo.relativeFilePath) ] [] ]
+
 
 
 viewPhotos : Model -> DateTime -> Html Msg
@@ -28,7 +42,8 @@ viewPhotos model dateShown =
                     div [] [ text "No photos for that date" ]
 
                 Just photos ->
-                    div [] [ viewPictureList (photoDir model) photos ]
+                    div [] [ viewPictureList (model |> photoDir) photos ]
+            , viewPhoto (model |> photoShown)
             ]
 
 
@@ -53,7 +68,11 @@ viewPicture baseDir metadata =
         []
         [ div
             []
-            [ img [ src ("picture.php?w=800&path=" ++ metadata.relativeFilePath) ] []
+            [ img
+                [ src ("picture.php?w=800&path=" ++ metadata.relativeFilePath)
+                , onClick (UserClickedThumbnail metadata)
+                ]
+                []
             , br [] []
             , span [] [ (metadata.relativeFilePath ++ " - ") |> text ]
             , button [ onClick (UserAskedToDeleteAPhoto metadata) ] [ text "Erase" ]
