@@ -42,10 +42,10 @@ function getDirContents($dir, &$results = array()){
 
 $dir = "uploads";
 
-header('Content-Type: application/json');
 
 switch($_GET['cmd']) {
   case "scan":
+    header('Content-Type: application/json');
     $baseDir = $_GET['dir'];
     if ($baseDir) {
       $dir .= DIRECTORY_SEPARATOR.$baseDir;
@@ -54,6 +54,7 @@ switch($_GET['cmd']) {
     break;
 
   case "dirs":
+    header('Content-Type: application/json');
     $files = scandir($dir);
     $dirs = [];
     foreach($files as $key => $value){
@@ -64,6 +65,29 @@ switch($_GET['cmd']) {
     print(json_encode($dirs));
     break;
 
+  case "rss":
+    header('Content-Type: application/rss+xml');
+    $baseDir = $_GET['dir'];
+    if ($baseDir) {
+      $dir .= DIRECTORY_SEPARATOR.$baseDir;
+    }
+    $photos = getDirContents($dir);
+    print("<?xml version='1.0' encoding='UTF-8' ?>\n");
+    print("<feed xmlns='http://www.w3.org/2005/Atom'>");
+    print(" <title>RSS Title</title>\n");
+    print(" <link href='http://lapin-bl.eu/waterfall'/>\n");
+    print(" <updated>2003-12-13T18:30:02Z</updated>\n");
+    print(" <author><name>John Doe</name></author>\n");
+    foreach ($photos as $photo) {
+      print("  <entry>\n");
+      print("    <title>Example entry</title>\n");
+      print("    <summary>Here is some text containing an interesting description.</summary>\n");
+      print("    <link href='http://www.example.com/blog/post/1'/>\n");
+      print("    <updated>Sun, 06 Sep 2009 16:20:00 +0000</updated>\n");
+      print(" </entry>\n");
+    };
+    print("</feed>\n");
+    break;
 
   default:
     print "[]";
