@@ -7,7 +7,7 @@ error_reporting(E_ALL ^ E_NOTICE);
 
 function createDate($path) {
   $exif = @exif_read_data($path, 'ANY_TAG');
-  if ($exif) {
+  if ($exif && array_key_exists('DateTimeOriginal', $exif)) {
     return strtotime($exif['DateTimeOriginal']);
   } else {
     // No exif. Look for date in filename if file was uploaded by us
