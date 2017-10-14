@@ -186,7 +186,7 @@ dateFromUrl location =
                 Date date
 
             Err message ->
-                Debug.log "BadDate" BadDate
+                BadDate
 
 
 filenameFromUrl : Location -> Maybe FileName

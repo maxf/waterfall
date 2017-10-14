@@ -30,7 +30,7 @@ viewPhotos model dateShown =
 
                 Just photos ->
                     div [] [ viewThumbnails model photos ]
-            , viewPhoto (Debug.log ">>" dateShown) (model |> photoShown)
+            , viewPhoto dateShown (model |> photoShown)
             ]
 
 
@@ -83,6 +83,6 @@ viewPhoto photoDate fileName =
 
         Just name ->
             div [ class "lightbox" ]
-                [ a [ href (hashForDate (Debug.log ">2" photoDate)) ]
+                [ a [ href (hashForDate photoDate) ]
                     [ img [ src name ] [] ]
                 ]
