@@ -91,11 +91,12 @@
        text-align: center;
      }
      #photos li {
+       display: inline-block;
        list-style-type: none;
-       margin-bottom: 3em;
+       margin: .3em;
      }
-     #photos img {
-       max-width: 100%;
+     .thumbnail {
+       max-width: 300px;
        max-height: 100vh;
      }
      .lightbox {
@@ -107,6 +108,9 @@
        background: rgba(0,0,0,0.9);
        padding: 20px;
        text-align: center;
+     }
+     .lightbox img {
+       width: 1000px;
      }
     </style>
   </head>

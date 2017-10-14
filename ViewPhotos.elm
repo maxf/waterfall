@@ -63,13 +63,14 @@ viewThumbnail model metadata =
                 []
                 [ a [ href photoId ]
                     [ img
-                        [ src ("picture.php?w=800&path=" ++ metadata.relativeFilePath)
+                        [ src ("picture.php?w=300&path=" ++ metadata.relativeFilePath)
+                        , class "thumbnail"
                         ]
                         []
                     ]
-                , br [] []
-                , span [] [ (metadata.relativeFilePath ++ " - ") |> text ]
-                , button [ onClick (UserAskedToDeleteAPhoto metadata) ] [ text "Erase" ]
+--                , br [] []
+--                , span [] [ (metadata.relativeFilePath ++ " - ") |> text ]
+--                , button [ onClick (UserAskedToDeleteAPhoto metadata) ] [ text "Erase" ]
                 ]
             ]
         )
