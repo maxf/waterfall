@@ -3,15 +3,14 @@ module Update exposing (Msg(UserAskedToDeleteAPhoto, UserClickedOnPhoto, PhotoWa
 import String exposing (slice, left, cons)
 import Dom.Scroll
 import Task
-import Http exposing (Error(..), Response)
-import Json.Decode exposing (Decoder, map2, list, string, field)
-import Time.DateTime exposing (DateTime, year, month, toISO8601, fromISO8601, zero, dateTime, fromTimestamp)
-import Navigation exposing (Location, modifyUrl)
+import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload))
+import Json.Decode
+import Time.DateTime exposing (DateTime, month, toISO8601, fromISO8601, fromTimestamp)
+import Navigation exposing (Location)
 import Regex exposing (regex, HowMany(All, AtMost), replace, find)
-import Result exposing (withDefault, toMaybe)
-import Types exposing (addYear, dateOfFirstPhotoOfYear, maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), JsonString, iso8601ToEpochSeconds, DirectoryName, UserName, SecondsSinceEpoch, FileName, buildMeta)
+import Types exposing (maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), DirectoryName, UserName, SecondsSinceEpoch, FileName, buildMeta)
 import Ports exposing (deletePhoto)
-import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), withDateShown, withPhotoShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, photoMetadata, dateShown, photoDir, lastDateWithPhotos, withUsers)
+import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPhotoShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, dateShown, photoDir, withUsers)
 
 
 type Msg
@@ -69,7 +68,7 @@ update msg model =
             in
                 ( newModel, scrollPanes monthForScroll )
 
-        GetUsersResult (Err httpErrorMsg) ->
+        GetUsersResult (Err _) ->
             ( model |> withError (Error "Error getting users")
             , Cmd.none
             )
@@ -105,10 +104,10 @@ update msg model =
 
 
 scrollPanes : Int -> Cmd Msg
-scrollPanes month =
+scrollPanes monthNumber =
     let
         calendarYScroll =
-            1000 * ((toFloat (month - 1)) / 12)
+            1000 * (toFloat monthNumber - 1) / 12
     in
         Task.attempt
             (\_ -> ScrollPhotosFinished)
@@ -120,7 +119,7 @@ scrollPanes month =
 
 
 scanPhotos : DirectoryName -> Cmd Msg
-scanPhotos photoDir =
+scanPhotos dir =
     let
         photoMetadataDecoder =
             Json.Decode.map2
@@ -129,7 +128,7 @@ scanPhotos photoDir =
                 (Json.Decode.field "date" Json.Decode.int)
 
         apiUrl =
-            "api.php?cmd=scan&dir=" ++ photoDir
+            "api.php?cmd=scan&dir=" ++ dir
 
         request =
             Http.get apiUrl (Json.Decode.list photoMetadataDecoder)
@@ -149,10 +148,10 @@ toString error =
         NetworkError ->
             "Network error"
 
-        BadStatus r ->
+        BadStatus _ ->
             "Bad status "
 
-        BadPayload s r ->
+        BadPayload s _ ->
             "Bad payload: " ++ s
 
 
@@ -185,7 +184,7 @@ dateFromUrl location =
             Ok date ->
                 Date date
 
-            Err message ->
+            Err _ ->
                 BadDate
 
 

@@ -1,15 +1,14 @@
 module ViewPhotos exposing (viewPhotos)
 
-import Html exposing (Html, div, h1, h2, li, button, span, img, br, text, a)
+import Html exposing (Html, div, h1, h2, li, img, text, a)
 import Html.Keyed exposing (ul)
 import Html.Attributes exposing (src, id, style, class, href)
 import Time.DateTime exposing (DateTime, toTimestamp)
-import Html.Events exposing (onClick)
 import Dict
 import Regex exposing (HowMany(All), regex, replace)
-import Model exposing (Model, dateShown, photoShown, photoMetadata, photoDir)
-import Types exposing (PhotoMetadata, DirectoryName, FileName, dateToString)
-import Update exposing (Msg(UserAskedToDeleteAPhoto, UserClickedOnPhoto), hashForTimestamp, hashForDate)
+import Model exposing (Model, photoShown, photoMetadata)
+import Types exposing (PhotoMetadata, FileName, dateToString)
+import Update exposing (Msg, hashForTimestamp, hashForDate)
 
 
 viewPhotos : Model -> DateTime -> Html Msg
@@ -29,32 +28,32 @@ viewPhotos model dateShown =
                     div [] [ text "No photos for that date" ]
 
                 Just photos ->
-                    div [] [ viewThumbnails model photos ]
+                    div [] [ viewThumbnails photos ]
             , viewPhoto dateShown (model |> photoShown)
             ]
 
 
-viewThumbnails : Model -> List PhotoMetadata -> Html Msg
-viewThumbnails model metadataList =
+viewThumbnails : List PhotoMetadata -> Html Msg
+viewThumbnails metadataList =
     div
         []
         [ h2 [] [ text ((List.length metadataList |> toString) ++ " photos") ]
         , ul
             []
             (List.map
-                (viewThumbnail model)
+                viewThumbnail
                 (List.sortBy .dateCreated metadataList)
             )
         ]
 
 
-viewThumbnail : model -> PhotoMetadata -> ( String, Html Msg )
-viewThumbnail model metadata =
+viewThumbnail : PhotoMetadata -> ( String, Html Msg )
+viewThumbnail metadata =
     let
         photoId =
-            (hashForTimestamp metadata.dateCreated)
+            hashForTimestamp metadata.dateCreated
                 ++ "_"
-                ++ (replace All (regex "/") (\_ -> "=") metadata.relativeFilePath)
+                ++ replace All (regex "/") (\_ -> "=") metadata.relativeFilePath
     in
         ( metadata.relativeFilePath
         , li
@@ -68,9 +67,10 @@ viewThumbnail model metadata =
                         ]
                         []
                     ]
---                , br [] []
---                , span [] [ (metadata.relativeFilePath ++ " - ") |> text ]
---                , button [ onClick (UserAskedToDeleteAPhoto metadata) ] [ text "Erase" ]
+
+                --                , br [] []
+                --                , span [] [ (metadata.relativeFilePath ++ " - ") |> text ]
+                --                , button [ onClick (UserAskedToDeleteAPhoto metadata) ] [ text "Erase" ]
                 ]
             ]
         )

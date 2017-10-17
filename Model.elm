@@ -20,8 +20,8 @@ module Model
         , lastDateWithPhotos
         )
 
-import Types exposing (DirectoryName, ErrorState(Error, NoError), MetadataDict, FileName, PhotoMetadata, JsonString, UserName)
-import Time.DateTime exposing (DateTime, dateTime, zero, toISO8601, fromISO8601, fromTimestamp)
+import Types exposing (DirectoryName, ErrorState(NoError), MetadataDict, FileName, UserName)
+import Time.DateTime exposing (DateTime, fromTimestamp)
 import Dict
 
 

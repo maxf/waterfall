@@ -1,15 +1,15 @@
 module View exposing (view)
 
-import Html exposing (Html, div, button, td, text, tr, span, h1, table, thead, tbody, th, a, br, select, option)
-import Html.Events exposing (onClick, on, targetValue)
+import Html exposing (Html, div, td, text, tr, h1, table, thead, tbody, th, a, br, select, option)
+import Html.Events exposing (on, targetValue)
 import Html.Attributes exposing (class, style, href, id)
-import Json.Decode exposing (map)
+import Json.Decode
 import List exposing (range)
-import Time.DateTime as Date exposing (DateTime, weekday, dateTime, zero, day, addDays, month, year, fromTimestamp, toISO8601, addYears)
+import Time.DateTime as Date exposing (DateTime, weekday, dateTime, zero, day, addDays, month, year, fromTimestamp, addYears)
 import Time.Date as Date
 import Dict
 import Types exposing (Year, toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, ErrorState(Error, NoError), UserName, dateToString)
-import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), photoMetadata, dateShown, photoDir, error, users, lastDateWithPhotos, photoMetadata)
+import Model exposing (Model, DisplayDate(Date), dateShown, error, users, lastDateWithPhotos, photoMetadata)
 import ViewPhotos exposing (viewPhotos)
 import Update exposing (Msg(UserSelected), hashForDate)
 
@@ -176,10 +176,10 @@ viewYearButtons date =
     div [ class "year-buttons" ]
         [ a
             [ href (hashForDate (addYears -1 date)) ]
-            [ text (toString ((year date) - 1) ++ " ⬅") ]
+            [ text (toString (year date - 1) ++ " ⬅") ]
         , a
             [ href (hashForDate (addYears 1 date)) ]
-            [ text ("➡ " ++ toString ((year date) + 1)) ]
+            [ text ("➡ " ++ toString (year date + 1)) ]
         ]
 
 
@@ -246,10 +246,10 @@ viewCalendar model dateToShow =
 
 
 viewUserList : List UserName -> Html Msg
-viewUserList users =
+viewUserList userList =
     let
         usersWithAll =
-            "All" :: users
+            "All" :: userList
     in
         select
             [ on "change" (Json.Decode.map UserSelected targetValue) ]
@@ -262,8 +262,8 @@ viewError message =
         NoError ->
             div [ style [ ( "display", "none" ) ] ] []
 
-        Error message ->
-            div [ class "error" ] [ text message ]
+        Error messageText ->
+            div [ class "error" ] [ text messageText ]
 
 
 viewOtherDayButton : String -> DateTime -> Html Msg

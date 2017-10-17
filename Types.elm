@@ -157,8 +157,8 @@ iso8601ToEpochSeconds s =
         Err _ ->
             0
 
-        Ok dateTime ->
-            (dateTime
+        Ok date ->
+            (date
                 |> toTimestamp
                 |> inMilliseconds
                 |> round

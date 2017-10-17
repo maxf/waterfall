@@ -12349,8 +12349,8 @@ var _user$project$Update$GetUsersResult = function (a) {
 var _user$project$Update$ScanPhotosResult = function (a) {
 	return {ctor: 'ScanPhotosResult', _0: a};
 };
-var _user$project$Update$scanPhotos = function (photoDir) {
-	var apiUrl = A2(_elm_lang$core$Basics_ops['++'], 'api.php?cmd=scan&dir=', photoDir);
+var _user$project$Update$scanPhotos = function (dir) {
+	var apiUrl = A2(_elm_lang$core$Basics_ops['++'], 'api.php?cmd=scan&dir=', dir);
 	var photoMetadataDecoder = A3(
 		_elm_lang$core$Json_Decode$map2,
 		_user$project$Types$PhotoMetadata,
@@ -12370,8 +12370,8 @@ var _user$project$Update$UserAskedToDeleteAPhoto = function (a) {
 	return {ctor: 'UserAskedToDeleteAPhoto', _0: a};
 };
 var _user$project$Update$ScrollPhotosFinished = {ctor: 'ScrollPhotosFinished'};
-var _user$project$Update$scrollPanes = function (month) {
-	var calendarYScroll = 1000 * (_elm_lang$core$Basics$toFloat(month - 1) / 12);
+var _user$project$Update$scrollPanes = function (monthNumber) {
+	var calendarYScroll = (1000 * (_elm_lang$core$Basics$toFloat(monthNumber) - 1)) / 12;
 	return A2(
 		_elm_lang$core$Task$attempt,
 		function (_p4) {
@@ -12547,103 +12547,101 @@ var _user$project$ViewPhotos$viewPhoto = F2(
 				});
 		}
 	});
-var _user$project$ViewPhotos$viewThumbnail = F2(
-	function (model, metadata) {
-		var photoId = A2(
+var _user$project$ViewPhotos$viewThumbnail = function (metadata) {
+	var photoId = A2(
+		_elm_lang$core$Basics_ops['++'],
+		_user$project$Update$hashForTimestamp(metadata.dateCreated),
+		A2(
 			_elm_lang$core$Basics_ops['++'],
-			_user$project$Update$hashForTimestamp(metadata.dateCreated),
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'_',
-				A4(
-					_elm_lang$core$Regex$replace,
-					_elm_lang$core$Regex$All,
-					_elm_lang$core$Regex$regex('/'),
-					function (_p1) {
-						return '=';
-					},
-					metadata.relativeFilePath)));
-		return {
-			ctor: '_Tuple2',
-			_0: metadata.relativeFilePath,
-			_1: A2(
-				_elm_lang$html$Html$li,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$a,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$href(photoId),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$img,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$src(
-												A2(_elm_lang$core$Basics_ops['++'], 'picture.php?w=300&path=', metadata.relativeFilePath)),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$class('thumbnail'),
-												_1: {ctor: '[]'}
-											}
-										},
-										{ctor: '[]'}),
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				})
-		};
-	});
-var _user$project$ViewPhotos$viewThumbnails = F2(
-	function (model, metadataList) {
-		return A2(
-			_elm_lang$html$Html$div,
+			'_',
+			A4(
+				_elm_lang$core$Regex$replace,
+				_elm_lang$core$Regex$All,
+				_elm_lang$core$Regex$regex('/'),
+				function (_p1) {
+					return '=';
+				},
+				metadata.relativeFilePath)));
+	return {
+		ctor: '_Tuple2',
+		_0: metadata.relativeFilePath,
+		_1: A2(
+			_elm_lang$html$Html$li,
 			{ctor: '[]'},
 			{
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$h2,
+					_elm_lang$html$Html$div,
 					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								_elm_lang$core$Basics$toString(
-									_elm_lang$core$List$length(metadataList)),
-								' photos')),
+						_0: A2(
+							_elm_lang$html$Html$a,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$href(photoId),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$img,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$src(
+											A2(_elm_lang$core$Basics_ops['++'], 'picture.php?w=300&path=', metadata.relativeFilePath)),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('thumbnail'),
+											_1: {ctor: '[]'}
+										}
+									},
+									{ctor: '[]'}),
+								_1: {ctor: '[]'}
+							}),
 						_1: {ctor: '[]'}
 					}),
-				_1: {
+				_1: {ctor: '[]'}
+			})
+	};
+};
+var _user$project$ViewPhotos$viewThumbnails = function (metadataList) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$h2,
+				{ctor: '[]'},
+				{
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html_Keyed$ul,
-						{ctor: '[]'},
+					_0: _elm_lang$html$Html$text(
 						A2(
-							_elm_lang$core$List$map,
-							_user$project$ViewPhotos$viewThumbnail(model),
-							A2(
-								_elm_lang$core$List$sortBy,
-								function (_) {
-									return _.dateCreated;
-								},
-								metadataList))),
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(
+								_elm_lang$core$List$length(metadataList)),
+							' photos')),
 					_1: {ctor: '[]'}
-				}
-			});
-	});
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html_Keyed$ul,
+					{ctor: '[]'},
+					A2(
+						_elm_lang$core$List$map,
+						_user$project$ViewPhotos$viewThumbnail,
+						A2(
+							_elm_lang$core$List$sortBy,
+							function (_) {
+								return _.dateCreated;
+							},
+							metadataList))),
+				_1: {ctor: '[]'}
+			}
+		});
+};
 var _user$project$ViewPhotos$viewPhotos = F2(
 	function (model, dateShown) {
 		var dateExifString = _elm_lang$core$Basics$round(
@@ -12689,7 +12687,7 @@ var _user$project$ViewPhotos$viewPhotos = F2(
 								{ctor: '[]'},
 								{
 									ctor: '::',
-									_0: A2(_user$project$ViewPhotos$viewThumbnails, model, _p2._0),
+									_0: _user$project$ViewPhotos$viewThumbnails(_p2._0),
 									_1: {ctor: '[]'}
 								});
 						}
@@ -12784,8 +12782,8 @@ var _user$project$View$viewError = function (message) {
 			});
 	}
 };
-var _user$project$View$viewUserList = function (users) {
-	var usersWithAll = {ctor: '::', _0: 'All', _1: users};
+var _user$project$View$viewUserList = function (userList) {
+	var usersWithAll = {ctor: '::', _0: 'All', _1: userList};
 	return A2(
 		_elm_lang$html$Html$select,
 		{
@@ -13574,7 +13572,7 @@ app.ports.deletePhoto.subscribe(args => {
 var Parser = require('./lib/parser');
 
 function getGlobal() {
-	return this;
+	return (1,eval)('this');
 }
 
 module.exports = {
@@ -13589,6 +13587,7 @@ module.exports = {
 		}
 	}
 };
+
 },{"./lib/bufferstream":5,"./lib/dom-bufferstream":7,"./lib/parser":11}],5:[function(require,module,exports){
 function BufferStream(buffer, offset, length, bigEndian) {
 	this.buffer = buffer;
@@ -13651,7 +13650,7 @@ BufferStream.prototype = {
 		return this.endPosition - this.offset;
 	},
 	nextString: function(length) {
-		var value = this.buffer.toString('ascii', this.offset, this.offset + length);
+		var value = this.buffer.toString('utf8', this.offset, this.offset + length);
 		this.offset += length;
 		return value;
 	},
@@ -13693,15 +13692,14 @@ var minutes = 60;
 function parseDateTimeParts(dateParts, timeParts) {
 	dateParts = dateParts.map(parseNumber);
 	timeParts = timeParts.map(parseNumber);
-	var date = new Date();
-	date.setUTCFullYear(dateParts[0]);
-	date.setUTCMonth(dateParts[1] - 1);
-	date.setUTCDate(dateParts[2]);
-	date.setUTCHours(timeParts[0]);
-	date.setUTCMinutes(timeParts[1]);
-	date.setUTCSeconds(timeParts[2]);
-	date.setUTCMilliseconds(0);
-	var timestamp = date.getTime() / 1000;
+	var year = dateParts[0];
+	var month = dateParts[1] - 1;
+	var day = dateParts[2];
+	var hours = timeParts[0];
+	var minutes = timeParts[1];
+	var seconds = timeParts[2];
+	var date = Date.UTC(year, month, day, hours, minutes, seconds, 0);
+	var timestamp = date / 1000;
 	return timestamp;
 }
 
@@ -13714,7 +13712,7 @@ function parseDateWithTimezoneFormat(dateTimeStr) {
 	var timeParts = dateTimeStr.substr(11, 8).split(':');
 	var timezoneStr = dateTimeStr.substr(19, 6);
 	var timezoneParts = timezoneStr.split(':').map(parseNumber);
-	var timezoneOffset = (timezoneParts[0] * hours) + 
+	var timezoneOffset = (timezoneParts[0] * hours) +
 		(timezoneParts[1] * minutes);
 
 	var timestamp = parseDateTimeParts(dateParts, timeParts);
@@ -13732,7 +13730,7 @@ function parseDateWithSpecFormat(dateTimeStr) {
 	var parts = dateTimeStr.split(' '),
 		dateParts = parts[0].split(':'),
 		timeParts = parts[1].split(':');
-	
+
 	var timestamp = parseDateTimeParts(dateParts, timeParts);
 
 	if(typeof timestamp === 'number' && !isNaN(timestamp)) {
@@ -13765,6 +13763,7 @@ module.exports = {
 	parseDateWithTimezoneFormat: parseDateWithTimezoneFormat,
 	parseExifDate: parseExifDate
 };
+
 },{}],7:[function(require,module,exports){
 /*jslint browser: true, devel: true, bitwise: false, debug: true, eqeq: false, es5: true, evil: false, forin: false, newcap: false, nomen: true, plusplus: true, regexp: false, unparam: false, sloppy: true, stupid: false, sub: false, todo: true, vars: true, white: true */
 
@@ -14372,7 +14371,7 @@ function getBytesPerComponent(format) {
 		case 12:
 			return 8;
 		default:
-			throw new Error('Invalid format: ' + format);
+			return 0;
 	}
 }
 
@@ -14404,7 +14403,7 @@ function readExifTag(tiffMarker, stream) {
 	else if(format === 7) {
 		values = stream.nextBuffer(components);
 	}
-	else {
+	else if(format !== 0) {
 		values = [];
 		for(c = 0; c < components; ++c) {
 			values.push(readExifValue(format, stream));
@@ -14740,7 +14739,9 @@ Parser.prototype = {
 						if(!name) {
 							name = tagNames.exif[tagType];
 						}
-						tags[name] = value;
+						if (!tags.hasOwnProperty(name)) {
+							tags[name] = value;
+						}
 					} else {
 						tags.push({
 							section: ifdSection,
@@ -14770,6 +14771,7 @@ Parser.prototype = {
 
 
 module.exports = Parser;
+
 },{"./exif":9,"./exif-tags":8,"./jpeg":10,"./simplify":12}],12:[function(require,module,exports){
 var exif = require('./exif');
 var date = require('./date');
@@ -14792,6 +14794,11 @@ var degreeTags = [{
 }];
 var dateTags = [{
 	section: exif.SubIFD,
+	type: 0x0132,
+	name: 'ModifyDate'
+},
+{
+	section: exif.SubIFD,
 	type: 0x9003,
 	name: 'DateTimeOriginal'
 },
@@ -14799,6 +14806,11 @@ var dateTags = [{
 	section: exif.SubIFD,
 	type: 0x9004,
 	name: 'CreateDate'
+},
+{
+	section: exif.SubIFD,
+	type: 0x0132,
+	name : 'ModifyDate',
 }];
 
 module.exports = {
