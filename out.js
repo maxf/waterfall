@@ -12524,23 +12524,34 @@ var _user$project$ViewPhotos$viewPhoto = F2(
 				{
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$a,
+						_elm_lang$html$Html$div,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$href(
-								_user$project$Update$hashForDate(photoDate)),
+							_0: _elm_lang$html$Html_Attributes$class('lightbox-inner'),
 							_1: {ctor: '[]'}
 						},
 						{
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$img,
+								_elm_lang$html$Html$a,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$src(_p0._0),
+									_0: _elm_lang$html$Html_Attributes$href(
+										_user$project$Update$hashForDate(photoDate)),
 									_1: {ctor: '[]'}
 								},
-								{ctor: '[]'}),
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$img,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$src(_p0._0),
+											_1: {ctor: '[]'}
+										},
+										{ctor: '[]'}),
+									_1: {ctor: '[]'}
+								}),
 							_1: {ctor: '[]'}
 						}),
 					_1: {ctor: '[]'}

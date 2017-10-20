@@ -84,6 +84,8 @@ viewPhoto photoDate fileName =
 
         Just name ->
             div [ class "lightbox" ]
-                [ a [ href (hashForDate photoDate) ]
-                    [ img [ src name ] [] ]
+                [ div [ class "lightbox-inner" ]
+                    [ a [ href (hashForDate photoDate) ]
+                        [ img [ src name ] [] ]
+                    ]
                 ]
