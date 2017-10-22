@@ -28,25 +28,22 @@
      .outer {
        height: 100vh;
      }
-     .year-buttons {
+     .buttons {
        width: 100%;
        padding: .1em;
        margin: .5em 0;
        text-align: center;
      }
-     .year-buttons a {
-       color: black;
+     .button {
        background-color: #ddd;
-       text-decoration: none;
+       display: inline-block;
+       margin: 0 2px 0 2px;
+       padding: 0 2px 0 2px;
      }
-     .prev-next-buttons {
-       margin: .5em 0;
-       text-align: center;
-     }
-     .prev-next-buttons a {
+     .button a {
        color: black;
-       background-color: #ddd;
        text-decoration: none;
+       outline: none;
      }
      .error {
        position: fixed;
@@ -69,9 +66,10 @@
        max-height: 100vh;
        padding: 1em;
      }
-     .calendar table td {
-       width:
+     .no-month-date {
+       border: none;
      }
+
      .calendar table td a {
        color: #aaa;
        text-decoration: none;

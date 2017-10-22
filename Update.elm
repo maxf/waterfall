@@ -66,7 +66,9 @@ update msg model =
                         _ ->
                             1
             in
-                ( newModel, scrollPanes monthForScroll )
+                ( newModel
+                , Task.attempt (\_ -> ScrollPhotosFinished) (Dom.Scroll.toTop "photos")
+                )
 
         GetUsersResult (Err _) ->
             ( model |> withError (Error "Error getting users")
@@ -101,21 +103,6 @@ update msg model =
 
 
 -- Misc
-
-
-scrollPanes : Int -> Cmd Msg
-scrollPanes monthNumber =
-    let
-        calendarYScroll =
-            1000 * (toFloat monthNumber - 1) / 12
-    in
-        Task.attempt
-            (\_ -> ScrollPhotosFinished)
-            (Task.sequence
-                [ Dom.Scroll.toTop "photos"
-                , Dom.Scroll.toY "calendar" calendarYScroll
-                ]
-            )
 
 
 scanPhotos : DirectoryName -> Cmd Msg

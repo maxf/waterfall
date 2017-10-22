@@ -12370,28 +12370,10 @@ var _user$project$Update$UserAskedToDeleteAPhoto = function (a) {
 	return {ctor: 'UserAskedToDeleteAPhoto', _0: a};
 };
 var _user$project$Update$ScrollPhotosFinished = {ctor: 'ScrollPhotosFinished'};
-var _user$project$Update$scrollPanes = function (monthNumber) {
-	var calendarYScroll = (1000 * (_elm_lang$core$Basics$toFloat(monthNumber) - 1)) / 12;
-	return A2(
-		_elm_lang$core$Task$attempt,
-		function (_p4) {
-			return _user$project$Update$ScrollPhotosFinished;
-		},
-		_elm_lang$core$Task$sequence(
-			{
-				ctor: '::',
-				_0: _elm_lang$dom$Dom_Scroll$toTop('photos'),
-				_1: {
-					ctor: '::',
-					_0: A2(_elm_lang$dom$Dom_Scroll$toY, 'calendar', calendarYScroll),
-					_1: {ctor: '[]'}
-				}
-			}));
-};
 var _user$project$Update$update = F2(
 	function (msg, model) {
-		var _p5 = msg;
-		switch (_p5.ctor) {
+		var _p4 = msg;
+		switch (_p4.ctor) {
 			case 'ScrollPhotosFinished':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'UserAskedToDeleteAPhoto':
@@ -12402,7 +12384,7 @@ var _user$project$Update$update = F2(
 						{
 							ctor: '_Tuple2',
 							_0: _user$project$Model$photoDir(model),
-							_1: _p5._0.relativeFilePath
+							_1: _p4._0.relativeFilePath
 						})
 				};
 			case 'UserClickedOnPhoto':
@@ -12412,33 +12394,33 @@ var _user$project$Update$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'PhotoWasDeleted':
-				var _p6 = _p5._0;
-				return (!_elm_lang$core$Native_Utils.eq(_p6, '')) ? {
+				var _p5 = _p4._0;
+				return (!_elm_lang$core$Native_Utils.eq(_p5, '')) ? {
 					ctor: '_Tuple2',
-					_0: A2(_user$project$Model$removePhoto, _p6, model),
+					_0: A2(_user$project$Model$removePhoto, _p5, model),
 					_1: _elm_lang$core$Platform_Cmd$none
 				} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'ScanPhotosResult':
-				if (_p5._0.ctor === 'Err') {
+				if (_p4._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: A2(
 							_user$project$Model$withError,
 							_user$project$Types$Error(
-								_user$project$Update$toString(_p5._0._0)),
+								_user$project$Update$toString(_p4._0._0)),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
 					var monthForScroll = function () {
-						var _p7 = _user$project$Model$dateShown(model);
-						if (_p7.ctor === 'Date') {
-							return _elm_community$elm_time$Time_DateTime$month(_p7._0);
+						var _p6 = _user$project$Model$dateShown(model);
+						if (_p6.ctor === 'Date') {
+							return _elm_community$elm_time$Time_DateTime$month(_p6._0);
 						} else {
 							return 1;
 						}
 					}();
-					var metadata = _user$project$Types$buildMeta(_p5._0._0);
+					var metadata = _user$project$Types$buildMeta(_p4._0._0);
 					var newModel = A2(
 						_user$project$Model$withMaxPicturesInADay,
 						_user$project$Types$maxNbPictures(metadata),
@@ -12449,11 +12431,16 @@ var _user$project$Update$update = F2(
 					return {
 						ctor: '_Tuple2',
 						_0: newModel,
-						_1: _user$project$Update$scrollPanes(monthForScroll)
+						_1: A2(
+							_elm_lang$core$Task$attempt,
+							function (_p7) {
+								return _user$project$Update$ScrollPhotosFinished;
+							},
+							_elm_lang$dom$Dom_Scroll$toTop('photos'))
 					};
 				}
 			case 'GetUsersResult':
-				if (_p5._0.ctor === 'Err') {
+				if (_p4._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: A2(
@@ -12465,12 +12452,12 @@ var _user$project$Update$update = F2(
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: A2(_user$project$Model$withUsers, _p5._0._0, model),
+						_0: A2(_user$project$Model$withUsers, _p4._0._0, model),
 						_1: _user$project$Update$scanPhotos('')
 					};
 				}
 			case 'UserSelected':
-				var _p8 = _p5._0;
+				var _p8 = _p4._0;
 				var userDir = _elm_lang$core$Native_Utils.eq(_p8, 'All') ? '' : _p8;
 				return {
 					ctor: '_Tuple2',
@@ -12478,7 +12465,7 @@ var _user$project$Update$update = F2(
 					_1: _user$project$Update$scanPhotos(userDir)
 				};
 			default:
-				var _p9 = _p5._0;
+				var _p9 = _p4._0;
 				return {
 					ctor: '_Tuple2',
 					_0: A2(
@@ -12495,6 +12482,19 @@ var _user$project$Update$update = F2(
 				};
 		}
 	});
+var _user$project$Update$scrollPanes = function (monthNumber) {
+	return A2(
+		_elm_lang$core$Task$attempt,
+		function (_p10) {
+			return _user$project$Update$ScrollPhotosFinished;
+		},
+		_elm_lang$core$Task$sequence(
+			{
+				ctor: '::',
+				_0: _elm_lang$dom$Dom_Scroll$toTop('photos'),
+				_1: {ctor: '[]'}
+			}));
+};
 
 var _user$project$ViewPhotos$viewPhoto = F2(
 	function (photoDate, fileName) {
@@ -12715,53 +12715,6 @@ var _user$project$ViewPhotos$viewPhotos = F2(
 			});
 	});
 
-var _user$project$View$viewOtherDayButton = F2(
-	function (label, date) {
-		return A2(
-			_elm_lang$html$Html$a,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$href(
-					_user$project$Update$hashForDate(date)),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text(label),
-				_1: {ctor: '[]'}
-			});
-	});
-var _user$project$View$viewPrevNextButtons = F2(
-	function (prev, next) {
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('prev-next-buttons'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_user$project$View$viewOtherDayButton,
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_user$project$Types$dateToString(prev),
-						' ⬅'),
-					prev),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_user$project$View$viewOtherDayButton,
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							'➡ ',
-							_user$project$Types$dateToString(next)),
-						next),
-					_1: {ctor: '[]'}
-				}
-			});
-	});
 var _user$project$View$viewError = function (message) {
 	var _p0 = message;
 	if (_p0.ctor === 'NoError') {
@@ -12824,101 +12777,112 @@ var _user$project$View$viewYearButtons = function (date) {
 		_elm_lang$html$Html$div,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('year-buttons'),
+			_0: _elm_lang$html$Html_Attributes$class('buttons'),
 			_1: {ctor: '[]'}
 		},
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$a,
+				_elm_lang$html$Html$div,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$href(
-						_user$project$Update$hashForDate(
-							A2(_elm_community$elm_time$Time_DateTime$addYears, -1, date))),
+					_0: _elm_lang$html$Html_Attributes$class('button'),
 					_1: {ctor: '[]'}
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(
-								_elm_community$elm_time$Time_DateTime$year(date) - 1),
-							' ⬅')),
+					_0: A2(
+						_elm_lang$html$Html$a,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$href(
+								_user$project$Update$hashForDate(
+									A2(_elm_community$elm_time$Time_DateTime$addYears, -1, date))),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									_elm_lang$core$Basics$toString(
+										_elm_community$elm_time$Time_DateTime$year(date) - 1),
+									' ⬅')),
+							_1: {ctor: '[]'}
+						}),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$a,
+					_elm_lang$html$Html$div,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href(
-							_user$project$Update$hashForDate(
-								A2(_elm_community$elm_time$Time_DateTime$addYears, 1, date))),
+						_0: _elm_lang$html$Html_Attributes$class('button'),
 						_1: {ctor: '[]'}
 					},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'➡ ',
-								_elm_lang$core$Basics$toString(
-									_elm_community$elm_time$Time_DateTime$year(date) + 1))),
+						_0: A2(
+							_elm_lang$html$Html$a,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$href(
+									_user$project$Update$hashForDate(
+										A2(_elm_community$elm_time$Time_DateTime$addYears, 1, date))),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'➡ ',
+										_elm_lang$core$Basics$toString(
+											_elm_community$elm_time$Time_DateTime$year(date) + 1))),
+								_1: {ctor: '[]'}
+							}),
 						_1: {ctor: '[]'}
 					}),
 				_1: {ctor: '[]'}
 			}
 		});
 };
-var _user$project$View$isLastDayOfMonth = function (date) {
-	var nextDay = A2(_elm_community$elm_time$Time_DateTime$addDays, 1, date);
-	return (!_elm_lang$core$Native_Utils.eq(
-		_elm_community$elm_time$Time_DateTime$month(date),
-		_elm_community$elm_time$Time_DateTime$month(nextDay))) && (!_elm_lang$core$Native_Utils.eq(
-		_elm_community$elm_time$Time_DateTime$weekday(date),
-		_elm_community$elm_time$Time_Date$Sun));
-};
-var _user$project$View$isInLastWeekOfMonth = function (date) {
-	var nextWeek = A2(_elm_community$elm_time$Time_DateTime$addDays, 7, date);
-	return !_elm_lang$core$Native_Utils.eq(
-		_elm_community$elm_time$Time_DateTime$month(date),
-		_elm_community$elm_time$Time_DateTime$month(nextWeek));
-};
-var _user$project$View$dateBorderClasses = function (dateToDisplay) {
-	var borderRightClass = _user$project$View$isLastDayOfMonth(dateToDisplay) ? 'last-day' : '';
-	var borderBottomClass = _user$project$View$isInLastWeekOfMonth(dateToDisplay) ? 'last-week' : '';
-	return A2(
-		_elm_lang$core$String$join,
-		' ',
-		{
-			ctor: '::',
-			_0: borderBottomClass,
-			_1: {
-				ctor: '::',
-				_0: borderRightClass,
-				_1: {ctor: '[]'}
-			}
-		});
+var _user$project$View$daysSinceMonday = function (dayOfWeek) {
+	var _p1 = dayOfWeek;
+	switch (_p1.ctor) {
+		case 'Mon':
+			return 0;
+		case 'Tue':
+			return 1;
+		case 'Wed':
+			return 2;
+		case 'Thu':
+			return 3;
+		case 'Fri':
+			return 4;
+		case 'Sat':
+			return 5;
+		default:
+			return 6;
+	}
 };
 var _user$project$View$dateColour = F2(
 	function (date, metadata) {
 		var dateSeconds = _user$project$Types$toSeconds(date);
 		var record = A2(_elm_lang$core$Dict$get, dateSeconds, metadata);
-		var _p1 = record;
-		if (_p1.ctor === 'Nothing') {
+		var _p2 = record;
+		if (_p2.ctor === 'Nothing') {
 			return {ctor: '_Tuple2', _0: '', _1: 0};
 		} else {
-			var _p2 = _p1._0;
+			var _p3 = _p2._0;
 			var shade = _elm_lang$core$Basics$toString(
 				_elm_lang$core$Basics$floor(
 					100 - (100 * A2(
 						_elm_lang$core$Basics$min,
 						1,
 						_elm_lang$core$Basics$toFloat(
-							_elm_lang$core$List$length(_p2)) / 50))));
+							_elm_lang$core$List$length(_p3)) / 50))));
 			return {
 				ctor: '_Tuple2',
 				_0: A2(
@@ -12931,7 +12895,7 @@ var _user$project$View$dateColour = F2(
 							_elm_lang$core$Basics_ops['++'],
 							',',
 							A2(_elm_lang$core$Basics_ops['++'], shade, ')')))),
-				_1: _elm_lang$core$List$length(_p2)
+				_1: _elm_lang$core$List$length(_p3)
 			};
 		}
 	});
@@ -12955,44 +12919,19 @@ var _user$project$View$calendarDate = function (date) {
 	return _elm_lang$core$Basics$toString(
 		_elm_community$elm_time$Time_DateTime$day(date));
 };
-var _user$project$View$viewDate = F5(
-	function (date, offset, weekNumber, model, dayOfWeek) {
-		var dateToDisplay = A2(
-			_elm_community$elm_time$Time_DateTime$addDays,
-			(((7 * (weekNumber - 1)) + dayOfWeek) + 1) + offset,
-			_elm_community$elm_time$Time_DateTime$dateTime(
-				_elm_lang$core$Native_Utils.update(
-					_elm_community$elm_time$Time_DateTime$zero,
-					{
-						year: _elm_community$elm_time$Time_DateTime$year(date),
-						month: 1,
-						day: 1
-					})));
-		var monthClass = _elm_lang$core$Native_Utils.eq(
-			A2(
-				_elm_lang$core$Basics_ops['%'],
-				_elm_community$elm_time$Time_DateTime$month(dateToDisplay),
-				2),
-			0) ? 'odd' : 'even';
-		var shownDateClass = _elm_lang$core$Native_Utils.eq(dateToDisplay, date) ? 'today' : '';
-		var borderClasses = _user$project$View$dateBorderClasses(dateToDisplay);
-		return _elm_lang$core$Native_Utils.eq(
+var _user$project$View$viewDate = F6(
+	function (refDate, weekNumber, model, offset, firstDayOfMonth, dayOfWeek) {
+		var dateToDisplay = A2(_elm_community$elm_time$Time_DateTime$addDays, ((7 * (weekNumber - 1)) + (dayOfWeek - 1)) - offset, firstDayOfMonth);
+		var shownDateClass = _elm_lang$core$Native_Utils.eq(dateToDisplay, refDate) ? 'today' : '';
+		return (_elm_lang$core$Native_Utils.eq(
 			_elm_community$elm_time$Time_DateTime$year(dateToDisplay),
-			_elm_community$elm_time$Time_DateTime$year(date)) ? A2(
+			_elm_community$elm_time$Time_DateTime$year(refDate)) && _elm_lang$core$Native_Utils.eq(
+			_elm_community$elm_time$Time_DateTime$month(dateToDisplay),
+			_elm_community$elm_time$Time_DateTime$month(refDate))) ? A2(
 			_elm_lang$html$Html$td,
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class(
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						monthClass,
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							' ',
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								shownDateClass,
-								A2(_elm_lang$core$Basics_ops['++'], ' ', borderClasses))))),
+				_0: _elm_lang$html$Html_Attributes$class(shownDateClass),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$html$Html_Attributes$style(
@@ -13019,98 +12958,262 @@ var _user$project$View$viewDate = F5(
 				_1: {ctor: '[]'}
 			}) : A2(
 			_elm_lang$html$Html$td,
-			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('no-month-date'),
+				_1: {ctor: '[]'}
+			},
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html$text(''),
 				_1: {ctor: '[]'}
 			});
 	});
-var _user$project$View$viewWeek = F4(
-	function (date, offset, model, weekNumber) {
+var _user$project$View$viewWeek = F5(
+	function (refDate, model, offset, firstDayOfMonth, weekNumber) {
+		var viewDateFn = A5(_user$project$View$viewDate, refDate, weekNumber, model, offset, firstDayOfMonth);
 		return A2(
 			_elm_lang$html$Html$tr,
 			{ctor: '[]'},
 			A2(
 				_elm_lang$core$List$map,
-				A4(_user$project$View$viewDate, date, offset, weekNumber, model),
+				viewDateFn,
 				A2(_elm_lang$core$List$range, 1, 7)));
 	});
-var _user$project$View$viewWeeks = F3(
-	function (date, offset, model) {
-		return A2(
-			_elm_lang$core$List$map,
-			A3(_user$project$View$viewWeek, date, offset, model),
-			A2(_elm_lang$core$List$range, 0, 52));
-	});
-var _user$project$View$newYearsDayOffset = function (thisYear) {
-	var newYearsDayWeekDay = _elm_community$elm_time$Time_DateTime$weekday(
-		_elm_community$elm_time$Time_DateTime$dateTime(
+var _user$project$View$viewMonth = F2(
+	function (refDate, model) {
+		var tableHead = A2(
+			_elm_lang$html$Html$thead,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$tr,
+					{ctor: '[]'},
+					A2(
+						_elm_lang$core$List$map,
+						function (d) {
+							return A2(
+								_elm_lang$html$Html$th,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(d),
+									_1: {ctor: '[]'}
+								});
+						},
+						{
+							ctor: '::',
+							_0: 'M',
+							_1: {
+								ctor: '::',
+								_0: 'T',
+								_1: {
+									ctor: '::',
+									_0: 'W',
+									_1: {
+										ctor: '::',
+										_0: 'T',
+										_1: {
+											ctor: '::',
+											_0: 'F',
+											_1: {
+												ctor: '::',
+												_0: 'S',
+												_1: {
+													ctor: '::',
+													_0: 'S',
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									}
+								}
+							}
+						})),
+				_1: {ctor: '[]'}
+			});
+		var firstDayOfMonth = _elm_community$elm_time$Time_DateTime$dateTime(
 			_elm_lang$core$Native_Utils.update(
 				_elm_community$elm_time$Time_DateTime$zero,
-				{year: thisYear, month: 1, day: 1})));
-	var _p3 = newYearsDayWeekDay;
-	switch (_p3.ctor) {
-		case 'Mon':
-			return 5;
-		case 'Tue':
-			return 4;
-		case 'Wed':
-			return 3;
-		case 'Thu':
-			return 2;
-		case 'Fri':
-			return 1;
-		case 'Sat':
-			return 0;
-		default:
-			return -1;
-	}
+				{
+					year: _elm_community$elm_time$Time_DateTime$year(refDate),
+					month: _elm_community$elm_time$Time_DateTime$month(refDate),
+					day: 1
+				}));
+		var offset = _user$project$View$daysSinceMonday(
+			_elm_community$elm_time$Time_DateTime$weekday(firstDayOfMonth));
+		var viewWeekFn = A4(_user$project$View$viewWeek, refDate, model, offset, firstDayOfMonth);
+		var tableBody = A2(
+			_elm_lang$html$Html$tbody,
+			{ctor: '[]'},
+			A2(
+				_elm_lang$core$List$map,
+				viewWeekFn,
+				A2(_elm_lang$core$List$range, 1, 6)));
+		return A2(
+			_elm_lang$html$Html$table,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: tableHead,
+				_1: {
+					ctor: '::',
+					_0: tableBody,
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+var _user$project$View$monthName = function (monthNumber) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		'Bad month number',
+		A2(
+			_elm_lang$core$Array$get,
+			monthNumber - 1,
+			_elm_lang$core$Array$fromList(
+				{
+					ctor: '::',
+					_0: 'January',
+					_1: {
+						ctor: '::',
+						_0: 'February',
+						_1: {
+							ctor: '::',
+							_0: 'March',
+							_1: {
+								ctor: '::',
+								_0: 'April',
+								_1: {
+									ctor: '::',
+									_0: 'May',
+									_1: {
+										ctor: '::',
+										_0: 'June',
+										_1: {
+											ctor: '::',
+											_0: 'July',
+											_1: {
+												ctor: '::',
+												_0: 'August',
+												_1: {
+													ctor: '::',
+													_0: 'September',
+													_1: {
+														ctor: '::',
+														_0: 'October',
+														_1: {
+															ctor: '::',
+															_0: 'November',
+															_1: {
+																ctor: '::',
+																_0: 'December',
+																_1: {ctor: '[]'}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				})));
+};
+var _user$project$View$viewMonthButtons = function (date) {
+	var nextMonthButton = (_elm_lang$core$Native_Utils.cmp(
+		_elm_community$elm_time$Time_DateTime$month(date),
+		12) < 0) ? A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('button'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$a,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$href(
+						_user$project$Update$hashForDate(
+							A2(_elm_community$elm_time$Time_DateTime$addMonths, 1, date))),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							'➡ ',
+							_user$project$View$monthName(
+								_elm_community$elm_time$Time_DateTime$month(date) + 1))),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		}) : A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{ctor: '[]'});
+	var prevMonthButton = (_elm_lang$core$Native_Utils.cmp(
+		_elm_community$elm_time$Time_DateTime$month(date),
+		1) > 0) ? A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('button'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$a,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$href(
+						_user$project$Update$hashForDate(
+							A2(_elm_community$elm_time$Time_DateTime$addMonths, -1, date))),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_user$project$View$monthName(
+								_elm_community$elm_time$Time_DateTime$month(date) - 1),
+							' ⬅')),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		}) : A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{ctor: '[]'});
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('buttons'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: prevMonthButton,
+			_1: {
+				ctor: '::',
+				_0: nextMonthButton,
+				_1: {ctor: '[]'}
+			}
+		});
 };
 var _user$project$View$viewCalendar = F2(
 	function (model, dateToShow) {
-		var dateShownTs = _user$project$Types$toSeconds(dateToShow);
-		var nextDateWithPhotos = _elm_community$elm_time$Time_DateTime$fromTimestamp(
-			_elm_lang$core$Basics$toFloat(
-				A2(
-					F2(
-						function (x, y) {
-							return x * y;
-						}),
-					1000,
-					A2(
-						_elm_lang$core$Maybe$withDefault,
-						dateShownTs,
-						_elm_lang$core$List$head(
-							A2(
-								_elm_lang$core$List$filter,
-								function (timestamp) {
-									return _elm_lang$core$Native_Utils.cmp(timestamp, dateShownTs) > 0;
-								},
-								_elm_lang$core$Dict$keys(
-									_user$project$Model$photoMetadata(model))))))));
-		var prevDateWithPhotos = _elm_community$elm_time$Time_DateTime$fromTimestamp(
-			_elm_lang$core$Basics$toFloat(
-				A2(
-					F2(
-						function (x, y) {
-							return x * y;
-						}),
-					1000,
-					A2(
-						_elm_lang$core$Maybe$withDefault,
-						dateShownTs,
-						_elm_lang$core$List$head(
-							_elm_lang$core$List$reverse(
-								A2(
-									_elm_lang$core$List$filter,
-									function (timestamp) {
-										return _elm_lang$core$Native_Utils.cmp(timestamp, dateShownTs) < 0;
-									},
-									_elm_lang$core$Dict$keys(
-										_user$project$Model$photoMetadata(model)))))))));
+		var monthToDisplay = _elm_community$elm_time$Time_DateTime$month(dateToShow);
 		var yearToDisplay = _elm_community$elm_time$Time_DateTime$year(dateToShow);
-		var offset = _user$project$View$newYearsDayOffset(yearToDisplay);
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -13154,91 +13257,31 @@ var _user$project$View$viewCalendar = F2(
 								{
 									ctor: '::',
 									_0: _elm_lang$html$Html$text(
-										_elm_lang$core$Basics$toString(yearToDisplay)),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
-								ctor: '::',
-								_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
-								_1: {
-									ctor: '::',
-									_0: _user$project$View$viewYearButtons(dateToShow),
+										_user$project$View$monthName(monthToDisplay)),
 									_1: {
 										ctor: '::',
 										_0: A2(
-											_elm_lang$html$Html$table,
+											_elm_lang$html$Html$br,
 											{ctor: '[]'},
-											{
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$thead,
-													{ctor: '[]'},
-													{
-														ctor: '::',
-														_0: A2(
-															_elm_lang$html$Html$tr,
-															{ctor: '[]'},
-															A2(
-																_elm_lang$core$List$map,
-																function (d) {
-																	return A2(
-																		_elm_lang$html$Html$th,
-																		{ctor: '[]'},
-																		{
-																			ctor: '::',
-																			_0: _elm_lang$html$Html$text(d),
-																			_1: {ctor: '[]'}
-																		});
-																},
-																{
-																	ctor: '::',
-																	_0: 'M',
-																	_1: {
-																		ctor: '::',
-																		_0: 'T',
-																		_1: {
-																			ctor: '::',
-																			_0: 'W',
-																			_1: {
-																				ctor: '::',
-																				_0: 'T',
-																				_1: {
-																					ctor: '::',
-																					_0: 'F',
-																					_1: {
-																						ctor: '::',
-																						_0: 'S',
-																						_1: {
-																							ctor: '::',
-																							_0: 'S',
-																							_1: {ctor: '[]'}
-																						}
-																					}
-																				}
-																			}
-																		}
-																	}
-																})),
-														_1: {ctor: '[]'}
-													}),
-												_1: {
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$tbody,
-														{ctor: '[]'},
-														A3(_user$project$View$viewWeeks, dateToShow, offset, model)),
-													_1: {ctor: '[]'}
-												}
-											}),
+											{ctor: '[]'}),
 										_1: {
 											ctor: '::',
-											_0: A2(_user$project$View$viewPrevNextButtons, prevDateWithPhotos, nextDateWithPhotos),
-											_1: {
-												ctor: '::',
-												_0: _user$project$View$viewYearButtons(dateToShow),
-												_1: {ctor: '[]'}
-											}
+											_0: _elm_lang$html$Html$text(
+												_elm_lang$core$Basics$toString(yearToDisplay)),
+											_1: {ctor: '[]'}
 										}
+									}
+								}),
+							_1: {
+								ctor: '::',
+								_0: _user$project$View$viewMonthButtons(dateToShow),
+								_1: {
+									ctor: '::',
+									_0: A2(_user$project$View$viewMonth, dateToShow, model),
+									_1: {
+										ctor: '::',
+										_0: _user$project$View$viewYearButtons(dateToShow),
+										_1: {ctor: '[]'}
 									}
 								}
 							}

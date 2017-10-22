@@ -1,4 +1,4 @@
-module Types exposing (DirectoryName, PhotoMetadata, Year, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, ErrorState(Error, NoError), dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, buildMeta, FileName, JsonString, iso8601ToEpochSeconds, UserName)
+module Types exposing (DirectoryName, PhotoMetadata, Year, Month, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, ErrorState(Error, NoError), dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, buildMeta, FileName, JsonString, iso8601ToEpochSeconds, UserName)
 
 import Dict exposing (Dict, keys)
 import Time.DateTime exposing (DateTime, dateTime, zero, epoch, year, month, day, addSeconds, toTimestamp, fromISO8601)
@@ -6,6 +6,10 @@ import Time exposing (inMilliseconds)
 
 
 type alias Year =
+    Int
+
+
+type alias Month =
     Int
 
 
