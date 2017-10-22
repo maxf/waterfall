@@ -9,15 +9,14 @@ import Time.DateTime exposing (DateTime, month, toISO8601, fromISO8601, fromTime
 import Navigation exposing (Location)
 import Regex exposing (regex, HowMany(All, AtMost), replace, find)
 import Types exposing (maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), DirectoryName, UserName, SecondsSinceEpoch, FileName, buildMeta)
-import Ports exposing (deletePhoto)
 import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPhotoShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, dateShown, photoDir, withUsers)
 
 
 type Msg
     = ScrollPhotosFinished
-    | UserAskedToDeleteAPhoto PhotoMetadata
+    | UserAskedToDeleteAPhoto FileName
     | UserClickedOnPhoto
-    | PhotoWasDeleted String
+    | PhotoWasDeleted (Result Http.Error String)
     | ScanPhotosResult (Result Http.Error (List PhotoMetadata))
     | GetUsersResult (Result Http.Error (List String))
     | UserSelected UserName
@@ -30,19 +29,20 @@ update msg model =
         ScrollPhotosFinished ->
             ( model, Cmd.none )
 
-        UserAskedToDeleteAPhoto metadata ->
-            ( model, deletePhoto ( model |> photoDir, metadata.relativeFilePath ) )
+        UserAskedToDeleteAPhoto fileName ->
+            ( model, deletePhoto fileName )
 
         UserClickedOnPhoto ->
             ( model |> withPhotoShown Nothing, Cmd.none )
 
-        PhotoWasDeleted deletedFilePath ->
+        PhotoWasDeleted (Ok deletedFilePath) ->
             if deletedFilePath /= "" then
-                ( model |> removePhoto deletedFilePath
-                , Cmd.none
-                )
+                ( model |> removePhoto deletedFilePath, Cmd.none )
             else
                 ( model, Cmd.none )
+
+        PhotoWasDeleted (Err httpError) ->
+            ( model |> withError (Error (httpError |> toString)), Cmd.none )
 
         ScanPhotosResult (Err httpError) ->
             ( model |> withError (Error (httpError |> toString)), Cmd.none )
@@ -103,6 +103,17 @@ update msg model =
 
 
 -- Misc
+
+
+deletePhoto : FileName -> Cmd Msg
+deletePhoto fileName =
+    let
+        request =
+            Http.get
+                ("api.php?cmd=del&file=" ++ fileName)
+                Json.Decode.string
+    in
+        Http.send PhotoWasDeleted request
 
 
 scanPhotos : DirectoryName -> Cmd Msg

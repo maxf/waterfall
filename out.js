@@ -12262,13 +12262,6 @@ var _user$project$Model$Date = function (a) {
 	return {ctor: 'Date', _0: a};
 };
 
-var _user$project$Ports$deletePhoto = _elm_lang$core$Native_Platform.outgoingPort(
-	'deletePhoto',
-	function (v) {
-		return [v._0, v._1];
-	});
-var _user$project$Ports$deletePhotoResult = _elm_lang$core$Native_Platform.incomingPort('deletePhotoResult', _elm_lang$core$Json_Decode$string);
-
 var _user$project$Update$filenameFromUrl = function (location) {
 	var matches = A3(
 		_elm_lang$core$Regex$find,
@@ -12365,6 +12358,13 @@ var _user$project$Update$scanPhotos = function (dir) {
 var _user$project$Update$PhotoWasDeleted = function (a) {
 	return {ctor: 'PhotoWasDeleted', _0: a};
 };
+var _user$project$Update$deletePhoto = function (fileName) {
+	var request = A2(
+		_elm_lang$http$Http$get,
+		A2(_elm_lang$core$Basics_ops['++'], 'api.php?cmd=del&file=', fileName),
+		_elm_lang$core$Json_Decode$string);
+	return A2(_elm_lang$http$Http$send, _user$project$Update$PhotoWasDeleted, request);
+};
 var _user$project$Update$UserClickedOnPhoto = {ctor: 'UserClickedOnPhoto'};
 var _user$project$Update$UserAskedToDeleteAPhoto = function (a) {
 	return {ctor: 'UserAskedToDeleteAPhoto', _0: a};
@@ -12380,12 +12380,7 @@ var _user$project$Update$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _user$project$Ports$deletePhoto(
-						{
-							ctor: '_Tuple2',
-							_0: _user$project$Model$photoDir(model),
-							_1: _p4._0.relativeFilePath
-						})
+					_1: _user$project$Update$deletePhoto(_p4._0)
 				};
 			case 'UserClickedOnPhoto':
 				return {
@@ -12394,12 +12389,24 @@ var _user$project$Update$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'PhotoWasDeleted':
-				var _p5 = _p4._0;
-				return (!_elm_lang$core$Native_Utils.eq(_p5, '')) ? {
-					ctor: '_Tuple2',
-					_0: A2(_user$project$Model$removePhoto, _p5, model),
-					_1: _elm_lang$core$Platform_Cmd$none
-				} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				if (_p4._0.ctor === 'Ok') {
+					var _p5 = _p4._0._0;
+					return (!_elm_lang$core$Native_Utils.eq(_p5, '')) ? {
+						ctor: '_Tuple2',
+						_0: A2(_user$project$Model$removePhoto, _p5, model),
+						_1: _elm_lang$core$Platform_Cmd$none
+					} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: A2(
+							_user$project$Model$withError,
+							_user$project$Types$Error(
+								_user$project$Update$toString(_p4._0._0)),
+							model),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
 			case 'ScanPhotosResult':
 				if (_p4._0.ctor === 'Err') {
 					return {
@@ -12501,6 +12508,7 @@ var _user$project$ViewPhotos$viewPhoto = F2(
 				},
 				{ctor: '[]'});
 		} else {
+			var _p1 = _p0._0;
 			return A2(
 				_elm_lang$html$Html$div,
 				{
@@ -12533,7 +12541,7 @@ var _user$project$ViewPhotos$viewPhoto = F2(
 										_elm_lang$html$Html$img,
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$src(_p0._0),
+											_0: _elm_lang$html$Html_Attributes$src(_p1),
 											_1: {ctor: '[]'}
 										},
 										{ctor: '[]'}),
@@ -12541,7 +12549,23 @@ var _user$project$ViewPhotos$viewPhoto = F2(
 								}),
 							_1: {ctor: '[]'}
 						}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$button,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onClick(
+									_user$project$Update$UserAskedToDeleteAPhoto(_p1)),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Delete'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
 				});
 		}
 	});
@@ -12556,7 +12580,7 @@ var _user$project$ViewPhotos$viewThumbnail = function (metadata) {
 				_elm_lang$core$Regex$replace,
 				_elm_lang$core$Regex$All,
 				_elm_lang$core$Regex$regex('/'),
-				function (_p1) {
+				function (_p2) {
 					return '=';
 				},
 				metadata.relativeFilePath)));
@@ -12626,7 +12650,11 @@ var _user$project$ViewPhotos$viewThumbnails = function (metadataList) {
 				ctor: '::',
 				_0: A2(
 					_elm_lang$html$Html_Keyed$ul,
-					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('contact-print'),
+						_1: {ctor: '[]'}
+					},
 					A2(
 						_elm_lang$core$List$map,
 						_user$project$ViewPhotos$viewThumbnail,
@@ -12669,8 +12697,8 @@ var _user$project$ViewPhotos$viewPhotos = F2(
 				_1: {
 					ctor: '::',
 					_0: function () {
-						var _p2 = photosForDate;
-						if (_p2.ctor === 'Nothing') {
+						var _p3 = photosForDate;
+						if (_p3.ctor === 'Nothing') {
 							return A2(
 								_elm_lang$html$Html$div,
 								{ctor: '[]'},
@@ -12685,7 +12713,7 @@ var _user$project$ViewPhotos$viewPhotos = F2(
 								{ctor: '[]'},
 								{
 									ctor: '::',
-									_0: _user$project$ViewPhotos$viewThumbnails(_p2._0),
+									_0: _user$project$ViewPhotos$viewThumbnails(_p3._0),
 									_1: {ctor: '[]'}
 								});
 						}
@@ -13313,14 +13341,6 @@ var _user$project$View$view = function (model) {
 		});
 };
 
-var _user$project$Main$subscriptions = function (_p0) {
-	return _elm_lang$core$Platform_Sub$batch(
-		{
-			ctor: '::',
-			_0: _user$project$Ports$deletePhotoResult(_user$project$Update$PhotoWasDeleted),
-			_1: {ctor: '[]'}
-		});
-};
 var _user$project$Main$getUserList = function () {
 	var apiUrl = 'api.php?cmd=dirs';
 	var request = A2(
@@ -13345,7 +13365,21 @@ var _user$project$Main$init = function (location) {
 var _user$project$Main$main = A2(
 	_elm_lang$navigation$Navigation$program,
 	_user$project$Update$UrlChange,
-	{view: _user$project$View$view, update: _user$project$Update$update, init: _user$project$Main$init, subscriptions: _user$project$Main$subscriptions})();
+	{
+		view: _user$project$View$view,
+		update: _user$project$Update$update,
+		init: _user$project$Main$init,
+		subscriptions: function (_p0) {
+			return _elm_lang$core$Platform_Sub$none;
+		}
+	})();
+
+var _user$project$Ports$deletePhoto = _elm_lang$core$Native_Platform.outgoingPort(
+	'deletePhoto',
+	function (v) {
+		return [v._0, v._1];
+	});
+var _user$project$Ports$deletePhotoResult = _elm_lang$core$Native_Platform.incomingPort('deletePhotoResult', _elm_lang$core$Json_Decode$string);
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};

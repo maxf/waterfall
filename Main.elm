@@ -6,7 +6,6 @@ import Navigation
 import View
 import Model exposing (Model)
 import Update exposing (Msg(PhotoWasDeleted, GetUsersResult, UrlChange), update, dateFromUrl, filenameFromUrl)
-import Ports exposing (deletePhotoResult)
 
 
 main : Program Never Model Msg
@@ -15,7 +14,7 @@ main =
         { view = View.view
         , update = update
         , init = init
-        , subscriptions = subscriptions
+        , subscriptions = \_ -> Sub.none
         }
 
 
@@ -38,10 +37,3 @@ getUserList =
             Http.get apiUrl (Json.Decode.list Json.Decode.string)
     in
         Http.send GetUsersResult request
-
-
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.batch
-        [ deletePhotoResult PhotoWasDeleted
-        ]

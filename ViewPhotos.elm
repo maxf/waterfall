@@ -1,14 +1,15 @@
 module ViewPhotos exposing (viewPhotos)
 
-import Html exposing (Html, div, h1, h2, li, img, text, a)
+import Html exposing (Html, div, h1, h2, li, img, text, a, button)
 import Html.Keyed exposing (ul)
 import Html.Attributes exposing (src, id, style, class, href)
+import Html.Events exposing (onClick)
 import Time.DateTime exposing (DateTime, toTimestamp)
 import Dict
 import Regex exposing (HowMany(All), regex, replace)
 import Model exposing (Model, photoShown, photoMetadata)
 import Types exposing (PhotoMetadata, FileName, dateToString)
-import Update exposing (Msg, hashForTimestamp, hashForDate)
+import Update exposing (Msg(UserAskedToDeleteAPhoto), hashForTimestamp, hashForDate)
 
 
 viewPhotos : Model -> DateTime -> Html Msg
@@ -39,7 +40,7 @@ viewThumbnails metadataList =
         []
         [ h2 [] [ text ((List.length metadataList |> toString) ++ " photos") ]
         , ul
-            []
+            [ class "contact-print" ]
             (List.map
                 viewThumbnail
                 (List.sortBy .dateCreated metadataList)
@@ -88,4 +89,7 @@ viewPhoto photoDate fileName =
                     [ a [ href (hashForDate photoDate) ]
                         [ img [ src name ] [] ]
                     ]
+                , button
+                      [ onClick (UserAskedToDeleteAPhoto name) ]
+                      [ text "Delete" ]
                 ]

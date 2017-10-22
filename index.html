@@ -76,12 +76,7 @@
        width: 100%;
        height: 100%;
        display: block;
-     }
-     .calendar td.last-week {
-       border-bottom: 5px solid #ccc;
-     }
-     .calendar td.last-day {
-       border-right: 5px solid #ccc;
+       outline: none;
      }
      #photos {
        padding: 10px;
@@ -89,16 +84,16 @@
        overflow-y: scroll;
        max-height: 100vh;
        color: white;
-       background: #222;
-     }
-     #photos ul {
-       padding: 0;
      }
      #photos li {
        display: inline-block;
        list-style-type: none;
        margin: .3em;
        vertical-align: middle;
+     }
+     .contact-print {
+       background: #222;
+       padding: 8px;
      }
      .thumbnail {
        max-width: 300px;
@@ -121,7 +116,11 @@
      .lightbox-inner img {
        max-width: 95%;
        max-height: 95%;
-
+     }
+     .lightbox button {
+       position: absolute;
+       top: 0;
+       left: 0;
      }
     </style>
   </head>
