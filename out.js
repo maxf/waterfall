@@ -12482,19 +12482,6 @@ var _user$project$Update$update = F2(
 				};
 		}
 	});
-var _user$project$Update$scrollPanes = function (monthNumber) {
-	return A2(
-		_elm_lang$core$Task$attempt,
-		function (_p10) {
-			return _user$project$Update$ScrollPhotosFinished;
-		},
-		_elm_lang$core$Task$sequence(
-			{
-				ctor: '::',
-				_0: _elm_lang$dom$Dom_Scroll$toTop('photos'),
-				_1: {ctor: '[]'}
-			}));
-};
 
 var _user$project$ViewPhotos$viewPhoto = F2(
 	function (photoDate, fileName) {
@@ -12773,6 +12760,66 @@ var _user$project$View$viewUserList = function (userList) {
 			usersWithAll));
 };
 var _user$project$View$viewYearButtons = function (date) {
+	var oneYearAfter = A2(_elm_community$elm_time$Time_DateTime$addYears, 1, date);
+	var nextYearButton = A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('button'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$a,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$href(
+						_user$project$Update$hashForDate(oneYearAfter)),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							'➡ ',
+							_elm_lang$core$Basics$toString(
+								_elm_community$elm_time$Time_DateTime$year(oneYearAfter)))),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		});
+	var oneYearBefore = A2(_elm_community$elm_time$Time_DateTime$addYears, -1, date);
+	var prevYearButton = A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('button'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$a,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$href(
+						_user$project$Update$hashForDate(oneYearBefore)),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(
+								_elm_community$elm_time$Time_DateTime$year(oneYearBefore)),
+							' ⬅')),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		});
 	return A2(
 		_elm_lang$html$Html$div,
 		{
@@ -12782,68 +12829,10 @@ var _user$project$View$viewYearButtons = function (date) {
 		},
 		{
 			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('button'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$a,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$href(
-								_user$project$Update$hashForDate(
-									A2(_elm_community$elm_time$Time_DateTime$addYears, -1, date))),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									_elm_lang$core$Basics$toString(
-										_elm_community$elm_time$Time_DateTime$year(date) - 1),
-									' ⬅')),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}),
+			_0: prevYearButton,
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('button'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$a,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$href(
-									_user$project$Update$hashForDate(
-										A2(_elm_community$elm_time$Time_DateTime$addYears, 1, date))),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text(
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										'➡ ',
-										_elm_lang$core$Basics$toString(
-											_elm_community$elm_time$Time_DateTime$year(date) + 1))),
-								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
-					}),
+				_0: nextYearButton,
 				_1: {ctor: '[]'}
 			}
 		});
@@ -13123,9 +13112,8 @@ var _user$project$View$monthName = function (monthNumber) {
 				})));
 };
 var _user$project$View$viewMonthButtons = function (date) {
-	var nextMonthButton = (_elm_lang$core$Native_Utils.cmp(
-		_elm_community$elm_time$Time_DateTime$month(date),
-		12) < 0) ? A2(
+	var oneMonthAfter = A2(_elm_community$elm_time$Time_DateTime$addMonths, 1, date);
+	var nextMonthButton = A2(
 		_elm_lang$html$Html$div,
 		{
 			ctor: '::',
@@ -13139,8 +13127,7 @@ var _user$project$View$viewMonthButtons = function (date) {
 				{
 					ctor: '::',
 					_0: _elm_lang$html$Html_Attributes$href(
-						_user$project$Update$hashForDate(
-							A2(_elm_community$elm_time$Time_DateTime$addMonths, 1, date))),
+						_user$project$Update$hashForDate(oneMonthAfter)),
 					_1: {ctor: '[]'}
 				},
 				{
@@ -13150,17 +13137,13 @@ var _user$project$View$viewMonthButtons = function (date) {
 							_elm_lang$core$Basics_ops['++'],
 							'➡ ',
 							_user$project$View$monthName(
-								_elm_community$elm_time$Time_DateTime$month(date) + 1))),
+								_elm_community$elm_time$Time_DateTime$month(oneMonthAfter)))),
 					_1: {ctor: '[]'}
 				}),
 			_1: {ctor: '[]'}
-		}) : A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		{ctor: '[]'});
-	var prevMonthButton = (_elm_lang$core$Native_Utils.cmp(
-		_elm_community$elm_time$Time_DateTime$month(date),
-		1) > 0) ? A2(
+		});
+	var oneMonthBefore = A2(_elm_community$elm_time$Time_DateTime$addMonths, -1, date);
+	var prevMonthButton = A2(
 		_elm_lang$html$Html$div,
 		{
 			ctor: '::',
@@ -13174,8 +13157,7 @@ var _user$project$View$viewMonthButtons = function (date) {
 				{
 					ctor: '::',
 					_0: _elm_lang$html$Html_Attributes$href(
-						_user$project$Update$hashForDate(
-							A2(_elm_community$elm_time$Time_DateTime$addMonths, -1, date))),
+						_user$project$Update$hashForDate(oneMonthBefore)),
 					_1: {ctor: '[]'}
 				},
 				{
@@ -13184,15 +13166,12 @@ var _user$project$View$viewMonthButtons = function (date) {
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							_user$project$View$monthName(
-								_elm_community$elm_time$Time_DateTime$month(date) - 1),
+								_elm_community$elm_time$Time_DateTime$month(oneMonthBefore)),
 							' ⬅')),
 					_1: {ctor: '[]'}
 				}),
 			_1: {ctor: '[]'}
-		}) : A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		{ctor: '[]'});
+		});
 	return A2(
 		_elm_lang$html$Html$div,
 		{

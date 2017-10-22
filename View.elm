@@ -160,42 +160,52 @@ viewMonth refDate model =
 
 viewYearButtons : DateTime -> Html Msg
 viewYearButtons date =
-    div [ class "buttons" ]
-        [ div [ class "button" ]
-            [ a
-                [ href (hashForDate (addYears -1 date)) ]
-                [ text (toString (year date - 1) ++ " ⬅") ]
-            ]
-        , div [ class "button" ]
-            [ a
-                [ href (hashForDate (addYears 1 date)) ]
-                [ text ("➡ " ++ toString (year date + 1)) ]
-            ]
-        ]
+    let
+        oneYearBefore =
+            addYears -1 date
+
+        oneYearAfter =
+            addYears 1 date
+
+        prevYearButton =
+            div [ class "button" ]
+                [ a
+                    [ href (hashForDate oneYearBefore) ]
+                    [ text ((oneYearBefore |> year |> toString) ++ " ⬅") ]
+                ]
+
+        nextYearButton =
+            div [ class "button" ]
+                [ a
+                    [ href (hashForDate oneYearAfter) ]
+                    [ text ("➡ " ++ (oneYearAfter |> year |> toString)) ]
+                ]
+    in
+        div [ class "buttons" ] [ prevYearButton, nextYearButton ]
 
 
 viewMonthButtons : DateTime -> Html Msg
 viewMonthButtons date =
     let
+        oneMonthBefore =
+            addMonths -1 date
+
+        oneMonthAfter =
+            addMonths 1 date
+
         prevMonthButton =
-            if month date > 1 then
-                div [ class "button" ]
-                    [ a
-                        [ href (hashForDate (addMonths -1 date)) ]
-                        [ text (monthName (month date - 1) ++ " ⬅") ]
-                    ]
-            else
-                div [] []
+            div [ class "button" ]
+                [ a
+                    [ href (hashForDate oneMonthBefore) ]
+                    [ text (monthName (month oneMonthBefore) ++ " ⬅") ]
+                ]
 
         nextMonthButton =
-            if month date < 12 then
-                div [ class "button" ]
-                    [ a
-                        [ href (hashForDate (addMonths 1 date)) ]
-                        [ text ("➡ " ++ monthName (month date + 1)) ]
-                    ]
-            else
-                div [] []
+            div [ class "button" ]
+                [ a
+                    [ href (hashForDate oneMonthAfter) ]
+                    [ text ("➡ " ++ monthName (month oneMonthAfter)) ]
+                ]
     in
         div [ class "buttons" ] [ prevMonthButton, nextMonthButton ]
 
