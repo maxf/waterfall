@@ -17337,13 +17337,6 @@ var _user$project$Main$main = A2(
 		}
 	})();
 
-var _user$project$Ports$deletePhoto = _elm_lang$core$Native_Platform.outgoingPort(
-	'deletePhoto',
-	function (v) {
-		return [v._0, v._1];
-	});
-var _user$project$Ports$deletePhotoResult = _elm_lang$core$Native_Platform.incomingPort('deletePhotoResult', _elm_lang$core$Json_Decode$string);
-
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
@@ -17352,10 +17345,6 @@ if (typeof _user$project$Main$main !== 'undefined') {
 Elm['Model'] = Elm['Model'] || {};
 if (typeof _user$project$Model$main !== 'undefined') {
     _user$project$Model$main(Elm['Model'], 'Model', {"types":null,"versions":{"elm":"0.18.0"}});
-}
-Elm['Ports'] = Elm['Ports'] || {};
-if (typeof _user$project$Ports$main !== 'undefined') {
-    _user$project$Ports$main(Elm['Ports'], 'Ports', {"types":null,"versions":{"elm":"0.18.0"}});
 }
 Elm['Types'] = Elm['Types'] || {};
 if (typeof _user$project$Types$main !== 'undefined') {
