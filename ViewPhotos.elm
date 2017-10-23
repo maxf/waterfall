@@ -90,6 +90,6 @@ viewPhoto photoDate fileName =
                         [ img [ src name ] [] ]
                     ]
                 , button
-                      [ onClick (UserAskedToDeleteAPhoto name) ]
-                      [ text "Delete" ]
+                    [ onClick (UserAskedToDeleteAPhoto name) ]
+                    [ text "Delete" ]
                 ]

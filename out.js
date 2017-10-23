@@ -12419,14 +12419,6 @@ var _user$project$Update$update = F2(
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var monthForScroll = function () {
-						var _p6 = _user$project$Model$dateShown(model);
-						if (_p6.ctor === 'Date') {
-							return _elm_community$elm_time$Time_DateTime$month(_p6._0);
-						} else {
-							return 1;
-						}
-					}();
 					var metadata = _user$project$Types$buildMeta(_p4._0._0);
 					var newModel = A2(
 						_user$project$Model$withMaxPicturesInADay,
@@ -12440,7 +12432,7 @@ var _user$project$Update$update = F2(
 						_0: newModel,
 						_1: A2(
 							_elm_lang$core$Task$attempt,
-							function (_p7) {
+							function (_p6) {
 								return _user$project$Update$ScrollPhotosFinished;
 							},
 							_elm_lang$dom$Dom_Scroll$toTop('photos'))
@@ -12464,15 +12456,15 @@ var _user$project$Update$update = F2(
 					};
 				}
 			case 'UserSelected':
-				var _p8 = _p4._0;
-				var userDir = _elm_lang$core$Native_Utils.eq(_p8, 'All') ? '' : _p8;
+				var _p7 = _p4._0;
+				var userDir = _elm_lang$core$Native_Utils.eq(_p7, 'All') ? '' : _p7;
 				return {
 					ctor: '_Tuple2',
 					_0: A2(_user$project$Model$withPhotoDir, userDir, model),
 					_1: _user$project$Update$scanPhotos(userDir)
 				};
 			default:
-				var _p9 = _p4._0;
+				var _p8 = _p4._0;
 				return {
 					ctor: '_Tuple2',
 					_0: A2(
@@ -12480,10 +12472,10 @@ var _user$project$Update$update = F2(
 						_user$project$Types$NoError,
 						A2(
 							_user$project$Model$withPhotoShown,
-							_user$project$Update$filenameFromUrl(_p9),
+							_user$project$Update$filenameFromUrl(_p8),
 							A2(
 								_user$project$Model$withDateShown,
-								_user$project$Update$dateFromUrl(_p9),
+								_user$project$Update$dateFromUrl(_p8),
 								model))),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};

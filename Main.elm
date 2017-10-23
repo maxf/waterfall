@@ -5,7 +5,7 @@ import Json.Decode
 import Navigation
 import View
 import Model exposing (Model)
-import Update exposing (Msg(PhotoWasDeleted, GetUsersResult, UrlChange), update, dateFromUrl, filenameFromUrl)
+import Update exposing (Msg(GetUsersResult, UrlChange), update, dateFromUrl, filenameFromUrl)
 
 
 main : Program Never Model Msg

@@ -5,11 +5,11 @@ import Dom.Scroll
 import Task
 import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload))
 import Json.Decode
-import Time.DateTime exposing (DateTime, month, toISO8601, fromISO8601, fromTimestamp)
+import Time.DateTime exposing (DateTime, toISO8601, fromISO8601, fromTimestamp)
 import Navigation exposing (Location)
 import Regex exposing (regex, HowMany(All, AtMost), replace, find)
 import Types exposing (maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), DirectoryName, UserName, SecondsSinceEpoch, FileName, buildMeta)
-import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPhotoShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, dateShown, photoDir, withUsers)
+import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPhotoShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, withUsers)
 
 
 type Msg
@@ -57,14 +57,6 @@ update msg model =
                         |> withPhotoMetadata metadata
                         |> withError NoError
                         |> withMaxPicturesInADay (maxNbPictures metadata)
-
-                monthForScroll =
-                    case model |> dateShown of
-                        Date date ->
-                            date |> month
-
-                        _ ->
-                            1
             in
                 ( newModel
                 , Task.attempt (\_ -> ScrollPhotosFinished) (Dom.Scroll.toTop "photos")
