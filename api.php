@@ -65,6 +65,21 @@ switch($_GET['cmd']) {
     print(json_encode($dirs));
     break;
 
+  case "del":
+    $fileName = $_GET['file'];
+    if ($fileName) {
+      if (unlink($fileName)) {
+        header('Content-Type: text/plain');
+        print('"'.$fileName.'"');
+      } else {
+        http_response_code(404);
+        print("Failed to delete file" . $fileName);
+      }
+    } else {
+      http_response_code(400);
+    }
+    break;
+
   case "rss":
     header('Content-Type: application/rss+xml');
     $baseDir = $_GET['dir'];

@@ -6,10 +6,10 @@ import Task
 import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload))
 import Json.Decode
 import Time.DateTime exposing (DateTime, toISO8601, fromISO8601, fromTimestamp)
-import Navigation exposing (Location)
+import Navigation exposing (Location, modifyUrl)
 import Regex exposing (regex, HowMany(All, AtMost), replace, find)
 import Types exposing (maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), DirectoryName, UserName, SecondsSinceEpoch, FileName, buildMeta)
-import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPhotoShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, withUsers)
+import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPhotoShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, withUsers, dateShown)
 
 
 type Msg
@@ -29,15 +29,24 @@ update msg model =
         ScrollPhotosFinished ->
             ( model, Cmd.none )
 
-        UserAskedToDeleteAPhoto fileName ->
-            ( model, deletePhoto fileName )
-
         UserClickedOnPhoto ->
             ( model |> withPhotoShown Nothing, Cmd.none )
 
+        UserAskedToDeleteAPhoto fileName ->
+            ( model, deletePhoto fileName )
+
         PhotoWasDeleted (Ok deletedFilePath) ->
             if deletedFilePath /= "" then
-                ( model |> removePhoto deletedFilePath, Cmd.none )
+                let
+                    hash =
+                        case dateShown model of
+                            Date d ->
+                                hashForDate d
+
+                            _ ->
+                                "#"
+                in
+                    ( model |> removePhoto deletedFilePath, modifyUrl hash )
             else
                 ( model, Cmd.none )
 
