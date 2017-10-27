@@ -32,7 +32,7 @@ function getDirContents($dir, &$results = array()){
     if (is_dir(realpath($shortPath)) && $value != "." && $value != "..") {
       getDirContents($shortPath, $results);
     } else {
-      if (!preg_match('/.*\/thumb-[^\/]+$/', $shortPath) && preg_match('/\.(jpg|JPG|jpeg|JPEG)$/', $shortPath)) {
+      if (preg_match('/\.(jpg|JPG|jpeg|JPEG)$/', $shortPath)) {
         $results[] = array( 'path' => $shortPath, 'date' => createDate($shortPath) );
       }
     }
