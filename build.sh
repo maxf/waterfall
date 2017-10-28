@@ -8,4 +8,4 @@ fi
 
 elm-make *.elm $WATERFALL_ELM_DEBUG --yes --warn --output=elm.js
 browserify -o out.js main.js
-rsync -avzr --exclude node_modules --exclude .git --exclude elm-stuff ../waterfall $WATERFALL_INSTALL_DIR
+rsync -avzr --exclude node_modules --exclude .\* --exclude elm-stuff ../waterfall $WATERFALL_INSTALL_DIR
