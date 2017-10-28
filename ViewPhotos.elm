@@ -87,7 +87,7 @@ viewPhoto photoDate fileName =
             div [ class "lightbox" ]
                 [ div [ class "lightbox-inner" ]
                     [ a [ href (hashForDate photoDate) ]
-                        [ img [ src name ] [] ]
+                        [ img [ src ("picture.php?path=" ++ name) ] [] ]
                     ]
                 , button
                     [ onClick (UserAskedToDeleteAPhoto name) ]

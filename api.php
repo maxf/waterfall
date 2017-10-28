@@ -24,41 +24,58 @@ function createDate($path) {
 
 
 
-function getDirContents($dir, &$results = array()){
-  $files = scandir($dir);
+function getDirContents($base, $dir, &$results = array()){
+  $files = scandir("$base/$dir");
 
   foreach($files as $key => $value){
-    $shortPath = $dir.DIRECTORY_SEPARATOR.$value;
-    if (is_dir(realpath($shortPath)) && $value != "." && $value != "..") {
-      getDirContents($shortPath, $results);
+    $shortPath = "$dir/$value";
+    $fullPath = "$base/$shortPath";
+    if (is_dir(realpath($fullPath)) && $value[0] != ".") {
+      getDirContents($base, $shortPath, $results);
     } else {
       if (preg_match('/\.(jpg|JPG|jpeg|JPEG)$/', $shortPath)) {
-        $results[] = array( 'path' => $shortPath, 'date' => createDate($shortPath) );
+        $results[] = array( 'path' => $shortPath, 'date' => createDate($fullPath) );
       }
     }
   }
   return $results;
 }
 
-$dir = "uploads";
+function deleteRelatedFiles($thumbsDir, $path) {
+  $m = array();
+  $r = preg_match('/(.*)\/([^\/]+)/', $path, $m);
+  $fileDir = $m[1];
+  $fileName = $m[2];
+  $dirFiles = scanDir("$thumbsDir/$fileDir");
+  $filesDeleted = [];
+  foreach($dirFiles as $dirFileName) {
+    if (strpos($dirFileName, $fileName)) {
+      $fileToDelete = "$thumbsDir/$fileDir/$dirFileName";
+      if (unlink($fileToDelete)) {
+        array_push($filesDeleted, "$fileDir/$dirFileName");
+      }
+    }
+  }
+  return $filesDeleted;
+}
 
+
+$uploadsDir = "uploads";
+$thumbsDir = "thumbnails";
 
 switch($_GET['cmd']) {
   case "scan":
     header('Content-Type: application/json');
-    $baseDir = $_GET['dir'];
-    if ($baseDir) {
-      $dir .= DIRECTORY_SEPARATOR.$baseDir;
-    }
-    print(json_encode(getDirContents($dir)));
+    $dir = $_GET['dir'];
+    print(json_encode(getDirContents($uploadsDir, $dir)));
     break;
 
   case "dirs":
     header('Content-Type: application/json');
-    $files = scandir($dir);
+    $files = scandir("$uploadsDir/$dir");
     $dirs = [];
     foreach($files as $key => $value){
-      if ($value[0] != "." && is_dir(realpath($dir."/".$value))) {
+      if ($value[0] != "." && is_dir(realpath("$uploadsDir/$dir/$value"))) {
         array_push($dirs, $value);
       }
     }
@@ -66,14 +83,15 @@ switch($_GET['cmd']) {
     break;
 
   case "del":
-    $fileName = $_GET['file'];
-    if ($fileName) {
-      if (unlink($fileName)) {
-        header('Content-Type: text/plain');
-        print('"'.$fileName.'"');
+    $path = $_GET['file'];
+    if ($path) {
+      if (unlink($uploadsDir.$path)) {
+        header('Content-Type: application/json');
+        deleteRelatedFiles($thumbsDir, $path);
+        print "\"$path\"";
       } else {
         http_response_code(404);
-        print("Failed to delete file" . $fileName);
+        print("Failed to delete file" . $path);
       }
     } else {
       http_response_code(400);
@@ -82,11 +100,8 @@ switch($_GET['cmd']) {
 
   case "rss":
     header('Content-Type: application/rss+xml');
-    $baseDir = $_GET['dir'];
-    if ($baseDir) {
-      $dir .= DIRECTORY_SEPARATOR.$baseDir;
-    }
-    $photos = getDirContents($dir);
+    $dir = $_GET['dir'];
+    $photos = getDirContents($uploadsDir, $dir);
     print("<?xml version='1.0' encoding='UTF-8' ?>\n");
     print("<feed xmlns='http://www.w3.org/2005/Atom'>");
     print(" <title>RSS Title</title>\n");
