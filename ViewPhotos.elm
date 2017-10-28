@@ -53,8 +53,7 @@ viewThumbnail metadata =
     let
         photoId =
             hashForTimestamp metadata.dateCreated
-                ++ "_"
-                ++ replace All (regex "/") (\_ -> "=") metadata.relativeFilePath
+                ++ metadata.relativeFilePath
     in
         ( metadata.relativeFilePath
         , li

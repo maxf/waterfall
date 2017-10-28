@@ -193,11 +193,11 @@ filenameFromUrl location =
     -- to uploads/Mist/2017-09-06 20.14.25.jpg
     let
         matches =
-            find (AtMost 1) (regex "^#[^_]+_(.+)$") location.hash
+            find (AtMost 1) (regex "^#\\d{4}-\\d{2}-\\d{2}(.+)$") location.hash
     in
         case matches |> List.map .submatches of
             [ [ Just name ] ] ->
-                Just (name |> replace All (regex "=") (\_ -> "/"))
+                Just name
 
             _ ->
                 Nothing
