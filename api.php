@@ -72,10 +72,10 @@ switch($_GET['cmd']) {
 
   case "dirs":
     header('Content-Type: application/json');
-    $files = scandir("$uploadsDir/$dir");
+    $files = scandir("$uploadsDir");
     $dirs = [];
     foreach($files as $key => $value){
-      if ($value[0] != "." && is_dir(realpath("$uploadsDir/$dir/$value"))) {
+      if ($value[0] != "." && is_dir(realpath("$uploadsDir/$value"))) {
         array_push($dirs, $value);
       }
     }
