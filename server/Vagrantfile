@@ -44,7 +44,6 @@ Vagrant.configure("2") do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
-  config.vm.synced_folder ".", "/var/www/html/waterfall"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -66,6 +65,11 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get install -y apache2 libapache2-mod-php5
+    apt-get install -y nodejs nodejs-legacy npm nginx git
+    npm update -g npm
+    cd ~vagrant
+    sudo -u vagrant git clone https://github.com/maxf/waterfall.git
+    cd ~vagrant/waterfall/server
+    sudo -u vagrant ./vagrant-setup.sh
   SHELL
 end
