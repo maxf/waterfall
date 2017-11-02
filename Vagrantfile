@@ -23,7 +23,7 @@ Vagrant.configure("2") do |config|
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # NOTE: This will enable public access to the opened port
-  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine and only allow access
@@ -43,7 +43,7 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
+  config.vm.synced_folder "../photos", "/photos"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -65,17 +65,21 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get install -y nodejs nodejs-legacy npm nginx git
+    apt-get install -y nginx git
+    curl -sL https://deb.nodesource.com/setup_6.x | bash -
+    apt-get install -y nodejs
     npm update -g npm
     cd ~vagrant
-    if [ ! -d "/vagrant/waterfall" ]; then
+    if [ ! -d "/vagrant/server" ]; then
       echo "cloning"
       sudo -i -u vagrant git clone https://github.com/maxf/waterfall.git
+      cd waterfall
     else
       echo "not cloning"
-      cd /vagrant
+      ln -fs /vagrant ./waterfall
+      cd waterfall
     fi
-    cd waterfall/server
-    sudo -u vagrant ./vagrant-setup.sh
+    cd server
+    sudo -H -i -u vagrant ./waterfall/server/vagrant-setup.sh
   SHELL
 end
