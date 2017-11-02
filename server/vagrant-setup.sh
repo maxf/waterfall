@@ -1,3 +1,3 @@
-echo "OK"
-#npm install
-#npm start
+#!/bin/bash
+npm install
+npm start

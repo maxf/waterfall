@@ -68,8 +68,14 @@ Vagrant.configure("2") do |config|
     apt-get install -y nodejs nodejs-legacy npm nginx git
     npm update -g npm
     cd ~vagrant
-    sudo -u vagrant git clone https://github.com/maxf/waterfall.git
-    cd ~vagrant/waterfall/server
+    if [ ! -d "/vagrant/waterfall" ]; then
+      echo "cloning"
+      sudo -i -u vagrant git clone https://github.com/maxf/waterfall.git
+    else
+      echo "not cloning"
+      cd /vagrant
+    fi
+    cd waterfall/server
     sudo -u vagrant ./vagrant-setup.sh
   SHELL
 end
