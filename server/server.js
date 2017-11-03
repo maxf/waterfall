@@ -1,7 +1,9 @@
+'use strict';
+
 const restify = require('restify')
 const fs = require('fs')
 const recursive = require("recursive-readdir")
-
+const path = require('path')
 
 const photosDir = process.env.PHOTOS_DIR
 const thumbsDir = process.env.THUMBS_DIR
