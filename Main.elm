@@ -31,7 +31,7 @@ getUserList : Cmd Msg
 getUserList =
     let
         apiUrl =
-            "api.php?cmd=dirs"
+            "api/dirs"
 
         request =
             Http.get apiUrl (Json.Decode.list Json.Decode.string)

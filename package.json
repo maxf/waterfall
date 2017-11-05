@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "main": "main.js",
   "dependencies": {
-    "exif-parser": "^0.1.12"
+    "dotenv": "^4.0.0",
+    "exif-parser": "^0.1.12",
+    "express": "^4.16.2",
+    "nodemon": "^1.12.1",
+    "recursive-readdir": "^2.2.1"
   }
 }

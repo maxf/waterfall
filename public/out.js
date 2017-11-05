@@ -1,4 +1,9 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+const Elm = require('./public/elm.js');
+const node = document.getElementById('main');
+const app = Elm.Main.embed(node);
+
+},{"./public/elm.js":2}],2:[function(require,module,exports){
 
 (function() {
 'use strict';
@@ -12335,7 +12340,7 @@ var _user$project$Update$ScanPhotosResult = function (a) {
 	return {ctor: 'ScanPhotosResult', _0: a};
 };
 var _user$project$Update$scanPhotos = function (dir) {
-	var apiUrl = A2(_elm_lang$core$Basics_ops['++'], 'api.php?cmd=scan&dir=', dir);
+	var apiUrl = A2(_elm_lang$core$Basics_ops['++'], 'api/scan?dir=', dir);
 	var photoMetadataDecoder = A3(
 		_elm_lang$core$Json_Decode$map2,
 		_user$project$Types$PhotoMetadata,
@@ -12353,7 +12358,7 @@ var _user$project$Update$PhotoWasDeleted = function (a) {
 var _user$project$Update$deletePhoto = function (fileName) {
 	var request = A2(
 		_elm_lang$http$Http$get,
-		A2(_elm_lang$core$Basics_ops['++'], 'api.php?cmd=del&file=', fileName),
+		A2(_elm_lang$core$Basics_ops['++'], 'api/delete?file=', fileName),
 		_elm_lang$core$Json_Decode$string);
 	return A2(_elm_lang$http$Http$send, _user$project$Update$PhotoWasDeleted, request);
 };
@@ -13329,7 +13334,7 @@ var _user$project$View$view = function (model) {
 };
 
 var _user$project$Main$getUserList = function () {
-	var apiUrl = 'api.php?cmd=dirs';
+	var apiUrl = 'api/dirs';
 	var request = A2(
 		_elm_lang$http$Http$get,
 		apiUrl,
@@ -13418,9 +13423,4 @@ for (var publicModule in Elm)
 }).call(this);
 
 
-},{}],2:[function(require,module,exports){
-const Elm = require('./elm.js');
-const node = document.getElementById('main');
-const app = Elm.Main.embed(node);
-
-},{"./elm.js":1}]},{},[2]);
+},{}]},{},[1]);

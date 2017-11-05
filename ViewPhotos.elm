@@ -6,7 +6,6 @@ import Html.Attributes exposing (src, id, style, class, href)
 import Html.Events exposing (onClick)
 import Time.DateTime exposing (DateTime, toTimestamp)
 import Dict
-import Regex exposing (HowMany(All), regex, replace)
 import Model exposing (Model, photoShown, photoMetadata)
 import Types exposing (PhotoMetadata, FileName, dateToString)
 import Update exposing (Msg(UserAskedToDeleteAPhoto), hashForTimestamp, hashForDate)

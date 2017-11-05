@@ -111,7 +111,7 @@ deletePhoto fileName =
     let
         request =
             Http.get
-                ("api.php?cmd=del&file=" ++ fileName)
+                ("api/delete?file=" ++ fileName)
                 Json.Decode.string
     in
         Http.send PhotoWasDeleted request
@@ -127,7 +127,7 @@ scanPhotos dir =
                 (Json.Decode.field "date" Json.Decode.int)
 
         apiUrl =
-            "api.php?cmd=scan&dir=" ++ dir
+            "api/scan?dir=" ++ dir
 
         request =
             Http.get apiUrl (Json.Decode.list photoMetadataDecoder)
