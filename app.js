@@ -5,6 +5,7 @@ const app = express()
 const fs = require('fs')
 const recursive = require("recursive-readdir")
 const path = require('path')
+const exif = require('exif-parser')
 
 require('dotenv').config()
 const photosDir = process.env.PHOTOS_DIR
@@ -15,7 +16,8 @@ if (!photosDir || !thumbsDir) {
 }
 
 
-const isDotFile = file => file.charAt(0) === '.'
+const isDotFile = file =>
+  file.charAt(0) === '.'
 
 const isPhoto = file =>
   ['.jpg', '.JPG', '.jpeg', '.JPEG'].indexOf(path.extname(file)) !== -1
@@ -24,12 +26,34 @@ const excludeFiles = function(file, stats) {
   return isDotFile(file) || (stats.isFile() && !isPhoto(file))
 }
 
+const exifOriginalDate = path => {
+  const file = fs.readFileSync(path)
+  let result
+  try {
+    const exifData = exif.create(file).parse()
+    result = exifData.tags.CreateDate
+  } catch (e) {
+    console.log("failed to parse Exif data in ", path)
+    result = null
+  }
+  return parseInt(result, 10)
+}
+
+const makePhotoObject = baseDir => fileName => {
+  return {
+    date: exifOriginalDate(fileName),
+    path: fileName.slice(1 + baseDir.length)
+  }
+}
+
+
 const getDirContents = function(baseDir, dirToScan, res, next) {
   recursive(`${baseDir}/${dirToScan}`, [excludeFiles], function (err, files) {
-    res.send(files.map(path => path.slice(1+baseDir.length)))
+    res.send(files.map(makePhotoObject(baseDir)).filter(obj=>obj.date))
     next()
  })
 }
+
 
 const dirs = function(req, res, next) {
   const contents = fs.readdirSync(photosDir)
