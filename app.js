@@ -1,5 +1,10 @@
 'use strict'
 
+const thumbSize = 300 // pixels
+
+const photosDir = process.env.PHOTOS_DIR
+const thumbsDir = process.env.THUMBS_DIR
+
 const express = require('express')
 const app = express()
 const fs = require('fs')
@@ -8,8 +13,6 @@ const path = require('path')
 const exif = require('exif-parser')
 
 require('dotenv').config()
-const photosDir = process.env.PHOTOS_DIR
-const thumbsDir = process.env.THUMBS_DIR
 if (!photosDir || !thumbsDir) {
   console.log("you must set the PHOTOS_DIR and THUMBS_DIR env variables")
   process.exit()
@@ -70,7 +73,25 @@ const scan = function(req, res, next) {
   getDirContents(photosDir, dirToScan, res, next)
 }
 
+const thumb = function(req, res, next) {
+  const imagePath = req.query.photo
+  const thumbPath =
+    `${thumbsDir}/${path.dirname(imagePath)}/${thumbSize}-${path.basename(imagePath)}`
+
+  if (fs.existsSync(thumbPath)) {
+    // send existing thumbnail -- todo: check if it's faster to redirect to
+    // static thumb
+    const readStream = fs.createReadStream(thumbPath)
+    readStream.pipe(res)
+  } else {
+    /* generate thumbnail */
+  }
+  next()
+}
+
 app.use(express.static('public'))
 app.get('/api/dirs', dirs)
 app.get('/api/scan', scan)
+app.get('/thumb', thumb)
+
 app.listen(3000, () => console.log('Example app listening on port 3000!'))
