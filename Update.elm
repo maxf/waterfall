@@ -111,7 +111,7 @@ deletePhoto fileName =
     let
         request =
             Http.get
-                ("api/delete?file=" ++ fileName)
+                ("api/delete?photo=" ++ fileName)
                 Json.Decode.string
     in
         Http.send PhotoWasDeleted request

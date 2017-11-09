@@ -1,7 +1,7 @@
 'use strict'
 
 const thumbSize = 300 // pixels
-
+const previewSize = 1000 // pixels
 const photosDir = process.env.PHOTOS_DIR
 const thumbsDir = process.env.THUMBS_DIR
 
@@ -11,8 +11,10 @@ const fs = require('fs')
 const recursive = require("recursive-readdir")
 const path = require('path')
 const exif = require('exif-parser')
-
+const sharp = require('sharp')
 require('dotenv').config()
+
+
 if (!photosDir || !thumbsDir) {
   console.log("you must set the PHOTOS_DIR and THUMBS_DIR env variables")
   process.exit()
@@ -20,7 +22,7 @@ if (!photosDir || !thumbsDir) {
 
 
 const isDotFile = file =>
-  file.charAt(0) === '.'
+  file.indexOf('/.') !== -1
 
 const isPhoto = file =>
   ['.jpg', '.JPG', '.jpeg', '.JPEG'].indexOf(path.extname(file)) !== -1
@@ -45,53 +47,81 @@ const exifOriginalDate = path => {
 const makePhotoObject = baseDir => fileName => {
   return {
     date: exifOriginalDate(fileName),
-    path: fileName.slice(1 + baseDir.length)
+    path: fileName.slice(baseDir.length)
   }
 }
 
 
-const getDirContents = function(baseDir, dirToScan, res, next) {
+const getDirContents = function(baseDir, dirToScan, res) {
   recursive(`${baseDir}/${dirToScan}`, [excludeFiles], function (err, files) {
     res.send(files.map(makePhotoObject(baseDir)).filter(obj=>obj.date))
-    next()
- })
+  })
 }
 
 
-const dirs = function(req, res, next) {
+const dirs = function(req, res) {
   const contents = fs.readdirSync(photosDir)
   const dirs = contents.filter(
     item =>
       item[0] !== '.' && fs.lstatSync(`${photosDir}/${item}`).isDirectory()
   )
   res.send(dirs)
-  next()
 }
 
-const scan = function(req, res, next) {
+const scan = function(req, res) {
   const dirToScan = req.query.dir
-  getDirContents(photosDir, dirToScan, res, next)
+  getDirContents(photosDir, dirToScan, res)
 }
 
-const thumb = function(req, res, next) {
+const photoFullPath = imagePath =>
+  path.resolve(`${photosDir}/${imagePath}`)
+
+const thumbFullPath = (imagePath, size) =>
+  path.resolve(`${thumbsDir}/${path.dirname(imagePath)}/${size}-${path.basename(imagePath)}`)
+
+const sendPhoto = size => (req, res) => {
   const imagePath = req.query.photo
-  const thumbPath =
-    `${thumbsDir}/${path.dirname(imagePath)}/${thumbSize}-${path.basename(imagePath)}`
+  const thumbPath = thumbFullPath(imagePath, size)
+  const thumbDir = path.dirname(imagePath)
 
-  if (fs.existsSync(thumbPath)) {
-    // send existing thumbnail -- todo: check if it's faster to redirect to
-    // static thumb
-    const readStream = fs.createReadStream(thumbPath)
-    readStream.pipe(res)
+  if (!fs.existsSync(thumbPath)) {
+    try {
+      fs.mkdirSync(thumbDir)
+    } catch (e) {
+      if (e.code === 'EEXIST') {
+        console.log(thumbDir + ' already exists, that\'s ok')
+      }
+    }
+    sharp(photoFullPath(imagePath))
+      .resize(size)
+      .toFile(thumbPath)
+      .then( () => res.sendFile(thumbPath))
+      .catch(err => { console.log('error:', err) })
   } else {
-    /* generate thumbnail */
+    res.sendFile(thumbPath)
   }
-  next()
+  return
 }
+
+const deletePhoto = (req, res) => {
+  const imagePath = req.query.photo
+  fs.unlink(photoFullPath(imagePath), () => {
+    res.send(`"${req.query.photo}"`)
+    const thumbsPath = path.resolve(`${thumbsDir}/${path.dirname(imagePath)}`)
+    const thumbsRe = new RegExp(`${thumbsPath}/\\d+-${path.basename(imagePath)}`)
+    fs
+      .readdirSync(thumbsPath)
+      .filter(file => thumbsRe.test(thumbsPath+'/'+file))
+      .map(file => fs.unlink(thumbsPath+'/'+file))
+  })
+}
+
 
 app.use(express.static('public'))
 app.get('/api/dirs', dirs)
 app.get('/api/scan', scan)
-app.get('/thumb', thumb)
+app.get('/api/delete', deletePhoto)
+app.get('/thumb', sendPhoto(thumbSize))
+app.get('/preview', sendPhoto(previewSize))
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'))

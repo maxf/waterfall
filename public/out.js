@@ -12358,7 +12358,7 @@ var _user$project$Update$PhotoWasDeleted = function (a) {
 var _user$project$Update$deletePhoto = function (fileName) {
 	var request = A2(
 		_elm_lang$http$Http$get,
-		A2(_elm_lang$core$Basics_ops['++'], 'api/delete?file=', fileName),
+		A2(_elm_lang$core$Basics_ops['++'], 'api/delete?photo=', fileName),
 		_elm_lang$core$Json_Decode$string);
 	return A2(_elm_lang$http$Http$send, _user$project$Update$PhotoWasDeleted, request);
 };
@@ -12543,7 +12543,7 @@ var _user$project$ViewPhotos$viewPhoto = F2(
 										{
 											ctor: '::',
 											_0: _elm_lang$html$Html_Attributes$src(
-												A2(_elm_lang$core$Basics_ops['++'], 'picture.php?path=', _p1)),
+												A2(_elm_lang$core$Basics_ops['++'], '/preview?photo=', _p1)),
 											_1: {ctor: '[]'}
 										},
 										{ctor: '[]'}),
@@ -12603,7 +12603,7 @@ var _user$project$ViewPhotos$viewThumbnail = function (metadata) {
 									{
 										ctor: '::',
 										_0: _elm_lang$html$Html_Attributes$src(
-											A2(_elm_lang$core$Basics_ops['++'], 'picture.php?w=300&path=', metadata.relativeFilePath)),
+											A2(_elm_lang$core$Basics_ops['++'], '/thumb?photo=', metadata.relativeFilePath)),
 										_1: {
 											ctor: '::',
 											_0: _elm_lang$html$Html_Attributes$class('thumbnail'),

@@ -61,15 +61,11 @@ viewThumbnail metadata =
                 []
                 [ a [ href photoId ]
                     [ img
-                        [ src ("picture.php?w=300&path=" ++ metadata.relativeFilePath)
+                        [ src ("/thumb?photo=" ++ metadata.relativeFilePath)
                         , class "thumbnail"
                         ]
                         []
                     ]
-
-                --                , br [] []
-                --                , span [] [ (metadata.relativeFilePath ++ " - ") |> text ]
-                --                , button [ onClick (UserAskedToDeleteAPhoto metadata) ] [ text "Erase" ]
                 ]
             ]
         )
@@ -85,7 +81,7 @@ viewPhoto photoDate fileName =
             div [ class "lightbox" ]
                 [ div [ class "lightbox-inner" ]
                     [ a [ href (hashForDate photoDate) ]
-                        [ img [ src ("picture.php?path=" ++ name) ] [] ]
+                        [ img [ src ("/preview?photo=" ++ name) ] [] ]
                     ]
                 , button
                     [ onClick (UserAskedToDeleteAPhoto name) ]
