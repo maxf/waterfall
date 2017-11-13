@@ -4,6 +4,7 @@ module Model
         , DisplayDate(Date, DateNotSpecified, BadDate)
         , initialModel
         , removePhoto
+        , updatePhotoPath
         , dateShown
         , photoShown
         , photoMetadata
@@ -20,7 +21,7 @@ module Model
         , lastDateWithPhotos
         )
 
-import Types exposing (DirectoryName, ErrorState(NoError), MetadataDict, FileName, UserName)
+import Types exposing (DirectoryName, ErrorState(NoError), MetadataDict, FileName, UserName, RenamedPath)
 import Time.DateTime exposing (DateTime, fromTimestamp)
 import Dict
 
@@ -136,6 +137,31 @@ withMaxPicturesInADay maxpics (Model model) =
 removePhoto : FileName -> Model -> Model
 removePhoto fileName (Model model) =
     Model { model | photoMetadata = removePhotoFromDict fileName model.photoMetadata }
+
+
+
+-- Change the path of a photo
+
+
+updatePhotoPath : RenamedPath -> Model -> Model
+updatePhotoPath renamedPath model =
+    let
+        replacePath path photo =
+            if photo.relativeFilePath == path.old then
+                { photo | relativeFilePath = path.new }
+            else
+                photo
+
+        updateInList path _ list =
+            List.map (replacePath path) list
+
+        newMetadata : MetadataDict
+        newMetadata =
+            Dict.map (updateInList renamedPath) (photoMetadata model)
+    in
+        model
+            |> withPhotoMetadata newMetadata
+            |> withPhotoShown (Just renamedPath.new)
 
 
 

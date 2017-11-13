@@ -8,7 +8,7 @@ import Time.DateTime exposing (DateTime, toTimestamp)
 import Dict
 import Model exposing (Model, photoShown, photoMetadata)
 import Types exposing (PhotoMetadata, FileName, dateToString)
-import Update exposing (Msg(UserAskedToDeleteAPhoto), hashForTimestamp, hashForDate)
+import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto), hashForTimestamp, hashForDate)
 
 
 viewPhotos : Model -> DateTime -> Html Msg
@@ -83,7 +83,12 @@ viewPhoto photoDate fileName =
                     [ a [ href (hashForDate photoDate) ]
                         [ img [ src ("/preview?photo=" ++ name) ] [] ]
                     ]
-                , button
-                    [ onClick (UserAskedToDeleteAPhoto name) ]
-                    [ text "Delete" ]
+                , div [ class "buttons" ]
+                    [ button
+                        [ onClick (UserAskedToDeleteAPhoto name) ]
+                        [ text "Delete" ]
+                    , button
+                        [ onClick (UserAskedToRotateAPhoto name) ]
+                        [ text "Rotate" ]
+                    ]
                 ]

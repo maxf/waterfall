@@ -16,7 +16,7 @@ require('dotenv').config()
 
 
 if (!photosDir || !thumbsDir) {
-  console.log("you must set the PHOTOS_DIR and THUMBS_DIR env variables")
+  console.log("you must set the PHOTOS_DIR and THUMBS_DIR env variables (don't forget the / at the end)")
   process.exit()
 }
 
@@ -80,9 +80,9 @@ const thumbFullPath = (imagePath, size) =>
   path.resolve(`${thumbsDir}/${path.dirname(imagePath)}/${size}-${path.basename(imagePath)}`)
 
 const sendPhoto = size => (req, res) => {
-  const imagePath = req.query.photo
+  const imagePath = req.query.photo.replace(/_[^_]+$/, '')
   const thumbPath = thumbFullPath(imagePath, size)
-  const thumbDir = path.dirname(imagePath)
+  const thumbDir = path.dirname(thumbPath)
 
   if (!fs.existsSync(thumbPath)) {
     try {
@@ -96,32 +96,65 @@ const sendPhoto = size => (req, res) => {
       .resize(size)
       .toFile(thumbPath)
       .then( () => res.sendFile(thumbPath))
-      .catch(err => { console.log('error:', err) })
+      .catch(err => { console.log('resize error:', imagePath, photoFullPath(imagePath), err) })
   } else {
     res.sendFile(thumbPath)
   }
-  return
 }
 
+
+const thumbs = imagePath => {
+  const thumbsPath = path.resolve(`${thumbsDir}/${path.dirname(imagePath)}`)
+  const thumbsRe = new RegExp(`\\d+-${path.basename(imagePath)}$`)
+  return fs
+    .readdirSync(thumbsPath)
+    .filter(fileName => thumbsRe.test(fileName))
+    .map(fileName => thumbsPath+'/'+fileName)
+}
+
+
 const deletePhoto = (req, res) => {
-  const imagePath = req.query.photo
+  const imagePath = req.query.photo.replace(/_[^_]+$/, '')
   fs.unlink(photoFullPath(imagePath), () => {
-    res.send(`"${req.query.photo}"`)
-    const thumbsPath = path.resolve(`${thumbsDir}/${path.dirname(imagePath)}`)
-    const thumbsRe = new RegExp(`${thumbsPath}/\\d+-${path.basename(imagePath)}`)
-    fs
-      .readdirSync(thumbsPath)
-      .filter(file => thumbsRe.test(thumbsPath+'/'+file))
-      .map(file => fs.unlink(thumbsPath+'/'+file))
+    deleteThumbs(imagePath)
+    res.send(`"${imagePath}"`)
   })
 }
 
+const rotateImageFile = (fullImagePath) =>
+  sharp(fullImagePath)
+    .rotate(90)
+    .withMetadata()
+    .toFile(fullImagePath+'.tmp')
+
+const deleteThumbs = filePath =>
+  thumbs(filePath).map(fs.unlinkSync)
+
+const rotateThumbs = async (thumbs) =>
+  thumbs
+    .map(async (file) => {
+      await rotateImageFile(file)
+      fs.renameSync(`${file}.tmp`, file)
+    })
+
+const rotate = async (req, res) => {
+  const unmarkedPath = req.query.photo.replace(/_[^_]+$/, '');
+  const fullImagePath = photoFullPath(unmarkedPath)
+  await rotateImageFile(fullImagePath)
+  fs.renameSync(fullImagePath+'.tmp', fullImagePath)
+  deleteThumbs(unmarkedPath)
+
+  res.send(JSON.stringify({old: req.query.photo, new: `${unmarkedPath}_${Date.now()}`}))
+}
 
 app.use(express.static('public'))
 app.get('/api/dirs', dirs)
 app.get('/api/scan', scan)
 app.get('/api/delete', deletePhoto)
+app.get('/api/rotate', rotate)
 app.get('/thumb', sendPhoto(thumbSize))
 app.get('/preview', sendPhoto(previewSize))
+
+sharp.cache(false)
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'))

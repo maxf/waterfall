@@ -1,4 +1,4 @@
-module Update exposing (Msg(UserAskedToDeleteAPhoto, UserClickedOnPhoto, PhotoWasDeleted, ScanPhotosResult, GetUsersResult, UserSelected, UrlChange), update, hashForDate, hashForTimestamp, dateFromUrl, filenameFromUrl)
+module Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto, UserClickedOnPhoto, PhotoWasDeleted, ScanPhotosResult, GetUsersResult, UserSelected, UrlChange), update, hashForDate, hashForTimestamp, dateFromUrl, filenameFromUrl)
 
 import String exposing (slice, left, cons)
 import Dom.Scroll
@@ -7,16 +7,18 @@ import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload
 import Json.Decode
 import Time.DateTime exposing (DateTime, toISO8601, fromISO8601, fromTimestamp)
 import Navigation exposing (Location, modifyUrl)
-import Regex exposing (regex, HowMany(All, AtMost), replace, find)
-import Types exposing (maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), DirectoryName, UserName, SecondsSinceEpoch, FileName, buildMeta)
-import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPhotoShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, withUsers, dateShown)
+import Regex exposing (regex, HowMany(AtMost), find)
+import Types exposing (maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), DirectoryName, UserName, SecondsSinceEpoch, FileName, RenamedPath, buildMeta)
+import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPhotoShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, updatePhotoPath, withUsers, dateShown)
 
 
 type Msg
     = ScrollPhotosFinished
     | UserAskedToDeleteAPhoto FileName
+    | UserAskedToRotateAPhoto FileName
     | UserClickedOnPhoto
     | PhotoWasDeleted (Result Http.Error String)
+    | PhotoWasRotated (Result Http.Error RenamedPath)
     | ScanPhotosResult (Result Http.Error (List PhotoMetadata))
     | GetUsersResult (Result Http.Error (List String))
     | UserSelected UserName
@@ -35,6 +37,9 @@ update msg model =
         UserAskedToDeleteAPhoto fileName ->
             ( model, deletePhoto fileName )
 
+        UserAskedToRotateAPhoto fileName ->
+            ( model, rotatePhoto fileName )
+
         PhotoWasDeleted (Ok deletedFilePath) ->
             if deletedFilePath /= "" then
                 let
@@ -51,6 +56,12 @@ update msg model =
                 ( model, Cmd.none )
 
         PhotoWasDeleted (Err httpError) ->
+            ( model |> withError (Error (httpError |> toString)), Cmd.none )
+
+        PhotoWasRotated (Ok renamedPath) ->
+            ( model |> updatePhotoPath renamedPath, Cmd.none )
+
+        PhotoWasRotated (Err httpError) ->
             ( model |> withError (Error (httpError |> toString)), Cmd.none )
 
         ScanPhotosResult (Err httpError) ->
@@ -115,6 +126,23 @@ deletePhoto fileName =
                 Json.Decode.string
     in
         Http.send PhotoWasDeleted request
+
+
+rotatePhoto : FileName -> Cmd Msg
+rotatePhoto fileName =
+    let
+        rotatedDecoder =
+            Json.Decode.map2
+                RenamedPath
+                (Json.Decode.field "old" Json.Decode.string)
+                (Json.Decode.field "new" Json.Decode.string)
+
+        request =
+            Http.get
+                ("api/rotate?photo=" ++ fileName)
+                rotatedDecoder
+    in
+        Http.send PhotoWasRotated request
 
 
 scanPhotos : DirectoryName -> Cmd Msg
