@@ -66,7 +66,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
     apt-get install -y nginx git
-    curl -sL https://deb.nodesource.com/setup_6.x | bash -
+    curl -sL https://deb.nodesource.com/setup_8.x | bash -
     apt-get install -y nodejs
     npm update -g npm
     cd ~vagrant
