@@ -16299,7 +16299,7 @@ var _user$project$Update$hashForTimestamp = function (s) {
 		_elm_community$elm_time$Time_DateTime$fromTimestamp(
 			_elm_lang$core$Basics$toFloat(s) * 1000));
 };
-var _user$project$Update$toString = function (error) {
+var _user$project$Update$errorMessage = function (error) {
 	var _p2 = error;
 	switch (_p2.ctor) {
 		case 'BadUrl':
@@ -16342,18 +16342,25 @@ var _user$project$Update$scanPhotos = function (dir) {
 var _user$project$Update$PhotoWasRotated = function (a) {
 	return {ctor: 'PhotoWasRotated', _0: a};
 };
-var _user$project$Update$rotatePhoto = function (fileName) {
-	var rotatedDecoder = A3(
-		_elm_lang$core$Json_Decode$map2,
-		_user$project$Types$RenamedPath,
-		A2(_elm_lang$core$Json_Decode$field, 'old', _elm_lang$core$Json_Decode$string),
-		A2(_elm_lang$core$Json_Decode$field, 'new', _elm_lang$core$Json_Decode$string));
-	var request = A2(
-		_elm_lang$http$Http$get,
-		A2(_elm_lang$core$Basics_ops['++'], 'api/rotate?photo=', fileName),
-		rotatedDecoder);
-	return A2(_elm_lang$http$Http$send, _user$project$Update$PhotoWasRotated, request);
-};
+var _user$project$Update$rotatePhoto = F2(
+	function (angle, fileName) {
+		var rotatedDecoder = A3(
+			_elm_lang$core$Json_Decode$map2,
+			_user$project$Types$RenamedPath,
+			A2(_elm_lang$core$Json_Decode$field, 'old', _elm_lang$core$Json_Decode$string),
+			A2(_elm_lang$core$Json_Decode$field, 'new', _elm_lang$core$Json_Decode$string));
+		var request = A2(
+			_elm_lang$http$Http$get,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'api/rotate?angle=',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_elm_lang$core$Basics$toString(angle),
+					A2(_elm_lang$core$Basics_ops['++'], '&photo=', fileName))),
+			rotatedDecoder);
+		return A2(_elm_lang$http$Http$send, _user$project$Update$PhotoWasRotated, request);
+	});
 var _user$project$Update$PhotoWasDeleted = function (a) {
 	return {ctor: 'PhotoWasDeleted', _0: a};
 };
@@ -16365,9 +16372,10 @@ var _user$project$Update$deletePhoto = function (fileName) {
 	return A2(_elm_lang$http$Http$send, _user$project$Update$PhotoWasDeleted, request);
 };
 var _user$project$Update$UserClickedOnPhoto = {ctor: 'UserClickedOnPhoto'};
-var _user$project$Update$UserAskedToRotateAPhoto = function (a) {
-	return {ctor: 'UserAskedToRotateAPhoto', _0: a};
-};
+var _user$project$Update$UserAskedToRotateAPhoto = F2(
+	function (a, b) {
+		return {ctor: 'UserAskedToRotateAPhoto', _0: a, _1: b};
+	});
 var _user$project$Update$UserAskedToDeleteAPhoto = function (a) {
 	return {ctor: 'UserAskedToDeleteAPhoto', _0: a};
 };
@@ -16394,7 +16402,7 @@ var _user$project$Update$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _user$project$Update$rotatePhoto(_p3._0)
+					_1: A2(_user$project$Update$rotatePhoto, _p3._0, _p3._1)
 				};
 			case 'PhotoWasDeleted':
 				if (_p3._0.ctor === 'Ok') {
@@ -16422,7 +16430,7 @@ var _user$project$Update$update = F2(
 						_0: A2(
 							_user$project$Model$withError,
 							_user$project$Types$Error(
-								_user$project$Update$toString(_p3._0._0)),
+								_user$project$Update$errorMessage(_p3._0._0)),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -16440,7 +16448,7 @@ var _user$project$Update$update = F2(
 						_0: A2(
 							_user$project$Model$withError,
 							_user$project$Types$Error(
-								_user$project$Update$toString(_p3._0._0)),
+								_user$project$Update$errorMessage(_p3._0._0)),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -16452,7 +16460,7 @@ var _user$project$Update$update = F2(
 						_0: A2(
 							_user$project$Model$withError,
 							_user$project$Types$Error(
-								_user$project$Update$toString(_p3._0._0)),
+								_user$project$Update$errorMessage(_p3._0._0)),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -16601,7 +16609,7 @@ var _user$project$ViewPhotos$viewPhoto = F2(
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text('Delete'),
+										_0: _elm_lang$html$Html$text('🗑'),
 										_1: {ctor: '[]'}
 									}),
 								_1: {
@@ -16611,15 +16619,31 @@ var _user$project$ViewPhotos$viewPhoto = F2(
 										{
 											ctor: '::',
 											_0: _elm_lang$html$Html_Events$onClick(
-												_user$project$Update$UserAskedToRotateAPhoto(_p1)),
+												A2(_user$project$Update$UserAskedToRotateAPhoto, 90, _p1)),
 											_1: {ctor: '[]'}
 										},
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html$text('Rotate'),
+											_0: _elm_lang$html$Html$text('↻'),
 											_1: {ctor: '[]'}
 										}),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$button,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(
+													A2(_user$project$Update$UserAskedToRotateAPhoto, 270, _p1)),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('↺'),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}
 								}
 							}),
 						_1: {ctor: '[]'}
@@ -17425,7 +17449,7 @@ var _user$project$Main$main = A2(
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Update.Msg":{"args":[],"tags":{"PhotoWasDeleted":["Result.Result Http.Error String"],"PhotoWasRotated":["Result.Result Http.Error Types.RenamedPath"],"UserSelected":["Types.UserName"],"UserClickedOnPhoto":[],"ScanPhotosResult":["Result.Result Http.Error (List Types.PhotoMetadata)"],"UrlChange":["Navigation.Location"],"GetUsersResult":["Result.Result Http.Error (List String)"],"ScrollPhotosFinished":[],"UserAskedToRotateAPhoto":["Types.FileName"],"UserAskedToDeleteAPhoto":["Types.FileName"]}}},"aliases":{"Types.PhotoMetadata":{"args":[],"type":"{ relativeFilePath : Types.FileName , dateCreated : Types.SecondsSinceEpoch }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.SecondsSinceEpoch":{"args":[],"type":"Int"},"Types.FileName":{"args":[],"type":"String"},"Types.RenamedPath":{"args":[],"type":"{ old : Types.FileName, new : Types.FileName }"},"Types.UserName":{"args":[],"type":"String"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Update.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Update.Msg":{"args":[],"tags":{"PhotoWasDeleted":["Result.Result Http.Error String"],"PhotoWasRotated":["Result.Result Http.Error Types.RenamedPath"],"UserSelected":["Types.UserName"],"UserClickedOnPhoto":[],"ScanPhotosResult":["Result.Result Http.Error (List Types.PhotoMetadata)"],"UrlChange":["Navigation.Location"],"GetUsersResult":["Result.Result Http.Error (List String)"],"ScrollPhotosFinished":[],"UserAskedToRotateAPhoto":["Int","Types.FileName"],"UserAskedToDeleteAPhoto":["Types.FileName"]}}},"aliases":{"Types.PhotoMetadata":{"args":[],"type":"{ relativeFilePath : Types.FileName , dateCreated : Types.SecondsSinceEpoch }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.SecondsSinceEpoch":{"args":[],"type":"Int"},"Types.FileName":{"args":[],"type":"String"},"Types.RenamedPath":{"args":[],"type":"{ old : Types.FileName, new : Types.FileName }"},"Types.UserName":{"args":[],"type":"String"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Update.Msg"},"versions":{"elm":"0.18.0"}});
 }
 Elm['Model'] = Elm['Model'] || {};
 if (typeof _user$project$Model$main !== 'undefined') {

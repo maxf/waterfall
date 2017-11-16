@@ -18,8 +18,10 @@ require('dotenv').config()
 if (!photosDir || !thumbsDir) {
   console.log("you must set the PHOTOS_DIR and THUMBS_DIR env variables (don't forget the / at the end)")
   process.exit()
+} else {
+  console.log("PHOTOS_DIR:", photosDir)
+  console.log("THUMBS_DIR:", thumbsDir)
 }
-
 
 const isDotFile = file =>
   file.indexOf('/.') !== -1
@@ -88,9 +90,9 @@ const sendPhoto = size => (req, res) => {
     try {
       fs.mkdirSync(thumbDir)
     } catch (e) {
-      if (e.code === 'EEXIST') {
-        console.log(thumbDir + ' already exists, that\'s ok')
-      }
+//      if (e.code !== 'EEXIST')
+        //console.log(thumbDir + ' already exists, that\'s ok')
+//      }
     }
     sharp(photoFullPath(imagePath))
       .resize(size)
@@ -121,30 +123,27 @@ const deletePhoto = (req, res) => {
   })
 }
 
-const rotateImageFile = (fullImagePath) =>
-  sharp(fullImagePath)
-    .rotate(90)
-    .withMetadata()
-    .toFile(fullImagePath+'.tmp')
-
 const deleteThumbs = filePath =>
   thumbs(filePath).map(fs.unlinkSync)
 
-const rotateThumbs = async (thumbs) =>
-  thumbs
-    .map(async (file) => {
-      await rotateImageFile(file)
-      fs.renameSync(`${file}.tmp`, file)
-    })
+const rotateImageFile = (angle, fullImagePath) =>
+  sharp(fullImagePath)
+    .rotate(angle)
+    .withMetadata()
+    .toFile(fullImagePath+'.tmp')
 
 const rotate = async (req, res) => {
-  const unmarkedPath = req.query.photo.replace(/_[^_]+$/, '');
-  const fullImagePath = photoFullPath(unmarkedPath)
-  await rotateImageFile(fullImagePath)
-  fs.renameSync(fullImagePath+'.tmp', fullImagePath)
-  deleteThumbs(unmarkedPath)
-
-  res.send(JSON.stringify({old: req.query.photo, new: `${unmarkedPath}_${Date.now()}`}))
+  const angle = parseInt(req.query.angle, 10);
+  if ([90,-90,180,270].includes(angle)) {
+    const unmarkedPath = req.query.photo.replace(/_[^_]+$/, '')
+    const fullImagePath = photoFullPath(unmarkedPath)
+    await rotateImageFile(angle, fullImagePath)
+    fs.renameSync(fullImagePath+'.tmp', fullImagePath)
+    deleteThumbs(unmarkedPath)
+    res.send(JSON.stringify({old: req.query.photo, new: `${unmarkedPath}_${Date.now()}`}))
+  } else {
+    res.status(400).send('Bad angle value: '+angle)
+  }
 }
 
 app.use(express.static('public'))

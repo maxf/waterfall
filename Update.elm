@@ -15,7 +15,7 @@ import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPho
 type Msg
     = ScrollPhotosFinished
     | UserAskedToDeleteAPhoto FileName
-    | UserAskedToRotateAPhoto FileName
+    | UserAskedToRotateAPhoto Int FileName
     | UserClickedOnPhoto
     | PhotoWasDeleted (Result Http.Error String)
     | PhotoWasRotated (Result Http.Error RenamedPath)
@@ -37,8 +37,8 @@ update msg model =
         UserAskedToDeleteAPhoto fileName ->
             ( model, deletePhoto fileName )
 
-        UserAskedToRotateAPhoto fileName ->
-            ( model, rotatePhoto fileName )
+        UserAskedToRotateAPhoto angle fileName ->
+            ( model, rotatePhoto angle fileName )
 
         PhotoWasDeleted (Ok deletedFilePath) ->
             if deletedFilePath /= "" then
@@ -56,16 +56,16 @@ update msg model =
                 ( model, Cmd.none )
 
         PhotoWasDeleted (Err httpError) ->
-            ( model |> withError (Error (httpError |> toString)), Cmd.none )
+            ( model |> withError (Error (httpError |> errorMessage)), Cmd.none )
 
         PhotoWasRotated (Ok renamedPath) ->
             ( model |> updatePhotoPath renamedPath, Cmd.none )
 
         PhotoWasRotated (Err httpError) ->
-            ( model |> withError (Error (httpError |> toString)), Cmd.none )
+            ( model |> withError (Error (httpError |> errorMessage)), Cmd.none )
 
         ScanPhotosResult (Err httpError) ->
-            ( model |> withError (Error (httpError |> toString)), Cmd.none )
+            ( model |> withError (Error (httpError |> errorMessage)), Cmd.none )
 
         ScanPhotosResult (Ok metadataList) ->
             let
@@ -128,8 +128,8 @@ deletePhoto fileName =
         Http.send PhotoWasDeleted request
 
 
-rotatePhoto : FileName -> Cmd Msg
-rotatePhoto fileName =
+rotatePhoto : Int -> FileName -> Cmd Msg
+rotatePhoto angle fileName =
     let
         rotatedDecoder =
             Json.Decode.map2
@@ -139,7 +139,7 @@ rotatePhoto fileName =
 
         request =
             Http.get
-                ("api/rotate?photo=" ++ fileName)
+                ("api/rotate?angle=" ++ (toString angle) ++ "&photo=" ++ fileName)
                 rotatedDecoder
     in
         Http.send PhotoWasRotated request
@@ -163,8 +163,8 @@ scanPhotos dir =
         Http.send ScanPhotosResult request
 
 
-toString : Http.Error -> String
-toString error =
+errorMessage : Http.Error -> String
+errorMessage error =
     case error of
         BadUrl url ->
             "Bad URL: " ++ url

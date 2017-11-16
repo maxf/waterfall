@@ -86,9 +86,12 @@ viewPhoto photoDate fileName =
                 , div [ class "buttons" ]
                     [ button
                         [ onClick (UserAskedToDeleteAPhoto name) ]
-                        [ text "Delete" ]
+                        [ text "🗑" ]
                     , button
-                        [ onClick (UserAskedToRotateAPhoto name) ]
-                        [ text "Rotate" ]
+                        [ onClick (UserAskedToRotateAPhoto 90 name) ]
+                        [ text "↻" ]
+                    , button
+                        [ onClick (UserAskedToRotateAPhoto 270 name) ]
+                        [ text "↺" ]
                     ]
                 ]
