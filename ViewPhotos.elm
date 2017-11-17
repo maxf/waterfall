@@ -6,6 +6,7 @@ import Html.Attributes exposing (src, id, style, class, href)
 import Html.Events exposing (onClick)
 import Time.DateTime exposing (DateTime, toTimestamp)
 import Dict
+import Http exposing (encodeUri)
 import Model exposing (Model, photoShown, photoMetadata)
 import Types exposing (PhotoMetadata, FileName, dateToString)
 import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto), hashForTimestamp, hashForDate)
@@ -61,7 +62,7 @@ viewThumbnail metadata =
                 []
                 [ a [ href photoId ]
                     [ img
-                        [ src ("/thumb?photo=" ++ metadata.relativeFilePath)
+                        [ src ("/thumb?photo=" ++ encodeUri metadata.relativeFilePath)
                         , class "thumbnail"
                         ]
                         []
@@ -81,7 +82,7 @@ viewPhoto photoDate fileName =
             div [ class "lightbox" ]
                 [ div [ class "lightbox-inner" ]
                     [ a [ href (hashForDate photoDate) ]
-                        [ img [ src ("/preview?photo=" ++ name) ] [] ]
+                        [ img [ src ("/preview?photo=" ++ encodeUri name) ] [] ]
                     ]
                 , div [ class "buttons" ]
                     [ button

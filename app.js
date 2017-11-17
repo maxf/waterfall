@@ -72,7 +72,7 @@ const dirs = function(req, res) {
 }
 
 const scan = function(req, res) {
-  const dirToScan = req.query.dir
+  const dirToScan = decodeURIComponent(req.query.dir)
   getDirContents(photosDir, dirToScan, res)
 }
 
@@ -83,7 +83,7 @@ const thumbFullPath = (imagePath, size) =>
   path.resolve(`${thumbsDir}/${path.dirname(imagePath)}/${size}-${path.basename(imagePath)}`)
 
 const sendPhoto = size => (req, res) => {
-  const imagePath = req.query.photo.replace(/_\d+$/, '')
+  const imagePath = decodeURIComponent(req.query.photo).replace(/_\d+$/, '')
   const thumbPath = thumbFullPath(imagePath, size)
   const thumbDir = path.dirname(thumbPath)
 
@@ -117,7 +117,7 @@ const thumbs = imagePath => {
 
 
 const deletePhoto = (req, res) => {
-  const imagePath = req.query.photo.replace(/_\d+$/, '')
+  const imagePath = decodeURIComponent(req.query.photo).replace(/_\d+$/, '')
   fs.unlink(photoFullPath(imagePath), () => {
     deleteThumbs(imagePath)
     res.send(`"${imagePath}"`)
@@ -136,12 +136,15 @@ const rotateImageFile = (angle, fullImagePath) =>
 const rotate = async (req, res) => {
   const angle = parseInt(req.query.angle, 10);
   if ([90,-90,180,270].includes(angle)) {
-    const unmarkedPath = req.query.photo.replace(/_\d+$/, '')
+    const unmarkedPath = decodeURIComponent(req.query.photo).replace(/_\d+$/, '')
     const fullImagePath = photoFullPath(unmarkedPath)
     await rotateImageFile(angle, fullImagePath)
     fs.renameSync(fullImagePath+'.tmp', fullImagePath)
     deleteThumbs(unmarkedPath)
-    res.send(JSON.stringify({old: req.query.photo, new: `${unmarkedPath}_${Date.now()}`}))
+    res.send(JSON.stringify({
+      old: decodeURIComponent(req.query.photo),
+      new: `${unmarkedPath}_${Date.now()}`
+    }))
   } else {
     res.status(400).send('Bad angle value: '+angle)
   }

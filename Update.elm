@@ -3,7 +3,7 @@ module Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto, Us
 import String exposing (slice, left, cons)
 import Dom.Scroll
 import Task
-import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload))
+import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload), encodeUri)
 import Json.Decode
 import Time.DateTime exposing (DateTime, toISO8601, fromISO8601, fromTimestamp)
 import Navigation exposing (Location, modifyUrl)
@@ -124,7 +124,7 @@ deletePhoto fileName =
     let
         request =
             Http.get
-                ("api/delete?photo=" ++ fileName)
+                ("api/delete?photo=" ++ encodeUri fileName)
                 Json.Decode.string
     in
         Http.send PhotoWasDeleted request
@@ -141,7 +141,7 @@ rotatePhoto angle fileName =
 
         request =
             Http.get
-                ("api/rotate?angle=" ++ (toString angle) ++ "&photo=" ++ fileName)
+                ("api/rotate?angle=" ++ toString angle ++ "&photo=" ++ encodeUri fileName)
                 rotatedDecoder
     in
         Http.send PhotoWasRotated request
@@ -157,7 +157,7 @@ scanPhotos dir =
                 (Json.Decode.field "date" Json.Decode.int)
 
         apiUrl =
-            "api/scan?dir=" ++ dir
+            "api/scan?dir=" ++ encodeUri dir
 
         request =
             Http.get apiUrl (Json.Decode.list photoMetadataDecoder)
