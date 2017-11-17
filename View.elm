@@ -10,8 +10,8 @@ import Time.Date as Date
 import Dict
 import Array exposing (get)
 import Maybe exposing (withDefault)
-import Types exposing (toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, ErrorState(Error, NoError), UserName)
-import Model exposing (Model, DisplayDate(Date), dateShown, error, users, lastDateWithPhotos, photoMetadata)
+import Types exposing (toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, UserName)
+import Model exposing (Model, DisplayDate(Date), dateShown, users, lastDateWithPhotos, photoMetadata, message)
 import ViewPhotos exposing (viewPhotos)
 import Update exposing (Msg(UserSelected), hashForDate)
 
@@ -246,14 +246,14 @@ viewUserList userList =
             (List.map (\u -> option [] [ text u ]) usersWithAll)
 
 
-viewError : ErrorState -> Html Msg
-viewError message =
+viewMessage : String -> Html Msg
+viewMessage message =
     case message of
-        NoError ->
+        "" ->
             div [ style [ ( "display", "none" ) ] ] []
 
-        Error messageText ->
-            div [ class "error" ] [ text messageText ]
+        _ ->
+            div [ class "error" ] [ text message ]
 
 
 view : Model -> Html Msg
@@ -269,7 +269,7 @@ view model =
     in
         div
             [ class "outer" ]
-            [ model |> error |> viewError
+            [ model |> message |> viewMessage
             , div
                 [ class "columns" ]
                 [ viewCalendar model dateToShow

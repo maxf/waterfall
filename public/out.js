@@ -16071,10 +16071,6 @@ var _user$project$Types$RenamedPath = F2(
 	function (a, b) {
 		return {old: a, $new: b};
 	});
-var _user$project$Types$NoError = {ctor: 'NoError'};
-var _user$project$Types$Error = function (a) {
-	return {ctor: 'Error', _0: a};
-};
 
 var _user$project$Model$lastDateWithPhotos = function (dict) {
 	return _elm_community$elm_time$Time_DateTime$fromTimestamp(
@@ -16120,9 +16116,9 @@ var _user$project$Model$users = function (_p2) {
 	var _p3 = _p2;
 	return _p3._0.users;
 };
-var _user$project$Model$error = function (_p4) {
+var _user$project$Model$message = function (_p4) {
 	var _p5 = _p4;
-	return _p5._0.error;
+	return _p5._0.message;
 };
 var _user$project$Model$photoMetadata = function (_p6) {
 	var _p7 = _p6;
@@ -16142,7 +16138,7 @@ var _user$project$Model$photoDir = function (_p12) {
 };
 var _user$project$Model$InternalModel = F7(
 	function (a, b, c, d, e, f, g) {
-		return {photoDir: a, users: b, error: c, maxPicturesInADay: d, photoMetadata: e, dateShown: f, photoShown: g};
+		return {photoDir: a, users: b, message: c, maxPicturesInADay: d, photoMetadata: e, dateShown: f, photoShown: g};
 	});
 var _user$project$Model$Model = function (a) {
 	return {ctor: 'Model', _0: a};
@@ -16179,13 +16175,13 @@ var _user$project$Model$withPhotoShown = F2(
 				_p21._0,
 				{photoShown: filename}));
 	});
-var _user$project$Model$withError = F2(
+var _user$project$Model$withMessage = F2(
 	function (message, _p22) {
 		var _p23 = _p22;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
 				_p23._0,
-				{error: message}));
+				{message: message}));
 	});
 var _user$project$Model$withPhotoMetadata = F2(
 	function (metadata, _p24) {
@@ -16245,7 +16241,7 @@ var _user$project$Model$initialModel = _user$project$Model$Model(
 		_user$project$Model$InternalModel,
 		'',
 		{ctor: '[]'},
-		_user$project$Types$NoError,
+		'Starting',
 		0,
 		_elm_lang$core$Dict$empty,
 		_user$project$Model$DateNotSpecified,
@@ -16428,9 +16424,8 @@ var _user$project$Update$update = F2(
 					return {
 						ctor: '_Tuple2',
 						_0: A2(
-							_user$project$Model$withError,
-							_user$project$Types$Error(
-								_user$project$Update$errorMessage(_p3._0._0)),
+							_user$project$Model$withMessage,
+							_user$project$Update$errorMessage(_p3._0._0),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -16446,9 +16441,8 @@ var _user$project$Update$update = F2(
 					return {
 						ctor: '_Tuple2',
 						_0: A2(
-							_user$project$Model$withError,
-							_user$project$Types$Error(
-								_user$project$Update$errorMessage(_p3._0._0)),
+							_user$project$Model$withMessage,
+							_user$project$Update$errorMessage(_p3._0._0),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -16458,9 +16452,8 @@ var _user$project$Update$update = F2(
 					return {
 						ctor: '_Tuple2',
 						_0: A2(
-							_user$project$Model$withError,
-							_user$project$Types$Error(
-								_user$project$Update$errorMessage(_p3._0._0)),
+							_user$project$Model$withMessage,
+							_user$project$Update$errorMessage(_p3._0._0),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -16470,8 +16463,8 @@ var _user$project$Update$update = F2(
 						_user$project$Model$withMaxPicturesInADay,
 						_user$project$Types$maxNbPictures(metadata),
 						A2(
-							_user$project$Model$withError,
-							_user$project$Types$NoError,
+							_user$project$Model$withMessage,
+							'',
 							A2(_user$project$Model$withPhotoMetadata, metadata, model)));
 					return {
 						ctor: '_Tuple2',
@@ -16488,16 +16481,16 @@ var _user$project$Update$update = F2(
 				if (_p3._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
-						_0: A2(
-							_user$project$Model$withError,
-							_user$project$Types$Error('Error getting users'),
-							model),
+						_0: A2(_user$project$Model$withMessage, 'Error getting users', model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: A2(_user$project$Model$withUsers, _p3._0._0, model),
+						_0: A2(
+							_user$project$Model$withMessage,
+							'Loading photos',
+							A2(_user$project$Model$withUsers, _p3._0._0, model)),
 						_1: _user$project$Update$scanPhotos('')
 					};
 				}
@@ -16514,8 +16507,8 @@ var _user$project$Update$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: A2(
-						_user$project$Model$withError,
-						_user$project$Types$NoError,
+						_user$project$Model$withMessage,
+						'',
 						A2(
 							_user$project$Model$withPhotoShown,
 							_user$project$Update$filenameFromUrl(_p8),
@@ -16802,9 +16795,9 @@ var _user$project$ViewPhotos$viewPhotos = F2(
 			});
 	});
 
-var _user$project$View$viewError = function (message) {
+var _user$project$View$viewMessage = function (message) {
 	var _p0 = message;
-	if (_p0.ctor === 'NoError') {
+	if (_p0 === '') {
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -16828,7 +16821,7 @@ var _user$project$View$viewError = function (message) {
 			},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text(_p0._0),
+				_0: _elm_lang$html$Html$text(message),
 				_1: {ctor: '[]'}
 			});
 	}
@@ -17388,8 +17381,8 @@ var _user$project$View$view = function (model) {
 		},
 		{
 			ctor: '::',
-			_0: _user$project$View$viewError(
-				_user$project$Model$error(model)),
+			_0: _user$project$View$viewMessage(
+				_user$project$Model$message(model)),
 			_1: {
 				ctor: '::',
 				_0: A2(

@@ -8,8 +8,8 @@ import Json.Decode
 import Time.DateTime exposing (DateTime, toISO8601, fromISO8601, fromTimestamp)
 import Navigation exposing (Location, modifyUrl)
 import Regex exposing (regex, HowMany(AtMost), find)
-import Types exposing (maxNbPictures, PhotoMetadata, ErrorState(Error, NoError), DirectoryName, UserName, SecondsSinceEpoch, FileName, RenamedPath, buildMeta)
-import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPhotoShown, withError, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, updatePhotoPath, withUsers, dateShown)
+import Types exposing (maxNbPictures, PhotoMetadata, DirectoryName, UserName, SecondsSinceEpoch, FileName, RenamedPath, buildMeta)
+import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPhotoShown, withMessage, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, updatePhotoPath, withUsers, dateShown)
 
 
 type Msg
@@ -56,16 +56,16 @@ update msg model =
                 ( model, Cmd.none )
 
         PhotoWasDeleted (Err httpError) ->
-            ( model |> withError (Error (httpError |> errorMessage)), Cmd.none )
+            ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
         PhotoWasRotated (Ok renamedPath) ->
             ( model |> updatePhotoPath renamedPath, Cmd.none )
 
         PhotoWasRotated (Err httpError) ->
-            ( model |> withError (Error (httpError |> errorMessage)), Cmd.none )
+            ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
         ScanPhotosResult (Err httpError) ->
-            ( model |> withError (Error (httpError |> errorMessage)), Cmd.none )
+            ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
         ScanPhotosResult (Ok metadataList) ->
             let
@@ -75,7 +75,7 @@ update msg model =
                 newModel =
                     model
                         |> withPhotoMetadata metadata
-                        |> withError NoError
+                        |> withMessage ""
                         |> withMaxPicturesInADay (maxNbPictures metadata)
             in
                 ( newModel
@@ -83,12 +83,14 @@ update msg model =
                 )
 
         GetUsersResult (Err _) ->
-            ( model |> withError (Error "Error getting users")
+            ( model |> withMessage "Error getting users"
             , Cmd.none
             )
 
         GetUsersResult (Ok userList) ->
-            ( model |> withUsers userList
+            ( model
+                |> withUsers userList
+                |> withMessage "Loading photos"
             , scanPhotos ""
             )
 
@@ -108,7 +110,7 @@ update msg model =
             ( model
                 |> withDateShown (dateFromUrl location)
                 |> withPhotoShown (filenameFromUrl location)
-                |> withError NoError
+                |> withMessage ""
             , Cmd.none
             )
 

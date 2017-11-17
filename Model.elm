@@ -9,19 +9,19 @@ module Model
         , photoShown
         , photoMetadata
         , photoDir
-        , error
+        , message
         , users
         , withDateShown
         , withPhotoShown
         , withUsers
-        , withError
+        , withMessage
         , withPhotoMetadata
         , withPhotoDir
         , withMaxPicturesInADay
         , lastDateWithPhotos
         )
 
-import Types exposing (DirectoryName, ErrorState(NoError), MetadataDict, FileName, UserName, RenamedPath)
+import Types exposing (DirectoryName, MetadataDict, FileName, UserName, RenamedPath)
 import Time.DateTime exposing (DateTime, fromTimestamp)
 import Dict
 
@@ -39,7 +39,7 @@ type DisplayDate
 type alias InternalModel =
     { photoDir : DirectoryName
     , users : List UserName
-    , error : ErrorState
+    , message : String
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
     , dateShown : DisplayDate
@@ -53,7 +53,7 @@ initialModel =
         (InternalModel
             ""
             []
-            NoError
+            "Starting"
             0
             Dict.empty
             DateNotSpecified
@@ -85,9 +85,9 @@ photoMetadata (Model model) =
     model.photoMetadata
 
 
-error : Model -> ErrorState
-error (Model model) =
-    model.error
+message : Model -> String
+message (Model model) =
+    model.message
 
 
 users : Model -> List UserName
@@ -115,9 +115,9 @@ withPhotoShown filename (Model model) =
     Model { model | photoShown = filename }
 
 
-withError : ErrorState -> Model -> Model
-withError message (Model model) =
-    Model { model | error = message }
+withMessage : String -> Model -> Model
+withMessage message (Model model) =
+    Model { model | message = message }
 
 
 withPhotoMetadata : MetadataDict -> Model -> Model
