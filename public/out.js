@@ -12851,8 +12851,8 @@ var _user$project$ViewPhotos$viewPhotos = F2(
 			});
 	});
 
-var _user$project$View$viewMessage = function (message) {
-	var _p0 = message;
+var _user$project$View$viewMessage = function (messageText) {
+	var _p0 = messageText;
 	if (_p0 === '') {
 		return A2(
 			_elm_lang$html$Html$div,
@@ -12877,7 +12877,7 @@ var _user$project$View$viewMessage = function (message) {
 			},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text(message),
+				_0: _elm_lang$html$Html$text(messageText),
 				_1: {ctor: '[]'}
 			});
 	}

@@ -247,13 +247,13 @@ viewUserList userList =
 
 
 viewMessage : String -> Html Msg
-viewMessage message =
-    case message of
+viewMessage messageText =
+    case messageText of
         "" ->
             div [ style [ ( "display", "none" ) ] ] []
 
         _ ->
-            div [ class "error" ] [ text message ]
+            div [ class "error" ] [ text messageText ]
 
 
 view : Model -> Html Msg
