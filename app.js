@@ -82,7 +82,7 @@ const thumbFullPath = (imagePath, size) =>
   path.resolve(`${thumbsDir}/${path.dirname(imagePath)}/${size}-${path.basename(imagePath)}`)
 
 const sendPhoto = size => (req, res) => {
-  const imagePath = req.query.photo.replace(/_[^_]+$/, '')
+  const imagePath = req.query.photo.replace(/_\d+$/, '')
   const thumbPath = thumbFullPath(imagePath, size)
   const thumbDir = path.dirname(thumbPath)
 
@@ -116,7 +116,7 @@ const thumbs = imagePath => {
 
 
 const deletePhoto = (req, res) => {
-  const imagePath = req.query.photo.replace(/_[^_]+$/, '')
+  const imagePath = req.query.photo.replace(/_\d+$/, '')
   fs.unlink(photoFullPath(imagePath), () => {
     deleteThumbs(imagePath)
     res.send(`"${imagePath}"`)
@@ -135,7 +135,7 @@ const rotateImageFile = (angle, fullImagePath) =>
 const rotate = async (req, res) => {
   const angle = parseInt(req.query.angle, 10);
   if ([90,-90,180,270].includes(angle)) {
-    const unmarkedPath = req.query.photo.replace(/_[^_]+$/, '')
+    const unmarkedPath = req.query.photo.replace(/_\d+$/, '')
     const fullImagePath = photoFullPath(unmarkedPath)
     await rotateImageFile(angle, fullImagePath)
     fs.renameSync(fullImagePath+'.tmp', fullImagePath)
