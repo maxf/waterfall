@@ -12,6 +12,7 @@ const recursive = require("recursive-readdir")
 const path = require('path')
 const exif = require('exif-parser')
 const sharp = require('sharp')
+const mkdirp = require('mkdirp');
 require('dotenv').config()
 
 
@@ -87,18 +88,18 @@ const sendPhoto = size => (req, res) => {
   const thumbDir = path.dirname(thumbPath)
 
   if (!fs.existsSync(thumbPath)) {
-    try {
-      fs.mkdirSync(thumbDir)
-    } catch (e) {
-//      if (e.code !== 'EEXIST')
-        //console.log(thumbDir + ' already exists, that\'s ok')
-//      }
-    }
-    sharp(photoFullPath(imagePath))
-      .resize(size)
-      .toFile(thumbPath)
-      .then( () => res.sendFile(thumbPath))
-      .catch(err => { console.log('resize error:', imagePath, photoFullPath(imagePath), err) })
+    mkdirp(thumbDir, function (err) {
+      if (err) {
+        console.error('dir creation error', err)
+      } else {
+        sharp(photoFullPath(imagePath))
+          .resize(size)
+          .toFile(thumbPath)
+          .then( () => res.sendFile(thumbPath))
+          .catch(err => { console.log('resize error:', imagePath, photoFullPath(imagePath), err) })
+
+      }
+   })
   } else {
     res.sendFile(thumbPath)
   }
