@@ -1,20 +1,7 @@
 'use strict'
 
-const thumbSize = 300 // pixels
-const previewSize = 1000 // pixels
 const photosDir = process.env.PHOTOS_DIR
 const thumbsDir = process.env.THUMBS_DIR
-
-const express = require('express')
-const app = express()
-const fs = require('fs')
-const recursive = require("recursive-readdir")
-const path = require('path')
-const exif = require('exif-parser')
-const sharp = require('sharp')
-const mkdirp = require('mkdirp');
-require('dotenv').config()
-
 
 if (!photosDir || !thumbsDir) {
   console.log("you must set the PHOTOS_DIR and THUMBS_DIR env variables (don't forget the / at the end)")
@@ -23,6 +10,23 @@ if (!photosDir || !thumbsDir) {
   console.log("PHOTOS_DIR:", photosDir)
   console.log("THUMBS_DIR:", thumbsDir)
 }
+
+
+const thumbSize = 300 // pixels
+const previewSize = 1000 // pixels
+
+const express = require('express')
+const app = express()
+const fs = require('fs')
+const recursive = require("recursive-readdir")
+const path = require('path')
+const exif = require('exif-parser')
+const sharp = require('sharp')
+const execFile = require('child_process').execFile
+const jpegtran = require('jpegtran-bin')
+const mkdirp = require('mkdirp')
+require('dotenv').config()
+
 
 const isDotFile = file =>
   file.indexOf('/.') !== -1
@@ -115,7 +119,6 @@ const thumbs = imagePath => {
     .map(fileName => thumbsPath+'/'+fileName)
 }
 
-
 const deletePhoto = (req, res) => {
   const imagePath = decodeURIComponent(req.query.photo).replace(/_\d+$/, '')
   fs.unlink(photoFullPath(imagePath), () => {
@@ -127,27 +130,23 @@ const deletePhoto = (req, res) => {
 const deleteThumbs = filePath =>
   thumbs(filePath).map(fs.unlinkSync)
 
-const rotateImageFile = (angle, fullImagePath) =>
-  sharp(fullImagePath)
-    .rotate(angle)
-    .withMetadata()
-    .toFile(fullImagePath+'.tmp')
-
 const rotate = async (req, res) => {
-  const angle = parseInt(req.query.angle, 10);
-  if ([90,-90,180,270].includes(angle)) {
-    const unmarkedPath = decodeURIComponent(req.query.photo).replace(/_\d+$/, '')
-    const fullImagePath = photoFullPath(unmarkedPath)
-    await rotateImageFile(angle, fullImagePath)
-    fs.renameSync(fullImagePath+'.tmp', fullImagePath)
-    deleteThumbs(unmarkedPath)
-    res.send(JSON.stringify({
-      old: decodeURIComponent(req.query.photo),
-      new: `${unmarkedPath}_${Date.now()}`
-    }))
-  } else {
-    res.status(400).send('Bad angle value: '+angle)
-  }
+  const angle = parseInt(req.query.angle, 10)
+  const unmarkedPath = decodeURIComponent(req.query.photo).replace(/_\d+$/, '')
+  const fullImagePath = photoFullPath(unmarkedPath)
+  const jpegtranArgs = ['-rotate', angle, '-outfile', fullImagePath, fullImagePath]
+  execFile(jpegtran, jpegtranArgs, function (err) {
+    if (err) {
+      console.log('rotate error', err)
+      res.status(400).send(JSON.stringify({ error: err }))
+    } else {
+      deleteThumbs(unmarkedPath)
+      res.send(JSON.stringify({
+        old: decodeURIComponent(req.query.photo),
+        new: `${unmarkedPath}_${Date.now()}`
+      }))
+    }
+  });
 }
 
 app.use(express.static('public'))
