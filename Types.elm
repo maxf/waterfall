@@ -1,4 +1,4 @@
-module Types exposing (DirectoryName, PhotoMetadata, Year, Month, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, buildMeta, FileName, JsonString, iso8601ToEpochSeconds, UserName, RenamedPath)
+module Types exposing (DirectoryPath, PhotoMetadata, Year, Month, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, buildMeta, FileName, JsonString, iso8601ToEpochSeconds, RenamedPath, FilePath, AlbumName)
 
 import Dict exposing (Dict, keys)
 import Time.DateTime exposing (DateTime, dateTime, zero, epoch, year, month, day, addSeconds, toTimestamp, fromISO8601)
@@ -21,20 +21,27 @@ type alias DayOfWeek =
     Int
 
 
+-- eg "hello.jpg"
 type alias FileName =
     String
 
 
+-- eg "foo/bar/hello.jpg"
+type alias FilePath =
+    String
+
+
+-- eg "foo/bar"
+type alias DirectoryPath =
+    String
+
+
+type alias AlbumName =
+    DirectoryPath
+
+
 type alias SecondsSinceEpoch =
     Int
-
-
-type alias DirectoryName =
-    String
-
-
-type alias UserName =
-    String
 
 
 type alias JsonString =

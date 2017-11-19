@@ -5,7 +5,7 @@ import Json.Decode
 import Navigation
 import View
 import Model exposing (Model)
-import Update exposing (Msg(GetUsersResult, UrlChange), update, dateFromUrl, filenameFromUrl)
+import Update exposing (Msg(GetAlbumsResult, UrlChange), update, fromHash)
 
 
 main : Program Never Model Msg
@@ -20,15 +20,26 @@ main =
 
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
-    ( Model.initialModel
-        |> Model.withDateShown (dateFromUrl location)
-        |> Model.withPhotoShown (filenameFromUrl location)
-    , getUserList
-    )
+    let
+        hashParams =
+            fromHash location
+
+        photo =
+            if hashParams.photoPath == "" then
+                Nothing
+            else
+                Just hashParams.photoPath
+    in
+        ( Model.initialModel
+            |> Model.withDateShown hashParams.date
+            |> Model.withPhotoShown photo
+            |> Model.withAlbumShown (Just hashParams.albumName)
+        , getAlbumList
+        )
 
 
-getUserList : Cmd Msg
-getUserList =
+getAlbumList : Cmd Msg
+getAlbumList =
     let
         apiUrl =
             "api/dirs"
@@ -36,4 +47,4 @@ getUserList =
         request =
             Http.get apiUrl (Json.Decode.list Json.Decode.string)
     in
-        Http.send GetUsersResult request
+        Http.send GetAlbumsResult request

@@ -32,7 +32,7 @@ const isDotFile = file =>
   file.indexOf('/.') !== -1
 
 const isPhoto = file =>
-  ['.jpg', '.JPG', '.jpeg', '.JPEG'].indexOf(path.extname(file)) !== -1
+  ['.jpg', '.jpeg'].indexOf(path.extname(file).toLowerCase()) !== -1
 
 const excludeFiles = function(file, stats) {
   return isDotFile(file) || (stats.isFile() && !isPhoto(file))
@@ -54,30 +54,27 @@ const exifOriginalDate = path => {
 const makePhotoObject = baseDir => fileName => {
   return {
     date: exifOriginalDate(fileName),
-    path: fileName.slice(baseDir.length)
+    path: fileName.slice(baseDir.length + 1)
   }
 }
 
-
-const getDirContents = function(baseDir, dirToScan, res) {
-  recursive(`${baseDir}/${dirToScan}`, [excludeFiles], function (err, files) {
-    res.send(files.map(makePhotoObject(baseDir)).filter(obj=>obj.date))
+const dirs = function(req, res) {
+  const dirToScan = path.join(photosDir, decodeURIComponent(req.query.base || ""))
+  execFile('find', [ dirToScan, '-type', 'd' ], function(err, stdout, stderr) {
+    const dirs = stdout
+      .split('\n')
+      .map(s => s.slice(photosDir.length + 1))
+      .filter(s => s !== "")
+      .sort()
+    res.send(JSON.stringify(dirs))
   })
 }
 
-
-const dirs = function(req, res) {
-  const contents = fs.readdirSync(photosDir)
-  const dirs = contents.filter(
-    item =>
-      item[0] !== '.' && fs.lstatSync(`${photosDir}/${item}`).isDirectory()
-  )
-  res.send(dirs)
-}
-
 const scan = function(req, res) {
-  const dirToScan = decodeURIComponent(req.query.dir)
-  getDirContents(photosDir, dirToScan, res)
+  const dirToScan = path.join(photosDir, decodeURIComponent(req.query.dir))
+  recursive(dirToScan, [excludeFiles], function (err, files) {
+    res.send(files.map(makePhotoObject(dirToScan)).filter(obj=>obj.date))
+  })
 }
 
 const photoFullPath = imagePath =>
@@ -100,8 +97,7 @@ const sendPhoto = size => (req, res) => {
           .resize(size)
           .toFile(thumbPath)
           .then( () => res.sendFile(thumbPath))
-          .catch(err => { console.log('resize error:', imagePath, photoFullPath(imagePath), err) })
-
+          .catch(err => { res.send('resize error with:' + photoFullPath(imagePath) + ' -- ' + err) })
       }
    })
   } else {

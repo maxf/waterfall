@@ -1,19 +1,25 @@
 module View exposing (view)
 
-import Html exposing (Html, div, td, text, tr, h1, table, thead, tbody, th, a, br, select, option)
-import Html.Events exposing (on, targetValue)
+import Html exposing (Html, div, td, text, tr, h1, table, thead, tbody, th, a, br, select, option, ul, li)
+
+
+--import Html.Events exposing (on, targetValue)
+
 import Html.Attributes exposing (class, style, href, id)
-import Json.Decode
+
+
+--import Json.Decode
+
 import List exposing (range)
 import Time.DateTime as Date exposing (DateTime, weekday, dateTime, zero, day, addDays, month, year, addYears, addMonths)
 import Time.Date as Date
 import Dict
 import Array exposing (get)
 import Maybe exposing (withDefault)
-import Types exposing (toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, UserName)
-import Model exposing (Model, DisplayDate(Date), dateShown, users, lastDateWithPhotos, photoMetadata, message)
+import Types exposing (toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, AlbumName)
+import Model exposing (Model, DisplayDate(Date), dateShown, albumShown, photoShown, albums, lastDateWithPhotos, photoMetadata, message)
 import ViewPhotos exposing (viewPhotos)
-import Update exposing (Msg(UserSelected), hashForDate)
+import Update exposing (Msg, toHash)
 
 
 monthName : Int -> String
@@ -108,13 +114,16 @@ viewDate refDate weekNumber model offset firstDayOfMonth dayOfWeek =
                 "today"
             else
                 ""
+
+        hash =
+            toHash (albumShown model) (photoShown model) (Date dateToDisplay)
     in
         if year dateToDisplay == year refDate && month dateToDisplay == month refDate then
             td
                 [ class shownDateClass
                 , style (dateStyle dateToDisplay model)
                 ]
-                [ a [ href (hashForDate dateToDisplay) ] [ text (calendarDate dateToDisplay) ] ]
+                [ a [ href hash ] [ text (calendarDate dateToDisplay) ] ]
         else
             td [ class "no-month-date" ] [ text "" ]
 
@@ -158,8 +167,8 @@ viewMonth refDate model =
             [ tableHead, tableBody ]
 
 
-viewYearButtons : DateTime -> Html Msg
-viewYearButtons date =
+viewYearButtons : Model -> DateTime -> Html Msg
+viewYearButtons model date =
     let
         oneYearBefore =
             addYears -1 date
@@ -170,22 +179,22 @@ viewYearButtons date =
         prevYearButton =
             div [ class "button" ]
                 [ a
-                    [ href (hashForDate oneYearBefore) ]
+                    [ href (toHash (albumShown model) (photoShown model) (Date oneYearBefore)) ]
                     [ text ((oneYearBefore |> year |> toString) ++ " ⬅") ]
                 ]
 
         nextYearButton =
             div [ class "button" ]
                 [ a
-                    [ href (hashForDate oneYearAfter) ]
+                    [ href (toHash (albumShown model) (photoShown model) (Date oneYearAfter)) ]
                     [ text ("➡ " ++ (oneYearAfter |> year |> toString)) ]
                 ]
     in
         div [ class "buttons" ] [ prevYearButton, nextYearButton ]
 
 
-viewMonthButtons : DateTime -> Html Msg
-viewMonthButtons date =
+viewMonthButtons : Model -> DateTime -> Html Msg
+viewMonthButtons model date =
     let
         oneMonthBefore =
             addMonths -1 date
@@ -196,14 +205,14 @@ viewMonthButtons date =
         prevMonthButton =
             div [ class "button" ]
                 [ a
-                    [ href (hashForDate oneMonthBefore) ]
+                    [ href (toHash (albumShown model) (photoShown model) (Date oneMonthBefore)) ]
                     [ text (monthName (month oneMonthBefore) ++ " ⬅") ]
                 ]
 
         nextMonthButton =
             div [ class "button" ]
                 [ a
-                    [ href (hashForDate oneMonthAfter) ]
+                    [ href (toHash (albumShown model) (photoShown model) (Date oneMonthAfter)) ]
                     [ text ("➡ " ++ monthName (month oneMonthAfter)) ]
                 ]
     in
@@ -221,27 +230,30 @@ viewCalendar model dateToShow =
     in
         div
             [ class "calendar", id "calendar" ]
-            [ viewUserList (model |> users)
+            [ div [] [ a [ href "/" ] [text "Waterfall" ]]
+            , viewAlbumList model
             , h1 []
                 [ text (monthName monthToDisplay)
                 , br [] []
                 , text (toString yearToDisplay)
                 ]
-            , viewMonthButtons dateToShow
+            , viewMonthButtons model dateToShow
             , viewMonth dateToShow model
-            , viewYearButtons dateToShow
+            , viewYearButtons model dateToShow
             ]
 
 
-viewUserList : List UserName -> Html Msg
-viewUserList userList =
+viewAlbumList : Model -> Html Msg
+viewAlbumList model =
     let
-        usersWithAll =
-            "All" :: userList
+        liFn u =
+            let
+                link =
+                    toHash (Just u) (photoShown model) (dateShown model)
+            in
+                li [] [ a [ href link ] [ text u ] ]
     in
-        select
-            [ on "change" (Json.Decode.map UserSelected targetValue) ]
-            (List.map (\u -> option [] [ text u ]) usersWithAll)
+        ul [] (List.map liFn (albums model))
 
 
 viewMessage : String -> Html Msg

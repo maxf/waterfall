@@ -1,6 +1,6 @@
 #!/bin/bash
 
-elm-make *.elm $WATERFALL_ELM_DEBUG --yes --warn --output=public/elm.js
+elm-make *.elm $WATERFALL_ELM_DEBUG --yes --warn --debug --output=public/elm.js
 browserify -o public/out.js main.js
 
 if [ -z $WATERFALL_INSTALL_DIR ]; then

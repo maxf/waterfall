@@ -8,22 +8,24 @@ module Model
         , dateShown
         , photoShown
         , photoMetadata
-        , photoDir
+        , albumShown
         , message
-        , users
+        , albums
+        , hash
         , withDateShown
         , withPhotoShown
-        , withUsers
+        , withAlbums
         , withMessage
         , withPhotoMetadata
-        , withPhotoDir
+        , withAlbumShown
         , withMaxPicturesInADay
         , lastDateWithPhotos
         , firstDateWithPhotos
         )
 
-import Types exposing (DirectoryName, MetadataDict, FileName, UserName, RenamedPath)
-import Time.DateTime exposing (DateTime, fromTimestamp)
+import Types exposing (DirectoryPath, MetadataDict, FileName, RenamedPath, FilePath, AlbumName)
+import Time.DateTime exposing (DateTime, fromTimestamp, toISO8601)
+import String exposing (left)
 import Dict
 
 
@@ -38,13 +40,13 @@ type DisplayDate
 
 
 type alias InternalModel =
-    { photoDir : DirectoryName
-    , users : List UserName
+    { albumShown : Maybe AlbumName
+    , albums : List AlbumName
     , message : String
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
     , dateShown : DisplayDate
-    , photoShown : Maybe FileName
+    , photoShown : Maybe FilePath
     }
 
 
@@ -52,7 +54,7 @@ initialModel : Model
 initialModel =
     Model
         (InternalModel
-            ""
+            Nothing
             []
             "Starting"
             0
@@ -66,9 +68,9 @@ initialModel =
 -- Access functions
 
 
-photoDir : Model -> DirectoryName
-photoDir (Model model) =
-    model.photoDir
+albumShown : Model -> Maybe AlbumName
+albumShown (Model model) =
+    model.albumShown
 
 
 dateShown : Model -> DisplayDate
@@ -91,19 +93,19 @@ message (Model model) =
     model.message
 
 
-users : Model -> List UserName
-users (Model model) =
-    model.users
+albums : Model -> List AlbumName
+albums (Model model) =
+    model.albums
 
 
-withPhotoDir : DirectoryName -> Model -> Model
-withPhotoDir dir (Model model) =
-    Model { model | photoDir = dir }
+withAlbumShown : Maybe AlbumName -> Model -> Model
+withAlbumShown album (Model model) =
+    Model { model | albumShown = album }
 
 
-withUsers : List UserName -> Model -> Model
-withUsers userList (Model model) =
-    Model { model | users = userList }
+withAlbums : List AlbumName -> Model -> Model
+withAlbums albumList (Model model) =
+    Model { model | albums = albumList }
 
 
 withDateShown : DisplayDate -> Model -> Model
@@ -137,7 +139,11 @@ withMaxPicturesInADay maxpics (Model model) =
 
 removePhoto : FileName -> Model -> Model
 removePhoto fileName (Model model) =
-    Model { model | photoMetadata = removePhotoFromDict fileName model.photoMetadata }
+    Model
+        { model
+            | photoMetadata = removePhotoFromDict fileName model.photoMetadata
+            , photoShown = Nothing
+        }
 
 
 
@@ -204,3 +210,22 @@ firstDateWithPhotos dict =
         |> (*) 1000
         |> toFloat
         |> fromTimestamp
+
+
+hash : Model -> String
+hash (Model model) =
+    let
+        date =
+            case model.dateShown of
+                Date d ->
+                    d |> toISO8601 |> left 10
+                _ ->
+                    ""
+
+        photo =
+            model.photoShown |> Maybe.withDefault ""
+
+        album =
+            model.albumShown |> Maybe.withDefault ""
+    in
+        "#" ++ album ++ ":" ++ photo ++ ":" ++ date
