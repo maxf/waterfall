@@ -11,18 +11,6 @@ $ elm-make --output elm.js Main.elm
 $ browserify -o out.js main.js
 ```
 
+## Running the server
 
-## Todo
-
-- Delete any thumbnails when deleting a picture
-- Delete RAW files too
-- Put thumbnail in another top-level directory
-
-- view 360 pictures
-- improve design: CSS, messages, etc.
-- annotations
-- view videos
-- confirmation for delete (or undo)
-- Delete directory when removing last file in it
-
-- show photos for all months
+On the server, run `server-init.sh`. To make sure the server restarts on reboot, use `sudo pm2 startup`

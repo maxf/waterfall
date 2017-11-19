@@ -3,12 +3,12 @@
 sudo apt-get update
 sudo apt-get upgrade
 
-sudo apt-get install apache2 libapache2-mod-php nodejs nodejs-legacy npm git
+sudo apt-get install nginx git
+curl -sL https://deb.nodesource.com/setup_8.x | sudo bash -
+sudo apt-get install -y nodejs
+sudo npm update -g npm pm2
 
-cd /var/www/html
-sudo git clone https://github.com/maxf/waterfall.git
-sudo cd waterfall
-sudo git checkout server
-sudo npm install
-sudo mkdir uploads
-sudo chown -R a+rwx .
+git clone https://github.com/maxf/waterfall.git
+cd waterfall
+npm install
+pm2 start process.yml
