@@ -19,6 +19,7 @@ module Model
         , withPhotoDir
         , withMaxPicturesInADay
         , lastDateWithPhotos
+        , firstDateWithPhotos
         )
 
 import Types exposing (DirectoryName, MetadataDict, FileName, UserName, RenamedPath)
@@ -185,6 +186,18 @@ lastDateWithPhotos dict =
     dict
         |> Dict.keys
         |> List.reverse
+        |> List.head
+        -- If no photos, pick some random date:
+        |> Maybe.withDefault 1503957375
+        |> (*) 1000
+        |> toFloat
+        |> fromTimestamp
+
+
+firstDateWithPhotos : MetadataDict -> DateTime
+firstDateWithPhotos dict =
+    dict
+        |> Dict.keys
         |> List.head
         -- If no photos, pick some random date:
         |> Maybe.withDefault 1503957375

@@ -9,7 +9,7 @@ import Time.DateTime exposing (DateTime, toISO8601, fromISO8601, fromTimestamp)
 import Navigation exposing (Location, modifyUrl)
 import Regex exposing (regex, HowMany(AtMost), find)
 import Types exposing (maxNbPictures, PhotoMetadata, DirectoryName, UserName, SecondsSinceEpoch, FileName, RenamedPath, buildMeta)
-import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPhotoShown, withMessage, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, updatePhotoPath, withUsers, dateShown)
+import Model exposing (Model, DisplayDate(Date, BadDate), withDateShown, withPhotoShown, withMessage, withPhotoMetadata, withPhotoDir, withMaxPicturesInADay, removePhoto, updatePhotoPath, withUsers, dateShown, firstDateWithPhotos)
 
 
 type Msg
@@ -77,6 +77,7 @@ update msg model =
                         |> withPhotoMetadata metadata
                         |> withMessage ""
                         |> withMaxPicturesInADay (maxNbPictures metadata)
+                        |> withDateShown (Date (firstDateWithPhotos metadata))
             in
                 ( newModel
                 , Task.attempt (\_ -> ScrollPhotosFinished) (Dom.Scroll.toTop "photos")
