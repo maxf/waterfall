@@ -12113,6 +12113,21 @@ var _user$project$Types$RenamedPath = F2(
 		return {old: a, $new: b};
 	});
 
+var _user$project$Model$firstDateWithPhotos = function (dict) {
+	return _elm_community$elm_time$Time_DateTime$fromTimestamp(
+		_elm_lang$core$Basics$toFloat(
+			A2(
+				F2(
+					function (x, y) {
+						return x * y;
+					}),
+				1000,
+				A2(
+					_elm_lang$core$Maybe$withDefault,
+					1503957375,
+					_elm_lang$core$List$head(
+						_elm_lang$core$Dict$keys(dict))))));
+};
 var _user$project$Model$lastDateWithPhotos = function (dict) {
 	return _elm_community$elm_time$Time_DateTime$fromTimestamp(
 		_elm_lang$core$Basics$toFloat(
@@ -12510,12 +12525,16 @@ var _user$project$Update$update = F2(
 				} else {
 					var metadata = _user$project$Types$buildMeta(_p3._0._0);
 					var newModel = A2(
-						_user$project$Model$withMaxPicturesInADay,
-						_user$project$Types$maxNbPictures(metadata),
+						_user$project$Model$withDateShown,
+						_user$project$Model$Date(
+							_user$project$Model$firstDateWithPhotos(metadata)),
 						A2(
-							_user$project$Model$withMessage,
-							'',
-							A2(_user$project$Model$withPhotoMetadata, metadata, model)));
+							_user$project$Model$withMaxPicturesInADay,
+							_user$project$Types$maxNbPictures(metadata),
+							A2(
+								_user$project$Model$withMessage,
+								'',
+								A2(_user$project$Model$withPhotoMetadata, metadata, model))));
 					return {
 						ctor: '_Tuple2',
 						_0: newModel,
@@ -13355,63 +13374,41 @@ var _user$project$View$viewCalendar = F2(
 			},
 			{
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$a,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href('upload.php'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text('Upload photos'),
-						_1: {ctor: '[]'}
-					}),
+				_0: _user$project$View$viewUserList(
+					_user$project$Model$users(model)),
 				_1: {
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$br,
+						_elm_lang$html$Html$h1,
 						{ctor: '[]'},
-						{ctor: '[]'}),
-					_1: {
-						ctor: '::',
-						_0: _user$project$View$viewUserList(
-							_user$project$Model$users(model)),
-						_1: {
+						{
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$h1,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text(
-										_user$project$View$monthName(monthToDisplay)),
-									_1: {
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$br,
-											{ctor: '[]'},
-											{ctor: '[]'}),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$html$Html$text(
-												_elm_lang$core$Basics$toString(yearToDisplay)),
-											_1: {ctor: '[]'}
-										}
-									}
-								}),
+							_0: _elm_lang$html$Html$text(
+								_user$project$View$monthName(monthToDisplay)),
 							_1: {
 								ctor: '::',
-								_0: _user$project$View$viewMonthButtons(dateToShow),
+								_0: A2(
+									_elm_lang$html$Html$br,
+									{ctor: '[]'},
+									{ctor: '[]'}),
 								_1: {
 									ctor: '::',
-									_0: A2(_user$project$View$viewMonth, dateToShow, model),
-									_1: {
-										ctor: '::',
-										_0: _user$project$View$viewYearButtons(dateToShow),
-										_1: {ctor: '[]'}
-									}
+									_0: _elm_lang$html$Html$text(
+										_elm_lang$core$Basics$toString(yearToDisplay)),
+									_1: {ctor: '[]'}
 								}
+							}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _user$project$View$viewMonthButtons(dateToShow),
+						_1: {
+							ctor: '::',
+							_0: A2(_user$project$View$viewMonth, dateToShow, model),
+							_1: {
+								ctor: '::',
+								_0: _user$project$View$viewYearButtons(dateToShow),
+								_1: {ctor: '[]'}
 							}
 						}
 					}

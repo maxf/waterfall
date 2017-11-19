@@ -221,9 +221,7 @@ viewCalendar model dateToShow =
     in
         div
             [ class "calendar", id "calendar" ]
-            [ a [ href "upload.php" ] [ text "Upload photos" ]
-            , br [] []
-            , viewUserList (model |> users)
+            [ viewUserList (model |> users)
             , h1 []
                 [ text (monthName monthToDisplay)
                 , br [] []
