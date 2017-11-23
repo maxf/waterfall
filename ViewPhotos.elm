@@ -56,7 +56,8 @@ viewThumbnail model metadata =
 
         photoLink =
             (albumShown model |> Maybe.withDefault "")
-            ++ "/" ++ metadata.relativeFilePath
+                ++ "/"
+                ++ metadata.relativeFilePath
     in
         ( metadata.relativeFilePath
         , li
@@ -85,9 +86,12 @@ viewPhoto model photoDate fileName =
             let
                 link =
                     toHash (albumShown model) Nothing (Date photoDate)
+
                 imgSrc =
                     (albumShown model |> Maybe.withDefault "")
-                    ++ "/" ++ name |> encodeUri
+                        ++ "/"
+                        ++ name
+                        |> encodeUri
             in
                 div [ class "lightbox" ]
                     [ div [ class "lightbox-inner" ]

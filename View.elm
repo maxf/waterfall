@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import Html exposing (Html, div, td, text, tr, h1, table, thead, tbody, th, a, br, select, option, ul, li)
+import Html exposing (Html, div, td, text, tr, h1, table, thead, tbody, th, a, br, ul, li)
 
 
 --import Html.Events exposing (on, targetValue)
@@ -16,7 +16,7 @@ import Time.Date as Date
 import Dict
 import Array exposing (get)
 import Maybe exposing (withDefault)
-import Types exposing (toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, AlbumName)
+import Types exposing (toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek)
 import Model exposing (Model, DisplayDate(Date), dateShown, albumShown, photoShown, albums, lastDateWithPhotos, photoMetadata, message)
 import ViewPhotos exposing (viewPhotos)
 import Update exposing (Msg, toHash)
@@ -230,7 +230,7 @@ viewCalendar model dateToShow =
     in
         div
             [ class "calendar", id "calendar" ]
-            [ div [] [ a [ href "/" ] [text "Waterfall" ]]
+            [ div [] [ a [ href "/" ] [ text "Waterfall" ] ]
             , viewAlbumList model
             , h1 []
                 [ text (monthName monthToDisplay)

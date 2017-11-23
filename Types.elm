@@ -21,17 +21,26 @@ type alias DayOfWeek =
     Int
 
 
+
 -- eg "hello.jpg"
+
+
 type alias FileName =
     String
 
 
+
 -- eg "foo/bar/hello.jpg"
+
+
 type alias FilePath =
     String
 
 
+
 -- eg "foo/bar"
+
+
 type alias DirectoryPath =
     String
 

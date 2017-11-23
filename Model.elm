@@ -23,7 +23,7 @@ module Model
         , firstDateWithPhotos
         )
 
-import Types exposing (DirectoryPath, MetadataDict, FileName, RenamedPath, FilePath, AlbumName)
+import Types exposing (MetadataDict, FileName, RenamedPath, FilePath, AlbumName)
 import Time.DateTime exposing (DateTime, fromTimestamp, toISO8601)
 import String exposing (left)
 import Dict
@@ -219,6 +219,7 @@ hash (Model model) =
             case model.dateShown of
                 Date d ->
                     d |> toISO8601 |> left 10
+
                 _ ->
                     ""
 

@@ -16297,11 +16297,11 @@ var _user$project$Model$Date = function (a) {
 };
 
 var _user$project$Update$toHash = F3(
-	function (albumShown, photoShown, dateShown) {
-		var album = A2(_elm_lang$core$Maybe$withDefault, '', albumShown);
-		var photo = A2(_elm_lang$core$Maybe$withDefault, '', photoShown);
-		var date = function () {
-			var _p0 = dateShown;
+	function (album, photo, date) {
+		var hashAlbum = A2(_elm_lang$core$Maybe$withDefault, '', album);
+		var hashPhoto = A2(_elm_lang$core$Maybe$withDefault, '', photo);
+		var hashDate = function () {
+			var _p0 = date;
 			if (_p0.ctor === 'Date') {
 				return A2(
 					_elm_lang$core$String$left,
@@ -16316,14 +16316,14 @@ var _user$project$Update$toHash = F3(
 			'#',
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				album,
+				hashAlbum,
 				A2(
 					_elm_lang$core$Basics_ops['++'],
 					':',
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						photo,
-						A2(_elm_lang$core$Basics_ops['++'], ':', date)))));
+						hashPhoto,
+						A2(_elm_lang$core$Basics_ops['++'], ':', hashDate)))));
 	});
 var _user$project$Update$dateFromYMD = function (s) {
 	var _p1 = s;
@@ -16338,14 +16338,6 @@ var _user$project$Update$dateFromYMD = function (s) {
 			return _user$project$Model$BadDate;
 		}
 	}
-};
-var _user$project$Update$hashForTimestamp = function (s) {
-	return A2(
-		_elm_lang$core$String$left,
-		10,
-		_elm_community$elm_time$Time_DateTime$toISO8601(
-			_elm_community$elm_time$Time_DateTime$fromTimestamp(
-				_elm_lang$core$Basics$toFloat(s) * 1000)));
 };
 var _user$project$Update$errorMessage = function (error) {
 	var _p3 = error;
@@ -16402,7 +16394,7 @@ var _user$project$Update$ScanPhotosResult = function (a) {
 	return {ctor: 'ScanPhotosResult', _0: a};
 };
 var _user$project$Update$scanPhotos = function (name) {
-	var _p5 = A2(_elm_lang$core$Debug$log, 'name', name);
+	var _p5 = name;
 	if (_p5.ctor === 'Nothing') {
 		return _elm_lang$core$Platform_Cmd$none;
 	} else {
@@ -16851,9 +16843,9 @@ var _user$project$ViewPhotos$viewThumbnails = F2(
 			});
 	});
 var _user$project$ViewPhotos$viewPhotos = F2(
-	function (model, dateShown) {
+	function (model, date) {
 		var dateExifString = _elm_lang$core$Basics$round(
-			_elm_community$elm_time$Time_DateTime$toTimestamp(dateShown) / 1000);
+			_elm_community$elm_time$Time_DateTime$toTimestamp(date) / 1000);
 		var photosForDate = A2(
 			_elm_lang$core$Dict$get,
 			dateExifString,
@@ -16873,7 +16865,7 @@ var _user$project$ViewPhotos$viewPhotos = F2(
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html$text(
-							_user$project$Types$dateToString(dateShown)),
+							_user$project$Types$dateToString(date)),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
@@ -16905,7 +16897,7 @@ var _user$project$ViewPhotos$viewPhotos = F2(
 						_0: A3(
 							_user$project$ViewPhotos$viewPhoto,
 							model,
-							dateShown,
+							date,
 							_user$project$Model$photoShown(model)),
 						_1: {ctor: '[]'}
 					}

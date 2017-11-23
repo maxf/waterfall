@@ -1,17 +1,16 @@
 module Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto, UserClickedOnPhoto, PhotoWasDeleted, ScanPhotosResult, GetAlbumsResult, AlbumSelected, UrlChange), update, fromHash, toHash)
 
-import String exposing (slice, left, cons)
-import List exposing (map)
+import String exposing (left)
 import Maybe exposing (withDefault)
 import Dom.Scroll
 import Task
 import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload), encodeUri)
 import Json.Decode
-import Time.DateTime exposing (DateTime, toISO8601, fromISO8601, fromTimestamp)
+import Time.DateTime exposing (toISO8601, fromISO8601)
 import Navigation exposing (Location, modifyUrl)
 import Regex exposing (regex, HowMany(AtMost), find)
-import Types exposing (maxNbPictures, PhotoMetadata, DirectoryPath, AlbumName, SecondsSinceEpoch, FileName, RenamedPath, buildMeta, FilePath)
-import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), albumShown, withDateShown, withPhotoShown, withMessage, withPhotoMetadata, withAlbumShown, withMaxPicturesInADay, removePhoto, updatePhotoPath, withAlbums, dateShown, photoShown, firstDateWithPhotos, hash)
+import Types exposing (maxNbPictures, PhotoMetadata, AlbumName, FileName, RenamedPath, buildMeta, FilePath)
+import Model exposing (Model, DisplayDate(Date, DateNotSpecified, BadDate), withDateShown, withPhotoShown, withMessage, withPhotoMetadata, withAlbumShown, withMaxPicturesInADay, removePhoto, updatePhotoPath, withAlbums, firstDateWithPhotos, hash)
 
 
 type Msg
@@ -46,7 +45,7 @@ update msg model =
             if deletedFilePath /= "" then
                 let
                     newModel =
-                        model |> (removePhoto deletedFilePath)
+                        model |> removePhoto deletedFilePath
 
                     newHash =
                         newModel |> hash
@@ -103,10 +102,18 @@ update msg model =
                 hashParams : HashFields
                 hashParams =
                     fromHash location
+
                 album =
-                    if hashParams.albumName == "" then Nothing else Just hashParams.albumName
+                    if hashParams.albumName == "" then
+                        Nothing
+                    else
+                        Just hashParams.albumName
+
                 photo =
-                    if hashParams.photoPath == "" then Nothing else Just hashParams.photoPath
+                    if hashParams.photoPath == "" then
+                        Nothing
+                    else
+                        Just hashParams.photoPath
             in
                 ( model
                     |> withDateShown hashParams.date
@@ -151,7 +158,7 @@ rotatePhoto angle fileName =
 
 scanPhotos : Maybe AlbumName -> Cmd Msg
 scanPhotos name =
-    case (Debug.log "name" name) of
+    case name of
         Nothing ->
             Cmd.none
 
@@ -170,7 +177,6 @@ scanPhotos name =
                     Http.get apiUrl (Json.Decode.list photoMetadataDecoder)
             in
                 Http.send ScanPhotosResult request
-
 
 
 errorMessage : Http.Error -> String
@@ -193,15 +199,6 @@ errorMessage error =
 
 
 
--- convert from 28429847298 to "#2012-12-22"
-
-hashForTimestamp : SecondsSinceEpoch -> String
-hashForTimestamp s =
-    (fromTimestamp (toFloat s * 1000))
-        |> toISO8601
-        |> left 10
-
-
 -- URL functions
 -- Hashes look like this
 -- (no hash) -> initial state. Ask for album path
@@ -212,16 +209,17 @@ hashForTimestamp s =
 -- #/:photoname.jpg:
 -- #/:photoname.jpg:yyyy-mm-dd
 -- #/::yyyy-mm-dd
-
 -- Albums include subdirectories. A photo might be part of multiple albums
 -- #/al/bum/Path:photo/path.jpg:yyyy-mm-dd
-
-
 -- No albums (all photos)? #[photoname.jpg]:yyyy-mm-dd
 -- Top-level album (when photos are in the top-level dir): #/[photoname.jpg]:yyyy-mm-dd
 
+
 type alias HashFields =
-    { albumName: AlbumName, photoPath: FilePath, date: DisplayDate }
+    { albumName : AlbumName
+    , photoPath : FilePath
+    , date : DisplayDate
+    }
 
 
 fromHash : Location -> HashFields
@@ -233,8 +231,8 @@ fromHash location =
         matches =
             find (AtMost 1) hashRegex location.hash
     in
-        case  List.map .submatches matches of
-            [[ albumName, photoPath, ymd ]] ->
+        case List.map .submatches matches of
+            [ [ albumName, photoPath, ymd ] ] ->
                 HashFields
                     (albumName |> withDefault "")
                     (photoPath |> withDefault "")
@@ -259,22 +257,21 @@ dateFromYMD s =
                     BadDate
 
 
-
-
-toHash :  Maybe AlbumName -> Maybe FilePath -> DisplayDate -> String
-toHash albumShown photoShown dateShown =
+toHash : Maybe AlbumName -> Maybe FilePath -> DisplayDate -> String
+toHash album photo date =
     let
-        date =
-            case dateShown of
+        hashDate =
+            case date of
                 Date d ->
                     d |> toISO8601 |> left 10
+
                 _ ->
                     ""
 
-        photo =
-            photoShown |> Maybe.withDefault ""
+        hashPhoto =
+            photo |> Maybe.withDefault ""
 
-        album =
-            albumShown |> Maybe.withDefault ""
+        hashAlbum =
+            album |> Maybe.withDefault ""
     in
-        "#" ++ album ++ ":" ++ photo ++ ":" ++ date
+        "#" ++ hashAlbum ++ ":" ++ hashPhoto ++ ":" ++ hashDate
