@@ -24,16 +24,11 @@ init location =
         hashParams =
             fromHash location
 
-        photo =
-            if hashParams.photoPath == "" then
-                Nothing
-            else
-                Just hashParams.photoPath
     in
         ( Model.initialModel
             |> Model.withDateShown hashParams.date
-            |> Model.withPhotoShown photo
-            |> Model.withAlbumShown (Just hashParams.albumName)
+            |> Model.withPhotoShown hashParams.preview
+            |> Model.withAlbumShown hashParams.album
         , getAlbumList
         )
 

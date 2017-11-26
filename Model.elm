@@ -1,7 +1,6 @@
 module Model
     exposing
         ( Model
-        , DisplayDate(Date, DateNotSpecified, BadDate)
         , initialModel
         , removePhoto
         , updatePhotoPath
@@ -11,7 +10,8 @@ module Model
         , albumShown
         , message
         , albums
-        , hash
+        , toHash
+        , modelHash
         , withDateShown
         , withPhotoShown
         , withAlbums
@@ -23,7 +23,7 @@ module Model
         , firstDateWithPhotos
         )
 
-import Types exposing (MetadataDict, FileName, RenamedPath, FilePath, AlbumName)
+import Types exposing (MetadataDict, FileName, RenamedPath, FilePath, AlbumName, HashFields, DisplayDate(DateNotSpecified, Date, BadDate), AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview))
 import Time.DateTime exposing (DateTime, fromTimestamp, toISO8601)
 import String exposing (left)
 import Dict
@@ -33,20 +33,14 @@ type Model
     = Model InternalModel
 
 
-type DisplayDate
-    = Date DateTime
-    | DateNotSpecified
-    | BadDate
-
-
 type alias InternalModel =
-    { albumShown : Maybe AlbumName
-    , albums : List AlbumName
+    { albums : List AlbumName
     , message : String
     , maxPicturesInADay : Int
     , photoMetadata : MetadataDict
+    , albumShown : AlbumHash
     , dateShown : DisplayDate
-    , photoShown : Maybe FilePath
+    , photoShown : PreviewHash
     }
 
 
@@ -54,13 +48,13 @@ initialModel : Model
 initialModel =
     Model
         (InternalModel
-            Nothing
             []
             "Starting"
             0
             Dict.empty
+            NoAlbum
             DateNotSpecified
-            Nothing
+            NoPreview
         )
 
 
@@ -68,7 +62,7 @@ initialModel =
 -- Access functions
 
 
-albumShown : Model -> Maybe AlbumName
+albumShown : Model -> AlbumHash
 albumShown (Model model) =
     model.albumShown
 
@@ -78,7 +72,7 @@ dateShown (Model model) =
     model.dateShown
 
 
-photoShown : Model -> Maybe FileName
+photoShown : Model -> PreviewHash
 photoShown (Model model) =
     model.photoShown
 
@@ -98,7 +92,7 @@ albums (Model model) =
     model.albums
 
 
-withAlbumShown : Maybe AlbumName -> Model -> Model
+withAlbumShown : AlbumHash -> Model -> Model
 withAlbumShown album (Model model) =
     Model { model | albumShown = album }
 
@@ -113,7 +107,7 @@ withDateShown date (Model model) =
     Model { model | dateShown = date }
 
 
-withPhotoShown : Maybe FileName -> Model -> Model
+withPhotoShown : PreviewHash -> Model -> Model
 withPhotoShown filename (Model model) =
     Model { model | photoShown = filename }
 
@@ -142,7 +136,7 @@ removePhoto fileName (Model model) =
     Model
         { model
             | photoMetadata = removePhotoFromDict fileName model.photoMetadata
-            , photoShown = Nothing
+            , photoShown = NoPreview
         }
 
 
@@ -168,7 +162,7 @@ updatePhotoPath renamedPath model =
     in
         model
             |> withPhotoMetadata newMetadata
-            |> withPhotoShown (Just renamedPath.new)
+            |> withPhotoShown (Preview renamedPath.new)
 
 
 
@@ -212,11 +206,16 @@ firstDateWithPhotos dict =
         |> fromTimestamp
 
 
-hash : Model -> String
-hash (Model model) =
+modelHash : Model -> String
+modelHash (Model model) =
+    toHash (HashFields model.albumShown model.photoShown model.dateShown)
+
+
+toHash : HashFields -> String
+toHash hash =
     let
         date =
-            case model.dateShown of
+            case hash.date of
                 Date d ->
                     d |> toISO8601 |> left 10
 
@@ -224,9 +223,18 @@ hash (Model model) =
                     ""
 
         photo =
-            model.photoShown |> Maybe.withDefault ""
-
-        album =
-            model.albumShown |> Maybe.withDefault ""
+            case hash.preview of
+                NoPreview ->
+                    ""
+                Preview path ->
+                    path
     in
-        "#" ++ album ++ ":" ++ photo ++ ":" ++ date
+        case hash.album of
+            NoAlbum ->
+                ""
+
+            AllAlbums ->
+                "#:" ++ photo ++ ":" ++ date
+
+            Album path ->
+                "#" ++ path ++ ":" ++ photo ++ ":" ++ date

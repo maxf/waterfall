@@ -16,10 +16,10 @@ import Time.Date as Date
 import Dict
 import Array exposing (get)
 import Maybe exposing (withDefault)
-import Types exposing (toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek)
-import Model exposing (Model, DisplayDate(Date), dateShown, albumShown, photoShown, albums, lastDateWithPhotos, photoMetadata, message)
+import Types exposing (toSeconds, SecondsSinceEpoch, PhotoMetadata, MetadataDict, WeekNumber, DayOfWeek, DisplayDate(Date), HashFields, AlbumHash(Album))
+import Model exposing (Model, dateShown, albumShown, photoShown, albums, lastDateWithPhotos, photoMetadata, message, toHash)
 import ViewPhotos exposing (viewPhotos)
-import Update exposing (Msg, toHash)
+import Update exposing (Msg)
 
 
 monthName : Int -> String
@@ -116,7 +116,8 @@ viewDate refDate weekNumber model offset firstDayOfMonth dayOfWeek =
                 ""
 
         hash =
-            toHash (albumShown model) (photoShown model) (Date dateToDisplay)
+            HashFields (albumShown model) (photoShown model) (Date dateToDisplay)
+                |> toHash
     in
         if year dateToDisplay == year refDate && month dateToDisplay == month refDate then
             td
@@ -176,17 +177,25 @@ viewYearButtons model date =
         oneYearAfter =
             addYears 1 date
 
+        prevYearHash =
+            HashFields (albumShown model) (photoShown model) (Date oneYearBefore)
+                |> toHash
+
         prevYearButton =
             div [ class "button" ]
                 [ a
-                    [ href (toHash (albumShown model) (photoShown model) (Date oneYearBefore)) ]
+                    [ href prevYearHash ]
                     [ text ((oneYearBefore |> year |> toString) ++ " ⬅") ]
                 ]
+
+        nextYearHash =
+            HashFields (albumShown model) (photoShown model) (Date oneYearAfter)
+                |> toHash
 
         nextYearButton =
             div [ class "button" ]
                 [ a
-                    [ href (toHash (albumShown model) (photoShown model) (Date oneYearAfter)) ]
+                    [ href nextYearHash ]
                     [ text ("➡ " ++ (oneYearAfter |> year |> toString)) ]
                 ]
     in
@@ -202,17 +211,25 @@ viewMonthButtons model date =
         oneMonthAfter =
             addMonths 1 date
 
+        prevMonthHash =
+            HashFields (albumShown model) (photoShown model) (Date oneMonthBefore)
+                |> toHash
+
         prevMonthButton =
             div [ class "button" ]
                 [ a
-                    [ href (toHash (albumShown model) (photoShown model) (Date oneMonthBefore)) ]
+                    [ href prevMonthHash ]
                     [ text (monthName (month oneMonthBefore) ++ " ⬅") ]
                 ]
+
+        nextMonthHash =
+            HashFields (albumShown model) (photoShown model) (Date oneMonthAfter)
+                |> toHash
 
         nextMonthButton =
             div [ class "button" ]
                 [ a
-                    [ href (toHash (albumShown model) (photoShown model) (Date oneMonthAfter)) ]
+                    [ href nextMonthHash ]
                     [ text ("➡ " ++ monthName (month oneMonthAfter)) ]
                 ]
     in
@@ -249,9 +266,10 @@ viewAlbumList model =
         liFn u =
             let
                 link =
-                    toHash (Just u) (photoShown model) (dateShown model)
+                    HashFields (Album u) (photoShown model) (dateShown model)
+                        |> toHash
             in
-                li [] [ a [ href link ] [ text u ] ]
+                li [] [ a [ href link ] [ (if u == "" then "All" else u) |> text ] ]
     in
         ul [] (List.map liFn (albums model))
 

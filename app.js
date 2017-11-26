@@ -4,7 +4,7 @@ const photosDir = process.env.PHOTOS_DIR
 const thumbsDir = process.env.THUMBS_DIR
 
 if (!photosDir || !thumbsDir) {
-  console.log("you must set the PHOTOS_DIR and THUMBS_DIR env variables (don't forget the / at the end)")
+  console.log("you must set the PHOTOS_DIR and THUMBS_DIR env variables")
   process.exit()
 } else {
   console.log("PHOTOS_DIR:", photosDir)
@@ -54,7 +54,7 @@ const exifOriginalDate = path => {
 const makePhotoObject = baseDir => fileName => {
   return {
     date: exifOriginalDate(fileName),
-    path: fileName.slice(baseDir.length + 1)
+    path: path.relative(baseDir, fileName)
   }
 }
 
@@ -63,8 +63,8 @@ const dirs = function(req, res) {
   execFile('find', [ dirToScan, '-type', 'd' ], function(err, stdout, stderr) {
     const dirs = stdout
       .split('\n')
-      .map(s => s.slice(photosDir.length + 1))
       .filter(s => s !== "")
+      .map(s => path.relative(photosDir, s))
       .sort()
     res.send(JSON.stringify(dirs))
   })
@@ -78,10 +78,10 @@ const scan = function(req, res) {
 }
 
 const photoFullPath = imagePath =>
-  path.resolve(`${photosDir}/${imagePath}`)
+  path.resolve(photosDir, imagePath)
 
 const thumbFullPath = (imagePath, size) =>
-  path.resolve(`${thumbsDir}/${path.dirname(imagePath)}/${size}-${path.basename(imagePath)}`)
+  path.join(thumbsDir, path.dirname(imagePath), `${size}-${path.basename(imagePath)}`)
 
 const sendPhoto = size => (req, res) => {
   const imagePath = decodeURIComponent(req.query.photo).replace(/_\d+$/, '')
@@ -105,14 +105,13 @@ const sendPhoto = size => (req, res) => {
   }
 }
 
-
 const thumbs = imagePath => {
-  const thumbsPath = path.resolve(`${thumbsDir}/${path.dirname(imagePath)}`)
+  const thumbsPath = path.resolve(thumbsDir, path.dirname(imagePath))
   const thumbsRe = new RegExp(`\\d+-${path.basename(imagePath)}$`)
   return fs
     .readdirSync(thumbsPath)
     .filter(fileName => thumbsRe.test(fileName))
-    .map(fileName => thumbsPath+'/'+fileName)
+    .map(fileName => path.join(thumbsPath, fileName))
 }
 
 const deletePhoto = (req, res) => {

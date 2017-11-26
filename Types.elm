@@ -1,4 +1,4 @@
-module Types exposing (DirectoryPath, PhotoMetadata, Year, Month, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, buildMeta, FileName, JsonString, iso8601ToEpochSeconds, RenamedPath, FilePath, AlbumName)
+module Types exposing (DirectoryPath, PhotoMetadata, Year, Month, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, buildMeta, FileName, JsonString, iso8601ToEpochSeconds, RenamedPath, FilePath, AlbumName, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), HashFields, DisplayDate(DateNotSpecified, Date, BadDate))
 
 import Dict exposing (Dict, keys)
 import Time.DateTime exposing (DateTime, dateTime, zero, epoch, year, month, day, addSeconds, toTimestamp, fromISO8601)
@@ -70,6 +70,29 @@ type alias MetadataDict =
 type alias RenamedPath =
     { old : FileName
     , new : FileName
+    }
+
+
+type AlbumHash
+    = NoAlbum
+    | AllAlbums
+    | Album AlbumName
+
+
+type PreviewHash
+    = NoPreview
+    | Preview FilePath
+
+
+type DisplayDate
+    = Date DateTime
+    | DateNotSpecified
+    | BadDate
+
+type alias HashFields =
+    { album : AlbumHash
+    , preview : PreviewHash
+    , date : DisplayDate
     }
 
 

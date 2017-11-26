@@ -7,9 +7,9 @@ import Html.Events exposing (onClick)
 import Time.DateTime exposing (DateTime, toTimestamp)
 import Dict
 import Http exposing (encodeUri)
-import Model exposing (Model, DisplayDate(Date), photoShown, photoMetadata, albumShown, dateShown)
-import Types exposing (PhotoMetadata, FileName, dateToString)
-import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto), toHash)
+import Model exposing (Model, photoShown, photoMetadata, albumShown, dateShown, modelHash, toHash)
+import Types exposing (PhotoMetadata, FileName, dateToString, DisplayDate(Date), PreviewHash(NoPreview, Preview), HashFields, AlbumHash(Album))
+import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto))
 
 
 viewPhotos : Model -> DateTime -> Html Msg
@@ -52,12 +52,19 @@ viewThumbnail : Model -> PhotoMetadata -> ( String, Html Msg )
 viewThumbnail model metadata =
     let
         photoId =
-            toHash (albumShown model) (Just metadata.relativeFilePath) (dateShown model)
+            toHash
+              (HashFields
+                   (albumShown model)
+                   (Preview metadata.relativeFilePath)
+                   (dateShown model)
+              )
 
         photoLink =
-            (albumShown model |> Maybe.withDefault "")
-                ++ "/"
-                ++ metadata.relativeFilePath
+            case albumShown model of
+                Album path ->
+                    path ++ "/" ++ metadata.relativeFilePath
+                _ ->
+                    "/" ++ metadata.relativeFilePath
     in
         ( metadata.relativeFilePath
         , li
@@ -76,27 +83,29 @@ viewThumbnail model metadata =
         )
 
 
-viewPhoto : Model -> DateTime -> Maybe FileName -> Html Msg
-viewPhoto model photoDate fileName =
-    case fileName of
-        Nothing ->
+viewPhoto : Model -> DateTime -> PreviewHash -> Html Msg
+viewPhoto model photoDate photo =
+    case photo of
+        NoPreview ->
             div [ style [ ( "display", "none" ) ] ] []
 
-        Just name ->
+        Preview name ->
             let
                 link =
-                    toHash (albumShown model) Nothing (Date photoDate)
+                    HashFields (albumShown model) NoPreview (Date photoDate)
+                        |> toHash
 
                 imgSrc =
-                    (albumShown model |> Maybe.withDefault "")
-                        ++ "/"
-                        ++ name
-                        |> encodeUri
+                    case albumShown model of
+                        Album path ->
+                            path ++ "/" ++ name
+                        _ ->
+                            "/" ++ name
             in
                 div [ class "lightbox" ]
                     [ div [ class "lightbox-inner" ]
                         [ a [ href link ]
-                            [ img [ src ("/preview?photo=" ++ imgSrc) ] [] ]
+                            [ img [ src ("/preview?photo=" ++ encodeUri imgSrc) ] [] ]
                         ]
                     , div [ class "buttons" ]
                         [ button
