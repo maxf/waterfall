@@ -97,7 +97,7 @@ const sendPhoto = size => (req, res) => {
           .resize(size)
           .toFile(thumbPath)
           .then( () => res.sendFile(thumbPath))
-          .catch(err => { res.send('resize error with:' + photoFullPath(imagePath) + ' -- ' + err) })
+          .catch(err => { res.status(500).send('resize error with:' + photoFullPath(imagePath) + ' -- ' + err) })
       }
    })
   } else {

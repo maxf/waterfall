@@ -23,10 +23,8 @@ init location =
     let
         hashParams =
             fromHash location
-
     in
         ( Model.initialModel
-            |> Model.withDateShown hashParams.date
             |> Model.withPhotoShown hashParams.preview
             |> Model.withAlbumShown hashParams.album
         , getAlbumList

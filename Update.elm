@@ -8,8 +8,8 @@ import Json.Decode
 import Time.DateTime exposing (toISO8601, fromISO8601)
 import Navigation exposing (Location, modifyUrl)
 import Regex exposing (regex, HowMany(AtMost), find)
-import Types exposing (maxNbPictures, PhotoMetadata, AlbumName, FileName, RenamedPath, buildMeta, FilePath, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), HashFields, DisplayDate(DateNotSpecified, Date, BadDate))
-import Model exposing (Model, withDateShown, withPhotoShown, withMessage, withPhotoMetadata, withAlbumShown, withMaxPicturesInADay, removePhoto, updatePhotoPath, withAlbums, firstDateWithPhotos, modelHash, toHash)
+import Types exposing (maxNbPictures, PhotoMetadata, AlbumName, FileName, RenamedPath, FilePath, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), HashFields, DisplayDate(DateNotSpecified, Date, BadDate))
+import Model exposing (Model, withPhotoShown, withMessage, withPhotos, withAlbumShown, removePhoto, updatePhotoPath, withAlbums, modelHash, toHash)
 
 
 type Msg
@@ -56,7 +56,7 @@ update msg model =
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
         PhotoWasRotated (Ok renamedPath) ->
-            ( model |> updatePhotoPath renamedPath, Cmd.none )
+            ( model |> updatePhotoPath (Debug.log "--" renamedPath), Cmd.none )
 
         PhotoWasRotated (Err httpError) ->
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
@@ -64,17 +64,12 @@ update msg model =
         ScanPhotosResult (Err httpError) ->
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
-        ScanPhotosResult (Ok metadataList) ->
+        ScanPhotosResult (Ok photoList) ->
             let
-                metadata =
-                    buildMeta metadataList
-
                 newModel =
                     model
-                        |> withPhotoMetadata metadata
+                        |> withPhotos photoList
                         |> withMessage ""
-                        |> withMaxPicturesInADay (maxNbPictures metadata)
-                        |> withDateShown (Date (firstDateWithPhotos metadata))
             in
                 ( newModel
                 , Task.attempt (\_ -> ScrollPhotosFinished) (Dom.Scroll.toTop "photos")
@@ -109,7 +104,6 @@ update msg model =
                             getAlbumPhotos name
             in
                 ( model
-                    |> withDateShown hashParams.date
                     |> withPhotoShown hashParams.preview
                     |> withAlbumShown hashParams.album
                     |> withMessage ""
@@ -188,42 +182,17 @@ errorMessage error =
 
 
 
--- URL functions
--- Hashes look like this
--- (no hash) -> initial state. Ask for album path
--- #/al/bum/Path::
--- #/al/bum/Path::yyyy-mm-dd
--- #/al/bum/Path:photo/name.jpg:
--- #/al/bum/Path:photo/name.jpg:yyyy-mm-dd
--- #/:photoname.jpg:
--- #/:photoname.jpg:yyyy-mm-dd
--- #/::yyyy-mm-dd
--- Albums include subdirectories. A photo might be part of multiple albums
--- #/al/bum/Path:photo/path.jpg:yyyy-mm-dd
--- No albums (all photos)? #:[photoname.jpg]:yyyy-mm-dd
--- Top-level album (when photos are in the top-level dir): #/[photoname.jpg]:yyyy-mm-dd
-
-
--- [nothing] -> (Nothing, Nothing, NoDateSelected)   -- start state, nothing shown
--- #:: -> (Just '', Nothing, NoDateSelected)   -- top-level albums, no photo previewed
---
--- #a:b:2012-12-12 -> (Just 'a', Just 'b', Date ...)
--- #a::2012-12-12 -> (Just 'a', Nothing, Date ...)
-
-
-
-
 fromHash : Location -> HashFields
 fromHash location =
     let
         hashRegex =
-            regex "^#([^:]*):([^:]*):(\\d{4}-\\d{2}-\\d{2})?$"
+            regex "^#([^:]*):(.*)$"
 
         matches =
             find (AtMost 1) hashRegex location.hash
     in
         case List.map .submatches matches of
-            [ [ album, photo, date ] ] ->
+            [ [ album, photo ] ] ->
                 HashFields
                     (case album of
                         Nothing ->
@@ -235,10 +204,9 @@ fromHash location =
                             NoPreview
                         Just path ->
                             if path == "" then NoPreview else Preview path)
-                    (dateFromYMD date)
 
             _ ->
-                HashFields NoAlbum NoPreview DateNotSpecified
+                HashFields NoAlbum NoPreview
 
 
 dateFromYMD : Maybe String -> DisplayDate

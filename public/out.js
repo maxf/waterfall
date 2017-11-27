@@ -16047,9 +16047,6 @@ var _user$project$Types$addToMetadataDict = F2(
 			_user$project$Types$addPhotoMetadata(metadata),
 			dict);
 	});
-var _user$project$Types$buildMeta = function (list) {
-	return A3(_elm_lang$core$List$foldl, _user$project$Types$addToMetadataDict, _elm_lang$core$Dict$empty, list);
-};
 var _user$project$Types$maxNbPictures = function (dict) {
 	return A3(
 		_elm_lang$core$List$foldl,
@@ -16071,9 +16068,9 @@ var _user$project$Types$RenamedPath = F2(
 	function (a, b) {
 		return {old: a, $new: b};
 	});
-var _user$project$Types$HashFields = F3(
-	function (a, b, c) {
-		return {album: a, preview: b, date: c};
+var _user$project$Types$HashFields = F2(
+	function (a, b) {
+		return {album: a, preview: b};
 	});
 var _user$project$Types$Album = function (a) {
 	return {ctor: 'Album', _0: a};
@@ -16099,194 +16096,102 @@ var _user$project$Model$toHash = function (hash) {
 			return _p0._0;
 		}
 	}();
-	var date = function () {
-		var _p1 = hash.date;
-		if (_p1.ctor === 'Date') {
-			return A2(
-				_elm_lang$core$String$left,
-				10,
-				_elm_community$elm_time$Time_DateTime$toISO8601(_p1._0));
-		} else {
-			return '';
-		}
-	}();
-	var _p2 = hash.album;
-	switch (_p2.ctor) {
+	var _p1 = hash.album;
+	switch (_p1.ctor) {
 		case 'NoAlbum':
 			return '';
 		case 'AllAlbums':
-			return A2(
-				_elm_lang$core$Basics_ops['++'],
-				'#:',
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					photo,
-					A2(_elm_lang$core$Basics_ops['++'], ':', date)));
+			return A2(_elm_lang$core$Basics_ops['++'], '#:', photo);
 		default:
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'#',
 				A2(
 					_elm_lang$core$Basics_ops['++'],
-					_p2._0,
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						':',
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							photo,
-							A2(_elm_lang$core$Basics_ops['++'], ':', date)))));
+					_p1._0,
+					A2(_elm_lang$core$Basics_ops['++'], ':', photo)));
 	}
 };
-var _user$project$Model$modelHash = function (_p3) {
-	var _p4 = _p3;
-	var _p5 = _p4._0;
+var _user$project$Model$modelHash = function (_p2) {
+	var _p3 = _p2;
+	var _p4 = _p3._0;
 	return _user$project$Model$toHash(
-		A3(_user$project$Types$HashFields, _p5.albumShown, _p5.photoShown, _p5.dateShown));
+		A2(_user$project$Types$HashFields, _p4.albumShown, _p4.photoShown));
 };
-var _user$project$Model$firstDateWithPhotos = function (dict) {
-	return _elm_community$elm_time$Time_DateTime$fromTimestamp(
-		_elm_lang$core$Basics$toFloat(
-			A2(
-				F2(
-					function (x, y) {
-						return x * y;
-					}),
-				1000,
-				A2(
-					_elm_lang$core$Maybe$withDefault,
-					1503957375,
-					_elm_lang$core$List$head(
-						_elm_lang$core$Dict$keys(dict))))));
+var _user$project$Model$albums = function (_p5) {
+	var _p6 = _p5;
+	return _p6._0.albums;
 };
-var _user$project$Model$lastDateWithPhotos = function (dict) {
-	return _elm_community$elm_time$Time_DateTime$fromTimestamp(
-		_elm_lang$core$Basics$toFloat(
-			A2(
-				F2(
-					function (x, y) {
-						return x * y;
-					}),
-				1000,
-				A2(
-					_elm_lang$core$Maybe$withDefault,
-					1503957375,
-					_elm_lang$core$List$head(
-						_elm_lang$core$List$reverse(
-							_elm_lang$core$Dict$keys(dict)))))));
+var _user$project$Model$message = function (_p7) {
+	var _p8 = _p7;
+	return _p8._0.message;
 };
-var _user$project$Model$removePhotoFromDict = F2(
-	function (fileName, dict) {
-		var removePhoto2 = F3(
-			function (filename, _p6, list) {
-				return A2(
-					_elm_lang$core$List$filter,
-					function (m) {
-						return !_elm_lang$core$Native_Utils.eq(m.relativeFilePath, filename);
-					},
-					list);
-			});
-		return A2(
-			_elm_lang$core$Dict$filter,
-			F2(
-				function (_p7, metadata) {
-					return !_elm_lang$core$Native_Utils.eq(
-						_elm_lang$core$List$length(metadata),
-						0);
-				}),
-			A2(
-				_elm_lang$core$Dict$map,
-				removePhoto2(fileName),
-				dict));
-	});
-var _user$project$Model$albums = function (_p8) {
-	var _p9 = _p8;
-	return _p9._0.albums;
+var _user$project$Model$photos = function (_p9) {
+	var _p10 = _p9;
+	return _p10._0.photos;
 };
-var _user$project$Model$message = function (_p10) {
-	var _p11 = _p10;
-	return _p11._0.message;
+var _user$project$Model$photoShown = function (_p11) {
+	var _p12 = _p11;
+	return _p12._0.photoShown;
 };
-var _user$project$Model$photoMetadata = function (_p12) {
-	var _p13 = _p12;
-	return _p13._0.photoMetadata;
+var _user$project$Model$albumShown = function (_p13) {
+	var _p14 = _p13;
+	return _p14._0.albumShown;
 };
-var _user$project$Model$photoShown = function (_p14) {
-	var _p15 = _p14;
-	return _p15._0.photoShown;
-};
-var _user$project$Model$dateShown = function (_p16) {
-	var _p17 = _p16;
-	return _p17._0.dateShown;
-};
-var _user$project$Model$albumShown = function (_p18) {
-	var _p19 = _p18;
-	return _p19._0.albumShown;
-};
-var _user$project$Model$InternalModel = F7(
-	function (a, b, c, d, e, f, g) {
-		return {albums: a, message: b, maxPicturesInADay: c, photoMetadata: d, albumShown: e, dateShown: f, photoShown: g};
+var _user$project$Model$InternalModel = F5(
+	function (a, b, c, d, e) {
+		return {albums: a, message: b, photos: c, albumShown: d, photoShown: e};
 	});
 var _user$project$Model$Model = function (a) {
 	return {ctor: 'Model', _0: a};
 };
 var _user$project$Model$initialModel = _user$project$Model$Model(
-	A7(
+	A5(
 		_user$project$Model$InternalModel,
 		{ctor: '[]'},
 		'Starting',
-		0,
-		_elm_lang$core$Dict$empty,
+		{ctor: '[]'},
 		_user$project$Types$NoAlbum,
-		_user$project$Types$DateNotSpecified,
 		_user$project$Types$NoPreview));
 var _user$project$Model$withAlbumShown = F2(
-	function (album, _p20) {
-		var _p21 = _p20;
+	function (album, _p15) {
+		var _p16 = _p15;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p21._0,
+				_p16._0,
 				{albumShown: album}));
 	});
 var _user$project$Model$withAlbums = F2(
-	function (albumList, _p22) {
-		var _p23 = _p22;
+	function (albumList, _p17) {
+		var _p18 = _p17;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p23._0,
+				_p18._0,
 				{albums: albumList}));
 	});
-var _user$project$Model$withDateShown = F2(
-	function (date, _p24) {
-		var _p25 = _p24;
-		return _user$project$Model$Model(
-			_elm_lang$core$Native_Utils.update(
-				_p25._0,
-				{dateShown: date}));
-	});
 var _user$project$Model$withPhotoShown = F2(
-	function (filename, _p26) {
-		var _p27 = _p26;
+	function (filename, _p19) {
+		var _p20 = _p19;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p27._0,
+				_p20._0,
 				{photoShown: filename}));
 	});
 var _user$project$Model$withMessage = F2(
-	function (message, _p28) {
-		var _p29 = _p28;
+	function (message, _p21) {
+		var _p22 = _p21;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p29._0,
+				_p22._0,
 				{message: message}));
 	});
-var _user$project$Model$withPhotoMetadata = F2(
-	function (metadata, _p30) {
-		var _p31 = _p30;
+var _user$project$Model$withPhotos = F2(
+	function (metadata, _p23) {
+		var _p24 = _p23;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p31._0,
-				{photoMetadata: metadata}));
+				_p24._0,
+				{photos: metadata}));
 	});
 var _user$project$Model$updatePhotoPath = F2(
 	function (renamedPath, model) {
@@ -16296,39 +16201,27 @@ var _user$project$Model$updatePhotoPath = F2(
 					photo,
 					{relativeFilePath: path.$new}) : photo;
 			});
-		var updateInList = F3(
-			function (path, _p32, list) {
-				return A2(
-					_elm_lang$core$List$map,
-					replacePath(path),
-					list);
-			});
-		var newMetadata = A2(
-			_elm_lang$core$Dict$map,
-			updateInList(renamedPath),
-			_user$project$Model$photoMetadata(model));
+		var newPhotos = A2(
+			_elm_lang$core$List$map,
+			replacePath(renamedPath),
+			_user$project$Model$photos(model));
 		return A2(
 			_user$project$Model$withPhotoShown,
 			_user$project$Types$Preview(renamedPath.$new),
-			A2(_user$project$Model$withPhotoMetadata, newMetadata, model));
-	});
-var _user$project$Model$withMaxPicturesInADay = F2(
-	function (maxpics, _p33) {
-		var _p34 = _p33;
-		return _user$project$Model$Model(
-			_elm_lang$core$Native_Utils.update(
-				_p34._0,
-				{maxPicturesInADay: maxpics}));
+			A2(_user$project$Model$withPhotos, newPhotos, model));
 	});
 var _user$project$Model$removePhoto = F2(
-	function (fileName, _p35) {
-		var _p36 = _p35;
-		var _p37 = _p36._0;
+	function (fileName, _p25) {
+		var _p26 = _p25;
+		var _p27 = _p26._0;
+		var filterFn = function (photo) {
+			return !_elm_lang$core$Native_Utils.eq(photo.relativeFilePath, fileName);
+		};
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p37,
+				_p27,
 				{
-					photoMetadata: A2(_user$project$Model$removePhotoFromDict, fileName, _p37.photoMetadata),
+					photos: A2(_elm_lang$core$List$filter, filterFn, _p27.photos),
 					photoShown: _user$project$Types$NoPreview
 				}));
 	});
@@ -16348,7 +16241,7 @@ var _user$project$Update$dateFromYMD = function (s) {
 	}
 };
 var _user$project$Update$fromHash = function (location) {
-	var hashRegex = _elm_lang$core$Regex$regex('^#([^:]*):([^:]*):(\\d{4}-\\d{2}-\\d{2})?$');
+	var hashRegex = _elm_lang$core$Regex$regex('^#([^:]*):(.*)$');
 	var matches = A3(
 		_elm_lang$core$Regex$find,
 		_elm_lang$core$Regex$AtMost(1),
@@ -16360,8 +16253,8 @@ var _user$project$Update$fromHash = function (location) {
 			return _.submatches;
 		},
 		matches);
-	if ((((((_p2.ctor === '::') && (_p2._0.ctor === '::')) && (_p2._0._1.ctor === '::')) && (_p2._0._1._1.ctor === '::')) && (_p2._0._1._1._1.ctor === '[]')) && (_p2._1.ctor === '[]')) {
-		return A3(
+	if (((((_p2.ctor === '::') && (_p2._0.ctor === '::')) && (_p2._0._1.ctor === '::')) && (_p2._0._1._1.ctor === '[]')) && (_p2._1.ctor === '[]')) {
+		return A2(
 			_user$project$Types$HashFields,
 			function () {
 				var _p3 = _p2._0._0;
@@ -16380,10 +16273,9 @@ var _user$project$Update$fromHash = function (location) {
 					var _p6 = _p5._0;
 					return _elm_lang$core$Native_Utils.eq(_p6, '') ? _user$project$Types$NoPreview : _user$project$Types$Preview(_p6);
 				}
-			}(),
-			_user$project$Update$dateFromYMD(_p2._0._1._1._0));
+			}());
 	} else {
-		return A3(_user$project$Types$HashFields, _user$project$Types$NoAlbum, _user$project$Types$NoPreview, _user$project$Types$DateNotSpecified);
+		return A2(_user$project$Types$HashFields, _user$project$Types$NoAlbum, _user$project$Types$NoPreview);
 	}
 };
 var _user$project$Update$errorMessage = function (error) {
@@ -16525,7 +16417,10 @@ var _user$project$Update$update = F2(
 				if (_p8._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
-						_0: A2(_user$project$Model$updatePhotoPath, _p8._0._0, model),
+						_0: A2(
+							_user$project$Model$updatePhotoPath,
+							A2(_elm_lang$core$Debug$log, '--', _p8._0._0),
+							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
@@ -16549,18 +16444,10 @@ var _user$project$Update$update = F2(
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var metadata = _user$project$Types$buildMeta(_p8._0._0);
 					var newModel = A2(
-						_user$project$Model$withDateShown,
-						_user$project$Types$Date(
-							_user$project$Model$firstDateWithPhotos(metadata)),
-						A2(
-							_user$project$Model$withMaxPicturesInADay,
-							_user$project$Types$maxNbPictures(metadata),
-							A2(
-								_user$project$Model$withMessage,
-								'',
-								A2(_user$project$Model$withPhotoMetadata, metadata, model))));
+						_user$project$Model$withMessage,
+						'',
+						A2(_user$project$Model$withPhotos, _p8._0._0, model));
 					return {
 						ctor: '_Tuple2',
 						_0: newModel,
@@ -16610,116 +16497,126 @@ var _user$project$Update$update = F2(
 						A2(
 							_user$project$Model$withAlbumShown,
 							hashParams.album,
-							A2(
-								_user$project$Model$withPhotoShown,
-								hashParams.preview,
-								A2(_user$project$Model$withDateShown, hashParams.date, model)))),
+							A2(_user$project$Model$withPhotoShown, hashParams.preview, model))),
 					_1: cmd
 				};
 		}
 	});
 
-var _user$project$ViewPhotos$viewPhoto = F3(
-	function (model, photoDate, photo) {
-		var _p0 = photo;
-		if (_p0.ctor === 'NoPreview') {
-			return A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$style(
-						{
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'display', _1: 'none'},
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				},
-				{ctor: '[]'});
-		} else {
-			var _p2 = _p0._0;
-			var imgSrc = function () {
-				var _p1 = _user$project$Model$albumShown(model);
-				if (_p1.ctor === 'Album') {
-					return A2(
-						_elm_lang$core$Basics_ops['++'],
-						_p1._0,
-						A2(_elm_lang$core$Basics_ops['++'], '/', _p2));
-				} else {
-					return A2(_elm_lang$core$Basics_ops['++'], '/', _p2);
-				}
-			}();
-			var link = _user$project$Model$toHash(
-				A3(
-					_user$project$Types$HashFields,
-					_user$project$Model$albumShown(model),
-					_user$project$Types$NoPreview,
-					_user$project$Types$Date(photoDate)));
-			return A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('lightbox'),
-					_1: {ctor: '[]'}
-				},
-				{
+var _user$project$ViewPhotos$viewPhoto = function (model) {
+	var _p0 = _user$project$Model$photoShown(model);
+	if (_p0.ctor === 'NoPreview') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$style(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'display', _1: 'none'},
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			},
+			{ctor: '[]'});
+	} else {
+		var _p2 = _p0._0;
+		var imgSrc = function () {
+			var _p1 = _user$project$Model$albumShown(model);
+			if (_p1.ctor === 'Album') {
+				return A2(
+					_elm_lang$core$Basics_ops['++'],
+					_p1._0,
+					A2(_elm_lang$core$Basics_ops['++'], '/', _p2));
+			} else {
+				return A2(_elm_lang$core$Basics_ops['++'], '/', _p2);
+			}
+		}();
+		var link = _user$project$Model$toHash(
+			A2(
+				_user$project$Types$HashFields,
+				_user$project$Model$albumShown(model),
+				_user$project$Types$NoPreview));
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('lightbox'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('lightbox-inner'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$a,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$href(link),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$img,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$src(
+											A2(
+												_elm_lang$core$Basics_ops['++'],
+												'/preview?photo=',
+												_elm_lang$http$Http$encodeUri(imgSrc))),
+										_1: {ctor: '[]'}
+									},
+									{ctor: '[]'}),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
 					ctor: '::',
 					_0: A2(
 						_elm_lang$html$Html$div,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('lightbox-inner'),
+							_0: _elm_lang$html$Html_Attributes$class('buttons'),
 							_1: {ctor: '[]'}
 						},
 						{
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$a,
+								_elm_lang$html$Html$button,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$href(link),
+									_0: _elm_lang$html$Html_Events$onClick(
+										_user$project$Update$UserAskedToDeleteAPhoto(_p2)),
 									_1: {ctor: '[]'}
 								},
 								{
 									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$img,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$src(
-												A2(
-													_elm_lang$core$Basics_ops['++'],
-													'/preview?photo=',
-													_elm_lang$http$Http$encodeUri(imgSrc))),
-											_1: {ctor: '[]'}
-										},
-										{ctor: '[]'}),
+									_0: _elm_lang$html$Html$text('🗑'),
 									_1: {ctor: '[]'}
 								}),
-							_1: {ctor: '[]'}
-						}),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$div,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('buttons'),
-								_1: {ctor: '[]'}
-							},
-							{
+							_1: {
 								ctor: '::',
 								_0: A2(
 									_elm_lang$html$Html$button,
 									{
 										ctor: '::',
 										_0: _elm_lang$html$Html_Events$onClick(
-											_user$project$Update$UserAskedToDeleteAPhoto(_p2)),
+											A2(_user$project$Update$UserAskedToRotateAPhoto, 90, imgSrc)),
 										_1: {ctor: '[]'}
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text('🗑'),
+										_0: _elm_lang$html$Html$text('↻'),
 										_1: {ctor: '[]'}
 									}),
 								_1: {
@@ -16729,60 +16626,45 @@ var _user$project$ViewPhotos$viewPhoto = F3(
 										{
 											ctor: '::',
 											_0: _elm_lang$html$Html_Events$onClick(
-												A2(_user$project$Update$UserAskedToRotateAPhoto, 90, _p2)),
+												A2(_user$project$Update$UserAskedToRotateAPhoto, 270, imgSrc)),
 											_1: {ctor: '[]'}
 										},
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html$text('↻'),
+											_0: _elm_lang$html$Html$text('↺'),
 											_1: {ctor: '[]'}
 										}),
-									_1: {
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$button,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onClick(
-													A2(_user$project$Update$UserAskedToRotateAPhoto, 270, _p2)),
-												_1: {ctor: '[]'}
-											},
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html$text('↺'),
-												_1: {ctor: '[]'}
-											}),
-										_1: {ctor: '[]'}
-									}
+									_1: {ctor: '[]'}
 								}
-							}),
-						_1: {ctor: '[]'}
-					}
-				});
-		}
-	});
+							}
+						}),
+					_1: {ctor: '[]'}
+				}
+			});
+	}
+};
 var _user$project$ViewPhotos$viewThumbnail = F2(
 	function (model, metadata) {
 		var photoLink = function () {
 			var _p3 = _user$project$Model$albumShown(model);
 			if (_p3.ctor === 'Album') {
-				return A2(
+				var _p4 = _p3._0;
+				return _elm_lang$core$Native_Utils.eq(_p4, '') ? metadata.relativeFilePath : A2(
 					_elm_lang$core$Basics_ops['++'],
-					_p3._0,
+					_p4,
 					A2(_elm_lang$core$Basics_ops['++'], '/', metadata.relativeFilePath));
 			} else {
 				return A2(_elm_lang$core$Basics_ops['++'], '/', metadata.relativeFilePath);
 			}
 		}();
 		var photoId = _user$project$Model$toHash(
-			A3(
+			A2(
 				_user$project$Types$HashFields,
 				_user$project$Model$albumShown(model),
-				_user$project$Types$Preview(metadata.relativeFilePath),
-				_user$project$Model$dateShown(model)));
+				_user$project$Types$Preview(metadata.relativeFilePath)));
 		return {
 			ctor: '_Tuple2',
-			_0: metadata.relativeFilePath,
+			_0: photoId,
 			_1: A2(
 				_elm_lang$html$Html$li,
 				{ctor: '[]'},
@@ -16826,110 +16708,95 @@ var _user$project$ViewPhotos$viewThumbnail = F2(
 				})
 		};
 	});
-var _user$project$ViewPhotos$viewThumbnails = F2(
-	function (model, metadataList) {
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
+var _user$project$ViewPhotos$viewThumbnails = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$h2,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(
+								_elm_lang$core$List$length(
+									_user$project$Model$photos(model))),
+							' photos')),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$h2,
+					_elm_lang$html$Html_Keyed$ul,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('contact-print'),
+						_1: {ctor: '[]'}
+					},
+					A2(
+						_elm_lang$core$List$map,
+						_user$project$ViewPhotos$viewThumbnail(model),
+						A2(
+							_elm_lang$core$List$sortBy,
+							function (_) {
+								return _.dateCreated;
+							},
+							_user$project$Model$photos(model)))),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$ViewPhotos$viewPhotos = function (model) {
+	var title = function () {
+		var _p5 = _user$project$Model$albumShown(model);
+		switch (_p5.ctor) {
+			case 'AllAlbums':
+				return 'All photos';
+			case 'NoAlbum':
+				return '';
+			default:
+				return _p5._0;
+		}
+	}();
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$id('photos'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$h1,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(title),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
 					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								_elm_lang$core$Basics$toString(
-									_elm_lang$core$List$length(metadataList)),
-								' photos')),
+						_0: _user$project$ViewPhotos$viewThumbnails(model),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html_Keyed$ul,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('contact-print'),
-							_1: {ctor: '[]'}
-						},
-						A2(
-							_elm_lang$core$List$map,
-							_user$project$ViewPhotos$viewThumbnail(model),
-							A2(
-								_elm_lang$core$List$sortBy,
-								function (_) {
-									return _.dateCreated;
-								},
-								metadataList))),
+					_0: _user$project$ViewPhotos$viewPhoto(model),
 					_1: {ctor: '[]'}
 				}
-			});
-	});
-var _user$project$ViewPhotos$viewPhotos = F2(
-	function (model, date) {
-		var dateExifString = _elm_lang$core$Basics$round(
-			_elm_community$elm_time$Time_DateTime$toTimestamp(date) / 1000);
-		var photosForDate = A2(
-			_elm_lang$core$Dict$get,
-			dateExifString,
-			_user$project$Model$photoMetadata(model));
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$id('photos'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$h1,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							_user$project$Types$dateToString(date)),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: function () {
-						var _p4 = photosForDate;
-						if (_p4.ctor === 'Nothing') {
-							return A2(
-								_elm_lang$html$Html$div,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('No photos for that date'),
-									_1: {ctor: '[]'}
-								});
-						} else {
-							return A2(
-								_elm_lang$html$Html$div,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: A2(_user$project$ViewPhotos$viewThumbnails, model, _p4._0),
-									_1: {ctor: '[]'}
-								});
-						}
-					}(),
-					_1: {
-						ctor: '::',
-						_0: A3(
-							_user$project$ViewPhotos$viewPhoto,
-							model,
-							date,
-							_user$project$Model$photoShown(model)),
-						_1: {ctor: '[]'}
-					}
-				}
-			});
-	});
+			}
+		});
+};
 
 var _user$project$View$viewMessage = function (messageText) {
 	var _p0 = messageText;
@@ -16965,11 +16832,10 @@ var _user$project$View$viewMessage = function (messageText) {
 var _user$project$View$viewAlbumList = function (model) {
 	var liFn = function (u) {
 		var link = _user$project$Model$toHash(
-			A3(
+			A2(
 				_user$project$Types$HashFields,
 				_user$project$Types$Album(u),
-				_user$project$Model$photoShown(model),
-				_user$project$Model$dateShown(model)));
+				_user$project$Model$photoShown(model)));
 		return A2(
 			_elm_lang$html$Html$li,
 			{ctor: '[]'},
@@ -16992,559 +16858,51 @@ var _user$project$View$viewAlbumList = function (model) {
 			});
 	};
 	return A2(
-		_elm_lang$html$Html$ul,
-		{ctor: '[]'},
-		A2(
-			_elm_lang$core$List$map,
-			liFn,
-			_user$project$Model$albums(model)));
-};
-var _user$project$View$viewYearButtons = F2(
-	function (model, date) {
-		var oneYearAfter = A2(_elm_community$elm_time$Time_DateTime$addYears, 1, date);
-		var nextYearHash = _user$project$Model$toHash(
-			A3(
-				_user$project$Types$HashFields,
-				_user$project$Model$albumShown(model),
-				_user$project$Model$photoShown(model),
-				_user$project$Types$Date(oneYearAfter)));
-		var nextYearButton = A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('button'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$a,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href(nextYearHash),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'➡ ',
-								_elm_lang$core$Basics$toString(
-									_elm_community$elm_time$Time_DateTime$year(oneYearAfter)))),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			});
-		var oneYearBefore = A2(_elm_community$elm_time$Time_DateTime$addYears, -1, date);
-		var prevYearHash = _user$project$Model$toHash(
-			A3(
-				_user$project$Types$HashFields,
-				_user$project$Model$albumShown(model),
-				_user$project$Model$photoShown(model),
-				_user$project$Types$Date(oneYearBefore)));
-		var prevYearButton = A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('button'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$a,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href(prevYearHash),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								_elm_lang$core$Basics$toString(
-									_elm_community$elm_time$Time_DateTime$year(oneYearBefore)),
-								' ⬅')),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			});
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('buttons'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: prevYearButton,
-				_1: {
-					ctor: '::',
-					_0: nextYearButton,
-					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _user$project$View$daysSinceMonday = function (dayOfWeek) {
-	var _p1 = dayOfWeek;
-	switch (_p1.ctor) {
-		case 'Mon':
-			return 0;
-		case 'Tue':
-			return 1;
-		case 'Wed':
-			return 2;
-		case 'Thu':
-			return 3;
-		case 'Fri':
-			return 4;
-		case 'Sat':
-			return 5;
-		default:
-			return 6;
-	}
-};
-var _user$project$View$dateColour = F2(
-	function (date, metadata) {
-		var dateSeconds = _user$project$Types$toSeconds(date);
-		var record = A2(_elm_lang$core$Dict$get, dateSeconds, metadata);
-		var _p2 = record;
-		if (_p2.ctor === 'Nothing') {
-			return {ctor: '_Tuple2', _0: '', _1: 0};
-		} else {
-			var _p3 = _p2._0;
-			var shade = _elm_lang$core$Basics$toString(
-				_elm_lang$core$Basics$floor(
-					100 - (100 * A2(
-						_elm_lang$core$Basics$min,
-						1,
-						_elm_lang$core$Basics$toFloat(
-							_elm_lang$core$List$length(_p3)) / 50))));
-			return {
-				ctor: '_Tuple2',
-				_0: A2(
-					_elm_lang$core$Basics_ops['++'],
-					'rgb(128, ',
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						shade,
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							',',
-							A2(_elm_lang$core$Basics_ops['++'], shade, ')')))),
-				_1: _elm_lang$core$List$length(_p3)
-			};
-		}
-	});
-var _user$project$View$dateStyle = F2(
-	function (dateToDisplay, model) {
-		var dateCol = A2(
-			_user$project$View$dateColour,
-			dateToDisplay,
-			_user$project$Model$photoMetadata(model));
-		return {
+		_elm_lang$html$Html$div,
+		{
 			ctor: '::',
-			_0: {
-				ctor: '_Tuple2',
-				_0: 'background-color',
-				_1: _elm_lang$core$Tuple$first(dateCol)
-			},
-			_1: {ctor: '[]'}
-		};
-	});
-var _user$project$View$calendarDate = function (date) {
-	return _elm_lang$core$Basics$toString(
-		_elm_community$elm_time$Time_DateTime$day(date));
-};
-var _user$project$View$viewDate = F6(
-	function (refDate, weekNumber, model, offset, firstDayOfMonth, dayOfWeek) {
-		var dateToDisplay = A2(_elm_community$elm_time$Time_DateTime$addDays, ((7 * (weekNumber - 1)) + (dayOfWeek - 1)) - offset, firstDayOfMonth);
-		var shownDateClass = _elm_lang$core$Native_Utils.eq(dateToDisplay, refDate) ? 'today' : '';
-		var hash = _user$project$Model$toHash(
-			A3(
-				_user$project$Types$HashFields,
-				_user$project$Model$albumShown(model),
-				_user$project$Model$photoShown(model),
-				_user$project$Types$Date(dateToDisplay)));
-		return (_elm_lang$core$Native_Utils.eq(
-			_elm_community$elm_time$Time_DateTime$year(dateToDisplay),
-			_elm_community$elm_time$Time_DateTime$year(refDate)) && _elm_lang$core$Native_Utils.eq(
-			_elm_community$elm_time$Time_DateTime$month(dateToDisplay),
-			_elm_community$elm_time$Time_DateTime$month(refDate))) ? A2(
-			_elm_lang$html$Html$td,
-			{
+			_0: _elm_lang$html$Html_Attributes$class('calendar'),
+			_1: {
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class(shownDateClass),
-				_1: {
+				_0: _elm_lang$html$Html_Attributes$id('calendar'),
+				_1: {ctor: '[]'}
+			}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$style(
-						A2(_user$project$View$dateStyle, dateToDisplay, model)),
-					_1: {ctor: '[]'}
-				}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$a,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href(hash),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							_user$project$View$calendarDate(dateToDisplay)),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			}) : A2(
-			_elm_lang$html$Html$td,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('no-month-date'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text(''),
-				_1: {ctor: '[]'}
-			});
-	});
-var _user$project$View$viewWeek = F5(
-	function (refDate, model, offset, firstDayOfMonth, weekNumber) {
-		var viewDateFn = A5(_user$project$View$viewDate, refDate, weekNumber, model, offset, firstDayOfMonth);
-		return A2(
-			_elm_lang$html$Html$tr,
-			{ctor: '[]'},
-			A2(
-				_elm_lang$core$List$map,
-				viewDateFn,
-				A2(_elm_lang$core$List$range, 1, 7)));
-	});
-var _user$project$View$viewMonth = F2(
-	function (refDate, model) {
-		var tableHead = A2(
-			_elm_lang$html$Html$thead,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$tr,
-					{ctor: '[]'},
-					A2(
-						_elm_lang$core$List$map,
-						function (d) {
-							return A2(
-								_elm_lang$html$Html$th,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text(d),
-									_1: {ctor: '[]'}
-								});
+					_0: A2(
+						_elm_lang$html$Html$a,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$href('/'),
+							_1: {ctor: '[]'}
 						},
 						{
 							ctor: '::',
-							_0: 'M',
-							_1: {
-								ctor: '::',
-								_0: 'T',
-								_1: {
-									ctor: '::',
-									_0: 'W',
-									_1: {
-										ctor: '::',
-										_0: 'T',
-										_1: {
-											ctor: '::',
-											_0: 'F',
-											_1: {
-												ctor: '::',
-												_0: 'S',
-												_1: {
-													ctor: '::',
-													_0: 'S',
-													_1: {ctor: '[]'}
-												}
-											}
-										}
-									}
-								}
-							}
-						})),
-				_1: {ctor: '[]'}
-			});
-		var firstDayOfMonth = _elm_community$elm_time$Time_DateTime$dateTime(
-			_elm_lang$core$Native_Utils.update(
-				_elm_community$elm_time$Time_DateTime$zero,
-				{
-					year: _elm_community$elm_time$Time_DateTime$year(refDate),
-					month: _elm_community$elm_time$Time_DateTime$month(refDate),
-					day: 1
-				}));
-		var offset = _user$project$View$daysSinceMonday(
-			_elm_community$elm_time$Time_DateTime$weekday(firstDayOfMonth));
-		var viewWeekFn = A4(_user$project$View$viewWeek, refDate, model, offset, firstDayOfMonth);
-		var tableBody = A2(
-			_elm_lang$html$Html$tbody,
-			{ctor: '[]'},
-			A2(
-				_elm_lang$core$List$map,
-				viewWeekFn,
-				A2(_elm_lang$core$List$range, 1, 6)));
-		return A2(
-			_elm_lang$html$Html$table,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: tableHead,
-				_1: {
-					ctor: '::',
-					_0: tableBody,
+							_0: _elm_lang$html$Html$text('Waterfall'),
+							_1: {ctor: '[]'}
+						}),
 					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _user$project$View$monthName = function (monthNumber) {
-	return A2(
-		_elm_lang$core$Maybe$withDefault,
-		'Bad month number',
-		A2(
-			_elm_lang$core$Array$get,
-			monthNumber - 1,
-			_elm_lang$core$Array$fromList(
-				{
-					ctor: '::',
-					_0: 'January',
-					_1: {
-						ctor: '::',
-						_0: 'February',
-						_1: {
-							ctor: '::',
-							_0: 'March',
-							_1: {
-								ctor: '::',
-								_0: 'April',
-								_1: {
-									ctor: '::',
-									_0: 'May',
-									_1: {
-										ctor: '::',
-										_0: 'June',
-										_1: {
-											ctor: '::',
-											_0: 'July',
-											_1: {
-												ctor: '::',
-												_0: 'August',
-												_1: {
-													ctor: '::',
-													_0: 'September',
-													_1: {
-														ctor: '::',
-														_0: 'October',
-														_1: {
-															ctor: '::',
-															_0: 'November',
-															_1: {
-																ctor: '::',
-																_0: 'December',
-																_1: {ctor: '[]'}
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				})));
-};
-var _user$project$View$viewMonthButtons = F2(
-	function (model, date) {
-		var oneMonthAfter = A2(_elm_community$elm_time$Time_DateTime$addMonths, 1, date);
-		var nextMonthHash = _user$project$Model$toHash(
-			A3(
-				_user$project$Types$HashFields,
-				_user$project$Model$albumShown(model),
-				_user$project$Model$photoShown(model),
-				_user$project$Types$Date(oneMonthAfter)));
-		var nextMonthButton = A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('button'),
-				_1: {ctor: '[]'}
-			},
-			{
+				}),
+			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$a,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href(nextMonthHash),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'➡ ',
-								_user$project$View$monthName(
-									_elm_community$elm_time$Time_DateTime$month(oneMonthAfter)))),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			});
-		var oneMonthBefore = A2(_elm_community$elm_time$Time_DateTime$addMonths, -1, date);
-		var prevMonthHash = _user$project$Model$toHash(
-			A3(
-				_user$project$Types$HashFields,
-				_user$project$Model$albumShown(model),
-				_user$project$Model$photoShown(model),
-				_user$project$Types$Date(oneMonthBefore)));
-		var prevMonthButton = A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('button'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$a,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href(prevMonthHash),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								_user$project$View$monthName(
-									_elm_community$elm_time$Time_DateTime$month(oneMonthBefore)),
-								' ⬅')),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			});
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('buttons'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: prevMonthButton,
-				_1: {
-					ctor: '::',
-					_0: nextMonthButton,
-					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _user$project$View$viewCalendar = F2(
-	function (model, dateToShow) {
-		var monthToDisplay = _elm_community$elm_time$Time_DateTime$month(dateToShow);
-		var yearToDisplay = _elm_community$elm_time$Time_DateTime$year(dateToShow);
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('calendar'),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$id('calendar'),
-					_1: {ctor: '[]'}
-				}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
+					_elm_lang$html$Html$ul,
 					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$a,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$href('/'),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('Waterfall'),
-								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: _user$project$View$viewAlbumList(model),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$h1,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text(
-									_user$project$View$monthName(monthToDisplay)),
-								_1: {
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$br,
-										{ctor: '[]'},
-										{ctor: '[]'}),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html$text(
-											_elm_lang$core$Basics$toString(yearToDisplay)),
-										_1: {ctor: '[]'}
-									}
-								}
-							}),
-						_1: {
-							ctor: '::',
-							_0: A2(_user$project$View$viewMonthButtons, model, dateToShow),
-							_1: {
-								ctor: '::',
-								_0: A2(_user$project$View$viewMonth, dateToShow, model),
-								_1: {
-									ctor: '::',
-									_0: A2(_user$project$View$viewYearButtons, model, dateToShow),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					}
-				}
-			});
-	});
+					A2(
+						_elm_lang$core$List$map,
+						liFn,
+						_user$project$Model$albums(model))),
+				_1: {ctor: '[]'}
+			}
+		});
+};
 var _user$project$View$view = function (model) {
-	var dateToShow = function () {
-		var _p4 = _user$project$Model$dateShown(model);
-		if (_p4.ctor === 'Date') {
-			return _p4._0;
-		} else {
-			return _user$project$Model$lastDateWithPhotos(
-				_user$project$Model$photoMetadata(model));
-		}
-	}();
 	return A2(
 		_elm_lang$html$Html$div,
 		{
@@ -17567,10 +16925,10 @@ var _user$project$View$view = function (model) {
 					},
 					{
 						ctor: '::',
-						_0: A2(_user$project$View$viewCalendar, model, dateToShow),
+						_0: _user$project$View$viewAlbumList(model),
 						_1: {
 							ctor: '::',
-							_0: A2(_user$project$ViewPhotos$viewPhotos, model, dateToShow),
+							_0: _user$project$ViewPhotos$viewPhotos(model),
 							_1: {ctor: '[]'}
 						}
 					}),
@@ -17594,10 +16952,7 @@ var _user$project$Main$init = function (location) {
 		_0: A2(
 			_user$project$Model$withAlbumShown,
 			hashParams.album,
-			A2(
-				_user$project$Model$withPhotoShown,
-				hashParams.preview,
-				A2(_user$project$Model$withDateShown, hashParams.date, _user$project$Model$initialModel))),
+			A2(_user$project$Model$withPhotoShown, hashParams.preview, _user$project$Model$initialModel)),
 		_1: _user$project$Main$getAlbumList
 	};
 };

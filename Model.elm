@@ -4,29 +4,23 @@ module Model
         , initialModel
         , removePhoto
         , updatePhotoPath
-        , dateShown
         , photoShown
-        , photoMetadata
+        , photos
         , albumShown
         , message
         , albums
         , toHash
         , modelHash
-        , withDateShown
         , withPhotoShown
         , withAlbums
         , withMessage
-        , withPhotoMetadata
+        , withPhotos
         , withAlbumShown
-        , withMaxPicturesInADay
-        , lastDateWithPhotos
-        , firstDateWithPhotos
         )
 
-import Types exposing (MetadataDict, FileName, RenamedPath, FilePath, AlbumName, HashFields, DisplayDate(DateNotSpecified, Date, BadDate), AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview))
+import Types exposing (FileName, RenamedPath, FilePath, AlbumName, HashFields, DisplayDate(DateNotSpecified, Date, BadDate), AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), PhotoMetadata)
 import Time.DateTime exposing (DateTime, fromTimestamp, toISO8601)
 import String exposing (left)
-import Dict
 
 
 type Model
@@ -36,10 +30,8 @@ type Model
 type alias InternalModel =
     { albums : List AlbumName
     , message : String
-    , maxPicturesInADay : Int
-    , photoMetadata : MetadataDict
+    , photos : List PhotoMetadata
     , albumShown : AlbumHash
-    , dateShown : DisplayDate
     , photoShown : PreviewHash
     }
 
@@ -50,10 +42,8 @@ initialModel =
         (InternalModel
             []
             "Starting"
-            0
-            Dict.empty
+            []
             NoAlbum
-            DateNotSpecified
             NoPreview
         )
 
@@ -67,19 +57,14 @@ albumShown (Model model) =
     model.albumShown
 
 
-dateShown : Model -> DisplayDate
-dateShown (Model model) =
-    model.dateShown
-
-
 photoShown : Model -> PreviewHash
 photoShown (Model model) =
     model.photoShown
 
 
-photoMetadata : Model -> MetadataDict
-photoMetadata (Model model) =
-    model.photoMetadata
+photos : Model -> List PhotoMetadata
+photos (Model model) =
+    model.photos
 
 
 message : Model -> String
@@ -102,11 +87,6 @@ withAlbums albumList (Model model) =
     Model { model | albums = albumList }
 
 
-withDateShown : DisplayDate -> Model -> Model
-withDateShown date (Model model) =
-    Model { model | dateShown = date }
-
-
 withPhotoShown : PreviewHash -> Model -> Model
 withPhotoShown filename (Model model) =
     Model { model | photoShown = filename }
@@ -117,14 +97,9 @@ withMessage message (Model model) =
     Model { model | message = message }
 
 
-withPhotoMetadata : MetadataDict -> Model -> Model
-withPhotoMetadata metadata (Model model) =
-    Model { model | photoMetadata = metadata }
-
-
-withMaxPicturesInADay : Int -> Model -> Model
-withMaxPicturesInADay maxpics (Model model) =
-    Model { model | maxPicturesInADay = maxpics }
+withPhotos : List PhotoMetadata -> Model -> Model
+withPhotos metadata (Model model) =
+    Model { model | photos = metadata }
 
 
 
@@ -133,11 +108,16 @@ withMaxPicturesInADay maxpics (Model model) =
 
 removePhoto : FileName -> Model -> Model
 removePhoto fileName (Model model) =
-    Model
-        { model
-            | photoMetadata = removePhotoFromDict fileName model.photoMetadata
-            , photoShown = NoPreview
-        }
+    let
+        filterFn : PhotoMetadata -> Bool
+        filterFn photo =
+            photo.relativeFilePath /= fileName
+    in
+        Model
+            { model
+                | photos = List.filter filterFn model.photos
+                , photoShown = NoPreview
+            }
 
 
 
@@ -153,75 +133,24 @@ updatePhotoPath renamedPath model =
             else
                 photo
 
-        updateInList path _ list =
-            List.map (replacePath path) list
-
-        newMetadata : MetadataDict
-        newMetadata =
-            Dict.map (updateInList renamedPath) (photoMetadata model)
+        newPhotos : List PhotoMetadata
+        newPhotos =
+            List.map (replacePath renamedPath) (photos model)
     in
         model
-            |> withPhotoMetadata newMetadata
+            |> withPhotos newPhotos
             |> withPhotoShown (Preview renamedPath.new)
 
 
 
--- remove the metadata entry of photo with fileName from the dict passed
-
-
-removePhotoFromDict : FileName -> MetadataDict -> MetadataDict
-removePhotoFromDict fileName dict =
-    let
-        removePhoto2 filename _ list =
-            List.filter (\m -> m.relativeFilePath /= filename) list
-    in
-        dict
-            |> Dict.map (removePhoto2 fileName)
-            -- and remove empty dict entries
-            |> Dict.filter (\_ metadata -> List.length metadata /= 0)
-
-
-lastDateWithPhotos : MetadataDict -> DateTime
-lastDateWithPhotos dict =
-    dict
-        |> Dict.keys
-        |> List.reverse
-        |> List.head
-        -- If no photos, pick some random date:
-        |> Maybe.withDefault 1503957375
-        |> (*) 1000
-        |> toFloat
-        |> fromTimestamp
-
-
-firstDateWithPhotos : MetadataDict -> DateTime
-firstDateWithPhotos dict =
-    dict
-        |> Dict.keys
-        |> List.head
-        -- If no photos, pick some random date:
-        |> Maybe.withDefault 1503957375
-        |> (*) 1000
-        |> toFloat
-        |> fromTimestamp
-
-
 modelHash : Model -> String
 modelHash (Model model) =
-    toHash (HashFields model.albumShown model.photoShown model.dateShown)
+    toHash (HashFields model.albumShown model.photoShown)
 
 
 toHash : HashFields -> String
 toHash hash =
     let
-        date =
-            case hash.date of
-                Date d ->
-                    d |> toISO8601 |> left 10
-
-                _ ->
-                    ""
-
         photo =
             case hash.preview of
                 NoPreview ->
@@ -234,7 +163,7 @@ toHash hash =
                 ""
 
             AllAlbums ->
-                "#:" ++ photo ++ ":" ++ date
+                "#:" ++ photo
 
             Album path ->
-                "#" ++ path ++ ":" ++ photo ++ ":" ++ date
+                "#" ++ path ++ ":" ++ photo

@@ -1,4 +1,4 @@
-module Types exposing (DirectoryPath, PhotoMetadata, Year, Month, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, buildMeta, FileName, JsonString, iso8601ToEpochSeconds, RenamedPath, FilePath, AlbumName, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), HashFields, DisplayDate(DateNotSpecified, Date, BadDate))
+module Types exposing (DirectoryPath, PhotoMetadata, Year, Month, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, FileName, JsonString, iso8601ToEpochSeconds, RenamedPath, FilePath, AlbumName, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), HashFields, DisplayDate(DateNotSpecified, Date, BadDate))
 
 import Dict exposing (Dict, keys)
 import Time.DateTime exposing (DateTime, dateTime, zero, epoch, year, month, day, addSeconds, toTimestamp, fromISO8601)
@@ -92,7 +92,6 @@ type DisplayDate
 type alias HashFields =
     { album : AlbumHash
     , preview : PreviewHash
-    , date : DisplayDate
     }
 
 
@@ -160,12 +159,6 @@ dateToString date =
 toSeconds : DateTime -> SecondsSinceEpoch
 toSeconds date =
     round (toTimestamp date) // 1000
-
-
-buildMeta : List PhotoMetadata -> MetadataDict
-buildMeta list =
-    list
-        |> List.foldl addToMetadataDict Dict.empty
 
 
 dateOfFirstPhotoOfYear : Year -> MetadataDict -> DateTime

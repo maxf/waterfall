@@ -4,46 +4,43 @@ import Html exposing (Html, div, h1, h2, li, img, text, a, button)
 import Html.Keyed exposing (ul)
 import Html.Attributes exposing (src, id, style, class, href)
 import Html.Events exposing (onClick)
-import Time.DateTime exposing (DateTime, toTimestamp)
-import Dict
 import Http exposing (encodeUri)
-import Model exposing (Model, photoShown, photoMetadata, albumShown, dateShown, modelHash, toHash)
-import Types exposing (PhotoMetadata, FileName, dateToString, DisplayDate(Date), PreviewHash(NoPreview, Preview), HashFields, AlbumHash(Album))
+import Model exposing (Model, photoShown, photos, albumShown, modelHash, toHash)
+import Types exposing (PhotoMetadata, FileName, dateToString, DisplayDate(Date), PreviewHash(NoPreview, Preview), HashFields, AlbumHash(Album, NoAlbum, AllAlbums))
 import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto))
 
 
-viewPhotos : Model -> DateTime -> Html Msg
-viewPhotos model date =
+viewPhotos : Model -> Html Msg
+viewPhotos model =
     let
-        dateExifString =
-            (date |> toTimestamp) / 1000 |> round
+        title =
+            case model |> albumShown of
+                AllAlbums ->
+                    "All photos"
 
-        photosForDate =
-            Dict.get dateExifString (photoMetadata model)
+                NoAlbum ->
+                    ""
+                Album path ->
+                    path
     in
         div
             [ id "photos" ]
-            [ h1 [] [ date |> dateToString |> text ]
-            , case photosForDate of
-                Nothing ->
-                    div [] [ text "No photos for that date" ]
-
-                Just photos ->
-                    div [] [ viewThumbnails model photos ]
-            , viewPhoto model date (model |> photoShown)
+            [ h1 [] [ text title ]
+            , div [] [ viewThumbnails model ]
+            , viewPhoto model
             ]
 
 
-viewThumbnails : Model -> List PhotoMetadata -> Html Msg
-viewThumbnails model metadataList =
+viewThumbnails : Model -> Html Msg
+viewThumbnails model =
     div
         []
-        [ h2 [] [ text ((List.length metadataList |> toString) ++ " photos") ]
+        [ h2 [] [ text ((List.length (model |> photos) |> toString) ++ " photos") ]
         , ul
             [ class "contact-print" ]
             (List.map
                 (viewThumbnail model)
-                (List.sortBy .dateCreated metadataList)
+                (List.sortBy .dateCreated (model |> photos))
             )
         ]
 
@@ -56,17 +53,19 @@ viewThumbnail model metadata =
               (HashFields
                    (albumShown model)
                    (Preview metadata.relativeFilePath)
-                   (dateShown model)
               )
 
         photoLink =
             case albumShown model of
                 Album path ->
-                    path ++ "/" ++ metadata.relativeFilePath
+                    if path == "" then
+                        metadata.relativeFilePath
+                    else
+                        path ++ "/" ++ metadata.relativeFilePath
                 _ ->
                     "/" ++ metadata.relativeFilePath
     in
-        ( metadata.relativeFilePath
+        ( photoId
         , li
             []
             [ div
@@ -83,16 +82,16 @@ viewThumbnail model metadata =
         )
 
 
-viewPhoto : Model -> DateTime -> PreviewHash -> Html Msg
-viewPhoto model photoDate photo =
-    case photo of
+viewPhoto : Model -> Html Msg
+viewPhoto model =
+    case model |> photoShown of
         NoPreview ->
             div [ style [ ( "display", "none" ) ] ] []
 
         Preview name ->
             let
                 link =
-                    HashFields (albumShown model) NoPreview (Date photoDate)
+                    HashFields (albumShown model) NoPreview
                         |> toHash
 
                 imgSrc =
@@ -112,10 +111,10 @@ viewPhoto model photoDate photo =
                             [ onClick (UserAskedToDeleteAPhoto name) ]
                             [ text "🗑" ]
                         , button
-                            [ onClick (UserAskedToRotateAPhoto 90 name) ]
+                            [ onClick (UserAskedToRotateAPhoto 90 imgSrc) ]
                             [ text "↻" ]
                         , button
-                            [ onClick (UserAskedToRotateAPhoto 270 name) ]
+                            [ onClick (UserAskedToRotateAPhoto 270 imgSrc) ]
                             [ text "↺" ]
                         ]
                     ]
