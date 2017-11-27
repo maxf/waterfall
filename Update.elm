@@ -12,6 +12,14 @@ import Types exposing (maxNbPictures, PhotoMetadata, AlbumName, FileName, Rename
 import Model exposing (Model, withPhotoShown, withMessage, withPhotos, withAlbumShown, removePhoto, updatePhotoPath, withAlbums, modelHash, toHash)
 
 
+
+type alias AlbumPhotos =
+    { title: String
+    , photos: List PhotoMetadata
+    }
+
+
+
 type Msg
     = ScrollPhotosFinished
     | UserAskedToDeleteAPhoto FileName
@@ -19,7 +27,7 @@ type Msg
     | UserClickedOnPhoto
     | PhotoWasDeleted (Result Http.Error String)
     | PhotoWasRotated (Result Http.Error RenamedPath)
-    | ScanPhotosResult (Result Http.Error (List PhotoMetadata))
+    | ScanPhotosResult (Result Http.Error AlbumPhotos)
     | GetAlbumsResult (Result Http.Error (List String))
     | UrlChange Location
 
@@ -64,11 +72,12 @@ update msg model =
         ScanPhotosResult (Err httpError) ->
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
-        ScanPhotosResult (Ok photoList) ->
+        ScanPhotosResult (Ok album) ->
             let
                 newModel =
                     model
-                        |> withPhotos photoList
+                        |> withAlbumShown (Album album.title)
+                        |> withPhotos album.photos
                         |> withMessage ""
             in
                 ( newModel
@@ -105,9 +114,12 @@ update msg model =
             in
                 ( model
                     |> withPhotoShown hashParams.preview
-                    |> withAlbumShown hashParams.album
                     |> withMessage ""
                 , cmd
+                -- BUG: if clicked on an album, this will redraw the model
+                -- before the scan has happened, with the new album name, and so
+                -- will fetch wrong images, until ScanPhotosResult at which point
+                -- things will work again
                 )
 
 
@@ -152,11 +164,18 @@ getAlbumPhotos albumName =
                 (Json.Decode.field "path" Json.Decode.string)
                 (Json.Decode.field "date" Json.Decode.int)
 
+        albumDecoder =
+            Json.Decode.list
+                Json.Decode.map2
+                    AlbumPhotos
+                    (Json.Decode.field "title" Json.Decode.string)
+                    photoMetadataDecoder
+
         apiUrl =
             "api/scan?dir=" ++ encodeUri albumName
 
         request =
-            Http.get apiUrl (Json.Decode.list photoMetadataDecoder)
+            Http.get apiUrl albumDecoder
 
     in
         Http.send ScanPhotosResult request

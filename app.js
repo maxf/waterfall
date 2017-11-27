@@ -71,9 +71,11 @@ const dirs = function(req, res) {
 }
 
 const scan = function(req, res) {
-  const dirToScan = path.join(photosDir, decodeURIComponent(req.query.dir))
+  const album = decodeURIComponent(req.query.dir)
+  const dirToScan = path.join(photosDir, album)
   recursive(dirToScan, [excludeFiles], function (err, files) {
-    res.send(files.map(makePhotoObject(dirToScan)).filter(obj=>obj.date))
+    const photoList = files.map(makePhotoObject(dirToScan)).filter(obj=>obj.date)
+    res.send(JSON.stringify({title:album, photos: photoList}))
   })
 }
 
