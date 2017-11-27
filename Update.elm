@@ -9,7 +9,8 @@ import Time.DateTime exposing (toISO8601, fromISO8601)
 import Navigation exposing (Location, modifyUrl)
 import Regex exposing (regex, HowMany(AtMost), find)
 import Types exposing (maxNbPictures, PhotoMetadata, AlbumName, FileName, RenamedPath, FilePath, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), HashFields, DisplayDate(DateNotSpecified, Date, BadDate))
-import Model exposing (Model, withPhotoShown, withMessage, withPhotos, withAlbumShown, removePhoto, updatePhotoPath, withAlbums, modelHash, toHash)
+import Model exposing (Model, withPhotoShown, withMessage, withPhotos, withAlbumShown, removePhoto, updatePhotoPath, withAlbums, modelHash, toHash, albumShown)
+
 
 
 type Msg
@@ -56,7 +57,7 @@ update msg model =
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
         PhotoWasRotated (Ok renamedPath) ->
-            ( model |> updatePhotoPath (Debug.log "--" renamedPath), Cmd.none )
+            ( model |> updatePhotoPath renamedPath, Cmd.none )
 
         PhotoWasRotated (Err httpError) ->
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
@@ -64,11 +65,11 @@ update msg model =
         ScanPhotosResult (Err httpError) ->
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
-        ScanPhotosResult (Ok photoList) ->
+        ScanPhotosResult (Ok photos) ->
             let
                 newModel =
                     model
-                        |> withPhotos photoList
+                        |> withPhotos photos
                         |> withMessage ""
             in
                 ( newModel
@@ -84,7 +85,13 @@ update msg model =
             ( model
                 |> withAlbums albumList
                 |> withMessage ""
-            , Cmd.none
+            , case model |> albumShown of
+                  NoAlbum ->
+                      Cmd.none
+                  AllAlbums ->
+                      getAlbumPhotos ""
+                  Album name ->
+                      getAlbumPhotos name
             )
 
         UrlChange location ->
@@ -109,7 +116,6 @@ update msg model =
                     |> withMessage ""
                 , cmd
                 )
-
 
 
 -- Misc
