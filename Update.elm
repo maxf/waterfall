@@ -7,7 +7,7 @@ import Json.Decode
 import Navigation exposing (Location, modifyUrl)
 import Regex exposing (regex, HowMany(AtMost), find)
 import Types exposing (PhotoMetadata, FileName, RenamedPath, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), HashFields)
-import Model exposing (Model, withPhotoShown, withMessage, withPhotos, removePhoto, updatePhotoPath, withAlbums, modelHash, albumShown)
+import Model exposing (Model, withPhotoShown, withMessage, withPhotos, removePhoto, updatePhotoPath, withAlbums, modelHash, albumShown, withAlbumShown)
 
 
 type Msg
@@ -101,24 +101,24 @@ update msg model =
 
                 cmd : Cmd Msg
                 cmd =
-                    case hashParams.album of
-                        NoAlbum ->
-                            Cmd.none
+                    if hashParams.album /= albumShown model then
+                        case hashParams.album of
+                            NoAlbum ->
+                                Cmd.none
 
-                        AllAlbums ->
-                            getAlbumPhotos ""
+                            AllAlbums ->
+                                getAlbumPhotos ""
 
-                        Album name ->
-                            getAlbumPhotos name
+                            Album name ->
+                                getAlbumPhotos name
+                    else
+                        Cmd.none
             in
                 ( model
                     |> withPhotoShown hashParams.preview
+                    |> withAlbumShown hashParams.album
                     |> withMessage ""
                 , cmd
-                  -- BUG: if clicked on an album, this will redraw the model
-                  -- before the scan has happened, with the new album name, and so
-                  -- will fetch wrong images, until ScanPhotosResult at which point
-                  -- things will work again
                 )
 
 
