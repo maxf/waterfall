@@ -51,10 +51,10 @@ const exifOriginalDate = path => {
   return parseInt(result, 10)
 }
 
-const makePhotoObject = baseDir => fileName => {
+const makePhotoObject = fileName => {
   return {
     date: exifOriginalDate(fileName),
-    path: path.relative(baseDir, fileName)
+    path: path.relative(photosDir, fileName)
   }
 }
 
@@ -74,8 +74,8 @@ const scan = function(req, res) {
   const album = decodeURIComponent(req.query.dir)
   const dirToScan = path.join(photosDir, album)
   recursive(dirToScan, [excludeFiles], function (err, files) {
-    const photoList = files.map(makePhotoObject(dirToScan)).filter(obj=>obj.date)
-    res.send(JSON.stringify({title:album, photos: photoList}))
+    const photoList = files.map(makePhotoObject)
+    res.send(JSON.stringify(photoList))
   })
 }
 

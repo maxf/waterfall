@@ -33,16 +33,22 @@ viewPhotos model =
 
 viewThumbnails : Model -> Html Msg
 viewThumbnails model =
-    div
-        []
-        [ h2 [] [ text ((List.length (model |> photos) |> toString) ++ " photos") ]
-        , ul
-            [ class "contact-print" ]
-            (List.map
-                (viewThumbnail model)
-                (List.sortBy .dateCreated (model |> photos))
-            )
-        ]
+    let
+        sortByMaybeDate a b =
+            compare
+                (a.dateCreated |> Maybe.withDefault 0)
+                (b.dateCreated |> Maybe.withDefault 0)
+    in
+        div
+            []
+            [ h2 [] [ text ((List.length (model |> photos) |> toString) ++ " photos") ]
+            , ul
+                  [ class "contact-print" ]
+                  (List.map
+                       (viewThumbnail model)
+                       (List.sortWith sortByMaybeDate (model |> photos))
+                  )
+            ]
 
 
 viewThumbnail : Model -> PhotoMetadata -> ( String, Html Msg )
@@ -54,16 +60,6 @@ viewThumbnail model metadata =
                    (albumShown model)
                    (Preview metadata.relativeFilePath)
               )
-
-        photoLink =
-            case albumShown model of
-                Album path ->
-                    if path == "" then
-                        metadata.relativeFilePath
-                    else
-                        path ++ "/" ++ metadata.relativeFilePath
-                _ ->
-                    "/" ++ metadata.relativeFilePath
     in
         ( photoId
         , li
@@ -72,7 +68,7 @@ viewThumbnail model metadata =
                 []
                 [ a [ href photoId ]
                     [ img
-                        [ src ("/thumb?photo=" ++ encodeUri photoLink)
+                        [ src ("/thumb?photo=" ++ encodeUri metadata.relativeFilePath)
                         , class "thumbnail"
                         ]
                         []
@@ -94,27 +90,21 @@ viewPhoto model =
                     HashFields (albumShown model) NoPreview
                         |> toHash
 
-                imgSrc =
-                    case albumShown model of
-                        Album path ->
-                            path ++ "/" ++ name
-                        _ ->
-                            "/" ++ name
             in
                 div [ class "lightbox" ]
                     [ div [ class "lightbox-inner" ]
                         [ a [ href link ]
-                            [ img [ src ("/preview?photo=" ++ encodeUri imgSrc) ] [] ]
+                            [ img [ src ("/preview?photo=" ++ encodeUri name) ] [] ]
                         ]
                     , div [ class "buttons" ]
                         [ button
                             [ onClick (UserAskedToDeleteAPhoto name) ]
                             [ text "🗑" ]
                         , button
-                            [ onClick (UserAskedToRotateAPhoto 90 imgSrc) ]
+                            [ onClick (UserAskedToRotateAPhoto 90 name) ]
                             [ text "↻" ]
                         , button
-                            [ onClick (UserAskedToRotateAPhoto 270 imgSrc) ]
+                            [ onClick (UserAskedToRotateAPhoto 270 name) ]
                             [ text "↺" ]
                         ]
                     ]

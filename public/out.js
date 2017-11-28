@@ -16039,14 +16039,6 @@ var _user$project$Types$addPhotoMetadata = F2(
 				{ctor: '::', _0: metadata, _1: _p2._0});
 		}
 	});
-var _user$project$Types$addToMetadataDict = F2(
-	function (metadata, dict) {
-		return A3(
-			_elm_lang$core$Dict$update,
-			_user$project$Types$roundToStartOfDay(metadata.dateCreated),
-			_user$project$Types$addPhotoMetadata(metadata),
-			dict);
-	});
 var _user$project$Types$maxNbPictures = function (dict) {
 	return A3(
 		_elm_lang$core$List$foldl,
@@ -16293,6 +16285,10 @@ var _user$project$Update$errorMessage = function (error) {
 			return A2(_elm_lang$core$Basics_ops['++'], 'Bad payload: ', _p7._0);
 	}
 };
+var _user$project$Update$AlbumPhotos = F2(
+	function (a, b) {
+		return {title: a, photos: b};
+	});
 var _user$project$Update$UrlChange = function (a) {
 	return {ctor: 'UrlChange', _0: a};
 };
@@ -16311,7 +16307,10 @@ var _user$project$Update$getAlbumPhotos = function (albumName) {
 		_elm_lang$core$Json_Decode$map2,
 		_user$project$Types$PhotoMetadata,
 		A2(_elm_lang$core$Json_Decode$field, 'path', _elm_lang$core$Json_Decode$string),
-		A2(_elm_lang$core$Json_Decode$field, 'date', _elm_lang$core$Json_Decode$int));
+		A2(
+			_elm_lang$core$Json_Decode$field,
+			'date',
+			_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)));
 	var request = A2(
 		_elm_lang$http$Http$get,
 		apiUrl,
@@ -16417,10 +16416,7 @@ var _user$project$Update$update = F2(
 				if (_p8._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
-						_0: A2(
-							_user$project$Model$updatePhotoPath,
-							A2(_elm_lang$core$Debug$log, '--', _p8._0._0),
-							model),
+						_0: A2(_user$project$Model$updatePhotoPath, _p8._0._0, model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
@@ -16473,20 +16469,30 @@ var _user$project$Update$update = F2(
 							_user$project$Model$withMessage,
 							'',
 							A2(_user$project$Model$withAlbums, _p8._0._0, model)),
-						_1: _elm_lang$core$Platform_Cmd$none
+						_1: function () {
+							var _p11 = _user$project$Model$albumShown(model);
+							switch (_p11.ctor) {
+								case 'NoAlbum':
+									return _elm_lang$core$Platform_Cmd$none;
+								case 'AllAlbums':
+									return _user$project$Update$getAlbumPhotos('');
+								default:
+									return _user$project$Update$getAlbumPhotos(_p11._0);
+							}
+						}()
 					};
 				}
 			default:
 				var hashParams = _user$project$Update$fromHash(_p8._0);
 				var cmd = function () {
-					var _p11 = hashParams.album;
-					switch (_p11.ctor) {
+					var _p12 = hashParams.album;
+					switch (_p12.ctor) {
 						case 'NoAlbum':
 							return _elm_lang$core$Platform_Cmd$none;
 						case 'AllAlbums':
 							return _user$project$Update$getAlbumPhotos('');
 						default:
-							return _user$project$Update$getAlbumPhotos(_p11._0);
+							return _user$project$Update$getAlbumPhotos(_p12._0);
 					}
 				}();
 				return {
@@ -16494,10 +16500,7 @@ var _user$project$Update$update = F2(
 					_0: A2(
 						_user$project$Model$withMessage,
 						'',
-						A2(
-							_user$project$Model$withAlbumShown,
-							hashParams.album,
-							A2(_user$project$Model$withPhotoShown, hashParams.preview, model))),
+						A2(_user$project$Model$withPhotoShown, hashParams.preview, model)),
 					_1: cmd
 				};
 		}
@@ -16520,18 +16523,7 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 			},
 			{ctor: '[]'});
 	} else {
-		var _p2 = _p0._0;
-		var imgSrc = function () {
-			var _p1 = _user$project$Model$albumShown(model);
-			if (_p1.ctor === 'Album') {
-				return A2(
-					_elm_lang$core$Basics_ops['++'],
-					_p1._0,
-					A2(_elm_lang$core$Basics_ops['++'], '/', _p2));
-			} else {
-				return A2(_elm_lang$core$Basics_ops['++'], '/', _p2);
-			}
-		}();
+		var _p1 = _p0._0;
 		var link = _user$project$Model$toHash(
 			A2(
 				_user$project$Types$HashFields,
@@ -16572,7 +16564,7 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 											A2(
 												_elm_lang$core$Basics_ops['++'],
 												'/preview?photo=',
-												_elm_lang$http$Http$encodeUri(imgSrc))),
+												_elm_lang$http$Http$encodeUri(_p1))),
 										_1: {ctor: '[]'}
 									},
 									{ctor: '[]'}),
@@ -16596,7 +16588,7 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 								{
 									ctor: '::',
 									_0: _elm_lang$html$Html_Events$onClick(
-										_user$project$Update$UserAskedToDeleteAPhoto(_p2)),
+										_user$project$Update$UserAskedToDeleteAPhoto(_p1)),
 									_1: {ctor: '[]'}
 								},
 								{
@@ -16611,7 +16603,7 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 									{
 										ctor: '::',
 										_0: _elm_lang$html$Html_Events$onClick(
-											A2(_user$project$Update$UserAskedToRotateAPhoto, 90, imgSrc)),
+											A2(_user$project$Update$UserAskedToRotateAPhoto, 90, _p1)),
 										_1: {ctor: '[]'}
 									},
 									{
@@ -16626,7 +16618,7 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 										{
 											ctor: '::',
 											_0: _elm_lang$html$Html_Events$onClick(
-												A2(_user$project$Update$UserAskedToRotateAPhoto, 270, imgSrc)),
+												A2(_user$project$Update$UserAskedToRotateAPhoto, 270, _p1)),
 											_1: {ctor: '[]'}
 										},
 										{
@@ -16645,18 +16637,6 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 };
 var _user$project$ViewPhotos$viewThumbnail = F2(
 	function (model, metadata) {
-		var photoLink = function () {
-			var _p3 = _user$project$Model$albumShown(model);
-			if (_p3.ctor === 'Album') {
-				var _p4 = _p3._0;
-				return _elm_lang$core$Native_Utils.eq(_p4, '') ? metadata.relativeFilePath : A2(
-					_elm_lang$core$Basics_ops['++'],
-					_p4,
-					A2(_elm_lang$core$Basics_ops['++'], '/', metadata.relativeFilePath));
-			} else {
-				return A2(_elm_lang$core$Basics_ops['++'], '/', metadata.relativeFilePath);
-			}
-		}();
 		var photoId = _user$project$Model$toHash(
 			A2(
 				_user$project$Types$HashFields,
@@ -16692,7 +16672,7 @@ var _user$project$ViewPhotos$viewThumbnail = F2(
 												A2(
 													_elm_lang$core$Basics_ops['++'],
 													'/thumb?photo=',
-													_elm_lang$http$Http$encodeUri(photoLink))),
+													_elm_lang$http$Http$encodeUri(metadata.relativeFilePath))),
 											_1: {
 												ctor: '::',
 												_0: _elm_lang$html$Html_Attributes$class('thumbnail'),
@@ -16709,6 +16689,13 @@ var _user$project$ViewPhotos$viewThumbnail = F2(
 		};
 	});
 var _user$project$ViewPhotos$viewThumbnails = function (model) {
+	var sortByMaybeDate = F2(
+		function (a, b) {
+			return A2(
+				_elm_lang$core$Basics$compare,
+				A2(_elm_lang$core$Maybe$withDefault, 0, a.dateCreated),
+				A2(_elm_lang$core$Maybe$withDefault, 0, b.dateCreated));
+		});
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
@@ -16741,10 +16728,8 @@ var _user$project$ViewPhotos$viewThumbnails = function (model) {
 						_elm_lang$core$List$map,
 						_user$project$ViewPhotos$viewThumbnail(model),
 						A2(
-							_elm_lang$core$List$sortBy,
-							function (_) {
-								return _.dateCreated;
-							},
+							_elm_lang$core$List$sortWith,
+							sortByMaybeDate,
 							_user$project$Model$photos(model)))),
 				_1: {ctor: '[]'}
 			}
@@ -16752,14 +16737,14 @@ var _user$project$ViewPhotos$viewThumbnails = function (model) {
 };
 var _user$project$ViewPhotos$viewPhotos = function (model) {
 	var title = function () {
-		var _p5 = _user$project$Model$albumShown(model);
-		switch (_p5.ctor) {
+		var _p2 = _user$project$Model$albumShown(model);
+		switch (_p2.ctor) {
 			case 'AllAlbums':
 				return 'All photos';
 			case 'NoAlbum':
 				return '';
 			default:
-				return _p5._0;
+				return _p2._0;
 		}
 	}();
 	return A2(
@@ -16971,7 +16956,7 @@ var _user$project$Main$main = A2(
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Update.Msg":{"args":[],"tags":{"PhotoWasDeleted":["Result.Result Http.Error String"],"PhotoWasRotated":["Result.Result Http.Error Types.RenamedPath"],"UserClickedOnPhoto":[],"GetAlbumsResult":["Result.Result Http.Error (List String)"],"ScanPhotosResult":["Result.Result Http.Error (List Types.PhotoMetadata)"],"UrlChange":["Navigation.Location"],"ScrollPhotosFinished":[],"UserAskedToRotateAPhoto":["Int","Types.FileName"],"UserAskedToDeleteAPhoto":["Types.FileName"]}}},"aliases":{"Types.PhotoMetadata":{"args":[],"type":"{ relativeFilePath : Types.FileName , dateCreated : Types.SecondsSinceEpoch }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.SecondsSinceEpoch":{"args":[],"type":"Int"},"Types.FileName":{"args":[],"type":"String"},"Types.RenamedPath":{"args":[],"type":"{ old : Types.FileName, new : Types.FileName }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Update.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Update.Msg":{"args":[],"tags":{"PhotoWasDeleted":["Result.Result Http.Error String"],"PhotoWasRotated":["Result.Result Http.Error Types.RenamedPath"],"UserClickedOnPhoto":[],"GetAlbumsResult":["Result.Result Http.Error (List String)"],"ScanPhotosResult":["Result.Result Http.Error (List Types.PhotoMetadata)"],"UrlChange":["Navigation.Location"],"ScrollPhotosFinished":[],"UserAskedToRotateAPhoto":["Int","Types.FileName"],"UserAskedToDeleteAPhoto":["Types.FileName"]}}},"aliases":{"Types.PhotoMetadata":{"args":[],"type":"{ relativeFilePath : Types.FileName , dateCreated : Maybe.Maybe Types.SecondsSinceEpoch }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.SecondsSinceEpoch":{"args":[],"type":"Int"},"Types.FileName":{"args":[],"type":"String"},"Types.RenamedPath":{"args":[],"type":"{ old : Types.FileName, new : Types.FileName }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Update.Msg"},"versions":{"elm":"0.18.0"}});
 }
 Elm['Model'] = Elm['Model'] || {};
 if (typeof _user$project$Model$main !== 'undefined') {

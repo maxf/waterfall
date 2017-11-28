@@ -9,7 +9,8 @@ import Time.DateTime exposing (toISO8601, fromISO8601)
 import Navigation exposing (Location, modifyUrl)
 import Regex exposing (regex, HowMany(AtMost), find)
 import Types exposing (maxNbPictures, PhotoMetadata, AlbumName, FileName, RenamedPath, FilePath, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), HashFields, DisplayDate(DateNotSpecified, Date, BadDate))
-import Model exposing (Model, withPhotoShown, withMessage, withPhotos, withAlbumShown, removePhoto, updatePhotoPath, withAlbums, modelHash, toHash)
+import Model exposing (Model, withPhotoShown, withMessage, withPhotos, withAlbumShown, removePhoto, updatePhotoPath, withAlbums, modelHash, toHash, albumShown)
+
 
 
 
@@ -27,7 +28,7 @@ type Msg
     | UserClickedOnPhoto
     | PhotoWasDeleted (Result Http.Error String)
     | PhotoWasRotated (Result Http.Error RenamedPath)
-    | ScanPhotosResult (Result Http.Error AlbumPhotos)
+    | ScanPhotosResult (Result Http.Error (List PhotoMetadata))
     | GetAlbumsResult (Result Http.Error (List String))
     | UrlChange Location
 
@@ -64,7 +65,7 @@ update msg model =
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
         PhotoWasRotated (Ok renamedPath) ->
-            ( model |> updatePhotoPath (Debug.log "--" renamedPath), Cmd.none )
+            ( model |> updatePhotoPath renamedPath, Cmd.none )
 
         PhotoWasRotated (Err httpError) ->
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
@@ -72,12 +73,11 @@ update msg model =
         ScanPhotosResult (Err httpError) ->
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
-        ScanPhotosResult (Ok album) ->
+        ScanPhotosResult (Ok photos) ->
             let
                 newModel =
                     model
-                        |> withAlbumShown (Album album.title)
-                        |> withPhotos album.photos
+                        |> withPhotos photos
                         |> withMessage ""
             in
                 ( newModel
@@ -93,7 +93,13 @@ update msg model =
             ( model
                 |> withAlbums albumList
                 |> withMessage ""
-            , Cmd.none
+            , case model |> albumShown of
+                  NoAlbum ->
+                      Cmd.none
+                  AllAlbums ->
+                      getAlbumPhotos ""
+                  Album name ->
+                      getAlbumPhotos name
             )
 
         UrlChange location ->
@@ -121,7 +127,6 @@ update msg model =
                 -- will fetch wrong images, until ScanPhotosResult at which point
                 -- things will work again
                 )
-
 
 
 -- Misc
@@ -162,21 +167,13 @@ getAlbumPhotos albumName =
             Json.Decode.map2
                 PhotoMetadata
                 (Json.Decode.field "path" Json.Decode.string)
-                (Json.Decode.field "date" Json.Decode.int)
-
-        albumDecoder =
-            Json.Decode.list
-                Json.Decode.map2
-                    AlbumPhotos
-                    (Json.Decode.field "title" Json.Decode.string)
-                    photoMetadataDecoder
+                (Json.Decode.field "date" (Json.Decode.nullable Json.Decode.int))
 
         apiUrl =
             "api/scan?dir=" ++ encodeUri albumName
 
         request =
-            Http.get apiUrl albumDecoder
-
+            Http.get apiUrl (Json.Decode.list photoMetadataDecoder)
     in
         Http.send ScanPhotosResult request
 
