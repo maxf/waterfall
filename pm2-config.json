@@ -1,0 +1,15 @@
+module.exports = {
+  apps : [
+      {
+        name: "app",
+        script: "./app.js",
+        watch: true,
+        env: {
+            "PORT": 3000,
+            "NODE_ENV": "production",
+            "PHOTOS_DIR": "/home/ubuntu/photos",
+            "THUMBS_DIR": "/home/ubuntu/thumbs"
+        }
+      }
+  ]
+}
