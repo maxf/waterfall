@@ -63,8 +63,9 @@ const dirs = function(req, res) {
   execFile('find', [ dirToScan, '-type', 'd' ], function(err, stdout, stderr) {
     const dirs = stdout
       .split('\n')
-      .filter(s => s !== "")
+      .filter(s => s !== '')
       .map(s => path.relative(photosDir, s))
+      .filter(s=> !/(\/\.)|^\./.test(s))
       .sort()
     res.send(JSON.stringify(dirs))
   })
