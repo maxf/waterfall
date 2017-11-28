@@ -16440,14 +16440,20 @@ var _user$project$Update$update = F2(
 			default:
 				var hashParams = _user$project$Update$fromHash(_p6._0);
 				var cmd = function () {
-					var _p10 = hashParams.album;
-					switch (_p10.ctor) {
-						case 'NoAlbum':
-							return _elm_lang$core$Platform_Cmd$none;
-						case 'AllAlbums':
-							return _user$project$Update$getAlbumPhotos('');
-						default:
-							return _user$project$Update$getAlbumPhotos(_p10._0);
+					if (!_elm_lang$core$Native_Utils.eq(
+						hashParams.album,
+						_user$project$Model$albumShown(model))) {
+						var _p10 = hashParams.album;
+						switch (_p10.ctor) {
+							case 'NoAlbum':
+								return _elm_lang$core$Platform_Cmd$none;
+							case 'AllAlbums':
+								return _user$project$Update$getAlbumPhotos('');
+							default:
+								return _user$project$Update$getAlbumPhotos(_p10._0);
+						}
+					} else {
+						return _elm_lang$core$Platform_Cmd$none;
 					}
 				}();
 				return {
@@ -16455,7 +16461,10 @@ var _user$project$Update$update = F2(
 					_0: A2(
 						_user$project$Model$withMessage,
 						'',
-						A2(_user$project$Model$withPhotoShown, hashParams.preview, model)),
+						A2(
+							_user$project$Model$withAlbumShown,
+							hashParams.album,
+							A2(_user$project$Model$withPhotoShown, hashParams.preview, model))),
 					_1: cmd
 				};
 		}
@@ -16691,17 +16700,6 @@ var _user$project$ViewPhotos$viewThumbnails = function (model) {
 		});
 };
 var _user$project$ViewPhotos$viewPhotos = function (model) {
-	var title = function () {
-		var _p2 = _user$project$Model$albumShown(model);
-		switch (_p2.ctor) {
-			case 'AllAlbums':
-				return 'All photos';
-			case 'NoAlbum':
-				return '';
-			default:
-				return _p2._0;
-		}
-	}();
 	return A2(
 		_elm_lang$html$Html$div,
 		{
@@ -16709,33 +16707,80 @@ var _user$project$ViewPhotos$viewPhotos = function (model) {
 			_0: _elm_lang$html$Html_Attributes$id('photos'),
 			_1: {ctor: '[]'}
 		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$h1,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text(title),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
+		function () {
+			var _p2 = _user$project$Model$albumShown(model);
+			switch (_p2.ctor) {
+				case 'NoAlbum':
+					return {
 						ctor: '::',
-						_0: _user$project$ViewPhotos$viewThumbnails(model),
+						_0: A2(
+							_elm_lang$html$Html$h1,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Select an album'),
+								_1: {ctor: '[]'}
+							}),
 						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: _user$project$ViewPhotos$viewPhoto(model),
-					_1: {ctor: '[]'}
-				}
+					};
+				case 'AllAlbums':
+					return {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$h1,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('All photos'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _user$project$ViewPhotos$viewThumbnails(model),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: _user$project$ViewPhotos$viewPhoto(model),
+								_1: {ctor: '[]'}
+							}
+						}
+					};
+				default:
+					return {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$h1,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(_p2._0),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _user$project$ViewPhotos$viewThumbnails(model),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: _user$project$ViewPhotos$viewPhoto(model),
+								_1: {ctor: '[]'}
+							}
+						}
+					};
 			}
-		});
+		}());
 };
 
 var _user$project$View$viewMessage = function (messageText) {

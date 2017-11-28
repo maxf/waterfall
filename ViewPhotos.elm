@@ -12,24 +12,24 @@ import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto))
 
 viewPhotos : Model -> Html Msg
 viewPhotos model =
-    let
-        title =
-            case model |> albumShown of
-                AllAlbums ->
-                    "All photos"
+    div
+        [ id "photos" ]
+        (case model |> albumShown of
+            NoAlbum ->
+                [ h1 [] [ text "Select an album" ] ]
 
-                NoAlbum ->
-                    ""
+            AllAlbums ->
+                [ h1 [] [ text "All photos" ]
+                , div [] [ viewThumbnails model ]
+                , viewPhoto model
+                ]
 
-                Album path ->
-                    path
-    in
-        div
-            [ id "photos" ]
-            [ h1 [] [ text title ]
-            , div [] [ viewThumbnails model ]
-            , viewPhoto model
-            ]
+            Album title ->
+                [ h1 [] [ text title ]
+                , div [] [ viewThumbnails model ]
+                , viewPhoto model
+                ]
+        )
 
 
 viewThumbnails : Model -> Html Msg
