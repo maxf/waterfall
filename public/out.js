@@ -16460,7 +16460,7 @@ var _user$project$Update$update = F2(
 					ctor: '_Tuple2',
 					_0: A2(
 						_user$project$Model$withMessage,
-						'',
+						'Loading',
 						A2(
 							_user$project$Model$withAlbumShown,
 							hashParams.album,

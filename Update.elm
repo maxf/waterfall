@@ -117,7 +117,7 @@ update msg model =
                 ( model
                     |> withPhotoShown hashParams.preview
                     |> withAlbumShown hashParams.album
-                    |> withMessage ""
+                    |> withMessage "Loading"
                 , cmd
                 )
 
