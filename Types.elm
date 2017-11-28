@@ -59,7 +59,7 @@ type alias JsonString =
 
 type alias PhotoMetadata =
     { relativeFilePath : FileName
-    , dateCreated : SecondsSinceEpoch
+    , dateCreated : Maybe SecondsSinceEpoch
     }
 
 
@@ -132,14 +132,6 @@ roundToStartOfDay seconds =
                 }
     in
         midnight |> toSeconds
-
-
-addToMetadataDict : PhotoMetadata -> MetadataDict -> MetadataDict
-addToMetadataDict metadata dict =
-    Dict.update
-        (roundToStartOfDay metadata.dateCreated)
-        (addPhotoMetadata metadata)
-        dict
 
 
 yearOfDate : SecondsSinceEpoch -> Year

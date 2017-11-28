@@ -156,7 +156,7 @@ getAlbumPhotos albumName =
             Json.Decode.map2
                 PhotoMetadata
                 (Json.Decode.field "path" Json.Decode.string)
-                (Json.Decode.field "date" Json.Decode.int)
+                (Json.Decode.field "date" (Json.Decode.nullable Json.Decode.int))
 
         apiUrl =
             "api/scan?dir=" ++ encodeUri albumName

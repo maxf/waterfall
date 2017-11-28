@@ -74,7 +74,7 @@ const scan = function(req, res) {
   const album = decodeURIComponent(req.query.dir)
   const dirToScan = path.join(photosDir, album)
   recursive(dirToScan, [excludeFiles], function (err, files) {
-    const photoList = files.map(makePhotoObject).filter(obj=>obj.date)
+    const photoList = files.map(makePhotoObject)
     res.send(JSON.stringify(photoList))
   })
 }
