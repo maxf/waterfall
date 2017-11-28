@@ -132,7 +132,7 @@ const rotate = async (req, res) => {
   const angle = parseInt(req.query.angle, 10)
   const unmarkedPath = decodeURIComponent(req.query.photo).replace(/_\d+$/, '')
   const fullImagePath = photoFullPath(unmarkedPath)
-  const jpegtranArgs = ['-rotate', angle, '-outfile', fullImagePath, fullImagePath]
+  const jpegtranArgs = ['-copy', 'all', '-rotate', angle, '-outfile', fullImagePath, fullImagePath]
   execFile(jpegtran, jpegtranArgs, function (err) {
     if (err) {
       console.log('rotate error', err)
