@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import Html exposing (Html, div, td, text, tr, h1, table, thead, tbody, th, a, br, ul, li)
+import Html exposing (Html, div, text, a, ul, li)
 
 
 --import Html.Events exposing (on, targetValue)
@@ -10,11 +10,11 @@ import Html.Attributes exposing (class, style, href, id)
 
 --import Json.Decode
 
-import List exposing (range)
-import Types exposing (toSeconds, SecondsSinceEpoch, PhotoMetadata, WeekNumber, DayOfWeek, DisplayDate(Date, DateNotSpecified), HashFields, AlbumHash(Album))
-import Model exposing (Model, albumShown, photoShown, albums, photos, message, toHash)
+import Types exposing (HashFields, AlbumHash(Album))
+import Model exposing (Model, photoShown, albums, message, toHash)
 import ViewPhotos exposing (viewPhotos)
 import Update exposing (Msg)
+
 
 viewAlbumList : Model -> Html Msg
 viewAlbumList model =
@@ -25,7 +25,16 @@ viewAlbumList model =
                     HashFields (Album u) (photoShown model)
                         |> toHash
             in
-                li [] [ a [ href link ] [ (if u == "" then "All" else u) |> text ] ]
+                li []
+                    [ a [ href link ]
+                        [ (if u == "" then
+                            "All"
+                           else
+                            u
+                          )
+                            |> text
+                        ]
+                    ]
     in
         div
             [ class "calendar", id "calendar" ]

@@ -89,6 +89,7 @@ type DisplayDate
     | DateNotSpecified
     | BadDate
 
+
 type alias HashFields =
     { album : AlbumHash
     , preview : PreviewHash
@@ -100,38 +101,6 @@ maxNbPictures dict =
     dict
         |> Dict.values
         |> List.foldl (\l a -> max (List.length l) a) 0
-
-
-addPhotoMetadata :
-    PhotoMetadata
-    -> Maybe (List PhotoMetadata)
-    -> Maybe (List PhotoMetadata)
-addPhotoMetadata metadata dict =
-    case dict of
-        Nothing ->
-            Just [ metadata ]
-
-        Just list ->
-            Just (metadata :: list)
-
-
-roundToStartOfDay : SecondsSinceEpoch -> SecondsSinceEpoch
-roundToStartOfDay seconds =
-    let
-        date : DateTime
-        date =
-            addSeconds seconds epoch
-
-        midnight : DateTime
-        midnight =
-            dateTime
-                { zero
-                    | year = date |> year
-                    , month = date |> month
-                    , day = date |> day
-                }
-    in
-        midnight |> toSeconds
 
 
 yearOfDate : SecondsSinceEpoch -> Year

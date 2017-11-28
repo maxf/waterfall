@@ -5,8 +5,8 @@ import Html.Keyed exposing (ul)
 import Html.Attributes exposing (src, id, style, class, href)
 import Html.Events exposing (onClick)
 import Http exposing (encodeUri)
-import Model exposing (Model, photoShown, photos, albumShown, modelHash, toHash)
-import Types exposing (PhotoMetadata, FileName, dateToString, DisplayDate(Date), PreviewHash(NoPreview, Preview), HashFields, AlbumHash(Album, NoAlbum, AllAlbums))
+import Model exposing (Model, photoShown, photos, albumShown, toHash)
+import Types exposing (PhotoMetadata, PreviewHash(NoPreview, Preview), HashFields, AlbumHash(Album, NoAlbum, AllAlbums))
 import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto))
 
 
@@ -20,6 +20,7 @@ viewPhotos model =
 
                 NoAlbum ->
                     ""
+
                 Album path ->
                     path
     in
@@ -34,20 +35,20 @@ viewPhotos model =
 viewThumbnails : Model -> Html Msg
 viewThumbnails model =
     let
-        sortByMaybeDate a b =
+        sortByMaybeDate timestampA timestampB =
             compare
-                (a.dateCreated |> Maybe.withDefault 0)
-                (b.dateCreated |> Maybe.withDefault 0)
+                (timestampA.dateCreated |> Maybe.withDefault 0)
+                (timestampB.dateCreated |> Maybe.withDefault 0)
     in
         div
             []
             [ h2 [] [ text ((List.length (model |> photos) |> toString) ++ " photos") ]
             , ul
-                  [ class "contact-print" ]
-                  (List.map
-                       (viewThumbnail model)
-                       (List.sortWith sortByMaybeDate (model |> photos))
-                  )
+                [ class "contact-print" ]
+                (List.map
+                    (viewThumbnail model)
+                    (List.sortWith sortByMaybeDate (model |> photos))
+                )
             ]
 
 
@@ -56,10 +57,10 @@ viewThumbnail model metadata =
     let
         photoId =
             toHash
-              (HashFields
-                   (albumShown model)
-                   (Preview metadata.relativeFilePath)
-              )
+                (HashFields
+                    (albumShown model)
+                    (Preview metadata.relativeFilePath)
+                )
     in
         ( photoId
         , li
@@ -89,7 +90,6 @@ viewPhoto model =
                 link =
                     HashFields (albumShown model) NoPreview
                         |> toHash
-
             in
                 div [ class "lightbox" ]
                     [ div [ class "lightbox-inner" ]

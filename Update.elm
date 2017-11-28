@@ -1,24 +1,13 @@
 module Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto, UserClickedOnPhoto, PhotoWasDeleted, ScanPhotosResult, GetAlbumsResult, UrlChange), update, fromHash)
 
-import Maybe exposing (withDefault)
 import Dom.Scroll
 import Task
 import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload), encodeUri)
 import Json.Decode
-import Time.DateTime exposing (toISO8601, fromISO8601)
 import Navigation exposing (Location, modifyUrl)
 import Regex exposing (regex, HowMany(AtMost), find)
-import Types exposing (maxNbPictures, PhotoMetadata, AlbumName, FileName, RenamedPath, FilePath, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), HashFields, DisplayDate(DateNotSpecified, Date, BadDate))
-import Model exposing (Model, withPhotoShown, withMessage, withPhotos, withAlbumShown, removePhoto, updatePhotoPath, withAlbums, modelHash, toHash, albumShown)
-
-
-
-
-type alias AlbumPhotos =
-    { title: String
-    , photos: List PhotoMetadata
-    }
-
+import Types exposing (PhotoMetadata, FileName, RenamedPath, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), HashFields)
+import Model exposing (Model, withPhotoShown, withMessage, withPhotos, removePhoto, updatePhotoPath, withAlbums, modelHash, albumShown)
 
 
 type Msg
@@ -94,12 +83,14 @@ update msg model =
                 |> withAlbums albumList
                 |> withMessage ""
             , case model |> albumShown of
-                  NoAlbum ->
-                      Cmd.none
-                  AllAlbums ->
-                      getAlbumPhotos ""
-                  Album name ->
-                      getAlbumPhotos name
+                NoAlbum ->
+                    Cmd.none
+
+                AllAlbums ->
+                    getAlbumPhotos ""
+
+                Album name ->
+                    getAlbumPhotos name
             )
 
         UrlChange location ->
@@ -113,8 +104,10 @@ update msg model =
                     case hashParams.album of
                         NoAlbum ->
                             Cmd.none
+
                         AllAlbums ->
                             getAlbumPhotos ""
+
                         Album name ->
                             getAlbumPhotos name
             in
@@ -122,11 +115,12 @@ update msg model =
                     |> withPhotoShown hashParams.preview
                     |> withMessage ""
                 , cmd
-                -- BUG: if clicked on an album, this will redraw the model
-                -- before the scan has happened, with the new album name, and so
-                -- will fetch wrong images, until ScanPhotosResult at which point
-                -- things will work again
+                  -- BUG: if clicked on an album, this will redraw the model
+                  -- before the scan has happened, with the new album name, and so
+                  -- will fetch wrong images, until ScanPhotosResult at which point
+                  -- things will work again
                 )
+
 
 
 -- Misc
@@ -197,7 +191,6 @@ errorMessage error =
             "Bad payload: " ++ s
 
 
-
 fromHash : Location -> HashFields
 fromHash location =
     let
@@ -213,28 +206,23 @@ fromHash location =
                     (case album of
                         Nothing ->
                             NoAlbum
+
                         Just name ->
-                            if name == "" then AllAlbums else Album name)
+                            if name == "" then
+                                AllAlbums
+                            else
+                                Album name
+                    )
                     (case photo of
                         Nothing ->
                             NoPreview
+
                         Just path ->
-                            if path == "" then NoPreview else Preview path)
+                            if path == "" then
+                                NoPreview
+                            else
+                                Preview path
+                    )
 
             _ ->
                 HashFields NoAlbum NoPreview
-
-
-dateFromYMD : Maybe String -> DisplayDate
-dateFromYMD s =
-    case s of
-        Nothing ->
-            DateNotSpecified
-
-        Just yyyymmdd ->
-            case yyyymmdd ++ "T00:00:00Z" |> fromISO8601 of
-                Ok date ->
-                    Date date
-
-                Err _ ->
-                    BadDate

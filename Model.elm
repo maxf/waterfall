@@ -18,9 +18,7 @@ module Model
         , withAlbumShown
         )
 
-import Types exposing (FileName, RenamedPath, FilePath, AlbumName, HashFields, DisplayDate(DateNotSpecified, Date, BadDate), AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), PhotoMetadata)
-import Time.DateTime exposing (DateTime, fromTimestamp, toISO8601)
-import String exposing (left)
+import Types exposing (FileName, RenamedPath, AlbumName, HashFields, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), PhotoMetadata)
 
 
 type Model
@@ -142,7 +140,6 @@ updatePhotoPath renamedPath model =
             |> withPhotoShown (Preview renamedPath.new)
 
 
-
 modelHash : Model -> String
 modelHash (Model model) =
     toHash (HashFields model.albumShown model.photoShown)
@@ -155,6 +152,7 @@ toHash hash =
             case hash.preview of
                 NoPreview ->
                     ""
+
                 Preview path ->
                     path
     in

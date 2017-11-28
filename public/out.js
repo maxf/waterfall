@@ -16012,33 +16012,6 @@ var _user$project$Types$addYear = F3(
 			_elm_community$elm_time$Time_DateTime$year(date) + increment,
 			metadata);
 	});
-var _user$project$Types$roundToStartOfDay = function (seconds) {
-	var date = A2(_elm_community$elm_time$Time_DateTime$addSeconds, seconds, _elm_community$elm_time$Time_DateTime$epoch);
-	var midnight = _elm_community$elm_time$Time_DateTime$dateTime(
-		_elm_lang$core$Native_Utils.update(
-			_elm_community$elm_time$Time_DateTime$zero,
-			{
-				year: _elm_community$elm_time$Time_DateTime$year(date),
-				month: _elm_community$elm_time$Time_DateTime$month(date),
-				day: _elm_community$elm_time$Time_DateTime$day(date)
-			}));
-	return _user$project$Types$toSeconds(midnight);
-};
-var _user$project$Types$addPhotoMetadata = F2(
-	function (metadata, dict) {
-		var _p2 = dict;
-		if (_p2.ctor === 'Nothing') {
-			return _elm_lang$core$Maybe$Just(
-				{
-					ctor: '::',
-					_0: metadata,
-					_1: {ctor: '[]'}
-				});
-		} else {
-			return _elm_lang$core$Maybe$Just(
-				{ctor: '::', _0: metadata, _1: _p2._0});
-		}
-	});
 var _user$project$Types$maxNbPictures = function (dict) {
 	return A3(
 		_elm_lang$core$List$foldl,
@@ -16218,20 +16191,6 @@ var _user$project$Model$removePhoto = F2(
 				}));
 	});
 
-var _user$project$Update$dateFromYMD = function (s) {
-	var _p0 = s;
-	if (_p0.ctor === 'Nothing') {
-		return _user$project$Types$DateNotSpecified;
-	} else {
-		var _p1 = _elm_community$elm_time$Time_DateTime$fromISO8601(
-			A2(_elm_lang$core$Basics_ops['++'], _p0._0, 'T00:00:00Z'));
-		if (_p1.ctor === 'Ok') {
-			return _user$project$Types$Date(_p1._0);
-		} else {
-			return _user$project$Types$BadDate;
-		}
-	}
-};
 var _user$project$Update$fromHash = function (location) {
 	var hashRegex = _elm_lang$core$Regex$regex('^#([^:]*):(.*)$');
 	var matches = A3(
@@ -16239,31 +16198,31 @@ var _user$project$Update$fromHash = function (location) {
 		_elm_lang$core$Regex$AtMost(1),
 		hashRegex,
 		location.hash);
-	var _p2 = A2(
+	var _p0 = A2(
 		_elm_lang$core$List$map,
 		function (_) {
 			return _.submatches;
 		},
 		matches);
-	if (((((_p2.ctor === '::') && (_p2._0.ctor === '::')) && (_p2._0._1.ctor === '::')) && (_p2._0._1._1.ctor === '[]')) && (_p2._1.ctor === '[]')) {
+	if (((((_p0.ctor === '::') && (_p0._0.ctor === '::')) && (_p0._0._1.ctor === '::')) && (_p0._0._1._1.ctor === '[]')) && (_p0._1.ctor === '[]')) {
 		return A2(
 			_user$project$Types$HashFields,
 			function () {
-				var _p3 = _p2._0._0;
-				if (_p3.ctor === 'Nothing') {
+				var _p1 = _p0._0._0;
+				if (_p1.ctor === 'Nothing') {
 					return _user$project$Types$NoAlbum;
 				} else {
-					var _p4 = _p3._0;
-					return _elm_lang$core$Native_Utils.eq(_p4, '') ? _user$project$Types$AllAlbums : _user$project$Types$Album(_p4);
+					var _p2 = _p1._0;
+					return _elm_lang$core$Native_Utils.eq(_p2, '') ? _user$project$Types$AllAlbums : _user$project$Types$Album(_p2);
 				}
 			}(),
 			function () {
-				var _p5 = _p2._0._1._0;
-				if (_p5.ctor === 'Nothing') {
+				var _p3 = _p0._0._1._0;
+				if (_p3.ctor === 'Nothing') {
 					return _user$project$Types$NoPreview;
 				} else {
-					var _p6 = _p5._0;
-					return _elm_lang$core$Native_Utils.eq(_p6, '') ? _user$project$Types$NoPreview : _user$project$Types$Preview(_p6);
+					var _p4 = _p3._0;
+					return _elm_lang$core$Native_Utils.eq(_p4, '') ? _user$project$Types$NoPreview : _user$project$Types$Preview(_p4);
 				}
 			}());
 	} else {
@@ -16271,10 +16230,10 @@ var _user$project$Update$fromHash = function (location) {
 	}
 };
 var _user$project$Update$errorMessage = function (error) {
-	var _p7 = error;
-	switch (_p7.ctor) {
+	var _p5 = error;
+	switch (_p5.ctor) {
 		case 'BadUrl':
-			return A2(_elm_lang$core$Basics_ops['++'], 'Bad URL: ', _p7._0);
+			return A2(_elm_lang$core$Basics_ops['++'], 'Bad URL: ', _p5._0);
 		case 'Timeout':
 			return 'Timeout';
 		case 'NetworkError':
@@ -16282,13 +16241,9 @@ var _user$project$Update$errorMessage = function (error) {
 		case 'BadStatus':
 			return 'Bad status ';
 		default:
-			return A2(_elm_lang$core$Basics_ops['++'], 'Bad payload: ', _p7._0);
+			return A2(_elm_lang$core$Basics_ops['++'], 'Bad payload: ', _p5._0);
 	}
 };
-var _user$project$Update$AlbumPhotos = F2(
-	function (a, b) {
-		return {title: a, photos: b};
-	});
 var _user$project$Update$UrlChange = function (a) {
 	return {ctor: 'UrlChange', _0: a};
 };
@@ -16366,8 +16321,8 @@ var _user$project$Update$UserAskedToDeleteAPhoto = function (a) {
 var _user$project$Update$ScrollPhotosFinished = {ctor: 'ScrollPhotosFinished'};
 var _user$project$Update$update = F2(
 	function (msg, model) {
-		var _p8 = msg;
-		switch (_p8.ctor) {
+		var _p6 = msg;
+		switch (_p6.ctor) {
 			case 'ScrollPhotosFinished':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'UserClickedOnPhoto':
@@ -16380,19 +16335,19 @@ var _user$project$Update$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _user$project$Update$deletePhoto(_p8._0)
+					_1: _user$project$Update$deletePhoto(_p6._0)
 				};
 			case 'UserAskedToRotateAPhoto':
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: A2(_user$project$Update$rotatePhoto, _p8._0, _p8._1)
+					_1: A2(_user$project$Update$rotatePhoto, _p6._0, _p6._1)
 				};
 			case 'PhotoWasDeleted':
-				if (_p8._0.ctor === 'Ok') {
-					var _p9 = _p8._0._0;
-					if (!_elm_lang$core$Native_Utils.eq(_p9, '')) {
-						var newModel = A2(_user$project$Model$removePhoto, _p9, model);
+				if (_p6._0.ctor === 'Ok') {
+					var _p7 = _p6._0._0;
+					if (!_elm_lang$core$Native_Utils.eq(_p7, '')) {
+						var newModel = A2(_user$project$Model$removePhoto, _p7, model);
 						var newHash = _user$project$Model$modelHash(newModel);
 						return {
 							ctor: '_Tuple2',
@@ -16407,16 +16362,16 @@ var _user$project$Update$update = F2(
 						ctor: '_Tuple2',
 						_0: A2(
 							_user$project$Model$withMessage,
-							_user$project$Update$errorMessage(_p8._0._0),
+							_user$project$Update$errorMessage(_p6._0._0),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 			case 'PhotoWasRotated':
-				if (_p8._0.ctor === 'Ok') {
+				if (_p6._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
-						_0: A2(_user$project$Model$updatePhotoPath, _p8._0._0, model),
+						_0: A2(_user$project$Model$updatePhotoPath, _p6._0._0, model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
@@ -16424,18 +16379,18 @@ var _user$project$Update$update = F2(
 						ctor: '_Tuple2',
 						_0: A2(
 							_user$project$Model$withMessage,
-							_user$project$Update$errorMessage(_p8._0._0),
+							_user$project$Update$errorMessage(_p6._0._0),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 			case 'ScanPhotosResult':
-				if (_p8._0.ctor === 'Err') {
+				if (_p6._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: A2(
 							_user$project$Model$withMessage,
-							_user$project$Update$errorMessage(_p8._0._0),
+							_user$project$Update$errorMessage(_p6._0._0),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -16443,20 +16398,20 @@ var _user$project$Update$update = F2(
 					var newModel = A2(
 						_user$project$Model$withMessage,
 						'',
-						A2(_user$project$Model$withPhotos, _p8._0._0, model));
+						A2(_user$project$Model$withPhotos, _p6._0._0, model));
 					return {
 						ctor: '_Tuple2',
 						_0: newModel,
 						_1: A2(
 							_elm_lang$core$Task$attempt,
-							function (_p10) {
+							function (_p8) {
 								return _user$project$Update$ScrollPhotosFinished;
 							},
 							_elm_lang$dom$Dom_Scroll$toTop('photos'))
 					};
 				}
 			case 'GetAlbumsResult':
-				if (_p8._0.ctor === 'Err') {
+				if (_p6._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: A2(_user$project$Model$withMessage, 'Error getting albums', model),
@@ -16468,31 +16423,31 @@ var _user$project$Update$update = F2(
 						_0: A2(
 							_user$project$Model$withMessage,
 							'',
-							A2(_user$project$Model$withAlbums, _p8._0._0, model)),
+							A2(_user$project$Model$withAlbums, _p6._0._0, model)),
 						_1: function () {
-							var _p11 = _user$project$Model$albumShown(model);
-							switch (_p11.ctor) {
+							var _p9 = _user$project$Model$albumShown(model);
+							switch (_p9.ctor) {
 								case 'NoAlbum':
 									return _elm_lang$core$Platform_Cmd$none;
 								case 'AllAlbums':
 									return _user$project$Update$getAlbumPhotos('');
 								default:
-									return _user$project$Update$getAlbumPhotos(_p11._0);
+									return _user$project$Update$getAlbumPhotos(_p9._0);
 							}
 						}()
 					};
 				}
 			default:
-				var hashParams = _user$project$Update$fromHash(_p8._0);
+				var hashParams = _user$project$Update$fromHash(_p6._0);
 				var cmd = function () {
-					var _p12 = hashParams.album;
-					switch (_p12.ctor) {
+					var _p10 = hashParams.album;
+					switch (_p10.ctor) {
 						case 'NoAlbum':
 							return _elm_lang$core$Platform_Cmd$none;
 						case 'AllAlbums':
 							return _user$project$Update$getAlbumPhotos('');
 						default:
-							return _user$project$Update$getAlbumPhotos(_p12._0);
+							return _user$project$Update$getAlbumPhotos(_p10._0);
 					}
 				}();
 				return {
@@ -16690,11 +16645,11 @@ var _user$project$ViewPhotos$viewThumbnail = F2(
 	});
 var _user$project$ViewPhotos$viewThumbnails = function (model) {
 	var sortByMaybeDate = F2(
-		function (a, b) {
+		function (timestampA, timestampB) {
 			return A2(
 				_elm_lang$core$Basics$compare,
-				A2(_elm_lang$core$Maybe$withDefault, 0, a.dateCreated),
-				A2(_elm_lang$core$Maybe$withDefault, 0, b.dateCreated));
+				A2(_elm_lang$core$Maybe$withDefault, 0, timestampA.dateCreated),
+				A2(_elm_lang$core$Maybe$withDefault, 0, timestampB.dateCreated));
 		});
 	return A2(
 		_elm_lang$html$Html$div,
