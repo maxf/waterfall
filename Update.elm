@@ -99,25 +99,24 @@ update msg model =
                 hashParams =
                     fromHash location
 
-                cmd : Cmd Msg
-                cmd =
+                (cmd, message) =
                     if hashParams.album /= albumShown model then
                         case hashParams.album of
                             NoAlbum ->
-                                Cmd.none
+                                (Cmd.none, "")
 
                             AllAlbums ->
-                                getAlbumPhotos ""
+                                (getAlbumPhotos "", "Loading all photos")
 
                             Album name ->
-                                getAlbumPhotos name
+                                (getAlbumPhotos name, "Loading " ++ name)
                     else
-                        Cmd.none
+                        (Cmd.none, "")
             in
                 ( model
                     |> withPhotoShown hashParams.preview
                     |> withAlbumShown hashParams.album
-                    |> withMessage "Loading"
+                    |> withMessage message
                 , cmd
                 )
 

@@ -16439,28 +16439,39 @@ var _user$project$Update$update = F2(
 				}
 			default:
 				var hashParams = _user$project$Update$fromHash(_p6._0);
-				var cmd = function () {
+				var _p10 = function () {
 					if (!_elm_lang$core$Native_Utils.eq(
 						hashParams.album,
 						_user$project$Model$albumShown(model))) {
-						var _p10 = hashParams.album;
-						switch (_p10.ctor) {
+						var _p11 = hashParams.album;
+						switch (_p11.ctor) {
 							case 'NoAlbum':
-								return _elm_lang$core$Platform_Cmd$none;
+								return {ctor: '_Tuple2', _0: _elm_lang$core$Platform_Cmd$none, _1: ''};
 							case 'AllAlbums':
-								return _user$project$Update$getAlbumPhotos('');
+								return {
+									ctor: '_Tuple2',
+									_0: _user$project$Update$getAlbumPhotos(''),
+									_1: 'Loading all photos'
+								};
 							default:
-								return _user$project$Update$getAlbumPhotos(_p10._0);
+								var _p12 = _p11._0;
+								return {
+									ctor: '_Tuple2',
+									_0: _user$project$Update$getAlbumPhotos(_p12),
+									_1: A2(_elm_lang$core$Basics_ops['++'], 'Loading ', _p12)
+								};
 						}
 					} else {
-						return _elm_lang$core$Platform_Cmd$none;
+						return {ctor: '_Tuple2', _0: _elm_lang$core$Platform_Cmd$none, _1: ''};
 					}
 				}();
+				var cmd = _p10._0;
+				var message = _p10._1;
 				return {
 					ctor: '_Tuple2',
 					_0: A2(
 						_user$project$Model$withMessage,
-						'Loading',
+						message,
 						A2(
 							_user$project$Model$withAlbumShown,
 							hashParams.album,
