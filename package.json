@@ -4,6 +4,7 @@
   "main": "main.js",
   "dependencies": {
     "dotenv": "^4.0.0",
+    "elm": "^0.18.0",
     "exif-parser": "^0.1.12",
     "express": "^4.16.2",
     "jpegtran-bin": "^3.2.0",
