@@ -107,4 +107,5 @@ viewPhoto model =
                             [ onClick (UserAskedToRotateAPhoto 270 name) ]
                             [ text "↺" ]
                         ]
+                    , a [ href link, class "close" ] [ text "❌" ]
                     ]
