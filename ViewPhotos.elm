@@ -6,7 +6,7 @@ import Html.Attributes exposing (src, id, style, class, href)
 import Html.Events exposing (onClick)
 import Http exposing (encodeUri)
 import Model exposing (Model, photoShown, photos, albumShown, toHash)
-import Types exposing (PhotoMetadata, PreviewHash(NoPreview, Preview), HashFields, AlbumHash(Album, NoAlbum, AllAlbums))
+import Types exposing (PhotoMetadata, HashFields, AlbumHash(Album, NoAlbum, AllAlbums))
 import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto))
 
 
@@ -59,7 +59,7 @@ viewThumbnail model metadata =
             toHash
                 (HashFields
                     (albumShown model)
-                    (Preview metadata.relativeFilePath)
+                    (Just metadata.relativeFilePath)
                 )
     in
         ( photoId
@@ -82,29 +82,32 @@ viewThumbnail model metadata =
 viewPhoto : Model -> Html Msg
 viewPhoto model =
     case model |> photoShown of
-        NoPreview ->
+        Nothing ->
             div [ style [ ( "display", "none" ) ] ] []
 
-        Preview name ->
+        Just photo ->
             let
+                path =
+                    photo.relativeFilePath
+
                 link =
-                    HashFields (albumShown model) NoPreview
+                    HashFields (albumShown model) Nothing
                         |> toHash
             in
                 div [ class "lightbox" ]
                     [ div [ class "lightbox-inner" ]
                         [ a [ href link ]
-                            [ img [ src ("/preview?photo=" ++ encodeUri name) ] [] ]
+                            [ img [ src ("/preview?photo=" ++ encodeUri path) ] [] ]
                         ]
                     , div [ class "buttons" ]
                         [ button
-                            [ onClick (UserAskedToDeleteAPhoto name) ]
+                            [ onClick (UserAskedToDeleteAPhoto path) ]
                             [ text "🗑" ]
                         , button
-                            [ onClick (UserAskedToRotateAPhoto 90 name) ]
+                            [ onClick (UserAskedToRotateAPhoto 90 path) ]
                             [ text "↻" ]
                         , button
-                            [ onClick (UserAskedToRotateAPhoto 270 name) ]
+                            [ onClick (UserAskedToRotateAPhoto 270 path) ]
                             [ text "↺" ]
                         ]
                     , a [ href link, class "close" ] [ text "❌" ]

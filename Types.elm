@@ -1,4 +1,4 @@
-module Types exposing (DirectoryPath, PhotoMetadata, Year, Month, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, FileName, JsonString, iso8601ToEpochSeconds, RenamedPath, FilePath, AlbumName, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), HashFields, DisplayDate(DateNotSpecified, Date, BadDate))
+module Types exposing (DirectoryPath, PhotoMetadata, Year, Month, toSeconds, SecondsSinceEpoch, MetadataDict, WeekNumber, DayOfWeek, dateToString, addYear, dateOfFirstPhotoOfYear, maxNbPictures, FileName, JsonString, iso8601ToEpochSeconds, RenamedPath, FilePath, AlbumName, AlbumHash(NoAlbum, AllAlbums, Album), HashFields, DisplayDate(DateNotSpecified, Date, BadDate))
 
 import Dict exposing (Dict, keys)
 import Time.DateTime exposing (DateTime, dateTime, zero, epoch, year, month, day, addSeconds, toTimestamp, fromISO8601)
@@ -79,11 +79,6 @@ type AlbumHash
     | Album AlbumName
 
 
-type PreviewHash
-    = NoPreview
-    | Preview FilePath
-
-
 type DisplayDate
     = Date DateTime
     | DateNotSpecified
@@ -92,7 +87,7 @@ type DisplayDate
 
 type alias HashFields =
     { album : AlbumHash
-    , preview : PreviewHash
+    , preview : Maybe FileName
     }
 
 

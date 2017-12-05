@@ -21,9 +21,11 @@ viewAlbumList model =
     let
         liFn u =
             let
+                preview =
+                    Maybe.map .relativeFilePath (photoShown model)
+
                 link =
-                    HashFields (Album u) (photoShown model)
-                        |> toHash
+                    HashFields (Album u) preview |> toHash
             in
                 li []
                     [ a [ href link ]

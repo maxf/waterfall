@@ -2,12 +2,12 @@ module Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto, Us
 
 import Dom.Scroll
 import Task
-import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload), encodeUri)
+import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload), encodeUri, decodeUri)
 import Json.Decode
 import Navigation exposing (Location, modifyUrl)
 import Regex exposing (regex, HowMany(AtMost), find)
-import Types exposing (PhotoMetadata, FileName, RenamedPath, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), HashFields)
-import Model exposing (Model, withPhotoShown, withMessage, withPhotos, removePhoto, updatePhotoPath, withAlbums, modelHash, albumShown, withAlbumShown)
+import Types exposing (PhotoMetadata, FileName, RenamedPath, AlbumHash(NoAlbum, AllAlbums, Album), HashFields)
+import Model exposing (Model, withPhotoShown, withMessage, withPhotos, removePhotoShown, updateCurrentPhotoPath, withAlbums, modelHash, albumShown, withAlbumShown)
 
 
 type Msg
@@ -29,7 +29,7 @@ update msg model =
             ( model, Cmd.none )
 
         UserClickedOnPhoto ->
-            ( model |> withPhotoShown NoPreview, Cmd.none )
+            ( model |> withPhotoShown Nothing, Cmd.none )
 
         UserAskedToDeleteAPhoto fileName ->
             ( model, deletePhoto fileName )
@@ -41,7 +41,7 @@ update msg model =
             if deletedFilePath /= "" then
                 let
                     newModel =
-                        model |> removePhoto deletedFilePath
+                        model |> removePhotoShown
 
                     newHash =
                         newModel |> modelHash
@@ -54,7 +54,7 @@ update msg model =
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
         PhotoWasRotated (Ok renamedPath) ->
-            ( model |> updatePhotoPath renamedPath, Cmd.none )
+            ( model |> updateCurrentPhotoPath renamedPath, Cmd.none )
 
         PhotoWasRotated (Err httpError) ->
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
@@ -99,26 +99,27 @@ update msg model =
                 hashParams =
                     fromHash location
 
-                (cmd, message) =
+                ( cmd, message ) =
                     if hashParams.album /= albumShown model then
                         case hashParams.album of
                             NoAlbum ->
-                                (Cmd.none, "")
+                                ( Cmd.none, "" )
 
                             AllAlbums ->
-                                (getAlbumPhotos "", "Loading all photos")
+                                ( getAlbumPhotos "", "Loading all photos" )
 
                             Album name ->
-                                (getAlbumPhotos name, "Loading " ++ name)
+                                ( getAlbumPhotos name, "Loading " ++ name )
                     else
-                        (Cmd.none, "")
+                        ( Cmd.none, "" )
+
+                newModel =
+                    model
+                        |> withPhotoShown hashParams.preview
+                        |> withAlbumShown hashParams.album
+                        |> withMessage message
             in
-                ( model
-                    |> withPhotoShown hashParams.preview
-                    |> withAlbumShown hashParams.album
-                    |> withMessage message
-                , cmd
-                )
+                ( newModel, cmd )
 
 
 
@@ -190,14 +191,16 @@ errorMessage error =
             "Bad payload: " ++ s
 
 
+hashRegex : Regex.Regex
+hashRegex =
+    regex "^#([^:]*):(.*)$"
+
+
 fromHash : Location -> HashFields
 fromHash location =
     let
-        hashRegex =
-            regex "^#([^:]*):(.*)$"
-
         matches =
-            find (AtMost 1) hashRegex location.hash
+            find (AtMost 1) hashRegex (decodeUri location.hash |> Maybe.withDefault "")
     in
         case List.map .submatches matches of
             [ [ album, photo ] ] ->
@@ -214,14 +217,14 @@ fromHash location =
                     )
                     (case photo of
                         Nothing ->
-                            NoPreview
+                            Nothing
 
                         Just path ->
                             if path == "" then
-                                NoPreview
+                                Nothing
                             else
-                                Preview path
+                                Just path
                     )
 
             _ ->
-                HashFields NoAlbum NoPreview
+                HashFields NoAlbum Nothing

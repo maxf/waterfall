@@ -2,8 +2,8 @@ module Model
     exposing
         ( Model
         , initialModel
-        , removePhoto
-        , updatePhotoPath
+        , removePhotoShown
+        , updateCurrentPhotoPath
         , photoShown
         , photos
         , albumShown
@@ -18,7 +18,9 @@ module Model
         , withAlbumShown
         )
 
-import Types exposing (FileName, RenamedPath, AlbumName, HashFields, AlbumHash(NoAlbum, AllAlbums, Album), PreviewHash(NoPreview, Preview), PhotoMetadata)
+import Types exposing (FileName, RenamedPath, AlbumName, HashFields, AlbumHash(NoAlbum, AllAlbums, Album), PhotoMetadata)
+import List exposing (drop)
+import List.Extra exposing (takeWhile, dropWhile)
 
 
 type Model
@@ -27,10 +29,11 @@ type Model
 
 type alias InternalModel =
     { albums : List AlbumName
-    , message : String
-    , photos : List PhotoMetadata
     , albumShown : AlbumHash
-    , photoShown : PreviewHash
+    , photosBefore : List PhotoMetadata
+    , photoShown : Maybe PhotoMetadata
+    , photosAfter : List PhotoMetadata
+    , message : String
     }
 
 
@@ -39,10 +42,11 @@ initialModel =
     Model
         (InternalModel
             []
-            "Starting"
-            []
             NoAlbum
-            NoPreview
+            []
+            Nothing
+            []
+            "Starting"
         )
 
 
@@ -55,14 +59,27 @@ albumShown (Model model) =
     model.albumShown
 
 
-photoShown : Model -> PreviewHash
+photoShown : Model -> Maybe PhotoMetadata
 photoShown (Model model) =
     model.photoShown
 
 
 photos : Model -> List PhotoMetadata
 photos (Model model) =
-    model.photos
+    case model.photoShown of
+        Nothing ->
+            model.photosBefore ++ model.photosAfter
+
+        Just photo ->
+            model.photosBefore ++ (photo :: model.photosAfter)
+
+
+removePhotoShown : Model -> Model
+removePhotoShown (Model model) =
+    Model
+        { model
+            | photoShown = Nothing
+        }
 
 
 message : Model -> String
@@ -85,9 +102,57 @@ withAlbums albumList (Model model) =
     Model { model | albums = albumList }
 
 
-withPhotoShown : PreviewHash -> Model -> Model
+type alias PhotoSplit =
+    { left : List PhotoMetadata
+    , middle : PhotoMetadata
+    , right : List PhotoMetadata
+    }
+
+
+splitAt : FileName -> List PhotoMetadata -> Maybe PhotoSplit
+splitAt path list =
+    case List.filter (\p -> p.relativeFilePath == path) list of
+        [ singlePhoto ] ->
+            Just
+                (PhotoSplit
+                    (takeWhile (\p -> p.relativeFilePath /= path) list)
+                    singlePhoto
+                    (drop 1 (dropWhile (\p -> p.relativeFilePath /= path) list))
+                )
+
+        _ ->
+            Nothing
+
+
+withPhotoShown : Maybe FileName -> Model -> Model
 withPhotoShown filename (Model model) =
-    Model { model | photoShown = filename }
+    case filename of
+        Nothing ->
+            -- photo has been closed
+            Model
+                { model
+                    | photosBefore = Model model |> photos
+                    , photosAfter = []
+                    , photoShown = Nothing
+                }
+
+        Just name ->
+            let
+                newSplit =
+                    splitAt name (Model model |> photos)
+            in
+                case newSplit of
+                    Nothing ->
+                        -- if 2 or more photos have the same filename
+                        Model model
+
+                    Just split ->
+                        Model
+                            { model
+                                | photosBefore = split.left
+                                , photosAfter = split.right
+                                , photoShown = Just split.middle
+                            }
 
 
 withMessage : String -> Model -> Model
@@ -97,64 +162,33 @@ withMessage message (Model model) =
 
 withPhotos : List PhotoMetadata -> Model -> Model
 withPhotos metadata (Model model) =
-    Model { model | photos = metadata }
-
-
-
--- Remove a photo from the model
-
-
-removePhoto : FileName -> Model -> Model
-removePhoto fileName (Model model) =
-    let
-        filterFn : PhotoMetadata -> Bool
-        filterFn photo =
-            photo.relativeFilePath /= fileName
-    in
-        Model
-            { model
-                | photos = List.filter filterFn model.photos
-                , photoShown = NoPreview
-            }
+    Model { model | photosBefore = metadata }
 
 
 
 -- Change the path of a photo
 
+-- TODO: don't need RenamedPath anymore
+updateCurrentPhotoPath : RenamedPath -> Model -> Model
+updateCurrentPhotoPath renamedPath model =
+    case model |> photoShown of
+        Nothing ->
+            model
 
-updatePhotoPath : RenamedPath -> Model -> Model
-updatePhotoPath renamedPath model =
-    let
-        replacePath path photo =
-            if photo.relativeFilePath == path.old then
-                { photo | relativeFilePath = path.new }
-            else
-                photo
-
-        newPhotos : List PhotoMetadata
-        newPhotos =
-            List.map (replacePath renamedPath) (photos model)
-    in
-        model
-            |> withPhotos newPhotos
-            |> withPhotoShown (Preview renamedPath.new)
+        Just _ ->
+            model |> withPhotoShown (Just renamedPath.new)
 
 
 modelHash : Model -> String
 modelHash (Model model) =
-    toHash (HashFields model.albumShown model.photoShown)
+    toHash (HashFields model.albumShown (Maybe.map .relativeFilePath model.photoShown))
 
 
 toHash : HashFields -> String
 toHash hash =
     let
         photo =
-            case hash.preview of
-                NoPreview ->
-                    ""
-
-                Preview path ->
-                    path
+            hash.preview |> Maybe.withDefault ""
     in
         case hash.album of
             NoAlbum ->
