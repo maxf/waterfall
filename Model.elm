@@ -9,6 +9,8 @@ module Model
         , albumShown
         , message
         , albums
+        , nextPhoto
+        , prevPhoto
         , toHash
         , modelHash
         , withPhotoShown
@@ -19,9 +21,9 @@ module Model
         )
 
 import Types exposing (FileName, RenamedPath, AlbumName, HashFields, AlbumHash(NoAlbum, AllAlbums, Album), PhotoMetadata)
-import List exposing (drop)
+import List exposing (drop, head, foldl)
 import List.Extra exposing (takeWhile, dropWhile)
-
+import Http exposing (encodeUri)
 
 type Model
     = Model InternalModel
@@ -195,7 +197,16 @@ toHash hash =
                 ""
 
             AllAlbums ->
-                "#:" ++ photo
+                "#:" ++ encodeUri photo
 
             Album path ->
-                "#" ++ path ++ ":" ++ photo
+                "#" ++ (encodeUri path) ++ ":" ++ (encodeUri photo)
+
+
+nextPhoto: Model -> Maybe PhotoMetadata
+nextPhoto (Model model) =
+    head model.photosAfter
+
+prevPhoto: Model -> Maybe PhotoMetadata
+prevPhoto (Model model) =
+    foldl (Just >> always) Nothing model.photosBefore

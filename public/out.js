@@ -17387,66 +17387,87 @@ var _user$project$Types$Date = function (a) {
 	return {ctor: 'Date', _0: a};
 };
 
+var _user$project$Model$prevPhoto = function (_p0) {
+	var _p1 = _p0;
+	return A3(
+		_elm_lang$core$List$foldl,
+		function (_p2) {
+			return _elm_lang$core$Basics$always(
+				_elm_lang$core$Maybe$Just(_p2));
+		},
+		_elm_lang$core$Maybe$Nothing,
+		_p1._0.photosBefore);
+};
+var _user$project$Model$nextPhoto = function (_p3) {
+	var _p4 = _p3;
+	return _elm_lang$core$List$head(_p4._0.photosAfter);
+};
 var _user$project$Model$toHash = function (hash) {
 	var photo = A2(_elm_lang$core$Maybe$withDefault, '', hash.preview);
-	var _p0 = hash.album;
-	switch (_p0.ctor) {
+	var _p5 = hash.album;
+	switch (_p5.ctor) {
 		case 'NoAlbum':
 			return '';
 		case 'AllAlbums':
-			return A2(_elm_lang$core$Basics_ops['++'], '#:', photo);
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				'#:',
+				_elm_lang$http$Http$encodeUri(photo));
 		default:
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'#',
 				A2(
 					_elm_lang$core$Basics_ops['++'],
-					_p0._0,
-					A2(_elm_lang$core$Basics_ops['++'], ':', photo)));
+					_elm_lang$http$Http$encodeUri(_p5._0),
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						':',
+						_elm_lang$http$Http$encodeUri(photo))));
 	}
 };
-var _user$project$Model$modelHash = function (_p1) {
-	var _p2 = _p1;
-	var _p3 = _p2._0;
+var _user$project$Model$modelHash = function (_p6) {
+	var _p7 = _p6;
+	var _p8 = _p7._0;
 	return _user$project$Model$toHash(
 		A2(
 			_user$project$Types$HashFields,
-			_p3.albumShown,
+			_p8.albumShown,
 			A2(
 				_elm_lang$core$Maybe$map,
 				function (_) {
 					return _.relativeFilePath;
 				},
-				_p3.photoShown)));
+				_p8.photoShown)));
 };
-var _user$project$Model$albums = function (_p4) {
-	var _p5 = _p4;
-	return _p5._0.albums;
+var _user$project$Model$albums = function (_p9) {
+	var _p10 = _p9;
+	return _p10._0.albums;
 };
-var _user$project$Model$message = function (_p6) {
-	var _p7 = _p6;
-	return _p7._0.message;
+var _user$project$Model$message = function (_p11) {
+	var _p12 = _p11;
+	return _p12._0.message;
 };
-var _user$project$Model$photos = function (_p8) {
-	var _p9 = _p8;
-	var _p11 = _p9._0;
-	var _p10 = _p11.photoShown;
-	if (_p10.ctor === 'Nothing') {
-		return A2(_elm_lang$core$Basics_ops['++'], _p11.photosBefore, _p11.photosAfter);
+var _user$project$Model$photos = function (_p13) {
+	var _p14 = _p13;
+	var _p16 = _p14._0;
+	var _p15 = _p16.photoShown;
+	if (_p15.ctor === 'Nothing') {
+		return A2(_elm_lang$core$Basics_ops['++'], _p16.photosBefore, _p16.photosAfter);
 	} else {
 		return A2(
 			_elm_lang$core$Basics_ops['++'],
-			_p11.photosBefore,
-			{ctor: '::', _0: _p10._0, _1: _p11.photosAfter});
+			_p16.photosBefore,
+			{ctor: '::', _0: _p15._0, _1: _p16.photosAfter});
 	}
 };
-var _user$project$Model$photoShown = function (_p12) {
-	var _p13 = _p12;
-	return _p13._0.photoShown;
+var _user$project$Model$photoShown = function (_p17) {
+	var _p18 = _p17;
+	return _p18._0.photoShown;
 };
-var _user$project$Model$albumShown = function (_p14) {
-	var _p15 = _p14;
-	return _p15._0.albumShown;
+var _user$project$Model$albumShown = function (_p19) {
+	var _p20 = _p19;
+	return _p20._0.albumShown;
 };
 var _user$project$Model$InternalModel = F6(
 	function (a, b, c, d, e, f) {
@@ -17458,13 +17479,13 @@ var _user$project$Model$PhotoSplit = F3(
 	});
 var _user$project$Model$splitAt = F2(
 	function (path, list) {
-		var _p16 = A2(
+		var _p21 = A2(
 			_elm_lang$core$List$filter,
 			function (p) {
 				return _elm_lang$core$Native_Utils.eq(p.relativeFilePath, path);
 			},
 			list);
-		if ((_p16.ctor === '::') && (_p16._1.ctor === '[]')) {
+		if ((_p21.ctor === '::') && (_p21._1.ctor === '[]')) {
 			return _elm_lang$core$Maybe$Just(
 				A3(
 					_user$project$Model$PhotoSplit,
@@ -17474,7 +17495,7 @@ var _user$project$Model$splitAt = F2(
 							return !_elm_lang$core$Native_Utils.eq(p.relativeFilePath, path);
 						},
 						list),
-					_p16._0,
+					_p21._0,
 					A2(
 						_elm_lang$core$List$drop,
 						1,
@@ -17500,70 +17521,70 @@ var _user$project$Model$initialModel = _user$project$Model$Model(
 		_elm_lang$core$Maybe$Nothing,
 		{ctor: '[]'},
 		'Starting'));
-var _user$project$Model$removePhotoShown = function (_p17) {
-	var _p18 = _p17;
+var _user$project$Model$removePhotoShown = function (_p22) {
+	var _p23 = _p22;
 	return _user$project$Model$Model(
 		_elm_lang$core$Native_Utils.update(
-			_p18._0,
+			_p23._0,
 			{photoShown: _elm_lang$core$Maybe$Nothing}));
 };
 var _user$project$Model$withAlbumShown = F2(
-	function (album, _p19) {
-		var _p20 = _p19;
+	function (album, _p24) {
+		var _p25 = _p24;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p20._0,
+				_p25._0,
 				{albumShown: album}));
 	});
 var _user$project$Model$withAlbums = F2(
-	function (albumList, _p21) {
-		var _p22 = _p21;
+	function (albumList, _p26) {
+		var _p27 = _p26;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p22._0,
+				_p27._0,
 				{albums: albumList}));
 	});
 var _user$project$Model$withPhotoShown = F2(
-	function (filename, _p23) {
-		var _p24 = _p23;
-		var _p28 = _p24._0;
-		var _p25 = filename;
-		if (_p25.ctor === 'Nothing') {
+	function (filename, _p28) {
+		var _p29 = _p28;
+		var _p33 = _p29._0;
+		var _p30 = filename;
+		if (_p30.ctor === 'Nothing') {
 			return _user$project$Model$Model(
 				_elm_lang$core$Native_Utils.update(
-					_p28,
+					_p33,
 					{
 						photosBefore: _user$project$Model$photos(
-							_user$project$Model$Model(_p28)),
+							_user$project$Model$Model(_p33)),
 						photosAfter: {ctor: '[]'},
 						photoShown: _elm_lang$core$Maybe$Nothing
 					}));
 		} else {
 			var newSplit = A2(
 				_user$project$Model$splitAt,
-				_p25._0,
+				_p30._0,
 				_user$project$Model$photos(
-					_user$project$Model$Model(_p28)));
-			var _p26 = newSplit;
-			if (_p26.ctor === 'Nothing') {
-				return _user$project$Model$Model(_p28);
+					_user$project$Model$Model(_p33)));
+			var _p31 = newSplit;
+			if (_p31.ctor === 'Nothing') {
+				return _user$project$Model$Model(_p33);
 			} else {
-				var _p27 = _p26._0;
+				var _p32 = _p31._0;
 				return _user$project$Model$Model(
 					_elm_lang$core$Native_Utils.update(
-						_p28,
+						_p33,
 						{
-							photosBefore: _p27.left,
-							photosAfter: _p27.right,
-							photoShown: _elm_lang$core$Maybe$Just(_p27.middle)
+							photosBefore: _p32.left,
+							photosAfter: _p32.right,
+							photoShown: _elm_lang$core$Maybe$Just(_p32.middle)
 						}));
 			}
 		}
 	});
 var _user$project$Model$updateCurrentPhotoPath = F2(
 	function (renamedPath, model) {
-		var _p29 = _user$project$Model$photoShown(model);
-		if (_p29.ctor === 'Nothing') {
+		var _p34 = _user$project$Model$photoShown(model);
+		if (_p34.ctor === 'Nothing') {
 			return model;
 		} else {
 			return A2(
@@ -17573,19 +17594,19 @@ var _user$project$Model$updateCurrentPhotoPath = F2(
 		}
 	});
 var _user$project$Model$withMessage = F2(
-	function (message, _p30) {
-		var _p31 = _p30;
+	function (message, _p35) {
+		var _p36 = _p35;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p31._0,
+				_p36._0,
 				{message: message}));
 	});
 var _user$project$Model$withPhotos = F2(
-	function (metadata, _p32) {
-		var _p33 = _p32;
+	function (metadata, _p37) {
+		var _p38 = _p37;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p33._0,
+				_p38._0,
 				{photosBefore: metadata}));
 	});
 
@@ -17900,6 +17921,58 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 				_user$project$Types$HashFields,
 				_user$project$Model$albumShown(model),
 				_elm_lang$core$Maybe$Nothing));
+		var prevPhotoLink = function () {
+			var _p1 = _user$project$Model$prevPhoto(model);
+			if (_p1.ctor === 'Nothing') {
+				return A2(
+					_elm_lang$html$Html$span,
+					{ctor: '[]'},
+					{ctor: '[]'});
+			} else {
+				return A2(
+					_elm_lang$html$Html$a,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$href(
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								link,
+								_elm_lang$http$Http$encodeUri(_p1._0.relativeFilePath))),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('🢀'),
+						_1: {ctor: '[]'}
+					});
+			}
+		}();
+		var nextPhotoLink = function () {
+			var _p2 = _user$project$Model$nextPhoto(model);
+			if (_p2.ctor === 'Nothing') {
+				return A2(
+					_elm_lang$html$Html$span,
+					{ctor: '[]'},
+					{ctor: '[]'});
+			} else {
+				return A2(
+					_elm_lang$html$Html$a,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$href(
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								link,
+								_elm_lang$http$Http$encodeUri(_p2._0.relativeFilePath))),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('🢂'),
+						_1: {ctor: '[]'}
+					});
+			}
+		}();
 		var path = _p0._0.relativeFilePath;
 		return A2(
 			_elm_lang$html$Html$div,
@@ -17955,19 +18028,7 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 						},
 						{
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$button,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Events$onClick(
-										_user$project$Update$UserAskedToDeleteAPhoto(path)),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('🗑'),
-									_1: {ctor: '[]'}
-								}),
+							_0: prevPhotoLink,
 							_1: {
 								ctor: '::',
 								_0: A2(
@@ -17975,12 +18036,12 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 									{
 										ctor: '::',
 										_0: _elm_lang$html$Html_Events$onClick(
-											A2(_user$project$Update$UserAskedToRotateAPhoto, 90, path)),
+											_user$project$Update$UserAskedToDeleteAPhoto(path)),
 										_1: {ctor: '[]'}
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text('↻'),
+										_0: _elm_lang$html$Html$text('🗑'),
 										_1: {ctor: '[]'}
 									}),
 								_1: {
@@ -17990,15 +18051,35 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 										{
 											ctor: '::',
 											_0: _elm_lang$html$Html_Events$onClick(
-												A2(_user$project$Update$UserAskedToRotateAPhoto, 270, path)),
+												A2(_user$project$Update$UserAskedToRotateAPhoto, 90, path)),
 											_1: {ctor: '[]'}
 										},
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html$text('↺'),
+											_0: _elm_lang$html$Html$text('↻'),
 											_1: {ctor: '[]'}
 										}),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$button,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(
+													A2(_user$project$Update$UserAskedToRotateAPhoto, 270, path)),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('↺'),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: nextPhotoLink,
+											_1: {ctor: '[]'}
+										}
+									}
 								}
 							}
 						}),
@@ -18135,8 +18216,8 @@ var _user$project$ViewPhotos$viewPhotos = function (model) {
 			_1: {ctor: '[]'}
 		},
 		function () {
-			var _p1 = _user$project$Model$albumShown(model);
-			switch (_p1.ctor) {
+			var _p3 = _user$project$Model$albumShown(model);
+			switch (_p3.ctor) {
 				case 'NoAlbum':
 					return {
 						ctor: '::',
@@ -18186,7 +18267,7 @@ var _user$project$ViewPhotos$viewPhotos = function (model) {
 							{ctor: '[]'},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text(_p1._0),
+								_0: _elm_lang$html$Html$text(_p3._0),
 								_1: {ctor: '[]'}
 							}),
 						_1: {

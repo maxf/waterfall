@@ -1,11 +1,11 @@
 module ViewPhotos exposing (viewPhotos)
 
-import Html exposing (Html, div, h1, h2, li, img, text, a, button)
+import Html exposing (Html, div, h1, h2, li, img, text, a, button, span)
 import Html.Keyed exposing (ul)
 import Html.Attributes exposing (src, id, style, class, href)
 import Html.Events exposing (onClick)
 import Http exposing (encodeUri)
-import Model exposing (Model, photoShown, photos, albumShown, toHash)
+import Model exposing (Model, photoShown, photos, albumShown, toHash, nextPhoto, prevPhoto)
 import Types exposing (PhotoMetadata, HashFields, AlbumHash(Album, NoAlbum, AllAlbums))
 import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto))
 
@@ -91,8 +91,22 @@ viewPhoto model =
                     photo.relativeFilePath
 
                 link =
-                    HashFields (albumShown model) Nothing
-                        |> toHash
+                    HashFields (albumShown model) Nothing |> toHash
+
+                prevPhotoLink =
+                    case model |> prevPhoto of
+                        Nothing ->
+                            span [] []
+                        Just photo ->
+                            a [ link ++ (photo.relativeFilePath |> encodeUri) |> href ] [ text "🢀" ]
+
+                nextPhotoLink =
+                    case model |> nextPhoto of
+                        Nothing ->
+                            span [] []
+                        Just photo ->
+                            a [ link ++ (photo.relativeFilePath |> encodeUri) |> href ] [ text "🢂" ]
+
             in
                 div [ class "lightbox" ]
                     [ div [ class "lightbox-inner" ]
@@ -100,7 +114,8 @@ viewPhoto model =
                             [ img [ src ("/preview?photo=" ++ encodeUri path) ] [] ]
                         ]
                     , div [ class "buttons" ]
-                        [ button
+                        [ prevPhotoLink
+                        , button
                             [ onClick (UserAskedToDeleteAPhoto path) ]
                             [ text "🗑" ]
                         , button
@@ -109,6 +124,7 @@ viewPhoto model =
                         , button
                             [ onClick (UserAskedToRotateAPhoto 270 path) ]
                             [ text "↺" ]
+                        , nextPhotoLink
                         ]
                     , a [ href link, class "close" ] [ text "❌" ]
                     ]
