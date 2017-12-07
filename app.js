@@ -139,10 +139,7 @@ const rotate = async (req, res) => {
       res.status(400).send(JSON.stringify({ error: err }))
     } else {
       deleteThumbs(unmarkedPath)
-      res.send(JSON.stringify({
-        old: decodeURIComponent(req.query.photo),
-        new: `${unmarkedPath}_${Date.now()}`
-      }))
+      res.send(`${unmarkedPath}_${Date.now()}`)
     }
   });
 }

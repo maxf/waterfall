@@ -20,10 +20,11 @@ module Model
         , withAlbumShown
         )
 
-import Types exposing (FileName, RenamedPath, AlbumName, HashFields, AlbumHash(NoAlbum, AllAlbums, Album), PhotoMetadata)
+import Types exposing (FileName, AlbumName, HashFields, AlbumHash(NoAlbum, AllAlbums, Album), PhotoMetadata)
 import List exposing (drop, head, foldl)
 import List.Extra exposing (takeWhile, dropWhile)
 import Http exposing (encodeUri)
+
 
 type Model
     = Model InternalModel
@@ -123,6 +124,8 @@ splitAt path list =
                 )
 
         _ ->
+            -- either the photo asked wasn't in the list, or there were multiple ones
+            -- with the same filename
             Nothing
 
 
@@ -145,8 +148,10 @@ withPhotoShown filename (Model model) =
             in
                 case newSplit of
                     Nothing ->
-                        -- if 2 or more photos have the same filename
-                        Model model
+                        -- TODO: we should update the URL and remove the
+                        -- bad photo path in the URL. But that would trigger
+                        -- UrlChange
+                        Model { model | photoShown = Nothing }
 
                     Just split ->
                         Model
@@ -170,15 +175,15 @@ withPhotos metadata (Model model) =
 
 -- Change the path of a photo
 
--- TODO: don't need RenamedPath anymore
-updateCurrentPhotoPath : RenamedPath -> Model -> Model
-updateCurrentPhotoPath renamedPath model =
+
+updateCurrentPhotoPath : String -> Model -> Model
+updateCurrentPhotoPath newPath model =
     case model |> photoShown of
         Nothing ->
             model
 
         Just _ ->
-            model |> withPhotoShown (Just renamedPath.new)
+            model |> withPhotoShown (Just newPath)
 
 
 modelHash : Model -> String
@@ -200,13 +205,14 @@ toHash hash =
                 "#:" ++ encodeUri photo
 
             Album path ->
-                "#" ++ (encodeUri path) ++ ":" ++ (encodeUri photo)
+                "#" ++ encodeUri path ++ ":" ++ encodeUri photo
 
 
-nextPhoto: Model -> Maybe PhotoMetadata
+nextPhoto : Model -> Maybe PhotoMetadata
 nextPhoto (Model model) =
     head model.photosAfter
 
-prevPhoto: Model -> Maybe PhotoMetadata
+
+prevPhoto : Model -> Maybe PhotoMetadata
 prevPhoto (Model model) =
     foldl (Just >> always) Nothing model.photosBefore

@@ -85,10 +85,10 @@ viewPhoto model =
         Nothing ->
             div [ style [ ( "display", "none" ) ] ] []
 
-        Just photo ->
+        Just photoMetadata ->
             let
                 path =
-                    photo.relativeFilePath
+                    photoMetadata.relativeFilePath
 
                 link =
                     HashFields (albumShown model) Nothing |> toHash
@@ -97,6 +97,7 @@ viewPhoto model =
                     case model |> prevPhoto of
                         Nothing ->
                             span [] []
+
                         Just photo ->
                             a [ link ++ (photo.relativeFilePath |> encodeUri) |> href ] [ text "🢀" ]
 
@@ -104,9 +105,9 @@ viewPhoto model =
                     case model |> nextPhoto of
                         Nothing ->
                             span [] []
+
                         Just photo ->
                             a [ link ++ (photo.relativeFilePath |> encodeUri) |> href ] [ text "🢂" ]
-
             in
                 div [ class "lightbox" ]
                     [ div [ class "lightbox-inner" ]

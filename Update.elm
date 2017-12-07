@@ -6,7 +6,7 @@ import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload
 import Json.Decode
 import Navigation exposing (Location, modifyUrl)
 import Regex exposing (regex, HowMany(AtMost), find)
-import Types exposing (PhotoMetadata, FileName, RenamedPath, AlbumHash(NoAlbum, AllAlbums, Album), HashFields)
+import Types exposing (PhotoMetadata, FileName, AlbumHash(NoAlbum, AllAlbums, Album), HashFields)
 import Model exposing (Model, withPhotoShown, withMessage, withPhotos, removePhotoShown, updateCurrentPhotoPath, withAlbums, modelHash, albumShown, withAlbumShown)
 
 
@@ -16,9 +16,9 @@ type Msg
     | UserAskedToRotateAPhoto Int FileName
     | UserClickedOnPhoto
     | PhotoWasDeleted (Result Http.Error String)
-    | PhotoWasRotated (Result Http.Error RenamedPath)
-    | ScanPhotosResult (Result Http.Error (List PhotoMetadata))
-    | GetAlbumsResult (Result Http.Error (List String))
+    | PhotoWasRotated (Result Http.Error String)
+    | ScanPhotosResult (Maybe FileName) (Result Http.Error (List PhotoMetadata))
+    | GetAlbumsResult (Maybe FileName) (Result Http.Error (List String))
     | UrlChange Location
 
 
@@ -53,32 +53,33 @@ update msg model =
         PhotoWasDeleted (Err httpError) ->
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
-        PhotoWasRotated (Ok renamedPath) ->
-            ( model |> updateCurrentPhotoPath renamedPath, Cmd.none )
+        PhotoWasRotated (Ok newPath) ->
+            ( model |> updateCurrentPhotoPath newPath, Cmd.none )
 
         PhotoWasRotated (Err httpError) ->
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
-        ScanPhotosResult (Err httpError) ->
+        ScanPhotosResult _ (Err httpError) ->
             ( model |> withMessage (httpError |> errorMessage), Cmd.none )
 
-        ScanPhotosResult (Ok photos) ->
+        ScanPhotosResult photoToShow (Ok photos) ->
             let
                 newModel =
                     model
                         |> withPhotos photos
+                        |> withPhotoShown photoToShow
                         |> withMessage ""
             in
                 ( newModel
                 , Task.attempt (\_ -> ScrollPhotosFinished) (Dom.Scroll.toTop "photos")
                 )
 
-        GetAlbumsResult (Err _) ->
+        GetAlbumsResult _ (Err _) ->
             ( model |> withMessage "Error getting albums"
             , Cmd.none
             )
 
-        GetAlbumsResult (Ok albumList) ->
+        GetAlbumsResult photoToShow (Ok albumList) ->
             ( model
                 |> withAlbums albumList
                 |> withMessage ""
@@ -87,10 +88,10 @@ update msg model =
                     Cmd.none
 
                 AllAlbums ->
-                    getAlbumPhotos ""
+                    getAlbumPhotos "" photoToShow
 
                 Album name ->
-                    getAlbumPhotos name
+                    getAlbumPhotos name photoToShow
             )
 
         UrlChange location ->
@@ -106,10 +107,10 @@ update msg model =
                                 ( Cmd.none, "" )
 
                             AllAlbums ->
-                                ( getAlbumPhotos "", "Loading all photos" )
+                                ( getAlbumPhotos "" hashParams.preview, "Loading all photos" )
 
                             Album name ->
-                                ( getAlbumPhotos name, "Loading " ++ name )
+                                ( getAlbumPhotos name hashParams.preview, "Loading " ++ name )
                     else
                         ( Cmd.none, "" )
 
@@ -140,22 +141,16 @@ deletePhoto fileName =
 rotatePhoto : Int -> FileName -> Cmd Msg
 rotatePhoto angle fileName =
     let
-        rotatedDecoder =
-            Json.Decode.map2
-                RenamedPath
-                (Json.Decode.field "old" Json.Decode.string)
-                (Json.Decode.field "new" Json.Decode.string)
-
         request =
             Http.get
                 ("api/rotate?angle=" ++ toString angle ++ "&photo=" ++ encodeUri fileName)
-                rotatedDecoder
+                Json.Decode.string
     in
         Http.send PhotoWasRotated request
 
 
-getAlbumPhotos : String -> Cmd Msg
-getAlbumPhotos albumName =
+getAlbumPhotos : String -> Maybe FileName -> Cmd Msg
+getAlbumPhotos albumName photoToShow =
     let
         photoMetadataDecoder =
             Json.Decode.map2
@@ -169,7 +164,7 @@ getAlbumPhotos albumName =
         request =
             Http.get apiUrl (Json.Decode.list photoMetadataDecoder)
     in
-        Http.send ScanPhotosResult request
+        Http.send (ScanPhotosResult photoToShow) request
 
 
 errorMessage : Http.Error -> String
