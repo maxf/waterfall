@@ -148,9 +148,6 @@ withPhotoShown filename (Model model) =
             in
                 case newSplit of
                     Nothing ->
-                        -- TODO: we should update the URL and remove the
-                        -- bad photo path in the URL. But that would trigger
-                        -- UrlChange
                         Model { model | photoShown = Nothing }
 
                     Just split ->
@@ -177,13 +174,17 @@ withPhotos metadata (Model model) =
 
 
 updateCurrentPhotoPath : String -> Model -> Model
-updateCurrentPhotoPath newPath model =
-    case model |> photoShown of
+updateCurrentPhotoPath newPath (Model model) =
+    case model.photoShown of
         Nothing ->
-            model
+            Model model
 
-        Just _ ->
-            model |> withPhotoShown (Just newPath)
+        Just oldMetadata ->
+            let
+                newMetadata =
+                    { oldMetadata | relativeFilePath = newPath }
+            in
+                Model { model | photoShown = Just newMetadata }
 
 
 modelHash : Model -> String

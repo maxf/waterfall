@@ -17580,33 +17580,40 @@ var _user$project$Model$withPhotoShown = F2(
 			}
 		}
 	});
-var _user$project$Model$updateCurrentPhotoPath = F2(
-	function (newPath, model) {
-		var _p34 = _user$project$Model$photoShown(model);
-		if (_p34.ctor === 'Nothing') {
-			return model;
-		} else {
-			return A2(
-				_user$project$Model$withPhotoShown,
-				_elm_lang$core$Maybe$Just(newPath),
-				model);
-		}
-	});
 var _user$project$Model$withMessage = F2(
-	function (message, _p35) {
-		var _p36 = _p35;
+	function (message, _p34) {
+		var _p35 = _p34;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p36._0,
+				_p35._0,
 				{message: message}));
 	});
 var _user$project$Model$withPhotos = F2(
-	function (metadata, _p37) {
-		var _p38 = _p37;
+	function (metadata, _p36) {
+		var _p37 = _p36;
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
-				_p38._0,
+				_p37._0,
 				{photosBefore: metadata}));
+	});
+var _user$project$Model$updateCurrentPhotoPath = F2(
+	function (newPath, _p38) {
+		var _p39 = _p38;
+		var _p41 = _p39._0;
+		var _p40 = _p41.photoShown;
+		if (_p40.ctor === 'Nothing') {
+			return _user$project$Model$Model(_p41);
+		} else {
+			var newMetadata = _elm_lang$core$Native_Utils.update(
+				_p40._0,
+				{relativeFilePath: newPath});
+			return _user$project$Model$Model(
+				_elm_lang$core$Native_Utils.update(
+					_p41,
+					{
+						photoShown: _elm_lang$core$Maybe$Just(newMetadata)
+					}));
+		}
 	});
 
 var _user$project$Update$hashRegex = _elm_lang$core$Regex$regex('^#([^:]*):(.*)$');
