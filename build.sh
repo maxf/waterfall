@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PATH=./node_modules/.bin:$PATH
+
 elm-make *.elm $WATERFALL_ELM_DEBUG --yes --warn --output=public/elm.js
 browserify -o public/out.js main.js
 
