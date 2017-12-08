@@ -11,8 +11,7 @@ module Model
         , albums
         , nextPhoto
         , prevPhoto
-        , toHash
-        , modelHash
+        , hash
         , withPhotoShown
         , withAlbums
         , withMessage
@@ -20,7 +19,7 @@ module Model
         , withAlbumShown
         )
 
-import Types exposing (FileName, AlbumName, HashFields, AlbumHash(NoAlbum, AllAlbums, Album), PhotoMetadata)
+import Types exposing (FileName, AlbumName, PhotoMetadata)
 import List exposing (drop, head, foldl)
 import List.Extra exposing (takeWhile, dropWhile)
 import Http exposing (encodeUri)
@@ -32,7 +31,7 @@ type Model
 
 type alias InternalModel =
     { albums : List AlbumName
-    , albumShown : AlbumHash
+    , albumShown : Maybe AlbumName
     , photosBefore : List PhotoMetadata
     , photoShown : Maybe PhotoMetadata
     , photosAfter : List PhotoMetadata
@@ -45,7 +44,7 @@ initialModel =
     Model
         (InternalModel
             []
-            NoAlbum
+            Nothing
             []
             Nothing
             []
@@ -57,7 +56,7 @@ initialModel =
 -- Access functions
 
 
-albumShown : Model -> AlbumHash
+albumShown : Model -> Maybe AlbumName
 albumShown (Model model) =
     model.albumShown
 
@@ -95,7 +94,7 @@ albums (Model model) =
     model.albums
 
 
-withAlbumShown : AlbumHash -> Model -> Model
+withAlbumShown : Maybe AlbumName -> Model -> Model
 withAlbumShown album (Model model) =
     Model { model | albumShown = album }
 
@@ -187,26 +186,19 @@ updateCurrentPhotoPath newPath (Model model) =
                 Model { model | photoShown = Just newMetadata }
 
 
-modelHash : Model -> String
-modelHash (Model model) =
-    toHash (HashFields model.albumShown (Maybe.map .relativeFilePath model.photoShown))
+hash : Model -> String
+hash model =
+    case model |> albumShown of
+        Nothing ->
+            ""
 
+        Just albumName ->
+            case model |> photoShown of
+                Nothing ->
+                    "#" ++ encodeUri albumName
 
-toHash : HashFields -> String
-toHash hash =
-    let
-        photo =
-            hash.preview |> Maybe.withDefault ""
-    in
-        case hash.album of
-            NoAlbum ->
-                ""
-
-            AllAlbums ->
-                "#:" ++ encodeUri photo
-
-            Album path ->
-                "#" ++ encodeUri path ++ ":" ++ encodeUri photo
+                Just photo ->
+                    "#" ++ encodeUri albumName ++ ":" ++ encodeUri photo.relativeFilePath
 
 
 nextPhoto : Model -> Maybe PhotoMetadata

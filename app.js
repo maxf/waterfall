@@ -65,7 +65,7 @@ const dirs = function(req, res) {
       .split('\n')
       .filter(s => s !== '')
       .map(s => path.relative(photosDir, s))
-      .filter(s=> !/(\/\.)|^\./.test(s))
+      .filter(s=> !(s==='' || /(\/\.)|^\./.test(s)))
       .sort()
     res.send(JSON.stringify(dirs))
   })

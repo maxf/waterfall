@@ -1,25 +1,26 @@
-module Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto, UserClickedOnPhoto, PhotoWasDeleted, ScanPhotosResult, GetAlbumsResult, UrlChange), update, fromHash)
+module Update exposing (Msg(UserChangedAlbum, UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto, UserClickedPhoto, UserClickedThumbnail, PhotoWasDeleted, ScanPhotosResult, GetAlbumsResult, UrlHasChanged), update)
 
 import Dom.Scroll
 import Task
-import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload), encodeUri, decodeUri)
+import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload), encodeUri)
 import Json.Decode
-import Navigation exposing (Location, modifyUrl)
-import Regex exposing (regex, HowMany(AtMost), find)
-import Types exposing (PhotoMetadata, FileName, AlbumHash(NoAlbum, AllAlbums, Album), HashFields)
-import Model exposing (Model, withPhotoShown, withMessage, withPhotos, removePhotoShown, updateCurrentPhotoPath, withAlbums, modelHash, albumShown, withAlbumShown)
+import Navigation exposing (Location, modifyUrl, newUrl)
+import Types exposing (PhotoMetadata, FileName, AlbumName)
+import Model exposing (Model, withPhotoShown, withMessage, withPhotos, removePhotoShown, updateCurrentPhotoPath, withAlbums, hash, albumShown, withAlbumShown)
 
 
 type Msg
     = ScrollPhotosFinished
     | UserAskedToDeleteAPhoto FileName
     | UserAskedToRotateAPhoto Int FileName
-    | UserClickedOnPhoto
+    | UserClickedPhoto
     | PhotoWasDeleted (Result Http.Error String)
     | PhotoWasRotated (Result Http.Error String)
     | ScanPhotosResult (Maybe FileName) (Result Http.Error (List PhotoMetadata))
     | GetAlbumsResult (Maybe FileName) (Result Http.Error (List String))
-    | UrlChange Location
+    | UrlHasChanged Location
+    | UserChangedAlbum AlbumName
+    | UserClickedThumbnail PhotoMetadata
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -28,8 +29,19 @@ update msg model =
         ScrollPhotosFinished ->
             ( model, Cmd.none )
 
-        UserClickedOnPhoto ->
-            ( model |> withPhotoShown Nothing, Cmd.none )
+        UserClickedThumbnail photo ->
+            let
+                newModel =
+                    model |> withPhotoShown (Just photo.relativeFilePath)
+            in
+                ( newModel, newUrl (newModel |> hash) )
+
+        UserClickedPhoto ->
+            let
+                newModel =
+                    model |> withPhotoShown Nothing
+            in
+                ( newModel, newUrl (newModel |> hash) )
 
         UserAskedToDeleteAPhoto fileName ->
             ( model, deletePhoto fileName )
@@ -44,7 +56,7 @@ update msg model =
                         model |> removePhotoShown
 
                     newHash =
-                        newModel |> modelHash
+                        newModel |> hash
                 in
                     ( newModel, modifyUrl newHash )
             else
@@ -84,43 +96,20 @@ update msg model =
                 |> withAlbums albumList
                 |> withMessage ""
             , case model |> albumShown of
-                NoAlbum ->
+                Nothing ->
                     Cmd.none
 
-                AllAlbums ->
-                    getAlbumPhotos "" photoToShow
-
-                Album name ->
+                Just name ->
                     getAlbumPhotos name photoToShow
             )
 
-        UrlChange location ->
-            let
-                hashParams : HashFields
-                hashParams =
-                    fromHash location
+        UserChangedAlbum albumName ->
+            ((model |> withAlbumShown (Just albumName))
+                ! [ newUrl (model |> hash), getAlbumPhotos albumName Nothing ]
+            )
 
-                ( cmd, message ) =
-                    if hashParams.album /= albumShown model then
-                        case hashParams.album of
-                            NoAlbum ->
-                                ( Cmd.none, "" )
-
-                            AllAlbums ->
-                                ( getAlbumPhotos "" hashParams.preview, "Loading all photos" )
-
-                            Album name ->
-                                ( getAlbumPhotos name hashParams.preview, "Loading " ++ name )
-                    else
-                        ( Cmd.none, "" )
-
-                newModel =
-                    model
-                        |> withPhotoShown hashParams.preview
-                        |> withAlbumShown hashParams.album
-                        |> withMessage message
-            in
-                ( newModel, cmd )
+        UrlHasChanged _ ->
+            ( model, Cmd.none )
 
 
 
@@ -184,42 +173,3 @@ errorMessage error =
 
         BadPayload s _ ->
             "Bad payload: " ++ s
-
-
-hashRegex : Regex.Regex
-hashRegex =
-    regex "^#([^:]*):(.*)$"
-
-
-fromHash : Location -> HashFields
-fromHash location =
-    let
-        matches =
-            find (AtMost 1) hashRegex (decodeUri location.hash |> Maybe.withDefault "")
-    in
-        case List.map .submatches matches of
-            [ [ album, photo ] ] ->
-                HashFields
-                    (case album of
-                        Nothing ->
-                            NoAlbum
-
-                        Just name ->
-                            if name == "" then
-                                AllAlbums
-                            else
-                                Album name
-                    )
-                    (case photo of
-                        Nothing ->
-                            Nothing
-
-                        Just path ->
-                            if path == "" then
-                                Nothing
-                            else
-                                Just path
-                    )
-
-            _ ->
-                HashFields NoAlbum Nothing

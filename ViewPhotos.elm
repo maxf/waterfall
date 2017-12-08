@@ -1,13 +1,13 @@
 module ViewPhotos exposing (viewPhotos)
 
-import Html exposing (Html, div, h1, h2, li, img, text, a, button, span)
+import Html exposing (Html, div, h1, h2, li, img, text, button, span)
 import Html.Keyed exposing (ul)
-import Html.Attributes exposing (src, id, style, class, href)
+import Html.Attributes exposing (src, id, style, class)
 import Html.Events exposing (onClick)
 import Http exposing (encodeUri)
-import Model exposing (Model, photoShown, photos, albumShown, toHash, nextPhoto, prevPhoto)
-import Types exposing (PhotoMetadata, HashFields, AlbumHash(Album, NoAlbum, AllAlbums))
-import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto))
+import Model exposing (Model, photoShown, photos, albumShown, nextPhoto, prevPhoto)
+import Types exposing (PhotoMetadata)
+import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto, UserClickedThumbnail, UserClickedPhoto))
 
 
 viewPhotos : Model -> Html Msg
@@ -15,16 +15,10 @@ viewPhotos model =
     div
         [ id "photos" ]
         (case model |> albumShown of
-            NoAlbum ->
+            Nothing ->
                 [ h1 [] [ text "Select an album" ] ]
 
-            AllAlbums ->
-                [ h1 [] [ text "All photos" ]
-                , div [] [ viewThumbnails model ]
-                , viewPhoto model
-                ]
-
-            Album title ->
+            Just title ->
                 [ h1 [] [ text title ]
                 , div [] [ viewThumbnails model ]
                 , viewPhoto model
@@ -46,37 +40,27 @@ viewThumbnails model =
             , ul
                 [ class "contact-print" ]
                 (List.map
-                    (viewThumbnail model)
+                    viewThumbnail
                     (List.sortWith sortByMaybeDate (model |> photos))
                 )
             ]
 
 
-viewThumbnail : Model -> PhotoMetadata -> ( String, Html Msg )
-viewThumbnail model metadata =
-    let
-        photoId =
-            toHash
-                (HashFields
-                    (albumShown model)
-                    (Just metadata.relativeFilePath)
-                )
-    in
-        ( photoId
-        , li
+viewThumbnail : PhotoMetadata -> ( String, Html Msg )
+viewThumbnail metadata =
+    ( metadata.relativeFilePath
+    , li
+        [ onClick (UserClickedThumbnail metadata) ]
+        [ div
             []
-            [ div
-                []
-                [ a [ href photoId ]
-                    [ img
-                        [ src ("/thumb?photo=" ++ encodeUri metadata.relativeFilePath)
-                        , class "thumbnail"
-                        ]
-                        []
-                    ]
+            [ img
+                [ src ("/thumb?photo=" ++ encodeUri metadata.relativeFilePath)
+                , class "thumbnail"
                 ]
+                []
             ]
-        )
+        ]
+    )
 
 
 viewPhoto : Model -> Html Msg
@@ -85,37 +69,32 @@ viewPhoto model =
         Nothing ->
             div [ style [ ( "display", "none" ) ] ] []
 
-        Just photoMetadata ->
+        Just photo ->
             let
                 path =
-                    photoMetadata.relativeFilePath
+                    photo.relativeFilePath
 
-                link =
-                    HashFields (albumShown model) Nothing |> toHash
-
-                prevPhotoLink =
+                prevPhotoButton =
                     case model |> prevPhoto of
                         Nothing ->
                             span [] []
 
-                        Just photo ->
-                            a [ link ++ (photo.relativeFilePath |> encodeUri) |> href ] [ text "🢀" ]
+                        Just previous ->
+                            span [ onClick (UserClickedThumbnail previous) ] [ text "🢀" ]
 
-                nextPhotoLink =
+                nextPhotoButton =
                     case model |> nextPhoto of
                         Nothing ->
                             span [] []
 
-                        Just photo ->
-                            a [ link ++ (photo.relativeFilePath |> encodeUri) |> href ] [ text "🢂" ]
+                        Just next ->
+                            span [ onClick (UserClickedThumbnail next) ] [ text "🢂" ]
             in
                 div [ class "lightbox" ]
-                    [ div [ class "lightbox-inner" ]
-                        [ a [ href link ]
-                            [ img [ src ("/preview?photo=" ++ encodeUri path) ] [] ]
-                        ]
+                    [ div [ class "lightbox-inner", onClick UserClickedPhoto ]
+                        [ img [ src ("/preview?photo=" ++ encodeUri path) ] [] ]
                     , div [ class "buttons" ]
-                        [ prevPhotoLink
+                        [ prevPhotoButton
                         , button
                             [ onClick (UserAskedToDeleteAPhoto path) ]
                             [ text "🗑" ]
@@ -125,7 +104,7 @@ viewPhoto model =
                         , button
                             [ onClick (UserAskedToRotateAPhoto 270 path) ]
                             [ text "↺" ]
-                        , nextPhotoLink
+                        , nextPhotoButton
                         ]
-                    , a [ href link, class "close" ] [ text "❌" ]
+                    , span [ onClick UserClickedPhoto, class "close" ] [ text "❌" ]
                     ]

@@ -11,22 +11,11 @@
      body {
        margin: 0;
      }
-     table {
-       border-collapse: collapse;
-       width: 100%;
-     }
-     td {
-       border: 1px solid #7e7e7e;
-       width: 1.3em;
-       height: 1.3em;
-       text-align: center;
-       cursor: pointer;
-     }
-     td.today {
-       outline: 5px solid red;
-     }
      .outer {
        height: 100vh;
+     }
+     .album {
+       cursor: pointer;
      }
      .buttons {
        width: 100%;
@@ -62,12 +51,12 @@
        background: black;
        color: #dfdfdf;
        width: 13em;
-       overflow: auto;
+       overflow: scroll;
        max-height: 100vh;
        padding: 1em;
      }
      .calendar ul {
-       list-style-type: none;
+       list-style-type: disc;
        padding: 0;
      }
      .no-month-date {
@@ -125,7 +114,7 @@
        position: absolute;
        bottom: 0;
      }
-     a.close {
+     .close {
        position: absolute;
        top: 5px;
        left: 5px;
@@ -142,7 +131,7 @@
        border-radius: 40px;
        border: 5px solid red;
      }
-     .lightbox .buttons a {
+     .lightbox .buttons span {
        display: inline-block;
        background: #aaa;
        color: black;

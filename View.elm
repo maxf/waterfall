@@ -1,47 +1,30 @@
 module View exposing (view)
 
-import Html exposing (Html, div, text, a, ul, li)
-
-
---import Html.Events exposing (on, targetValue)
-
-import Html.Attributes exposing (class, style, href, id)
+import Html exposing (Html, div, text, ul, li, a)
+import Html.Events exposing (onClick)
+import Html.Attributes exposing (class, style, id, href)
 
 
 --import Json.Decode
 
-import Types exposing (HashFields, AlbumHash(Album))
-import Model exposing (Model, photoShown, albums, message, toHash)
+import Model exposing (Model, albums, message)
 import ViewPhotos exposing (viewPhotos)
-import Update exposing (Msg)
+import Update exposing (Msg(UserChangedAlbum))
+import Types exposing (AlbumName)
 
 
 viewAlbumList : Model -> Html Msg
 viewAlbumList model =
     let
+        liFn : AlbumName -> Html Msg
         liFn u =
-            let
-                preview =
-                    Maybe.map .relativeFilePath (photoShown model)
-
-                link =
-                    HashFields (Album u) preview |> toHash
-            in
-                li []
-                    [ a [ href link ]
-                        [ (if u == "" then
-                            "All"
-                           else
-                            u
-                          )
-                            |> text
-                        ]
-                    ]
+            li [ onClick (UserChangedAlbum u), class "album" ]
+                [ text u ]
     in
         div
             [ class "calendar", id "calendar" ]
             [ div [] [ a [ href "/" ] [ text "Waterfall" ] ]
-            , ul [] (List.map liFn (albums model))
+            , ul [] (List.map liFn (model |> albums))
             ]
 
 
