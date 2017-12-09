@@ -5,22 +5,22 @@ import Task
 import Http exposing (Error(BadUrl, Timeout, NetworkError, BadStatus, BadPayload), encodeUri)
 import Json.Decode
 import Navigation exposing (Location, modifyUrl, newUrl)
-import Types exposing (PhotoMetadata, FileName, AlbumName)
+import Types exposing (Photo, PhotoPath, AlbumDir)
 import Model exposing (Model, withPhotoShown, withMessage, withPhotos, removePhotoShown, updateCurrentPhotoPath, withAlbums, hash, albumShown, withAlbumShown)
 
 
 type Msg
     = ScrollPhotosFinished
-    | UserAskedToDeleteAPhoto FileName
-    | UserAskedToRotateAPhoto Int FileName
+    | UserAskedToDeleteAPhoto PhotoPath
+    | UserAskedToRotateAPhoto Int PhotoPath
     | UserClickedPhoto
     | PhotoWasDeleted (Result Http.Error String)
     | PhotoWasRotated (Result Http.Error String)
-    | ScanPhotosResult (Maybe FileName) (Result Http.Error (List PhotoMetadata))
-    | GetAlbumsResult (Maybe FileName) (Result Http.Error (List String))
+    | ScanPhotosResult (Maybe PhotoPath) (Result Http.Error (List Photo))
+    | GetAlbumsResult (Maybe PhotoPath) (Result Http.Error (List String))
     | UrlHasChanged Location
-    | UserChangedAlbum AlbumName
-    | UserClickedThumbnail PhotoMetadata
+    | UserChangedAlbum AlbumDir
+    | UserClickedThumbnail Photo
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -43,14 +43,14 @@ update msg model =
             in
                 ( newModel, newUrl (newModel |> hash) )
 
-        UserAskedToDeleteAPhoto fileName ->
-            ( model, deletePhoto fileName )
+        UserAskedToDeleteAPhoto photoPath ->
+            ( model, deletePhoto photoPath )
 
-        UserAskedToRotateAPhoto angle fileName ->
-            ( model, rotatePhoto angle fileName )
+        UserAskedToRotateAPhoto angle photoPath ->
+            ( model, rotatePhoto angle photoPath )
 
-        PhotoWasDeleted (Ok deletedFilePath) ->
-            if deletedFilePath /= "" then
+        PhotoWasDeleted (Ok deletedPhotoPath) ->
+            if deletedPhotoPath /= "" then
                 let
                     newModel =
                         model |> removePhotoShown
@@ -116,34 +116,34 @@ update msg model =
 -- Misc
 
 
-deletePhoto : FileName -> Cmd Msg
-deletePhoto fileName =
+deletePhoto : PhotoPath -> Cmd Msg
+deletePhoto photoPath =
     let
         request =
             Http.get
-                ("api/delete?photo=" ++ encodeUri fileName)
+                ("api/delete?photo=" ++ encodeUri photoPath)
                 Json.Decode.string
     in
         Http.send PhotoWasDeleted request
 
 
-rotatePhoto : Int -> FileName -> Cmd Msg
-rotatePhoto angle fileName =
+rotatePhoto : Int -> PhotoPath -> Cmd Msg
+rotatePhoto angle photoPath =
     let
         request =
             Http.get
-                ("api/rotate?angle=" ++ toString angle ++ "&photo=" ++ encodeUri fileName)
+                ("api/rotate?angle=" ++ toString angle ++ "&photo=" ++ encodeUri photoPath)
                 Json.Decode.string
     in
         Http.send PhotoWasRotated request
 
 
-getAlbumPhotos : String -> Maybe FileName -> Cmd Msg
+getAlbumPhotos : String -> Maybe PhotoPath -> Cmd Msg
 getAlbumPhotos albumName photoToShow =
     let
         photoMetadataDecoder =
             Json.Decode.map2
-                PhotoMetadata
+                Photo
                 (Json.Decode.field "path" Json.Decode.string)
                 (Json.Decode.field "date" (Json.Decode.nullable Json.Decode.int))
 

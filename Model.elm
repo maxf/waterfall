@@ -19,7 +19,7 @@ module Model
         , withAlbumShown
         )
 
-import Types exposing (FileName, AlbumName, PhotoMetadata)
+import Types exposing (PhotoPath, AlbumDir, Photo)
 import List exposing (drop, head, foldl)
 import List.Extra exposing (takeWhile, dropWhile)
 import Http exposing (encodeUri)
@@ -30,11 +30,11 @@ type Model
 
 
 type alias InternalModel =
-    { albums : List AlbumName
-    , albumShown : Maybe AlbumName
-    , photosBefore : List PhotoMetadata
-    , photoShown : Maybe PhotoMetadata
-    , photosAfter : List PhotoMetadata
+    { albums : List AlbumDir
+    , albumShown : Maybe AlbumDir
+    , photosBefore : List Photo
+    , photoShown : Maybe Photo
+    , photosAfter : List Photo
     , message : String
     }
 
@@ -56,17 +56,17 @@ initialModel =
 -- Access functions
 
 
-albumShown : Model -> Maybe AlbumName
+albumShown : Model -> Maybe AlbumDir
 albumShown (Model model) =
     model.albumShown
 
 
-photoShown : Model -> Maybe PhotoMetadata
+photoShown : Model -> Maybe Photo
 photoShown (Model model) =
     model.photoShown
 
 
-photos : Model -> List PhotoMetadata
+photos : Model -> List Photo
 photos (Model model) =
     case model.photoShown of
         Nothing ->
@@ -89,29 +89,29 @@ message (Model model) =
     model.message
 
 
-albums : Model -> List AlbumName
+albums : Model -> List AlbumDir
 albums (Model model) =
     model.albums
 
 
-withAlbumShown : Maybe AlbumName -> Model -> Model
+withAlbumShown : Maybe AlbumDir -> Model -> Model
 withAlbumShown album (Model model) =
     Model { model | albumShown = album }
 
 
-withAlbums : List AlbumName -> Model -> Model
+withAlbums : List AlbumDir -> Model -> Model
 withAlbums albumList (Model model) =
     Model { model | albums = albumList }
 
 
 type alias PhotoSplit =
-    { left : List PhotoMetadata
-    , middle : PhotoMetadata
-    , right : List PhotoMetadata
+    { left : List Photo
+    , middle : Photo
+    , right : List Photo
     }
 
 
-splitAt : FileName -> List PhotoMetadata -> Maybe PhotoSplit
+splitAt : PhotoPath -> List Photo -> Maybe PhotoSplit
 splitAt path list =
     case List.filter (\p -> p.relativeFilePath == path) list of
         [ singlePhoto ] ->
@@ -128,7 +128,7 @@ splitAt path list =
             Nothing
 
 
-withPhotoShown : Maybe FileName -> Model -> Model
+withPhotoShown : Maybe PhotoPath -> Model -> Model
 withPhotoShown filename (Model model) =
     case filename of
         Nothing ->
@@ -163,9 +163,9 @@ withMessage message (Model model) =
     Model { model | message = message }
 
 
-withPhotos : List PhotoMetadata -> Model -> Model
-withPhotos metadata (Model model) =
-    Model { model | photosBefore = metadata }
+withPhotos : List Photo -> Model -> Model
+withPhotos photo (Model model) =
+    Model { model | photosBefore = photo }
 
 
 
@@ -178,12 +178,12 @@ updateCurrentPhotoPath newPath (Model model) =
         Nothing ->
             Model model
 
-        Just oldMetadata ->
+        Just oldPhoto ->
             let
-                newMetadata =
-                    { oldMetadata | relativeFilePath = newPath }
+                newPhoto =
+                    { oldPhoto | relativeFilePath = newPath }
             in
-                Model { model | photoShown = Just newMetadata }
+                Model { model | photoShown = Just newPhoto }
 
 
 hash : Model -> String
@@ -201,11 +201,11 @@ hash model =
                     "#" ++ encodeUri albumName ++ ":" ++ encodeUri photo.relativeFilePath
 
 
-nextPhoto : Model -> Maybe PhotoMetadata
+nextPhoto : Model -> Maybe Photo
 nextPhoto (Model model) =
     head model.photosAfter
 
 
-prevPhoto : Model -> Maybe PhotoMetadata
+prevPhoto : Model -> Maybe Photo
 prevPhoto (Model model) =
     foldl (Just >> always) Nothing model.photosBefore

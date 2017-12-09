@@ -6,7 +6,7 @@ import Html.Attributes exposing (src, id, style, class)
 import Html.Events exposing (onClick)
 import Http exposing (encodeUri)
 import Model exposing (Model, photoShown, photos, albumShown, nextPhoto, prevPhoto)
-import Types exposing (PhotoMetadata)
+import Types exposing (Photo)
 import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto, UserClickedThumbnail, UserClickedPhoto))
 
 
@@ -46,7 +46,7 @@ viewThumbnails model =
             ]
 
 
-viewThumbnail : PhotoMetadata -> ( String, Html Msg )
+viewThumbnail : Photo -> ( String, Html Msg )
 viewThumbnail metadata =
     ( metadata.relativeFilePath
     , li

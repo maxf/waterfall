@@ -7,7 +7,7 @@ import Regex exposing (regex, HowMany(AtMost), find)
 import View
 import Model exposing (Model)
 import Update exposing (Msg(UrlHasChanged, GetAlbumsResult), update)
-import Types exposing (FileName, AlbumName)
+import Types exposing (PhotoPath, AlbumDir)
 
 
 main : Program Never Model Msg
@@ -38,7 +38,7 @@ hashRegex =
     regex "^#([^:]*):?(.*)$"
 
 
-fromHash : Location -> ( Maybe AlbumName, Maybe FileName )
+fromHash : Location -> ( Maybe AlbumDir, Maybe PhotoPath )
 fromHash location =
     let
         matches =
@@ -52,7 +52,7 @@ fromHash location =
                 ( Nothing, Nothing )
 
 
-getAlbumList : Maybe FileName -> Cmd Msg
+getAlbumList : Maybe PhotoPath -> Cmd Msg
 getAlbumList photoToShow =
     let
         apiUrl =

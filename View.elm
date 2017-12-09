@@ -10,13 +10,13 @@ import Html.Attributes exposing (class, style, id, href)
 import Model exposing (Model, albums, message)
 import ViewPhotos exposing (viewPhotos)
 import Update exposing (Msg(UserChangedAlbum))
-import Types exposing (AlbumName)
+import Types exposing (AlbumDir)
 
 
 viewAlbumList : Model -> Html Msg
 viewAlbumList model =
     let
-        liFn : AlbumName -> Html Msg
+        liFn : AlbumDir -> Html Msg
         liFn u =
             li [ onClick (UserChangedAlbum u), class "album" ]
                 [ text u ]
