@@ -28,22 +28,16 @@ viewPhotos model =
 
 viewThumbnails : Model -> Html Msg
 viewThumbnails model =
-    let
-        sortByMaybeDate timestampA timestampB =
-            compare
-                (timestampA.dateCreated |> Maybe.withDefault 0)
-                (timestampB.dateCreated |> Maybe.withDefault 0)
-    in
-        div
-            []
-            [ h2 [] [ text ((List.length (model |> photos) |> toString) ++ " photos") ]
-            , ul
-                [ class "contact-print" ]
-                (List.map
-                    viewThumbnail
-                    (List.sortWith sortByMaybeDate (model |> photos))
-                )
-            ]
+    div
+        []
+        [ h2 [] [ text ((List.length (model |> photos) |> toString) ++ " photos") ]
+        , ul
+            [ class "contact-print" ]
+            (List.map
+                viewThumbnail
+                (model |> photos)
+            )
+        ]
 
 
 viewThumbnail : Photo -> ( String, Html Msg )

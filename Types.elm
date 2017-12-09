@@ -1,4 +1,4 @@
-module Types exposing (Photo, TimestampSeconds, PhotoPath, JsonString, AlbumDir)
+module Types exposing (Photo, PhotoPath, AlbumDir)
 
 
 type alias PhotoPath =
@@ -11,10 +11,6 @@ type alias AlbumDir =
 
 type alias TimestampSeconds =
     Int
-
-
-type alias JsonString =
-    String
 
 
 type alias Photo =

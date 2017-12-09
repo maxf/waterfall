@@ -164,8 +164,18 @@ withMessage message (Model model) =
 
 
 withPhotos : List Photo -> Model -> Model
-withPhotos photo (Model model) =
-    Model { model | photosBefore = photo }
+withPhotos photos (Model model) =
+    let
+        sortByMaybeDate timestampA timestampB =
+            compare
+                (timestampA.dateCreated |> Maybe.withDefault 0)
+                (timestampB.dateCreated |> Maybe.withDefault 0)
+    in
+        Model
+            { model
+                | photosBefore =
+                    (List.sortWith sortByMaybeDate photos)
+            }
 
 
 
