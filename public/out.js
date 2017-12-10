@@ -15602,8 +15602,16 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 			if (_p1.ctor === 'Nothing') {
 				return A2(
 					_elm_lang$html$Html$span,
-					{ctor: '[]'},
-					{ctor: '[]'});
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('disabled'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('🢂'),
+						_1: {ctor: '[]'}
+					});
 			} else {
 				return A2(
 					_elm_lang$html$Html$span,
@@ -15625,8 +15633,16 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 			if (_p2.ctor === 'Nothing') {
 				return A2(
 					_elm_lang$html$Html$span,
-					{ctor: '[]'},
-					{ctor: '[]'});
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('disabled'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('🢀'),
+						_1: {ctor: '[]'}
+					});
 			} else {
 				return A2(
 					_elm_lang$html$Html$span,

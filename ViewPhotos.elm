@@ -71,7 +71,7 @@ viewPhoto model =
                 prevPhotoButton =
                     case model |> prevPhoto of
                         Nothing ->
-                            span [] []
+                            span [ class "disabled" ] [ text "🢀" ]
 
                         Just previous ->
                             span [ onClick (UserClickedThumbnail previous) ] [ text "🢀" ]
@@ -79,7 +79,7 @@ viewPhoto model =
                 nextPhotoButton =
                     case model |> nextPhoto of
                         Nothing ->
-                            span [] []
+                            span [ class "disabled" ] [ text "🢂" ]
 
                         Just next ->
                             span [ onClick (UserClickedThumbnail next) ] [ text "🢂" ]
