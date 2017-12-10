@@ -163,19 +163,30 @@ withMessage message (Model model) =
     Model { model | message = message }
 
 
+photoOrder : Photo -> Photo -> Order
+photoOrder photoA photoB =
+    let
+        timestampA =
+            photoA.dateCreated |> Maybe.withDefault 0
+
+        timestampB =
+            photoB.dateCreated |> Maybe.withDefault 0
+    in
+        if timestampA == 0 && timestampB == 0 then
+            compare photoA.relativeFilePath photoB.relativeFilePath
+        else
+            compare timestampA timestampB
+
+
+
+-- Add photos to a model
+-- and sort the photos by timeStamp if present, otherwise filename
+
+
 withPhotos : List Photo -> Model -> Model
 withPhotos photos (Model model) =
-    let
-        sortByMaybeDate timestampA timestampB =
-            compare
-                (timestampA.dateCreated |> Maybe.withDefault 0)
-                (timestampB.dateCreated |> Maybe.withDefault 0)
-    in
-        Model
-            { model
-                | photosBefore =
-                    (List.sortWith sortByMaybeDate photos)
-            }
+    Model
+        { model | photosBefore = (List.sortWith photoOrder photos) }
 
 
 

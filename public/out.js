@@ -15116,6 +15116,12 @@ var _user$project$Model$nextPhoto = function (_p3) {
 	var _p4 = _p3;
 	return _elm_lang$core$List$head(_p4._0.photosAfter);
 };
+var _user$project$Model$photoOrder = F2(
+	function (photoA, photoB) {
+		var timestampB = A2(_elm_lang$core$Maybe$withDefault, 0, photoB.dateCreated);
+		var timestampA = A2(_elm_lang$core$Maybe$withDefault, 0, photoA.dateCreated);
+		return (_elm_lang$core$Native_Utils.eq(timestampA, 0) && _elm_lang$core$Native_Utils.eq(timestampB, 0)) ? A2(_elm_lang$core$Basics$compare, photoA.relativeFilePath, photoB.relativeFilePath) : A2(_elm_lang$core$Basics$compare, timestampA, timestampB);
+	});
 var _user$project$Model$albums = function (_p5) {
 	var _p6 = _p5;
 	return _p6._0.albums;
@@ -15297,18 +15303,11 @@ var _user$project$Model$withMessage = F2(
 var _user$project$Model$withPhotos = F2(
 	function (photos, _p35) {
 		var _p36 = _p35;
-		var sortByMaybeDate = F2(
-			function (timestampA, timestampB) {
-				return A2(
-					_elm_lang$core$Basics$compare,
-					A2(_elm_lang$core$Maybe$withDefault, 0, timestampA.dateCreated),
-					A2(_elm_lang$core$Maybe$withDefault, 0, timestampB.dateCreated));
-			});
 		return _user$project$Model$Model(
 			_elm_lang$core$Native_Utils.update(
 				_p36._0,
 				{
-					photosBefore: A2(_elm_lang$core$List$sortWith, sortByMaybeDate, photos)
+					photosBefore: A2(_elm_lang$core$List$sortWith, _user$project$Model$photoOrder, photos)
 				}));
 	});
 var _user$project$Model$updateCurrentPhotoPath = F2(
