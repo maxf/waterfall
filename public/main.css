@@ -1,0 +1,148 @@
+html {
+  font-family: helvetica;
+  background: #000;
+}
+body {
+  margin: 0;
+}
+.outer {
+  height: 100vh;
+}
+.album {
+  cursor: pointer;
+}
+.buttons {
+  width: 100%;
+  padding: .1em;
+  margin: .5em 0;
+  text-align: center;
+}
+.button {
+  background-color: #ddd;
+  display: inline-block;
+  margin: 0 2px 0 2px;
+  padding: 0 2px 0 2px;
+}
+.button a {
+  color: black;
+  text-decoration: none;
+  outline: none;
+}
+.error {
+  position: fixed;
+  background: #555;
+  color: white;
+  font-size: 200%;
+  font-weight: bold;
+  padding: 1em;
+  margin: 1em;
+}
+.columns {
+  display: flex;
+  height: 100vh;
+}
+.calendar {
+  background: black;
+  color: #dfdfdf;
+  width: 13em;
+  overflow: scroll;
+  max-height: 100vh;
+  padding: 1em;
+}
+.calendar ul {
+  list-style-type: disc;
+  padding: 0;
+}
+.no-month-date {
+  border: none;
+}
+
+.calendar table td a {
+  color: #aaa;
+  text-decoration: none;
+  width: 100%;
+  height: 100%;
+  display: block;
+  outline: none;
+}
+#photos {
+  padding: 10px;
+  flex: 1;
+  overflow-y: scroll;
+  max-height: 100vh;
+  color: white;
+}
+#photos li {
+  display: inline-block;
+  list-style-type: none;
+  margin: .3em;
+  vertical-align: middle;
+}
+.contact-print {
+  background: #222;
+  padding: 8px;
+}
+.thumbnail {
+  max-width: 300px;
+  max-height: 200px;
+}
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  text-align: center;
+}
+.lightbox-inner {
+  margin: 20px;
+  width: 100%;
+  height: 100%;
+}
+.lightbox-inner img {
+  max-width: 95%;
+  max-height: 95%;
+}
+.close {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  vertical-align: top;
+  font-size: 30px;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+  color: #aaa;
+  background: black;
+  padding: 0;
+  cursor: pointer;
+  width: 40px;
+  margin-left: 40px;
+  border-radius: 40px;
+  border: 5px solid #aaa;
+}
+.lightbox .buttons {
+  position: absolute;
+  bottom: 0;
+  opacity: 0.5;
+}
+.lightbox .buttons span {
+  display: inline-block;
+  background: #ddd;
+  color: black;
+  text-decoration: none;
+  font-size: 264%;
+  vertical-align: top;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.lightbox .buttons button {
+  font-size: 200%;
+  padding: 0;
+  cursor: pointer;
+}
+.lightbox .buttons .disabled {
+  opacity: 0.3;
+  cursor: default;
+}

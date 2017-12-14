@@ -2,8 +2,8 @@
 
 PATH=./node_modules/.bin:$PATH
 
-elm-make *.elm $WATERFALL_ELM_DEBUG --yes --warn --output=public/elm.js
-browserify -o public/out.js main.js
+./src/browser/organise/build.sh
+./src/browser/socialise/build.sh
 
 if [ -z "$1" ]; then
     echo Not copying

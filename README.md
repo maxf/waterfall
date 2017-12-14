@@ -12,7 +12,7 @@ $ cd waterfall
 $ npm install --production
 $ export PHOTOS_DIR=<the full directory containing your pictures>
 $ export THUMBS_DIR=<the full directory where the thumbnails will be stored>
-$ ./node_modules/.bin/nodemon app.js
+$ ./node_modules/.bin/nodemon src/server/app.js
 ```
 
 And point your browser at http://localhost:3000
@@ -48,10 +48,21 @@ To compile the Elm code to JavaScript
 
 ```
 $ elm-package install -y
-$ ./node_modules/.bin/elm-make *.elm --debug --yes --warn --output=public/elm.js
-$ ./node_modules/.bin/browserify -o out.js main.js
+$ ./node_modules/.bin/elm-make src/browser/*.elm --debug --yes --warn --output=public/main.js
 ```
 
-To run the ser
+And run the server with nodemon, as above.
 
-That's about it.
+### Optional
+
+In order to compile the Elm code automatically when files change, you can install `entr` and run:
+
+```
+$ find . -name src/browser/\*.elm | entr -r sh -c 'clear; ./build.sh;'
+```
+
+and to check the source files automatically, install `elm-analyse` from npm and run (in a different terminal window):
+
+```
+$ cd src/browser && find . -name \*.elm | entr -r sh -c 'clear; elm-analyse;'
+```

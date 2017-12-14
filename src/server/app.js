@@ -27,7 +27,6 @@ const jpegtran = require('jpegtran-bin')
 const mkdirp = require('mkdirp')
 require('dotenv').config()
 
-
 const isDotFile = file =>
   file.indexOf('/.') !== -1
 
@@ -144,7 +143,9 @@ const rotate = async (req, res) => {
   });
 }
 
-app.use(express.static('public'))
+
+app.use(express.static('public', { extensions: ['html'] }))
+app.get('/', (req, res) => res.redirect('/organise'))
 app.get('/api/dirs', dirs)
 app.get('/api/scan', scan)
 app.get('/api/delete', deletePhoto)

@@ -186,7 +186,7 @@ photoOrder photoA photoB =
 withPhotos : List Photo -> Model -> Model
 withPhotos photos (Model model) =
     Model
-        { model | photosBefore = (List.sortWith photoOrder photos) }
+        { model | photosBefore = List.sortWith photoOrder photos }
 
 
 
