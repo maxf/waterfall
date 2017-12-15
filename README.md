@@ -48,21 +48,8 @@ To compile the Elm code to JavaScript
 
 ```
 $ elm-package install -y
-$ ./node_modules/.bin/elm-make src/browser/*.elm --debug --yes --warn --output=public/main.js
+$ export WATERFALL_ELM_DEBUG=--debug
+$ ./build.sh
 ```
 
 And run the server with nodemon, as above.
-
-### Optional
-
-In order to compile the Elm code automatically when files change, you can install `entr` and run:
-
-```
-$ find . -name src/browser/\*.elm | entr -r sh -c 'clear; ./build.sh;'
-```
-
-and to check the source files automatically, install `elm-analyse` from npm and run (in a different terminal window):
-
-```
-$ cd src/browser && find . -name \*.elm | entr -r sh -c 'clear; elm-analyse;'
-```
