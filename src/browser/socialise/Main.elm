@@ -1,26 +1,16 @@
-import Html exposing (beginnerProgram, div, button, text)
-import Html.Events exposing (onClick)
+module Main exposing (main)
+
+import Html exposing (program)
+import View exposing (view)
+import Model exposing (Model, initialModel)
+import Update exposing (Msg, update)
 
 
+main : Program Never Model Msg
 main =
-  beginnerProgram { model = 0, view = view, update = update }
-
-
-view model =
-  div []
-    [ button [ onClick Decrement ] [ text "-" ]
-    , div [] [ text (toString model) ]
-    , button [ onClick Increment ] [ text "+" ]
-    ]
-
-
-type Msg = Increment | Decrement
-
-
-update msg model =
-  case msg of
-    Increment ->
-      model + 1
-
-    Decrement ->
-      model - 1
+    program
+        { init = ( initialModel, Cmd.none )
+        , view = view
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        }
