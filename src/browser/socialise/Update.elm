@@ -9,9 +9,11 @@ import Model exposing (Model, Status)
 type Msg
     = Username String
     | Password String
+    | InstanceUrl String
     | AuthSubmit
     | AuthReturn (Result Http.Error AuthResponse)
     | TimelineFetched (Result Http.Error (List Status))
+    | CloseMessage
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -23,12 +25,15 @@ update msg model =
         Password password ->
             ( { model | password = password }, Cmd.none )
 
+        InstanceUrl url ->
+            ( { model | instanceUrl = url }, Cmd.none )
+
         AuthSubmit ->
-            ( model, authenticate model.username model.password )
+            ( model, authenticate model )
 
         AuthReturn (Ok response) ->
             ( { model | authToken = Just response.token, message = Nothing }
-            , getTimeline response.token
+            , getTimeline model.instanceUrl response.token
             )
 
         AuthReturn (Err _) ->
@@ -40,17 +45,20 @@ update msg model =
         TimelineFetched (Err _) ->
             ( { model | message = Just "timeline error" }, Cmd.none )
 
+        CloseMessage ->
+            ( { model | message = Nothing }, Cmd.none )
 
-authenticate : String -> String -> Cmd Msg
-authenticate username password =
+
+authenticate : Model -> Cmd Msg
+authenticate model =
     let
         postParams : String
         postParams =
-            "client_id=<client_id>&client_secret=<client_secret>&grant_type=password&username=" ++ encodeUri username ++ "&password=" ++ encodeUri password
+            "client_id=<client_id>&client_secret=<client_secret>&grant_type=password&username=" ++ encodeUri model.username ++ "&password=" ++ encodeUri model.password
 
         request =
             Http.post
-                "https://mastodon.me.uk/oauth/token"
+                (model.instanceUrl ++ "/oauth/token")
                 (Http.stringBody "application/x-www-form-urlencoded" postParams)
                 oauthResponseDecoder
     in
@@ -71,14 +79,14 @@ oauthResponseDecoder =
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#timelines
 
 
-getTimeline : String -> Cmd Msg
-getTimeline authToken =
+getTimeline : String -> String -> Cmd Msg
+getTimeline instanceUrl authToken =
     let
         request =
             Http.request
                 { method = "GET"
                 , headers = [ Http.header "Authorization" ("Bearer " ++ authToken) ]
-                , url = "https://mastodon.me.uk/api/v1/timelines/home"
+                , url = instanceUrl ++ "/api/v1/timelines/home"
                 , body = Http.emptyBody
                 , expect = Http.expectJson timelineDecoder
                 , timeout = Nothing

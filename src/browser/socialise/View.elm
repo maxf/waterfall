@@ -15,12 +15,18 @@ view model =
                 Nothing ->
                     div [] []
                 Just test ->
-                  div [ class "error" ] [ model.message |> Maybe.withDefault "" |> text ]
+                  div
+                      [ class "error", onClick CloseMessage ]
+                      [ model.message |> Maybe.withDefault "" |> text ]
     in
         case model.authToken of
             Nothing ->
                 div []
                     [ message
+                    , div []
+                        [ label [ for "instanceUrl" ] [ text "Instance URL" ]
+                        , input [ type_ "text", id "instance", onInput InstanceUrl ] []
+                        ]
                     , div []
                         [ label [ for "username" ] [ text "Username" ]
                         , input [ type_ "text", id "username", onInput Username ] []

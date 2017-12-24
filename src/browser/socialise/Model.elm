@@ -7,7 +7,8 @@ type alias Status =
     }
 
 type alias Model =
-    { authToken : Maybe String
+    { instanceUrl : String
+    , authToken : Maybe String
     , username : String
     , password : String
     , message : Maybe String
@@ -15,4 +16,5 @@ type alias Model =
     }
 
 initialModel =
-    Model Nothing "" "" Nothing []
+    Model
+        "" Nothing "" "" Nothing []
