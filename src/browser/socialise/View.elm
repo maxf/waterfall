@@ -1,10 +1,11 @@
 module View exposing (view)
 
-import Html exposing (Html, div, text, input, label, button, ul, li)
-import Html.Attributes exposing (for, id, type_, class, value)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Attributes.Extra exposing (..)
 import Html.Events exposing (onInput, onClick)
 import Update exposing (Msg(..))
-import Model exposing (Model, Status)
+import Model exposing (Model, Status, Attachment, AttachmentType(..))
 
 
 view : Model -> Html Msg
@@ -64,10 +65,20 @@ view model =
 
 viewTimeline : List Status -> Html Msg
 viewTimeline timeline =
-    ul []
-        (List.map viewTimelineItem timeline)
+    div [ class "timeline" ]
+        (List.map viewStatus timeline)
 
 
-viewTimelineItem : Status -> Html Msg
-viewTimelineItem status =
-    li [] [ text status.content ]
+viewStatus : Status -> Html Msg
+viewStatus status =
+    div [ class "status", innerHtml status.content ]
+        (List.map viewAttachment status.mediaAttachments)
+
+
+viewAttachment : Attachment -> Html Msg
+viewAttachment attachment =
+    case attachment.type_ of
+        Image -> img [ src attachment.url ] []
+        Video -> p [] [ text "video" ]
+        Gifv -> p [] [ text "gifv" ]
+        Unknown -> p [] [ text "unkown" ]

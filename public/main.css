@@ -147,3 +147,15 @@ body {
   opacity: 0.3;
   cursor: default;
 }
+
+
+
+.timeline {
+  margin: 1em;
+}
+
+.status {
+  background-color: #444b5d;
+  border-radius: 5px;
+  padding: 0 0.3em 0 0.3em;
+}
