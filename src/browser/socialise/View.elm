@@ -14,10 +14,11 @@ view model =
             case model.message of
                 Nothing ->
                     div [] []
+
                 Just test ->
-                  div
-                      [ class "error", onClick CloseMessage ]
-                      [ model.message |> Maybe.withDefault "" |> text ]
+                    div
+                        [ class "error", onClick CloseMessage ]
+                        [ model.message |> Maybe.withDefault "" |> text ]
     in
         case model.authToken of
             Nothing ->

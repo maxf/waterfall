@@ -36,8 +36,8 @@ update msg model =
             , getTimeline model.instanceUrl response.token
             )
 
-        AuthReturn (Err _) ->
-            ( { model | message = Just "auth error" }, Cmd.none )
+        AuthReturn (Err error) ->
+            ( { model | message = Just ("auth error: " ++ httpErrorMessage error) }, Cmd.none )
 
         TimelineFetched (Ok timeline) ->
             ( { model | timeline = timeline }, Cmd.none )
@@ -112,3 +112,26 @@ statusDecoder =
         |> Json.Decode.Pipeline.required "id" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
+
+
+httpErrorMessage : Http.Error -> String
+httpErrorMessage error =
+    case error of
+        Http.BadUrl string ->
+            "Bad URL: " ++ string
+
+        Http.Timeout ->
+            "Timeout"
+
+        Http.NetworkError ->
+            "Network error"
+
+        Http.BadStatus response ->
+            (toString response.status.code)
+                ++ " ("
+                ++ response.status.message
+                ++ ") - "
+                ++ response.body
+
+        Http.BadPayload text _ ->
+            "Bad payload: " ++ text
