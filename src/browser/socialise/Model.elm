@@ -1,5 +1,8 @@
 module Model exposing (Model, Status, initialModel)
 
+-- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#status
+
+
 type alias Status =
     { id : String
     , url : String

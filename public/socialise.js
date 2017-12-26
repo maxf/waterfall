@@ -9117,12 +9117,13 @@ var _user$project$Model$Status = F3(
 	function (a, b, c) {
 		return {id: a, url: b, content: c};
 	});
-var _user$project$Model$Model = F6(
-	function (a, b, c, d, e, f) {
-		return {instanceUrl: a, authToken: b, username: c, password: d, message: e, timeline: f};
+var _user$project$Model$Model = F7(
+	function (a, b, c, d, e, f, g) {
+		return {instanceUrl: a, clientId: b, authToken: c, username: d, password: e, message: f, timeline: g};
 	});
-var _user$project$Model$initialModel = A6(
+var _user$project$Model$initialModel = A7(
 	_user$project$Model$Model,
+	'',
 	'',
 	_elm_lang$core$Maybe$Nothing,
 	'',
@@ -9130,6 +9131,31 @@ var _user$project$Model$initialModel = A6(
 	_elm_lang$core$Maybe$Nothing,
 	{ctor: '[]'});
 
+var _user$project$Update$httpErrorMessage = function (error) {
+	var _p0 = error;
+	switch (_p0.ctor) {
+		case 'BadUrl':
+			return A2(_elm_lang$core$Basics_ops['++'], 'Bad URL: ', _p0._0);
+		case 'Timeout':
+			return 'Timeout';
+		case 'NetworkError':
+			return 'Network error';
+		case 'BadStatus':
+			var _p1 = _p0._0;
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				_elm_lang$core$Basics$toString(_p1.status.code),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					' (',
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_p1.status.message,
+						A2(_elm_lang$core$Basics_ops['++'], ') - ', _p1.body))));
+		default:
+			return A2(_elm_lang$core$Basics_ops['++'], 'Bad payload: ', _p0._0);
+	}
+};
 var _user$project$Update$statusDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 	'content',
@@ -9183,14 +9209,20 @@ var _user$project$Update$AuthReturn = function (a) {
 var _user$project$Update$authenticate = function (model) {
 	var postParams = A2(
 		_elm_lang$core$Basics_ops['++'],
-		'client_id=<client_id>&client_secret=<client_secret>&grant_type=password&username=',
+		'client_id=',
 		A2(
 			_elm_lang$core$Basics_ops['++'],
-			_elm_lang$http$Http$encodeUri(model.username),
+			model.clientId,
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				'&password=',
-				_elm_lang$http$Http$encodeUri(model.password))));
+				'&grant_type=password&username=',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_elm_lang$http$Http$encodeUri(model.username),
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'&password=',
+						_elm_lang$http$Http$encodeUri(model.password))))));
 	var request = A3(
 		_elm_lang$http$Http$post,
 		A2(_elm_lang$core$Basics_ops['++'], model.instanceUrl, '/oauth/token'),
@@ -9200,14 +9232,14 @@ var _user$project$Update$authenticate = function (model) {
 };
 var _user$project$Update$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
+		var _p2 = msg;
+		switch (_p2.ctor) {
 			case 'Username':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{username: _p0._0}),
+						{username: _p2._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'Password':
@@ -9215,7 +9247,7 @@ var _user$project$Update$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{password: _p0._0}),
+						{password: _p2._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'InstanceUrl':
@@ -9223,7 +9255,7 @@ var _user$project$Update$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{instanceUrl: _p0._0}),
+						{instanceUrl: _p2._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'AuthSubmit':
@@ -9233,17 +9265,17 @@ var _user$project$Update$update = F2(
 					_1: _user$project$Update$authenticate(model)
 				};
 			case 'AuthReturn':
-				if (_p0._0.ctor === 'Ok') {
-					var _p1 = _p0._0._0;
+				if (_p2._0.ctor === 'Ok') {
+					var _p3 = _p2._0._0;
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								authToken: _elm_lang$core$Maybe$Just(_p1.token),
+								authToken: _elm_lang$core$Maybe$Just(_p3.token),
 								message: _elm_lang$core$Maybe$Nothing
 							}),
-						_1: A2(_user$project$Update$getTimeline, model.instanceUrl, _p1.token)
+						_1: A2(_user$project$Update$getTimeline, model.instanceUrl, _p3.token)
 					};
 				} else {
 					return {
@@ -9251,18 +9283,22 @@ var _user$project$Update$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								message: _elm_lang$core$Maybe$Just('auth error')
+								message: _elm_lang$core$Maybe$Just(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'auth error: ',
+										_user$project$Update$httpErrorMessage(_p2._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 			case 'TimelineFetched':
-				if (_p0._0.ctor === 'Ok') {
+				if (_p2._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{timeline: _p0._0._0}),
+							{timeline: _p2._0._0}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
@@ -9381,7 +9417,11 @@ var _user$project$View$view = function (model) {
 											_1: {
 												ctor: '::',
 												_0: _elm_lang$html$Html_Events$onInput(_user$project$Update$InstanceUrl),
-												_1: {ctor: '[]'}
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$value(model.instanceUrl),
+													_1: {ctor: '[]'}
+												}
 											}
 										}
 									},
@@ -9421,7 +9461,11 @@ var _user$project$View$view = function (model) {
 												_1: {
 													ctor: '::',
 													_0: _elm_lang$html$Html_Events$onInput(_user$project$Update$Username),
-													_1: {ctor: '[]'}
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$value(model.username),
+														_1: {ctor: '[]'}
+													}
 												}
 											}
 										},
@@ -9461,7 +9505,11 @@ var _user$project$View$view = function (model) {
 													_1: {
 														ctor: '::',
 														_0: _elm_lang$html$Html_Events$onInput(_user$project$Update$Password),
-														_1: {ctor: '[]'}
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$value(model.password),
+															_1: {ctor: '[]'}
+														}
 													}
 												}
 											},
