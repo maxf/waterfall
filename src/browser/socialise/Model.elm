@@ -9,8 +9,10 @@ type alias Status =
     , content : String
     }
 
+
 type alias Model =
     { instanceUrl : String
+    , clientId : String
     , authToken : Maybe String
     , username : String
     , password : String
@@ -18,6 +20,14 @@ type alias Model =
     , timeline : List Status
     }
 
+
+initialModel : Model
 initialModel =
     Model
-        "" Nothing "" "" Nothing []
+        ""
+        ""
+        Nothing
+        ""
+        ""
+        Nothing
+        []

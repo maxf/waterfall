@@ -54,7 +54,12 @@ authenticate model =
     let
         postParams : String
         postParams =
-            "client_id=<client_id>&client_secret=<client_secret>&grant_type=password&username=" ++ encodeUri model.username ++ "&password=" ++ encodeUri model.password
+            "client_id="
+                ++ model.clientId
+                ++ "&grant_type=password&username="
+                ++ encodeUri model.username
+                ++ "&password="
+                ++ encodeUri model.password
 
         request =
             Http.post
@@ -94,9 +99,6 @@ getTimeline instanceUrl authToken =
                 }
     in
         Http.send TimelineFetched request
-
-
-
 
 
 timelineDecoder : Json.Decode.Decoder (List Status)
