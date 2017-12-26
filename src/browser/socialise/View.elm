@@ -26,15 +26,33 @@ view model =
                     [ message
                     , div []
                         [ label [ for "instanceUrl" ] [ text "Instance URL" ]
-                        , input [ type_ "text", id "instance", onInput InstanceUrl ] []
+                        , input
+                            [ type_ "text"
+                            , id "instance"
+                            , onInput InstanceUrl
+                            , value model.instanceUrl
+                            ]
+                            []
                         ]
                     , div []
                         [ label [ for "username" ] [ text "Username" ]
-                        , input [ type_ "text", id "username", onInput Username ] []
+                        , input
+                            [ type_ "text"
+                            , id "username"
+                            , onInput Username
+                            , value model.username
+                            ]
+                            []
                         ]
                     , div []
                         [ label [ for "password" ] [ text "Password" ]
-                        , input [ type_ "password", id "password", onInput Password ] []
+                        , input
+                            [ type_ "password"
+                            , id "password"
+                            , onInput Password
+                            , value model.password
+                            ]
+                            []
                         ]
                     , div []
                         [ button [ onClick AuthSubmit ] [ text "Log in" ] ]
