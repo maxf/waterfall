@@ -1,9 +1,9 @@
 module Update exposing (Msg(..), update)
 
-import Http exposing (encodeUri, decodeUri)
+import Http exposing (encodeUri)
 import Json.Decode
 import Json.Decode.Pipeline
-import Model exposing (Model, Status)
+import Model exposing (Model, Status, Attachment, AttachmentType(..))
 
 
 type Msg
@@ -106,12 +106,39 @@ timelineDecoder =
     Json.Decode.list statusDecoder
 
 
+attachmentTypeDecoder : String -> Json.Decode.Decoder AttachmentType
+attachmentTypeDecoder s =
+    case s of
+        "image" ->
+            Json.Decode.succeed Image
+
+        "video" ->
+            Json.Decode.succeed Video
+
+        "gifv" ->
+            Json.Decode.succeed Gifv
+
+        _ ->
+            Json.Decode.succeed Unknown
+
+
+mediaAttachmentDecoder : Json.Decode.Decoder Attachment
+mediaAttachmentDecoder =
+    Json.Decode.succeed Attachment
+        |> Json.Decode.Pipeline.required "id" Json.Decode.string
+        |> Json.Decode.Pipeline.required "type"
+            (Json.Decode.string |> Json.Decode.andThen attachmentTypeDecoder)
+        |> Json.Decode.Pipeline.required "url" Json.Decode.string
+
+
 statusDecoder : Json.Decode.Decoder Status
 statusDecoder =
     Json.Decode.succeed Status
         |> Json.Decode.Pipeline.required "id" Json.Decode.string
         |> Json.Decode.Pipeline.required "url" Json.Decode.string
         |> Json.Decode.Pipeline.required "content" Json.Decode.string
+        |> Json.Decode.Pipeline.required "media_attachments"
+            (Json.Decode.list mediaAttachmentDecoder)
 
 
 httpErrorMessage : Http.Error -> String

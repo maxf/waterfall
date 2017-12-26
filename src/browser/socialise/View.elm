@@ -15,7 +15,7 @@ view model =
                 Nothing ->
                     div [] []
 
-                Just test ->
+                Just _ ->
                     div
                         [ class "error", onClick CloseMessage ]
                         [ model.message |> Maybe.withDefault "" |> text ]
