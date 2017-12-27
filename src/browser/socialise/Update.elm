@@ -1,19 +1,11 @@
-module Update exposing (Msg(..), update)
+module Update exposing (update)
 
-import Http exposing (encodeUri)
+import Http
 import Json.Decode
 import Json.Decode.Pipeline
-import Model exposing (Model, Status, Attachment, AttachmentType(..))
-
-
-type Msg
-    = Username String
-    | Password String
-    | InstanceUrl String
-    | AuthSubmit
-    | AuthReturn (Result Http.Error AuthResponse)
-    | TimelineFetched (Result Http.Error (List Status))
-    | CloseMessage
+import Model exposing (Model)
+import Auth exposing (authenticate, storeAuthToken)
+import Types exposing (Msg(..), Status, Attachment, AttachmentType(..))
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -32,9 +24,10 @@ update msg model =
             ( model, authenticate model )
 
         AuthReturn (Ok response) ->
-            ( { model | authToken = Just response.token, message = Nothing }
-            , getTimeline model.instanceUrl response.token
-            )
+            { model | authToken = Just response.token, message = Nothing }
+                ! [ storeAuthToken response.token
+                  , getTimeline model.instanceUrl response.token
+                  ]
 
         AuthReturn (Err error) ->
             ( { model | message = Just ("auth error: " ++ httpErrorMessage error) }, Cmd.none )
@@ -48,39 +41,18 @@ update msg model =
         CloseMessage ->
             ( { model | message = Nothing }, Cmd.none )
 
-
-authenticate : Model -> Cmd Msg
-authenticate model =
-    let
-        postParams : String
-        postParams =
-            "client_id="
-                ++ model.clientId
-                ++ "&grant_type=password&username="
-                ++ encodeUri model.username
-                ++ "&password="
-                ++ encodeUri model.password
-
-        request =
-            Http.post
-                (model.instanceUrl ++ "/oauth/token")
-                (Http.stringBody "application/x-www-form-urlencoded" postParams)
-                oauthResponseDecoder
-    in
-        Http.send AuthReturn request
-
-
-type alias AuthResponse =
-    { token : String }
-
-
-oauthResponseDecoder : Json.Decode.Decoder AuthResponse
-oauthResponseDecoder =
-    Json.Decode.succeed AuthResponse
-        |> Json.Decode.Pipeline.required "access_token" Json.Decode.string
+        AuthTokenRetrieved ( _, token ) ->
+            case token of
+                Nothing ->
+                    ( model, Cmd.none )
+                Just tokenValue ->
+                    ( { model | authToken = token }
+                    , getTimeline model.instanceUrl tokenValue
+                    )
 
 
 
+-- | authToken = token },  )
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#timelines
 
 

@@ -4,8 +4,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Attributes.Extra exposing (..)
 import Html.Events exposing (onInput, onClick)
-import Update exposing (Msg(..))
-import Model exposing (Model, Status, Attachment, AttachmentType(..))
+import Types exposing (Msg(..), Status, Attachment, AttachmentType(..))
+import Model exposing (Model)
 
 
 view : Model -> Html Msg

@@ -10,6 +10,20 @@
     <script>
      var node = document.getElementById('main');
      var app = Elm.Main.embed(node);
+     var localStorage = window.localStorage;
+
+     app.ports.localStorageSetItem.subscribe(function(keyValuePair) {
+       if (keyValuePair.length !== 2) {
+         console.log("bad value passed to localStorageSetItem port", key)
+       } else {
+         localStorage.setItem(keyValuePair[0], keyValuePair[1]);
+       }
+     });
+
+     app.ports.localStorageGetItem.subscribe(function(keyName) {
+       var value = localStorage.getItem(keyName);
+       app.ports.localStorageRetrievedItem.send([keyName, value]);
+     });
     </script>
   </body>
 </html>
