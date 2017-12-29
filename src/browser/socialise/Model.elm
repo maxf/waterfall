@@ -21,8 +21,8 @@ type alias Model =
 initialModel : Model
 initialModel =
     Model
-        ""
-        ""
+        "https://mastodon.me.uk"
+        "6f130a3305de5b3505618a2b6a05305e99ffea12bec5032eb576572319b5bda9"
         Nothing
         ""
         ""

@@ -13195,8 +13195,8 @@ var _user$project$Model$Model = F7(
 	});
 var _user$project$Model$initialModel = A7(
 	_user$project$Model$Model,
-	'',
-	'',
+	'https://mastodon.me.uk',
+	'6f130a3305de5b3505618a2b6a05305e99ffea12bec5032eb576572319b5bda9',
 	_elm_lang$core$Maybe$Nothing,
 	'',
 	'',
