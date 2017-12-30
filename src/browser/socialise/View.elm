@@ -71,14 +71,24 @@ viewTimeline timeline =
 
 viewStatus : Status -> Html Msg
 viewStatus status =
-    div [ class "status", innerHtml status.content ]
-        (List.map viewAttachment status.mediaAttachments)
+    div [ class "status" ]
+        [ div [] (List.map viewAttachment status.mediaAttachments)
+        , div [ class "content", innerHtml status.content ] []
+        , div [ class "account", innerHtml status.account.username ] []
+        ]
 
 
 viewAttachment : Attachment -> Html Msg
 viewAttachment attachment =
     case attachment.type_ of
-        Image -> img [ src attachment.url ] []
-        Video -> p [] [ text "video" ]
-        Gifv -> p [] [ text "gifv" ]
-        Unknown -> p [] [ text "unkown" ]
+        Image ->
+            img [ src attachment.previewUrl ] []
+
+        Video ->
+            p [] [ text "video" ]
+
+        Gifv ->
+            p [] [ text "gifv" ]
+
+        Unknown ->
+            p [] [ text "unkown" ]

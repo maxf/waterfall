@@ -1,7 +1,6 @@
 module Model exposing (Model, initialModel)
 
-import Types exposing (Attachment, AttachmentType, Status)
-
+import Types exposing (Status)
 
 
 -- Model

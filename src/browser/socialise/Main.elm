@@ -8,6 +8,7 @@ import Ports exposing (localStorageRetrievedItem)
 import Types exposing (Msg(..))
 import Auth exposing (checkAuthToken)
 
+
 main : Program Never Model Msg
 main =
     program
@@ -24,5 +25,5 @@ init =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     localStorageRetrievedItem AuthTokenRetrieved

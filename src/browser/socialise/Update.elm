@@ -1,11 +1,9 @@
 module Update exposing (update)
 
 import Http
-import Json.Decode
-import Json.Decode.Pipeline
 import Model exposing (Model)
 import Auth exposing (authenticate, storeAuthToken)
-import Types exposing (Msg(..), Status, Attachment, AttachmentType(..))
+import Types exposing (..)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -33,7 +31,9 @@ update msg model =
             ( { model | message = Just ("auth error: " ++ httpErrorMessage error) }, Cmd.none )
 
         TimelineFetched (Ok timeline) ->
-            ( { model | timeline = timeline }, Cmd.none )
+            ( { model | timeline = List.filter (\s -> s.mediaAttachments /= []) timeline }
+            , Cmd.none
+            )
 
         TimelineFetched (Err _) ->
             ( { model | message = Just "timeline error" }, Cmd.none )
@@ -45,6 +45,7 @@ update msg model =
             case token of
                 Nothing ->
                     ( model, Cmd.none )
+
                 Just tokenValue ->
                     ( { model | authToken = token }
                     , getTimeline model.instanceUrl tokenValue
@@ -52,7 +53,6 @@ update msg model =
 
 
 
--- | authToken = token },  )
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#timelines
 
 
@@ -63,7 +63,7 @@ getTimeline instanceUrl authToken =
             Http.request
                 { method = "GET"
                 , headers = [ Http.header "Authorization" ("Bearer " ++ authToken) ]
-                , url = instanceUrl ++ "/api/v1/timelines/home"
+                , url = instanceUrl ++ "/api/v1/timelines/home?limit=40"
                 , body = Http.emptyBody
                 , expect = Http.expectJson timelineDecoder
                 , timeout = Nothing
@@ -71,46 +71,6 @@ getTimeline instanceUrl authToken =
                 }
     in
         Http.send TimelineFetched request
-
-
-timelineDecoder : Json.Decode.Decoder (List Status)
-timelineDecoder =
-    Json.Decode.list statusDecoder
-
-
-attachmentTypeDecoder : String -> Json.Decode.Decoder AttachmentType
-attachmentTypeDecoder s =
-    case s of
-        "image" ->
-            Json.Decode.succeed Image
-
-        "video" ->
-            Json.Decode.succeed Video
-
-        "gifv" ->
-            Json.Decode.succeed Gifv
-
-        _ ->
-            Json.Decode.succeed Unknown
-
-
-mediaAttachmentDecoder : Json.Decode.Decoder Attachment
-mediaAttachmentDecoder =
-    Json.Decode.succeed Attachment
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type"
-            (Json.Decode.string |> Json.Decode.andThen attachmentTypeDecoder)
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-
-
-statusDecoder : Json.Decode.Decoder Status
-statusDecoder =
-    Json.Decode.succeed Status
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "content" Json.Decode.string
-        |> Json.Decode.Pipeline.required "media_attachments"
-            (Json.Decode.list mediaAttachmentDecoder)
 
 
 httpErrorMessage : Http.Error -> String
@@ -126,7 +86,7 @@ httpErrorMessage error =
             "Network error"
 
         Http.BadStatus response ->
-            (toString response.status.code)
+            toString response.status.code
                 ++ " ("
                 ++ response.status.message
                 ++ ") - "

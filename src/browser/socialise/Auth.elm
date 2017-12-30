@@ -7,6 +7,7 @@ import Ports exposing (localStorageGetItem, localStorageSetItem)
 import Types exposing (Msg(..), AuthResponse)
 import Model exposing (Model)
 
+
 checkAuthToken : Cmd msg
 checkAuthToken =
     localStorageGetItem "authToken"

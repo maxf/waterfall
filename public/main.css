@@ -155,7 +155,27 @@ body {
 }
 
 .status {
+  position: relative;
+  display: inline-block;
   background-color: #444b5d;
   border-radius: 5px;
-  padding: 0 0.3em 0 0.3em;
+  padding: 5px;
+  margin: 3px;
+}
+
+.status img {
+  height: 400px;
+  vertical-align: middle;
+}
+
+.status .content {
+  position: absolute;
+  bottom: 0;
+  background: rgba(0,0,0,0.7)
+}
+
+.status .account {
+  position: absolute;
+  top: 0;
+  background: rgba(0,0,0,0.7)
 }
