@@ -16,64 +16,82 @@ view model =
                 Nothing ->
                     div [] []
 
-                Just _ ->
+                Just messageText ->
                     div
                         [ class "error", onClick CloseMessage ]
-                        [ model.message |> Maybe.withDefault "" |> text ]
+                        [ messageText |> text ]
     in
-        case model.authToken of
-            Nothing ->
-                div []
-                    [ message
-                    , div []
-                        [ label [ for "instanceUrl" ] [ text "Instance URL" ]
-                        , input
-                            [ type_ "text"
-                            , id "instance"
-                            , onInput InstanceUrl
-                            , value model.instanceUrl
-                            ]
-                            []
-                        ]
-                    , div []
-                        [ label [ for "username" ] [ text "Username" ]
-                        , input
-                            [ type_ "text"
-                            , id "username"
-                            , onInput Username
-                            , value model.username
-                            ]
-                            []
-                        ]
-                    , div []
-                        [ label [ for "password" ] [ text "Password" ]
-                        , input
-                            [ type_ "password"
-                            , id "password"
-                            , onInput Password
-                            , value model.password
-                            ]
-                            []
-                        ]
-                    , div []
-                        [ button [ onClick AuthSubmit ] [ text "Log in" ] ]
-                    ]
+        div [] [ message, viewMain model ]
 
-            Just _ ->
-                viewTimeline model.timeline
+
+viewMain : Model -> Html Msg
+viewMain model =
+    case model.authToken of
+        Nothing ->
+            div []
+                [ div []
+                    [ label [ for "instanceUrl" ] [ text "Instance URL" ]
+                    , input
+                        [ type_ "text"
+                        , id "instance"
+                        , onInput InstanceUrl
+                        , value model.instanceUrl
+                        ]
+                        []
+                    ]
+                , div []
+                    [ label [ for "username" ] [ text "Username" ]
+                    , input
+                        [ type_ "text"
+                        , id "username"
+                        , onInput Username
+                        , value model.username
+                        ]
+                        []
+                    ]
+                , div []
+                    [ label [ for "password" ] [ text "Password" ]
+                    , input
+                        [ type_ "password"
+                        , id "password"
+                        , onInput Password
+                        , value model.password
+                        ]
+                        []
+                    ]
+                , div []
+                    [ button [ onClick AuthSubmit ] [ text "Log in" ] ]
+                ]
+
+        Just _ ->
+            viewTimeline model.timeline
 
 
 viewTimeline : List Status -> Html Msg
 viewTimeline timeline =
-    div [ class "timeline" ]
-        (List.map viewStatus timeline)
+    let
+        timelineOnlyAttachments =
+            List.filter (\s -> s.mediaAttachments /= []) timeline
+    in
+        div [ class "timeline" ]
+            (List.map viewStatus timelineOnlyAttachments)
+
+
+viewStatusContent : Maybe String -> Html Msg
+viewStatusContent content =
+    case content of
+        Nothing ->
+            div [] []
+
+        Just html ->
+            div [ class "content", innerHtml html ] []
 
 
 viewStatus : Status -> Html Msg
 viewStatus status =
     div [ class "status" ]
         [ div [] (List.map viewAttachment status.mediaAttachments)
-        , div [ class "content", innerHtml status.content ] []
+        , viewStatusContent status.content
         , div [ class "account", innerHtml status.account.username ] []
         ]
 

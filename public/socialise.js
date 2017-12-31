@@ -13235,18 +13235,20 @@ var _user$project$Types$statusDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 	'media_attachments',
 	_elm_lang$core$Json_Decode$list(_user$project$Types$mediaAttachmentDecoder),
-	A3(
-		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+	A4(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional,
 		'content',
-		_elm_lang$core$Json_Decode$string,
+		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$string),
+		_elm_lang$core$Maybe$Nothing,
 		A3(
 			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 			'account',
 			_user$project$Types$accountDecoder,
-			A3(
-				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+			A4(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional,
 				'url',
-				_elm_lang$core$Json_Decode$string,
+				_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$string),
+				_elm_lang$core$Maybe$Nothing,
 				A3(
 					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 					'id',
@@ -13254,11 +13256,11 @@ var _user$project$Types$statusDecoder = A3(
 					_elm_lang$core$Json_Decode$succeed(_user$project$Types$Status))))));
 var _user$project$Types$timelineDecoder = _elm_lang$core$Json_Decode$list(_user$project$Types$statusDecoder);
 
-var _user$project$Model$Model = F7(
-	function (a, b, c, d, e, f, g) {
-		return {instanceUrl: a, clientId: b, authToken: c, username: d, password: e, message: f, timeline: g};
+var _user$project$Model$Model = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {instanceUrl: a, clientId: b, authToken: c, username: d, password: e, message: f, timeline: g, attachmentShown: h};
 	});
-var _user$project$Model$initialModel = A7(
+var _user$project$Model$initialModel = A8(
 	_user$project$Model$Model,
 	'https://mastodon.me.uk',
 	'6f130a3305de5b3505618a2b6a05305e99ffea12bec5032eb576572319b5bda9',
@@ -13266,7 +13268,8 @@ var _user$project$Model$initialModel = A7(
 	'',
 	'',
 	_elm_lang$core$Maybe$Nothing,
-	{ctor: '[]'});
+	{ctor: '[]'},
+	_elm_lang$core$Maybe$Nothing);
 
 var _user$project$Auth$oauthResponseDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
@@ -13344,6 +13347,28 @@ var _user$project$View$viewAttachment = function (attachment) {
 				});
 	}
 };
+var _user$project$View$viewStatusContent = function (content) {
+	var _p1 = content;
+	if (_p1.ctor === 'Nothing') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{ctor: '[]'});
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('content'),
+				_1: {
+					ctor: '::',
+					_0: _elm_community$html_extra$Html_Attributes_Extra$innerHtml(_p1._0),
+					_1: {ctor: '[]'}
+				}
+			},
+			{ctor: '[]'});
+	}
+};
 var _user$project$View$viewStatus = function (status) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -13360,18 +13385,7 @@ var _user$project$View$viewStatus = function (status) {
 				A2(_elm_lang$core$List$map, _user$project$View$viewAttachment, status.mediaAttachments)),
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('content'),
-						_1: {
-							ctor: '::',
-							_0: _elm_community$html_extra$Html_Attributes_Extra$innerHtml(status.content),
-							_1: {ctor: '[]'}
-						}
-					},
-					{ctor: '[]'}),
+				_0: _user$project$View$viewStatusContent(status.content),
 				_1: {
 					ctor: '::',
 					_0: A2(
@@ -13392,6 +13406,14 @@ var _user$project$View$viewStatus = function (status) {
 		});
 };
 var _user$project$View$viewTimeline = function (timeline) {
+	var timelineOnlyAttachments = A2(
+		_elm_lang$core$List$filter,
+		function (s) {
+			return !_elm_lang$core$Native_Utils.eq(
+				s.mediaAttachments,
+				{ctor: '[]'});
+		},
+		timeline);
 	return A2(
 		_elm_lang$html$Html$div,
 		{
@@ -13399,36 +13421,9 @@ var _user$project$View$viewTimeline = function (timeline) {
 			_0: _elm_lang$html$Html_Attributes$class('timeline'),
 			_1: {ctor: '[]'}
 		},
-		A2(_elm_lang$core$List$map, _user$project$View$viewStatus, timeline));
+		A2(_elm_lang$core$List$map, _user$project$View$viewStatus, timelineOnlyAttachments));
 };
-var _user$project$View$view = function (model) {
-	var message = function () {
-		var _p1 = model.message;
-		if (_p1.ctor === 'Nothing') {
-			return A2(
-				_elm_lang$html$Html$div,
-				{ctor: '[]'},
-				{ctor: '[]'});
-		} else {
-			return A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('error'),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(_user$project$Types$CloseMessage),
-						_1: {ctor: '[]'}
-					}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text(
-						A2(_elm_lang$core$Maybe$withDefault, '', model.message)),
-					_1: {ctor: '[]'}
-				});
-		}
-	}();
+var _user$project$View$viewMain = function (model) {
 	var _p2 = model.authToken;
 	if (_p2.ctor === 'Nothing') {
 		return A2(
@@ -13436,7 +13431,48 @@ var _user$project$View$view = function (model) {
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: message,
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$label,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$for('instanceUrl'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Instance URL'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$input,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$type_('text'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$id('instance'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Events$onInput(_user$project$Types$InstanceUrl),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$value(model.instanceUrl),
+												_1: {ctor: '[]'}
+											}
+										}
+									}
+								},
+								{ctor: '[]'}),
+							_1: {ctor: '[]'}
+						}
+					}),
 				_1: {
 					ctor: '::',
 					_0: A2(
@@ -13448,12 +13484,12 @@ var _user$project$View$view = function (model) {
 								_elm_lang$html$Html$label,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$for('instanceUrl'),
+									_0: _elm_lang$html$Html_Attributes$for('username'),
 									_1: {ctor: '[]'}
 								},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text('Instance URL'),
+									_0: _elm_lang$html$Html$text('Username'),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
@@ -13465,13 +13501,13 @@ var _user$project$View$view = function (model) {
 										_0: _elm_lang$html$Html_Attributes$type_('text'),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$id('instance'),
+											_0: _elm_lang$html$Html_Attributes$id('username'),
 											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onInput(_user$project$Types$InstanceUrl),
+												_0: _elm_lang$html$Html_Events$onInput(_user$project$Types$Username),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$value(model.instanceUrl),
+													_0: _elm_lang$html$Html_Attributes$value(model.username),
 													_1: {ctor: '[]'}
 												}
 											}
@@ -13492,12 +13528,12 @@ var _user$project$View$view = function (model) {
 									_elm_lang$html$Html$label,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$for('username'),
+										_0: _elm_lang$html$Html_Attributes$for('password'),
 										_1: {ctor: '[]'}
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text('Username'),
+										_0: _elm_lang$html$Html$text('Password'),
 										_1: {ctor: '[]'}
 									}),
 								_1: {
@@ -13506,16 +13542,16 @@ var _user$project$View$view = function (model) {
 										_elm_lang$html$Html$input,
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$type_('text'),
+											_0: _elm_lang$html$Html_Attributes$type_('password'),
 											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$id('username'),
+												_0: _elm_lang$html$Html_Attributes$id('password'),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onInput(_user$project$Types$Username),
+													_0: _elm_lang$html$Html_Events$onInput(_user$project$Types$Password),
 													_1: {
 														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$value(model.username),
+														_0: _elm_lang$html$Html_Attributes$value(model.password),
 														_1: {ctor: '[]'}
 													}
 												}
@@ -13533,65 +13569,20 @@ var _user$project$View$view = function (model) {
 								{
 									ctor: '::',
 									_0: A2(
-										_elm_lang$html$Html$label,
+										_elm_lang$html$Html$button,
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$for('password'),
+											_0: _elm_lang$html$Html_Events$onClick(_user$project$Types$AuthSubmit),
 											_1: {ctor: '[]'}
 										},
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html$text('Password'),
+											_0: _elm_lang$html$Html$text('Log in'),
 											_1: {ctor: '[]'}
 										}),
-									_1: {
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$input,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$type_('password'),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$id('password'),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Events$onInput(_user$project$Types$Password),
-														_1: {
-															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$value(model.password),
-															_1: {ctor: '[]'}
-														}
-													}
-												}
-											},
-											{ctor: '[]'}),
-										_1: {ctor: '[]'}
-									}
+									_1: {ctor: '[]'}
 								}),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$div,
-									{ctor: '[]'},
-									{
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$button,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onClick(_user$project$Types$AuthSubmit),
-												_1: {ctor: '[]'}
-											},
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html$text('Log in'),
-												_1: {ctor: '[]'}
-											}),
-										_1: {ctor: '[]'}
-									}),
-								_1: {ctor: '[]'}
-							}
+							_1: {ctor: '[]'}
 						}
 					}
 				}
@@ -13599,6 +13590,46 @@ var _user$project$View$view = function (model) {
 	} else {
 		return _user$project$View$viewTimeline(model.timeline);
 	}
+};
+var _user$project$View$view = function (model) {
+	var message = function () {
+		var _p3 = model.message;
+		if (_p3.ctor === 'Nothing') {
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{ctor: '[]'});
+		} else {
+			return A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('error'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(_user$project$Types$CloseMessage),
+						_1: {ctor: '[]'}
+					}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(_p3._0),
+					_1: {ctor: '[]'}
+				});
+		}
+	}();
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: message,
+			_1: {
+				ctor: '::',
+				_0: _user$project$View$viewMain(model),
+				_1: {ctor: '[]'}
+			}
+		});
 };
 
 var _user$project$Update$httpErrorMessage = function (error) {
@@ -13740,7 +13771,11 @@ var _user$project$Update$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								message: _elm_lang$core$Maybe$Just('timeline error')
+								message: _elm_lang$core$Maybe$Just(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'timeline error: ',
+										_user$project$Update$httpErrorMessage(_p2._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -13780,7 +13815,7 @@ var _user$project$Main$main = _elm_lang$html$Html$program(
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Types.Msg":{"args":[],"tags":{"InstanceUrl":["String"],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"CloseMessage":[],"TimelineFetched":["Result.Result Http.Error (List Types.Status)"],"Username":["String"],"AuthTokenRetrieved":["( String, Maybe.Maybe String )"],"AuthSubmit":[],"Password":["String"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Unknown":[],"Video":[],"Gifv":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}}},"aliases":{"Types.Attachment":{"args":[],"type":"{ id : String , type_ : Types.AttachmentType , url : String , previewUrl : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.Status":{"args":[],"type":"{ id : String , url : String , account : Types.Account , content : String , mediaAttachments : List Types.Attachment }"},"Types.Account":{"args":[],"type":"{ username : String, displayName : String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String }"}},"message":"Types.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Types.Msg":{"args":[],"tags":{"InstanceUrl":["String"],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"CloseMessage":[],"TimelineFetched":["Result.Result Http.Error (List Types.Status)"],"Username":["String"],"AuthTokenRetrieved":["( String, Maybe.Maybe String )"],"AuthSubmit":[],"Password":["String"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Unknown":[],"Video":[],"Gifv":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}}},"aliases":{"Types.Attachment":{"args":[],"type":"{ id : String , type_ : Types.AttachmentType , url : String , previewUrl : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.Status":{"args":[],"type":"{ id : String , url : Maybe.Maybe String , account : Types.Account , content : Maybe.Maybe String , mediaAttachments : List Types.Attachment }"},"Types.Account":{"args":[],"type":"{ username : String, displayName : String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String }"}},"message":"Types.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])

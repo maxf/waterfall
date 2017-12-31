@@ -1,6 +1,6 @@
 module Model exposing (Model, initialModel)
 
-import Types exposing (Status)
+import Types exposing (Status, Attachment)
 
 
 -- Model
@@ -14,6 +14,7 @@ type alias Model =
     , password : String
     , message : Maybe String
     , timeline : List Status
+    , attachmentShown : Maybe Attachment
     }
 
 
@@ -27,3 +28,4 @@ initialModel =
         ""
         Nothing
         []
+        Nothing

@@ -1,8 +1,8 @@
 module Types exposing (..)
 
 import Http
-import Json.Decode
-import Json.Decode.Pipeline
+import Json.Decode exposing (..)
+import Json.Decode.Pipeline exposing (..)
 
 
 type Msg
@@ -36,9 +36,9 @@ type alias Account =
 
 type alias Status =
     { id : String
-    , url : String
+    , url : Maybe String
     , account : Account
-    , content : String
+    , content : Maybe String
     , mediaAttachments : List Attachment
     }
 
@@ -66,50 +66,48 @@ type alias Attachment =
 -- Decoders
 
 
-timelineDecoder : Json.Decode.Decoder (List Status)
+timelineDecoder : Decoder (List Status)
 timelineDecoder =
-    Json.Decode.list statusDecoder
+    list statusDecoder
 
 
-attachmentTypeDecoder : String -> Json.Decode.Decoder AttachmentType
+attachmentTypeDecoder : String -> Decoder AttachmentType
 attachmentTypeDecoder s =
     case s of
         "image" ->
-            Json.Decode.succeed Image
+            succeed Image
 
         "video" ->
-            Json.Decode.succeed Video
+            succeed Video
 
         "gifv" ->
-            Json.Decode.succeed Gifv
+            succeed Gifv
 
         _ ->
-            Json.Decode.succeed Unknown
+            succeed Unknown
 
 
-mediaAttachmentDecoder : Json.Decode.Decoder Attachment
+mediaAttachmentDecoder : Decoder Attachment
 mediaAttachmentDecoder =
-    Json.Decode.succeed Attachment
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "type"
-            (Json.Decode.string |> Json.Decode.andThen attachmentTypeDecoder)
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "preview_url" Json.Decode.string
+    succeed Attachment
+        |> required "id" string
+        |> required "type" (string |> andThen attachmentTypeDecoder)
+        |> required "url" string
+        |> required "preview_url" string
 
 
-accountDecoder : Json.Decode.Decoder Account
+accountDecoder : Decoder Account
 accountDecoder =
-    Json.Decode.succeed Account
-        |> Json.Decode.Pipeline.required "username" Json.Decode.string
-        |> Json.Decode.Pipeline.required "display_name" Json.Decode.string
+    succeed Account
+        |> required "username" string
+        |> required "display_name" string
 
 
-statusDecoder : Json.Decode.Decoder Status
+statusDecoder : Decoder Status
 statusDecoder =
-    Json.Decode.succeed Status
-        |> Json.Decode.Pipeline.required "id" Json.Decode.string
-        |> Json.Decode.Pipeline.required "url" Json.Decode.string
-        |> Json.Decode.Pipeline.required "account" accountDecoder
-        |> Json.Decode.Pipeline.required "content" Json.Decode.string
-        |> Json.Decode.Pipeline.required "media_attachments"
-            (Json.Decode.list mediaAttachmentDecoder)
+    succeed Status
+        |> required "id" string
+        |> optional "url" (nullable string) Nothing
+        |> required "account" accountDecoder
+        |> optional "content" (nullable string) Nothing
+        |> required "media_attachments" (list mediaAttachmentDecoder)

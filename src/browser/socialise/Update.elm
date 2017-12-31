@@ -35,8 +35,8 @@ update msg model =
             , Cmd.none
             )
 
-        TimelineFetched (Err _) ->
-            ( { model | message = Just "timeline error" }, Cmd.none )
+        TimelineFetched (Err e) ->
+            ( { model | message = Just ("timeline error: " ++ httpErrorMessage e) }, Cmd.none )
 
         CloseMessage ->
             ( { model | message = Nothing }, Cmd.none )
