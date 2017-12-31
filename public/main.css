@@ -180,3 +180,7 @@ body {
   top: 5px;
   background: rgba(0,0,0,0.7)
 }
+
+a:link, a:visited {
+  color: white;
+}
