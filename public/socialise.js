@@ -13308,43 +13308,31 @@ var _user$project$Auth$checkAuthToken = _user$project$Ports$localStorageGetItem(
 
 var _user$project$View$viewAttachment = function (attachment) {
 	var _p0 = attachment.type_;
-	switch (_p0.ctor) {
-		case 'Image':
-			return A2(
-				_elm_lang$html$Html$img,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$src(attachment.previewUrl),
-					_1: {ctor: '[]'}
-				},
-				{ctor: '[]'});
-		case 'Video':
-			return A2(
-				_elm_lang$html$Html$p,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('video'),
-					_1: {ctor: '[]'}
-				});
-		case 'Gifv':
-			return A2(
-				_elm_lang$html$Html$p,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('gifv'),
-					_1: {ctor: '[]'}
-				});
-		default:
-			return A2(
-				_elm_lang$html$Html$p,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('unkown'),
-					_1: {ctor: '[]'}
-				});
+	if (_p0.ctor === 'Unknown') {
+		return A2(
+			_elm_lang$html$Html$span,
+			{ctor: '[]'},
+			{ctor: '[]'});
+	} else {
+		return A2(
+			_elm_lang$html$Html$a,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$href(attachment.url),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$img,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$src(attachment.previewUrl),
+						_1: {ctor: '[]'}
+					},
+					{ctor: '[]'}),
+				_1: {ctor: '[]'}
+			});
 	}
 };
 var _user$project$View$viewStatusContent = function (content) {

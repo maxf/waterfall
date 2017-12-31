@@ -99,14 +99,8 @@ viewStatus status =
 viewAttachment : Attachment -> Html Msg
 viewAttachment attachment =
     case attachment.type_ of
-        Image ->
-            img [ src attachment.previewUrl ] []
-
-        Video ->
-            p [] [ text "video" ]
-
-        Gifv ->
-            p [] [ text "gifv" ]
-
         Unknown ->
-            p [] [ text "unkown" ]
+            span [] []
+
+        _ ->
+            a [ href attachment.url ] [ img [ src attachment.previewUrl ] [] ]
