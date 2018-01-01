@@ -1,17 +1,17 @@
 module Main exposing (main)
 
-import Html exposing (program)
+import Navigation exposing (Location)
 import View exposing (view)
 import Model exposing (Model, initialModel)
 import Update exposing (update)
 import Ports exposing (localStorageRetrievedItem)
-import Types exposing (Msg(..))
+import Types exposing (..)
 import Auth exposing (checkAuthToken)
 
 
 main : Program Never Model Msg
 main =
-    program
+    Navigation.program UrlHasChanged
         { init = init
         , view = view
         , update = update
@@ -19,9 +19,15 @@ main =
         }
 
 
-init : ( Model, Cmd msg )
-init =
-    ( initialModel, checkAuthToken )
+init : Location -> ( Model, Cmd msg )
+init location =
+    let
+        timeline =
+            if location.hash == "#home" then Home
+            else if location.hash == "#public" then Public
+            else Home
+    in
+        ( { initialModel | timelineType = timeline }, checkAuthToken )
 
 
 subscriptions : Model -> Sub Msg

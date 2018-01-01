@@ -24,7 +24,7 @@ update msg model =
         AuthReturn (Ok response) ->
             { model | authToken = Just response.token, message = Nothing }
                 ! [ storeAuthToken response.token
-                  , getTimeline model.instanceUrl response.token
+                  , getTimeline model.instanceUrl response.token model.timelineType
                   ]
 
         AuthReturn (Err error) ->
@@ -48,22 +48,47 @@ update msg model =
 
                 Just tokenValue ->
                     ( { model | authToken = token }
-                    , getTimeline model.instanceUrl tokenValue
+                    , getTimeline model.instanceUrl tokenValue model.timelineType
                     )
+
+        UrlHasChanged location ->
+            let
+                timeline =
+                    if location.hash == "#home" then Home
+                    else if location.hash == "#public" then Public
+                    else Home
+            in
+                ( { model | timelineType = Home }
+                , getTimeline model.instanceUrl model.authToken model.timelineType
+                )
 
 
 
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#timelines
 
 
-getTimeline : String -> String -> Cmd Msg
-getTimeline instanceUrl authToken =
+getTimeline : String -> String -> TimelineType -> Cmd Msg
+getTimeline instanceUrl authToken timelineType =
     let
+        urlPath =
+            case timelineType of
+                Home ->
+                    "/api/v1/timelines/home"
+
+                Public ->
+                    "/api/v1/timelines/public"
+
+                Hashtag tag ->
+                    "/api/v1/timelines/tag/" ++ Http.encodeUri tag
+
+                List id ->
+                    "/api/v1/timelines/list/" ++ Http.encodeUri id
+
         request =
             Http.request
                 { method = "GET"
                 , headers = [ Http.header "Authorization" ("Bearer " ++ authToken) ]
-                , url = instanceUrl ++ "/api/v1/timelines/home?limit=40"
+                , url = instanceUrl ++ urlPath ++ "?limit=40"
                 , body = Http.emptyBody
                 , expect = Http.expectJson timelineDecoder
                 , timeout = Nothing

@@ -21,50 +21,75 @@ view model =
                         [ class "error", onClick CloseMessage ]
                         [ messageText |> text ]
     in
-        div [] [ message, viewMain model ]
+        div
+            [ class "outer" ]
+            [ message
+            , div
+                [ class "columns" ]
+                [ viewSidebar
+                , div [ id "photos" ] [ viewMain model ]
+                ]
+            ]
+
+
+viewSidebar : Html Msg
+viewSidebar =
+    div
+        [ class "sidebar" ]
+        [ div [] [ a [ href "/" ] [ text "Waterfall" ] ]
+        , ul []
+            [ li [] [ a [ href "#home" ] [ text "Home" ] ]
+            , li [] [ a [ href "#public" ] [ text "Public" ] ]
+            ]
+        ]
 
 
 viewMain : Model -> Html Msg
 viewMain model =
     case model.authToken of
         Nothing ->
-            div []
-                [ div []
-                    [ label [ for "instanceUrl" ] [ text "Instance URL" ]
-                    , input
-                        [ type_ "text"
-                        , id "instance"
-                        , onInput InstanceUrl
-                        , value model.instanceUrl
-                        ]
-                        []
-                    ]
-                , div []
-                    [ label [ for "username" ] [ text "Username" ]
-                    , input
-                        [ type_ "text"
-                        , id "username"
-                        , onInput Username
-                        , value model.username
-                        ]
-                        []
-                    ]
-                , div []
-                    [ label [ for "password" ] [ text "Password" ]
-                    , input
-                        [ type_ "password"
-                        , id "password"
-                        , onInput Password
-                        , value model.password
-                        ]
-                        []
-                    ]
-                , div []
-                    [ button [ onClick AuthSubmit ] [ text "Log in" ] ]
-                ]
+            viewLogin model
 
         Just _ ->
             viewTimeline model.timeline
+
+
+viewLogin : Model -> Html Msg
+viewLogin model =
+    div []
+        [ div []
+            [ label [ for "instanceUrl" ] [ text "Instance URL" ]
+            , input
+                [ type_ "text"
+                , id "instance"
+                , onInput InstanceUrl
+                , value model.instanceUrl
+                ]
+                []
+            ]
+        , div []
+            [ label [ for "username" ] [ text "Username" ]
+            , input
+                [ type_ "text"
+                , id "username"
+                , onInput Username
+                , value model.username
+                ]
+                []
+            ]
+        , div []
+            [ label [ for "password" ] [ text "Password" ]
+            , input
+                [ type_ "password"
+                , id "password"
+                , onInput Password
+                , value model.password
+                ]
+                []
+            ]
+        , div []
+            [ button [ onClick AuthSubmit ] [ text "Log in" ] ]
+        ]
 
 
 viewTimeline : List Status -> Html Msg

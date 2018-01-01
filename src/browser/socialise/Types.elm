@@ -3,6 +3,7 @@ module Types exposing (..)
 import Http
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (..)
+import Navigation exposing (Location)
 
 
 type Msg
@@ -14,6 +15,7 @@ type Msg
     | TimelineFetched (Result Http.Error (List Status))
     | CloseMessage
     | AuthTokenRetrieved ( String, Maybe String )
+    | UrlHasChanged Location
 
 
 type alias AuthResponse =
@@ -60,6 +62,17 @@ type alias Attachment =
     , url : String -- URL of the locally hosted version of the image
     , previewUrl : String -- URL of the preview image
     }
+
+
+
+-- type of Timeline displayed on screen
+
+
+type TimelineType
+    = Home
+    | Public
+    | Hashtag String
+    | List String
 
 
 

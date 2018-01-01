@@ -149,11 +149,6 @@ body {
 }
 
 
-
-.timeline {
-  margin: 1em;
-}
-
 .status {
   position: relative;
   display: inline-block;
@@ -161,7 +156,6 @@ body {
   border-radius: 5px;
   padding: 5px;
   margin: 3px;
-  min-width: 300px;
 }
 
 .status img {
@@ -172,7 +166,12 @@ body {
 .status .content {
   position: absolute;
   bottom: 0;
+  left: 0;
   background: rgba(0,0,0,0.7)
+}
+
+.status .content p {
+  margin: 0.1em 0.2em 0.1em 0.2em;
 }
 
 .status .account {
@@ -183,4 +182,13 @@ body {
 
 a:link, a:visited {
   color: white;
+}
+
+.sidebar {
+  background-color: #444b5d;
+  color: #dfdfdf;
+  width: 10em;
+  overflow: auto;
+  max-height: 100vh;
+  padding: 1em;
 }
