@@ -13718,6 +13718,11 @@ var _user$project$Ports$localStorageGetItem = _elm_lang$core$Native_Platform.out
 	function (v) {
 		return v;
 	});
+var _user$project$Ports$localStorageRemoveItem = _elm_lang$core$Native_Platform.outgoingPort(
+	'localStorageRemoveItem',
+	function (v) {
+		return v;
+	});
 var _user$project$Ports$localStorageRetrievedItem = _elm_lang$core$Native_Platform.incomingPort(
 	'localStorageRetrievedItem',
 	A2(
@@ -13748,9 +13753,9 @@ var _user$project$Ports$localStorageRetrievedItem = _elm_lang$core$Native_Platfo
 var _user$project$Types$AuthResponse = function (a) {
 	return {token: a};
 };
-var _user$project$Types$Account = F2(
-	function (a, b) {
-		return {username: a, displayName: b};
+var _user$project$Types$Account = F3(
+	function (a, b, c) {
+		return {id: a, username: b, displayName: c};
 	});
 var _user$project$Types$accountDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
@@ -13760,7 +13765,11 @@ var _user$project$Types$accountDecoder = A3(
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 		'username',
 		_elm_lang$core$Json_Decode$string,
-		_elm_lang$core$Json_Decode$succeed(_user$project$Types$Account)));
+		A3(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+			'id',
+			_elm_lang$core$Json_Decode$string,
+			_elm_lang$core$Json_Decode$succeed(_user$project$Types$Account))));
 var _user$project$Types$Status = F5(
 	function (a, b, c, d, e) {
 		return {id: a, url: b, account: c, content: d, mediaAttachments: e};
@@ -13769,6 +13778,7 @@ var _user$project$Types$Attachment = F4(
 	function (a, b, c, d) {
 		return {id: a, type_: b, url: c, previewUrl: d};
 	});
+var _user$project$Types$Logout = {ctor: 'Logout'};
 var _user$project$Types$UrlHasChanged = function (a) {
 	return {ctor: 'UrlHasChanged', _0: a};
 };
@@ -13776,6 +13786,9 @@ var _user$project$Types$AuthTokenRetrieved = function (a) {
 	return {ctor: 'AuthTokenRetrieved', _0: a};
 };
 var _user$project$Types$CloseMessage = {ctor: 'CloseMessage'};
+var _user$project$Types$UserFetched = function (a) {
+	return {ctor: 'UserFetched', _0: a};
+};
 var _user$project$Types$TimelineFetched = function (a) {
 	return {ctor: 'TimelineFetched', _0: a};
 };
@@ -13850,6 +13863,9 @@ var _user$project$Types$statusDecoder = A3(
 					_elm_lang$core$Json_Decode$string,
 					_elm_lang$core$Json_Decode$succeed(_user$project$Types$Status))))));
 var _user$project$Types$timelineDecoder = _elm_lang$core$Json_Decode$list(_user$project$Types$statusDecoder);
+var _user$project$Types$User = function (a) {
+	return {ctor: 'User', _0: a};
+};
 var _user$project$Types$List = function (a) {
 	return {ctor: 'List', _0: a};
 };
@@ -13859,21 +13875,29 @@ var _user$project$Types$Hashtag = function (a) {
 var _user$project$Types$Public = {ctor: 'Public'};
 var _user$project$Types$Home = {ctor: 'Home'};
 
-var _user$project$Model$Model = F9(
-	function (a, b, c, d, e, f, g, h, i) {
-		return {instanceUrl: a, clientId: b, authToken: c, username: d, password: e, message: f, timeline: g, timelineType: h, attachmentShown: i};
-	});
-var _user$project$Model$initialModel = A9(
-	_user$project$Model$Model,
-	'https://mastodon.me.uk',
-	'6f130a3305de5b3505618a2b6a05305e99ffea12bec5032eb576572319b5bda9',
-	_elm_lang$core$Maybe$Nothing,
-	'',
-	'',
-	_elm_lang$core$Maybe$Nothing,
-	{ctor: '[]'},
-	_user$project$Types$Home,
-	_elm_lang$core$Maybe$Nothing);
+var _user$project$Model$Model = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return {instanceUrl: a, clientId: b, authToken: c, username: d, userId: e, password: f, message: g, timeline: h, timelineType: i, attachmentShown: j};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var _user$project$Model$initialModel = _user$project$Model$Model('https://mastodon.me.uk')('6f130a3305de5b3505618a2b6a05305e99ffea12bec5032eb576572319b5bda9')(_elm_lang$core$Maybe$Nothing)('')(_elm_lang$core$Maybe$Nothing)('')(_elm_lang$core$Maybe$Nothing)(
+	{ctor: '[]'})(_user$project$Types$Home)(_elm_lang$core$Maybe$Nothing);
 
 var _user$project$Auth$oauthResponseDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
@@ -13904,6 +13928,7 @@ var _user$project$Auth$authenticate = function (model) {
 		_user$project$Auth$oauthResponseDecoder);
 	return A2(_elm_lang$http$Http$send, _user$project$Types$AuthReturn, request);
 };
+var _user$project$Auth$clearAuthToken = _user$project$Ports$localStorageRemoveItem('authToken');
 var _user$project$Auth$storeAuthToken = function (token) {
 	return _user$project$Ports$localStorageSetItem(
 		{ctor: '_Tuple2', _0: 'authToken', _1: token});
@@ -14256,15 +14281,52 @@ var _user$project$View$viewSidebar = A2(
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text('Public'),
+										_0: _elm_lang$html$Html$text('Public photos'),
 										_1: {ctor: '[]'}
 									}),
 								_1: {ctor: '[]'}
 							}),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$li,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$a,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$href('#me'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('My photos'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
 					}
 				}),
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$span,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(_user$project$Types$Logout),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Log out'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
 		}
 	});
 var _user$project$View$view = function (model) {
@@ -14338,6 +14400,29 @@ var _user$project$View$view = function (model) {
 		});
 };
 
+var _user$project$Update$getUser = F2(
+	function (authToken, instanceUrl) {
+		return A2(
+			_elm_lang$http$Http$send,
+			_user$project$Types$UserFetched,
+			_elm_lang$http$Http$request(
+				{
+					method: 'GET',
+					headers: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$http$Http$header,
+							'Authorization',
+							A2(_elm_lang$core$Basics_ops['++'], 'Bearer ', authToken)),
+						_1: {ctor: '[]'}
+					},
+					url: A2(_elm_lang$core$Basics_ops['++'], instanceUrl, '/api/v1/accounts/verify_credentials'),
+					body: _elm_lang$http$Http$emptyBody,
+					expect: _elm_lang$http$Http$expectJson(_user$project$Types$accountDecoder),
+					timeout: _elm_lang$core$Maybe$Nothing,
+					withCredentials: false
+				}));
+	});
 var _user$project$Update$httpErrorMessage = function (error) {
 	var _p0 = error;
 	switch (_p0.ctor) {
@@ -14377,11 +14462,19 @@ var _user$project$Update$getTimeline = F3(
 						_elm_lang$core$Basics_ops['++'],
 						'/api/v1/timelines/tag/',
 						_elm_lang$http$Http$encodeUri(_p2._0));
-				default:
+				case 'List':
 					return A2(
 						_elm_lang$core$Basics_ops['++'],
 						'/api/v1/timelines/list/',
 						_elm_lang$http$Http$encodeUri(_p2._0));
+				default:
+					return A2(
+						_elm_lang$core$Basics_ops['++'],
+						'/api/v1/accounts/',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$http$Http$encodeUri(_p2._0),
+							'/statuses'));
 			}
 		}();
 		var request = _elm_lang$http$Http$request(
@@ -14456,7 +14549,7 @@ var _user$project$Update$update = F2(
 							_0: _user$project$Auth$storeAuthToken(_p4.token),
 							_1: {
 								ctor: '::',
-								_0: A3(_user$project$Update$getTimeline, model.instanceUrl, _p4.token, model.timelineType),
+								_0: A2(_user$project$Update$getUser, _p4.token, model.instanceUrl),
 								_1: {ctor: '[]'}
 							}
 						});
@@ -14508,6 +14601,38 @@ var _user$project$Update$update = F2(
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
+			case 'UserFetched':
+				if (_p3._0.ctor === 'Err') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								message: _elm_lang$core$Maybe$Just(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'account fetch error: ',
+										_user$project$Update$httpErrorMessage(_p3._0._0)))
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					var _p5 = _p3._0._0;
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								username: _p5.username,
+								userId: _elm_lang$core$Maybe$Just(_p5.id)
+							}),
+						_1: A3(
+							_user$project$Update$getTimeline,
+							model.instanceUrl,
+							A2(_elm_lang$core$Maybe$withDefault, '', model.authToken),
+							model.timelineType)
+					};
+				}
 			case 'CloseMessage':
 				return {
 					ctor: '_Tuple2',
@@ -14517,40 +14642,45 @@ var _user$project$Update$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'AuthTokenRetrieved':
-				var _p6 = _p3._0._1;
-				var _p5 = _p6;
-				if (_p5.ctor === 'Nothing') {
+				var _p7 = _p3._0._1;
+				var _p6 = _p7;
+				if (_p6.ctor === 'Nothing') {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				} else {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{authToken: _p6}),
-						_1: A3(_user$project$Update$getTimeline, model.instanceUrl, _p5._0, model.timelineType)
+							{authToken: _p7, password: ''}),
+						_1: A3(_user$project$Update$getTimeline, model.instanceUrl, _p6._0, model.timelineType)
 					};
 				}
+			case 'UrlHasChanged':
+				var _p9 = _p3._0;
+				var timeline = _elm_lang$core$Native_Utils.eq(_p9.hash, '#home') ? _user$project$Types$Home : (_elm_lang$core$Native_Utils.eq(_p9.hash, '#public') ? _user$project$Types$Public : (_elm_lang$core$Native_Utils.eq(_p9.hash, '#me') ? _user$project$Types$User(
+					A2(_elm_lang$core$Maybe$withDefault, '', model.userId)) : _user$project$Types$Home));
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{timelineType: timeline}),
+					_1: function () {
+						var _p8 = model.authToken;
+						if (_p8.ctor === 'Just') {
+							return A3(_user$project$Update$getTimeline, model.instanceUrl, _p8._0, timeline);
+						} else {
+							return _elm_lang$core$Platform_Cmd$none;
+						}
+					}()
+				};
 			default:
-				var _p7 = _p3._0;
-				return _elm_lang$core$Native_Utils.eq(_p7.hash, '#home') ? {
+				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{timelineType: _user$project$Types$Home}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				} : (_elm_lang$core$Native_Utils.eq(_p7.hash, '#public') ? {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{timelineType: _user$project$Types$Public}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				} : {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{timelineType: _user$project$Types$Home}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				});
+						{authToken: _elm_lang$core$Maybe$Nothing}),
+					_1: _user$project$Auth$clearAuthToken
+				};
 		}
 	});
 
@@ -14558,7 +14688,7 @@ var _user$project$Main$subscriptions = function (_p0) {
 	return _user$project$Ports$localStorageRetrievedItem(_user$project$Types$AuthTokenRetrieved);
 };
 var _user$project$Main$init = function (location) {
-	var timeline = _elm_lang$core$Native_Utils.eq(location.hash, '#home') ? _user$project$Types$Home : (_elm_lang$core$Native_Utils.eq(location.hash, '#public') ? _user$project$Types$Public : _user$project$Types$Home);
+	var timeline = _elm_lang$core$Native_Utils.eq(location.hash, '#public') ? _user$project$Types$Public : _user$project$Types$Home;
 	return {
 		ctor: '_Tuple2',
 		_0: _elm_lang$core$Native_Utils.update(
@@ -14575,7 +14705,7 @@ var _user$project$Main$main = A2(
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Types.Msg":{"args":[],"tags":{"InstanceUrl":["String"],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"CloseMessage":[],"TimelineFetched":["Result.Result Http.Error (List Types.Status)"],"Username":["String"],"AuthTokenRetrieved":["( String, Maybe.Maybe String )"],"AuthSubmit":[],"Password":["String"],"UrlHasChanged":["Navigation.Location"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Unknown":[],"Video":[],"Gifv":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}}},"aliases":{"Types.Attachment":{"args":[],"type":"{ id : String , type_ : Types.AttachmentType , url : String , previewUrl : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.Status":{"args":[],"type":"{ id : String , url : Maybe.Maybe String , account : Types.Account , content : Maybe.Maybe String , mediaAttachments : List Types.Attachment }"},"Types.Account":{"args":[],"type":"{ username : String, displayName : String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Types.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Types.Msg":{"args":[],"tags":{"UserFetched":["Result.Result Http.Error Types.Account"],"Logout":[],"InstanceUrl":["String"],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"CloseMessage":[],"TimelineFetched":["Result.Result Http.Error (List Types.Status)"],"Username":["String"],"AuthTokenRetrieved":["( String, Maybe.Maybe String )"],"AuthSubmit":[],"Password":["String"],"UrlHasChanged":["Navigation.Location"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Unknown":[],"Video":[],"Gifv":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}}},"aliases":{"Types.Attachment":{"args":[],"type":"{ id : String , type_ : Types.AttachmentType , url : String , previewUrl : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.Status":{"args":[],"type":"{ id : String , url : Maybe.Maybe String , account : Types.Account , content : Maybe.Maybe String , mediaAttachments : List Types.Attachment }"},"Types.Account":{"args":[],"type":"{ id : String, username : String, displayName : String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Types.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])

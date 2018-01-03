@@ -3,7 +3,7 @@ module Auth exposing (..)
 import Http exposing (encodeUri)
 import Json.Decode
 import Json.Decode.Pipeline
-import Ports exposing (localStorageGetItem, localStorageSetItem)
+import Ports exposing (localStorageGetItem, localStorageSetItem, localStorageRemoveItem)
 import Types exposing (Msg(..), AuthResponse)
 import Model exposing (Model)
 
@@ -16,6 +16,11 @@ checkAuthToken =
 storeAuthToken : String -> Cmd msg
 storeAuthToken token =
     localStorageSetItem ( "authToken", token )
+
+
+clearAuthToken : Cmd msg
+clearAuthToken =
+    localStorageRemoveItem "authToken"
 
 
 authenticate : Model -> Cmd Msg

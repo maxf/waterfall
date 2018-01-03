@@ -39,8 +39,10 @@ viewSidebar =
         [ div [] [ a [ href "/" ] [ text "Waterfall" ] ]
         , ul []
             [ li [] [ a [ href "#home" ] [ text "Home" ] ]
-            , li [] [ a [ href "#public" ] [ text "Public" ] ]
+            , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
+            , li [] [ a [ href "#me" ] [ text "My photos" ] ]
             ]
+        , span [ onClick Logout ] [ text "Log out" ]
         ]
 
 

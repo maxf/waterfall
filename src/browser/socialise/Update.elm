@@ -1,8 +1,9 @@
 module Update exposing (update)
 
 import Http
+import Maybe exposing (withDefault)
 import Model exposing (Model)
-import Auth exposing (authenticate, storeAuthToken)
+import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
 import Types exposing (..)
 
 
@@ -23,9 +24,7 @@ update msg model =
 
         AuthReturn (Ok response) ->
             { model | authToken = Just response.token, message = Nothing }
-                ! [ storeAuthToken response.token
-                  , getTimeline model.instanceUrl response.token model.timelineType
-                  ]
+                ! [ storeAuthToken response.token, getUser response.token model.instanceUrl ]
 
         AuthReturn (Err error) ->
             ( { model | message = Just ("auth error: " ++ httpErrorMessage error) }, Cmd.none )
@@ -38,6 +37,16 @@ update msg model =
         TimelineFetched (Err e) ->
             ( { model | message = Just ("timeline error: " ++ httpErrorMessage e) }, Cmd.none )
 
+        UserFetched (Err e) ->
+            ( { model | message = Just ("account fetch error: " ++ httpErrorMessage e) }
+            , Cmd.none
+            )
+
+        UserFetched (Ok account) ->
+            ( { model | username = account.username, userId = Just account.id }
+            , getTimeline model.instanceUrl (model.authToken |> withDefault "") model.timelineType
+            )
+
         CloseMessage ->
             ( { model | message = Nothing }, Cmd.none )
 
@@ -47,20 +56,33 @@ update msg model =
                     ( model, Cmd.none )
 
                 Just tokenValue ->
-                    ( { model | authToken = token }
+                    ( { model | authToken = token, password = "" }
                     , getTimeline model.instanceUrl tokenValue model.timelineType
                     )
 
         UrlHasChanged location ->
             let
                 timeline =
-                    if location.hash == "#home" then Home
-                    else if location.hash == "#public" then Public
-                    else Home
+                    if location.hash == "#home" then
+                        Home
+                    else if location.hash == "#public" then
+                        Public
+                    else if location.hash == "#me" then
+                        User (model.userId |> withDefault "")
+                    else
+                        Home
             in
-                ( { model | timelineType = Home }
-                , getTimeline model.instanceUrl model.authToken model.timelineType
+                ( { model | timelineType = timeline }
+                , case model.authToken of
+                    Just token ->
+                        getTimeline model.instanceUrl token timeline
+
+                    Nothing ->
+                        Cmd.none
                 )
+
+        Logout ->
+            ( { model | authToken = Nothing }, clearAuthToken )
 
 
 
@@ -83,6 +105,9 @@ getTimeline instanceUrl authToken timelineType =
 
                 List id ->
                     "/api/v1/timelines/list/" ++ Http.encodeUri id
+
+                User id ->
+                    "/api/v1/accounts/" ++ Http.encodeUri id ++ "/statuses"
 
         request =
             Http.request
@@ -119,3 +144,19 @@ httpErrorMessage error =
 
         Http.BadPayload text _ ->
             "Bad payload: " ++ text
+
+
+getUser : String -> String -> Cmd Msg
+getUser authToken instanceUrl =
+    Http.send
+        UserFetched
+        (Http.request
+            { method = "GET"
+            , headers = [ Http.header "Authorization" ("Bearer " ++ authToken) ]
+            , url = instanceUrl ++ "/api/v1/accounts/verify_credentials"
+            , body = Http.emptyBody
+            , expect = Http.expectJson accountDecoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+        )

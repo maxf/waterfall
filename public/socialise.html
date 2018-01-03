@@ -20,6 +20,10 @@
        }
      });
 
+     app.ports.localStorageRemoveItem.subscribe(function(keyName) {
+       localStorage.removeItem(keyName);
+     });
+
      app.ports.localStorageGetItem.subscribe(function(keyName) {
        var value = localStorage.getItem(keyName);
        app.ports.localStorageRetrievedItem.send([keyName, value]);

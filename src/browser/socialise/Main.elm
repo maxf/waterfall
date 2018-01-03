@@ -23,9 +23,7 @@ init : Location -> ( Model, Cmd msg )
 init location =
     let
         timeline =
-            if location.hash == "#home" then Home
-            else if location.hash == "#public" then Public
-            else Home
+            if location.hash == "#public" then Public else Home
     in
         ( { initialModel | timelineType = timeline }, checkAuthToken )
 

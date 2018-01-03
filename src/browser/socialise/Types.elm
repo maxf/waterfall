@@ -13,9 +13,11 @@ type Msg
     | AuthSubmit
     | AuthReturn (Result Http.Error AuthResponse)
     | TimelineFetched (Result Http.Error (List Status))
+    | UserFetched (Result Http.Error Account)
     | CloseMessage
     | AuthTokenRetrieved ( String, Maybe String )
     | UrlHasChanged Location
+    | Logout
 
 
 type alias AuthResponse =
@@ -27,7 +29,8 @@ type alias AuthResponse =
 
 
 type alias Account =
-    { username : String
+    { id : String
+    , username : String
     , displayName : String
     }
 
@@ -73,6 +76,7 @@ type TimelineType
     | Public
     | Hashtag String
     | List String
+    | User String
 
 
 
@@ -112,6 +116,7 @@ mediaAttachmentDecoder =
 accountDecoder : Decoder Account
 accountDecoder =
     succeed Account
+        |> required "id" string
         |> required "username" string
         |> required "display_name" string
 
