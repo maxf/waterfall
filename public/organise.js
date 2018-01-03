@@ -12060,26 +12060,26 @@ var _user$project$View$view = function (model) {
 		},
 		{
 			ctor: '::',
-			_0: _user$project$View$viewMessage(
-				_user$project$Model$message(model)),
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('columns'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _user$project$View$viewAlbumList(model),
+					_1: {
+						ctor: '::',
+						_0: _user$project$ViewPhotos$viewPhotos(model),
+						_1: {ctor: '[]'}
+					}
+				}),
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('columns'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _user$project$View$viewAlbumList(model),
-						_1: {
-							ctor: '::',
-							_0: _user$project$ViewPhotos$viewPhotos(model),
-							_1: {ctor: '[]'}
-						}
-					}),
+				_0: _user$project$View$viewMessage(
+					_user$project$Model$message(model)),
 				_1: {ctor: '[]'}
 			}
 		});

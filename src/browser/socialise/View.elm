@@ -23,12 +23,12 @@ view model =
     in
         div
             [ class "outer" ]
-            [ message
-            , div
+            [ div
                 [ class "columns" ]
                 [ viewSidebar
                 , div [ id "photos" ] [ viewMain model ]
                 ]
+            , message
             ]
 
 

@@ -38,10 +38,10 @@ view : Model -> Html Msg
 view model =
     div
         [ class "outer" ]
-        [ model |> message |> viewMessage
-        , div
+        [ div
             [ class "columns" ]
             [ viewAlbumList model
             , viewPhotos model
             ]
+        , model |> message |> viewMessage
         ]

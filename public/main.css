@@ -30,6 +30,7 @@ body {
   outline: none;
 }
 .error {
+  top: 0;
   position: fixed;
   background: #555;
   color: white;

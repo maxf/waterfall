@@ -57,7 +57,7 @@ update msg model =
 
                 Just tokenValue ->
                     ( { model | authToken = token, password = "" }
-                    , getTimeline model.instanceUrl tokenValue model.timelineType
+                    ,   getUser tokenValue model.instanceUrl
                     )
 
         UrlHasChanged location ->
