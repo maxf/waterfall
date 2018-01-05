@@ -119,7 +119,12 @@ viewStatus status =
     div [ class "status" ]
         [ div [] (List.map viewAttachment status.mediaAttachments)
         , viewStatusContent status.content
-        , div [ class "account", innerHtml status.account.username ] []
+        , div
+            [ class "account" ]
+            [ a
+                [ href ("#user:" ++ status.account.acct ++ ":" ++ status.account.id) ]
+                [ text status.account.acct ]
+            ]
         ]
 
 

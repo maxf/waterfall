@@ -2,10 +2,11 @@ module Update exposing (update)
 
 import Http
 import Maybe exposing (withDefault)
+import Navigation exposing (Location)
 import Model exposing (Model)
 import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
 import Types exposing (..)
-
+import Regex
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -43,8 +44,8 @@ update msg model =
             )
 
         UserFetched (Ok account) ->
-            ( { model | username = account.username, userId = Just account.id }
-            , getTimeline model.instanceUrl (model.authToken |> withDefault "") model.timelineType
+            ( { model | username = account.acct, userId = Just account.id }
+            , getTimeline model.instanceUrl model.authToken model.timelineType
             )
 
         CloseMessage ->
@@ -68,14 +69,14 @@ update msg model =
                     else if location.hash == "#public" then
                         Public
                     else if location.hash == "#me" then
-                        User (model.userId |> withDefault "")
+                        User model.instanceUrl (model.userId |> withDefault "")
                     else
                         Home
             in
                 ( { model | timelineType = timeline }
                 , case model.authToken of
                     Just token ->
-                        getTimeline model.instanceUrl token timeline
+                        getTimeline model.instanceUrl model.authToken timeline
 
                     Nothing ->
                         Cmd.none
@@ -89,7 +90,7 @@ update msg model =
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#timelines
 
 
-getTimeline : String -> String -> TimelineType -> Cmd Msg
+getTimeline : String -> Maybe String -> TimelineType -> Cmd Msg
 getTimeline instanceUrl authToken timelineType =
     let
         urlPath =
@@ -106,13 +107,21 @@ getTimeline instanceUrl authToken timelineType =
                 List id ->
                     "/api/v1/timelines/list/" ++ Http.encodeUri id
 
-                User id ->
-                    "/api/v1/accounts/" ++ Http.encodeUri id ++ "/statuses"
+                User server id ->
+                    server ++ "/api/v1/accounts/" ++ Http.encodeUri id ++ "/statuses"
+
+        headers =
+            case authToken of
+                Nothing ->
+                    []
+
+                Just token ->
+                    [ Http.header "Authorization" ("Bearer " ++ token) ]
 
         request =
             Http.request
                 { method = "GET"
-                , headers = [ Http.header "Authorization" ("Bearer " ++ authToken) ]
+                , headers = headers
                 , url = instanceUrl ++ urlPath ++ "?limit=40"
                 , body = Http.emptyBody
                 , expect = Http.expectJson timelineDecoder
@@ -160,3 +169,31 @@ getUser authToken instanceUrl =
             , withCredentials = False
             }
         )
+
+
+timeLineType : Location -> Model -> TimelineType
+timeLineType url model =
+    if url.hash == "#public" then
+        Public
+    else if url.hash == "#me" then
+        User model.instanceUrl (model.userId |> withDefault "")
+    else if String.startsWith "#user:" url.hash then
+        parseUserHash url.hash
+    else
+        Home
+
+parseUserHash : String -> TimelineType
+parseUserHash hash =
+    let
+        hashRe = Regex.regex "^#user:([^@]+)@([^:]+):(\\d+)$"
+        matches = Regex.find Regex.All hashRe hash
+    in
+        case matches of
+            [ match ] ->
+                case match.submatches of
+                    [ Just matchUsername, Just matchServer, Just matchId ] ->
+                        User matchServer matchId
+                    _ ->
+                        Home
+            _ ->
+                Home

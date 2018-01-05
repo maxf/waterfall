@@ -29,9 +29,9 @@ type alias AuthResponse =
 
 
 type alias Account =
-    { id : String
-    , username : String
-    , displayName : String
+    { id : String -- The ID of the account
+    , acct : String -- username for local users, includes @domain for remote ones
+    , displayName : String -- The account's display name
     }
 
 
@@ -75,8 +75,8 @@ type TimelineType
     = Home
     | Public
     | Hashtag String
-    | List String
-    | User String
+    | List String -- List <id>
+    | User String String -- User <server of the user> <user id>
 
 
 
@@ -117,7 +117,7 @@ accountDecoder : Decoder Account
 accountDecoder =
     succeed Account
         |> required "id" string
-        |> required "username" string
+        |> required "acct" string
         |> required "display_name" string
 
 

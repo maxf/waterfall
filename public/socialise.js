@@ -12755,9 +12755,146 @@ var _elm_lang$core$Time$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Time'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Time$init, onEffects: _elm_lang$core$Time$onEffects, onSelfMsg: _elm_lang$core$Time$onSelfMsg, tag: 'sub', subMap: _elm_lang$core$Time$subMap};
 
+//import Maybe, Native.List //
+
+var _elm_lang$core$Native_Regex = function() {
+
+function escape(str)
+{
+	return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+function caseInsensitive(re)
+{
+	return new RegExp(re.source, 'gi');
+}
+function regex(raw)
+{
+	return new RegExp(raw, 'g');
+}
+
+function contains(re, string)
+{
+	return string.match(re) !== null;
+}
+
+function find(n, re, str)
+{
+	n = n.ctor === 'All' ? Infinity : n._0;
+	var out = [];
+	var number = 0;
+	var string = str;
+	var lastIndex = re.lastIndex;
+	var prevLastIndex = -1;
+	var result;
+	while (number++ < n && (result = re.exec(string)))
+	{
+		if (prevLastIndex === re.lastIndex) break;
+		var i = result.length - 1;
+		var subs = new Array(i);
+		while (i > 0)
+		{
+			var submatch = result[i];
+			subs[--i] = submatch === undefined
+				? _elm_lang$core$Maybe$Nothing
+				: _elm_lang$core$Maybe$Just(submatch);
+		}
+		out.push({
+			match: result[0],
+			submatches: _elm_lang$core$Native_List.fromArray(subs),
+			index: result.index,
+			number: number
+		});
+		prevLastIndex = re.lastIndex;
+	}
+	re.lastIndex = lastIndex;
+	return _elm_lang$core$Native_List.fromArray(out);
+}
+
+function replace(n, re, replacer, string)
+{
+	n = n.ctor === 'All' ? Infinity : n._0;
+	var count = 0;
+	function jsReplacer(match)
+	{
+		if (count++ >= n)
+		{
+			return match;
+		}
+		var i = arguments.length - 3;
+		var submatches = new Array(i);
+		while (i > 0)
+		{
+			var submatch = arguments[i];
+			submatches[--i] = submatch === undefined
+				? _elm_lang$core$Maybe$Nothing
+				: _elm_lang$core$Maybe$Just(submatch);
+		}
+		return replacer({
+			match: match,
+			submatches: _elm_lang$core$Native_List.fromArray(submatches),
+			index: arguments[arguments.length - 2],
+			number: count
+		});
+	}
+	return string.replace(re, jsReplacer);
+}
+
+function split(n, re, str)
+{
+	n = n.ctor === 'All' ? Infinity : n._0;
+	if (n === Infinity)
+	{
+		return _elm_lang$core$Native_List.fromArray(str.split(re));
+	}
+	var string = str;
+	var result;
+	var out = [];
+	var start = re.lastIndex;
+	var restoreLastIndex = re.lastIndex;
+	while (n--)
+	{
+		if (!(result = re.exec(string))) break;
+		out.push(string.slice(start, result.index));
+		start = re.lastIndex;
+	}
+	out.push(string.slice(start));
+	re.lastIndex = restoreLastIndex;
+	return _elm_lang$core$Native_List.fromArray(out);
+}
+
+return {
+	regex: regex,
+	caseInsensitive: caseInsensitive,
+	escape: escape,
+
+	contains: F2(contains),
+	find: F3(find),
+	replace: F4(replace),
+	split: F3(split)
+};
+
+}();
+
 var _elm_lang$core$Process$kill = _elm_lang$core$Native_Scheduler.kill;
 var _elm_lang$core$Process$sleep = _elm_lang$core$Native_Scheduler.sleep;
 var _elm_lang$core$Process$spawn = _elm_lang$core$Native_Scheduler.spawn;
+
+var _elm_lang$core$Regex$split = _elm_lang$core$Native_Regex.split;
+var _elm_lang$core$Regex$replace = _elm_lang$core$Native_Regex.replace;
+var _elm_lang$core$Regex$find = _elm_lang$core$Native_Regex.find;
+var _elm_lang$core$Regex$contains = _elm_lang$core$Native_Regex.contains;
+var _elm_lang$core$Regex$caseInsensitive = _elm_lang$core$Native_Regex.caseInsensitive;
+var _elm_lang$core$Regex$regex = _elm_lang$core$Native_Regex.regex;
+var _elm_lang$core$Regex$escape = _elm_lang$core$Native_Regex.escape;
+var _elm_lang$core$Regex$Match = F4(
+	function (a, b, c, d) {
+		return {match: a, submatches: b, index: c, number: d};
+	});
+var _elm_lang$core$Regex$Regex = {ctor: 'Regex'};
+var _elm_lang$core$Regex$AtMost = function (a) {
+	return {ctor: 'AtMost', _0: a};
+};
+var _elm_lang$core$Regex$All = {ctor: 'All'};
 
 var _elm_lang$dom$Native_Dom = function() {
 
@@ -13755,7 +13892,7 @@ var _user$project$Types$AuthResponse = function (a) {
 };
 var _user$project$Types$Account = F3(
 	function (a, b, c) {
-		return {id: a, username: b, displayName: c};
+		return {id: a, acct: b, displayName: c};
 	});
 var _user$project$Types$accountDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
@@ -13763,7 +13900,7 @@ var _user$project$Types$accountDecoder = A3(
 	_elm_lang$core$Json_Decode$string,
 	A3(
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-		'username',
+		'acct',
 		_elm_lang$core$Json_Decode$string,
 		A3(
 			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
@@ -13863,9 +14000,10 @@ var _user$project$Types$statusDecoder = A3(
 					_elm_lang$core$Json_Decode$string,
 					_elm_lang$core$Json_Decode$succeed(_user$project$Types$Status))))));
 var _user$project$Types$timelineDecoder = _elm_lang$core$Json_Decode$list(_user$project$Types$statusDecoder);
-var _user$project$Types$User = function (a) {
-	return {ctor: 'User', _0: a};
-};
+var _user$project$Types$User = F2(
+	function (a, b) {
+		return {ctor: 'User', _0: a, _1: b};
+	});
 var _user$project$Types$List = function (a) {
 	return {ctor: 'List', _0: a};
 };
@@ -14010,13 +14148,31 @@ var _user$project$View$viewStatus = function (status) {
 						{
 							ctor: '::',
 							_0: _elm_lang$html$Html_Attributes$class('account'),
-							_1: {
-								ctor: '::',
-								_0: _elm_community$html_extra$Html_Attributes_Extra$innerHtml(status.account.username),
-								_1: {ctor: '[]'}
-							}
+							_1: {ctor: '[]'}
 						},
-						{ctor: '[]'}),
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$a,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$href(
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											'#user:',
+											A2(
+												_elm_lang$core$Basics_ops['++'],
+												status.account.acct,
+												A2(_elm_lang$core$Basics_ops['++'], ':', status.account.id)))),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(status.account.acct),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}),
 					_1: {ctor: '[]'}
 				}
 			}
@@ -14400,6 +14556,28 @@ var _user$project$View$view = function (model) {
 		});
 };
 
+var _user$project$Update$parseUserHash = function (hash) {
+	var hashRe = _elm_lang$core$Regex$regex('^#user:([^@]+)@([^:]+):(\\d+)$');
+	var matches = A3(_elm_lang$core$Regex$find, _elm_lang$core$Regex$All, hashRe, hash);
+	var _p0 = matches;
+	if ((_p0.ctor === '::') && (_p0._1.ctor === '[]')) {
+		var _p1 = _p0._0.submatches;
+		if (((((((_p1.ctor === '::') && (_p1._0.ctor === 'Just')) && (_p1._1.ctor === '::')) && (_p1._1._0.ctor === 'Just')) && (_p1._1._1.ctor === '::')) && (_p1._1._1._0.ctor === 'Just')) && (_p1._1._1._1.ctor === '[]')) {
+			return A2(_user$project$Types$User, _p1._1._0._0, _p1._1._1._0._0);
+		} else {
+			return _user$project$Types$Home;
+		}
+	} else {
+		return _user$project$Types$Home;
+	}
+};
+var _user$project$Update$timeLineType = F2(
+	function (url, model) {
+		return _elm_lang$core$Native_Utils.eq(url.hash, '#public') ? _user$project$Types$Public : (_elm_lang$core$Native_Utils.eq(url.hash, '#me') ? A2(
+			_user$project$Types$User,
+			model.instanceUrl,
+			A2(_elm_lang$core$Maybe$withDefault, '', model.userId)) : (A2(_elm_lang$core$String$startsWith, '#user:', url.hash) ? _user$project$Update$parseUserHash(url.hash) : _user$project$Types$Home));
+	});
 var _user$project$Update$getUser = F2(
 	function (authToken, instanceUrl) {
 		return A2(
@@ -14424,35 +14602,50 @@ var _user$project$Update$getUser = F2(
 				}));
 	});
 var _user$project$Update$httpErrorMessage = function (error) {
-	var _p0 = error;
-	switch (_p0.ctor) {
+	var _p2 = error;
+	switch (_p2.ctor) {
 		case 'BadUrl':
-			return A2(_elm_lang$core$Basics_ops['++'], 'Bad URL: ', _p0._0);
+			return A2(_elm_lang$core$Basics_ops['++'], 'Bad URL: ', _p2._0);
 		case 'Timeout':
 			return 'Timeout';
 		case 'NetworkError':
 			return 'Network error';
 		case 'BadStatus':
-			var _p1 = _p0._0;
+			var _p3 = _p2._0;
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
-				_elm_lang$core$Basics$toString(_p1.status.code),
+				_elm_lang$core$Basics$toString(_p3.status.code),
 				A2(
 					_elm_lang$core$Basics_ops['++'],
 					' (',
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						_p1.status.message,
-						A2(_elm_lang$core$Basics_ops['++'], ') - ', _p1.body))));
+						_p3.status.message,
+						A2(_elm_lang$core$Basics_ops['++'], ') - ', _p3.body))));
 		default:
-			return A2(_elm_lang$core$Basics_ops['++'], 'Bad payload: ', _p0._0);
+			return A2(_elm_lang$core$Basics_ops['++'], 'Bad payload: ', _p2._0);
 	}
 };
 var _user$project$Update$getTimeline = F3(
 	function (instanceUrl, authToken, timelineType) {
+		var headers = function () {
+			var _p4 = authToken;
+			if (_p4.ctor === 'Nothing') {
+				return {ctor: '[]'};
+			} else {
+				return {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$http$Http$header,
+						'Authorization',
+						A2(_elm_lang$core$Basics_ops['++'], 'Bearer ', _p4._0)),
+					_1: {ctor: '[]'}
+				};
+			}
+		}();
 		var urlPath = function () {
-			var _p2 = timelineType;
-			switch (_p2.ctor) {
+			var _p5 = timelineType;
+			switch (_p5.ctor) {
 				case 'Home':
 					return '/api/v1/timelines/home';
 				case 'Public':
@@ -14461,33 +14654,29 @@ var _user$project$Update$getTimeline = F3(
 					return A2(
 						_elm_lang$core$Basics_ops['++'],
 						'/api/v1/timelines/tag/',
-						_elm_lang$http$Http$encodeUri(_p2._0));
+						_elm_lang$http$Http$encodeUri(_p5._0));
 				case 'List':
 					return A2(
 						_elm_lang$core$Basics_ops['++'],
 						'/api/v1/timelines/list/',
-						_elm_lang$http$Http$encodeUri(_p2._0));
+						_elm_lang$http$Http$encodeUri(_p5._0));
 				default:
 					return A2(
 						_elm_lang$core$Basics_ops['++'],
-						'/api/v1/accounts/',
+						_p5._0,
 						A2(
 							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$http$Http$encodeUri(_p2._0),
-							'/statuses'));
+							'/api/v1/accounts/',
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								_elm_lang$http$Http$encodeUri(_p5._1),
+								'/statuses')));
 			}
 		}();
 		var request = _elm_lang$http$Http$request(
 			{
 				method: 'GET',
-				headers: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$http$Http$header,
-						'Authorization',
-						A2(_elm_lang$core$Basics_ops['++'], 'Bearer ', authToken)),
-					_1: {ctor: '[]'}
-				},
+				headers: headers,
 				url: A2(
 					_elm_lang$core$Basics_ops['++'],
 					instanceUrl,
@@ -14501,14 +14690,14 @@ var _user$project$Update$getTimeline = F3(
 	});
 var _user$project$Update$update = F2(
 	function (msg, model) {
-		var _p3 = msg;
-		switch (_p3.ctor) {
+		var _p6 = msg;
+		switch (_p6.ctor) {
 			case 'Username':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{username: _p3._0}),
+						{username: _p6._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'Password':
@@ -14516,7 +14705,7 @@ var _user$project$Update$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{password: _p3._0}),
+						{password: _p6._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'InstanceUrl':
@@ -14524,7 +14713,7 @@ var _user$project$Update$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{instanceUrl: _p3._0}),
+						{instanceUrl: _p6._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'AuthSubmit':
@@ -14534,22 +14723,22 @@ var _user$project$Update$update = F2(
 					_1: _user$project$Auth$authenticate(model)
 				};
 			case 'AuthReturn':
-				if (_p3._0.ctor === 'Ok') {
-					var _p4 = _p3._0._0;
+				if (_p6._0.ctor === 'Ok') {
+					var _p7 = _p6._0._0;
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								authToken: _elm_lang$core$Maybe$Just(_p4.token),
+								authToken: _elm_lang$core$Maybe$Just(_p7.token),
 								message: _elm_lang$core$Maybe$Nothing
 							}),
 						{
 							ctor: '::',
-							_0: _user$project$Auth$storeAuthToken(_p4.token),
+							_0: _user$project$Auth$storeAuthToken(_p7.token),
 							_1: {
 								ctor: '::',
-								_0: A2(_user$project$Update$getUser, _p4.token, model.instanceUrl),
+								_0: A2(_user$project$Update$getUser, _p7.token, model.instanceUrl),
 								_1: {ctor: '[]'}
 							}
 						});
@@ -14563,13 +14752,13 @@ var _user$project$Update$update = F2(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'auth error: ',
-										_user$project$Update$httpErrorMessage(_p3._0._0)))
+										_user$project$Update$httpErrorMessage(_p6._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 			case 'TimelineFetched':
-				if (_p3._0.ctor === 'Ok') {
+				if (_p6._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -14582,7 +14771,7 @@ var _user$project$Update$update = F2(
 											s.mediaAttachments,
 											{ctor: '[]'});
 									},
-									_p3._0._0)
+									_p6._0._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -14596,13 +14785,13 @@ var _user$project$Update$update = F2(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'timeline error: ',
-										_user$project$Update$httpErrorMessage(_p3._0._0)))
+										_user$project$Update$httpErrorMessage(_p6._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 			case 'UserFetched':
-				if (_p3._0.ctor === 'Err') {
+				if (_p6._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -14612,25 +14801,21 @@ var _user$project$Update$update = F2(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'account fetch error: ',
-										_user$project$Update$httpErrorMessage(_p3._0._0)))
+										_user$project$Update$httpErrorMessage(_p6._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var _p5 = _p3._0._0;
+					var _p8 = _p6._0._0;
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								username: _p5.username,
-								userId: _elm_lang$core$Maybe$Just(_p5.id)
+								username: _p8.acct,
+								userId: _elm_lang$core$Maybe$Just(_p8.id)
 							}),
-						_1: A3(
-							_user$project$Update$getTimeline,
-							model.instanceUrl,
-							A2(_elm_lang$core$Maybe$withDefault, '', model.authToken),
-							model.timelineType)
+						_1: A3(_user$project$Update$getTimeline, model.instanceUrl, model.authToken, model.timelineType)
 					};
 				}
 			case 'CloseMessage':
@@ -14642,22 +14827,24 @@ var _user$project$Update$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'AuthTokenRetrieved':
-				var _p7 = _p3._0._1;
-				var _p6 = _p7;
-				if (_p6.ctor === 'Nothing') {
+				var _p10 = _p6._0._1;
+				var _p9 = _p10;
+				if (_p9.ctor === 'Nothing') {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				} else {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{authToken: _p7, password: ''}),
-						_1: A2(_user$project$Update$getUser, _p6._0, model.instanceUrl)
+							{authToken: _p10, password: ''}),
+						_1: A2(_user$project$Update$getUser, _p9._0, model.instanceUrl)
 					};
 				}
 			case 'UrlHasChanged':
-				var _p9 = _p3._0;
-				var timeline = _elm_lang$core$Native_Utils.eq(_p9.hash, '#home') ? _user$project$Types$Home : (_elm_lang$core$Native_Utils.eq(_p9.hash, '#public') ? _user$project$Types$Public : (_elm_lang$core$Native_Utils.eq(_p9.hash, '#me') ? _user$project$Types$User(
+				var _p12 = _p6._0;
+				var timeline = _elm_lang$core$Native_Utils.eq(_p12.hash, '#home') ? _user$project$Types$Home : (_elm_lang$core$Native_Utils.eq(_p12.hash, '#public') ? _user$project$Types$Public : (_elm_lang$core$Native_Utils.eq(_p12.hash, '#me') ? A2(
+					_user$project$Types$User,
+					model.instanceUrl,
 					A2(_elm_lang$core$Maybe$withDefault, '', model.userId)) : _user$project$Types$Home));
 				return {
 					ctor: '_Tuple2',
@@ -14665,9 +14852,9 @@ var _user$project$Update$update = F2(
 						model,
 						{timelineType: timeline}),
 					_1: function () {
-						var _p8 = model.authToken;
-						if (_p8.ctor === 'Just') {
-							return A3(_user$project$Update$getTimeline, model.instanceUrl, _p8._0, timeline);
+						var _p11 = model.authToken;
+						if (_p11.ctor === 'Just') {
+							return A3(_user$project$Update$getTimeline, model.instanceUrl, model.authToken, timeline);
 						} else {
 							return _elm_lang$core$Platform_Cmd$none;
 						}
@@ -14705,7 +14892,7 @@ var _user$project$Main$main = A2(
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Types.Msg":{"args":[],"tags":{"UserFetched":["Result.Result Http.Error Types.Account"],"Logout":[],"InstanceUrl":["String"],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"CloseMessage":[],"TimelineFetched":["Result.Result Http.Error (List Types.Status)"],"Username":["String"],"AuthTokenRetrieved":["( String, Maybe.Maybe String )"],"AuthSubmit":[],"Password":["String"],"UrlHasChanged":["Navigation.Location"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Unknown":[],"Video":[],"Gifv":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}}},"aliases":{"Types.Attachment":{"args":[],"type":"{ id : String , type_ : Types.AttachmentType , url : String , previewUrl : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.Status":{"args":[],"type":"{ id : String , url : Maybe.Maybe String , account : Types.Account , content : Maybe.Maybe String , mediaAttachments : List Types.Attachment }"},"Types.Account":{"args":[],"type":"{ id : String, username : String, displayName : String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Types.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Types.Msg":{"args":[],"tags":{"UserFetched":["Result.Result Http.Error Types.Account"],"Logout":[],"InstanceUrl":["String"],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"CloseMessage":[],"TimelineFetched":["Result.Result Http.Error (List Types.Status)"],"Username":["String"],"AuthTokenRetrieved":["( String, Maybe.Maybe String )"],"AuthSubmit":[],"Password":["String"],"UrlHasChanged":["Navigation.Location"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Unknown":[],"Video":[],"Gifv":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}}},"aliases":{"Types.Attachment":{"args":[],"type":"{ id : String , type_ : Types.AttachmentType , url : String , previewUrl : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.Status":{"args":[],"type":"{ id : String , url : Maybe.Maybe String , account : Types.Account , content : Maybe.Maybe String , mediaAttachments : List Types.Attachment }"},"Types.Account":{"args":[],"type":"{ id : String, acct : String, displayName : String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Types.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])
