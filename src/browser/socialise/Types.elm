@@ -76,7 +76,7 @@ type TimelineType
     | Public
     | Hashtag String
     | List String -- List <id>
-    | User String String -- User <server of the user> <user id>
+    | User String -- User <user id>
 
 
 

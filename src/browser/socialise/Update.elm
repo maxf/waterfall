@@ -8,6 +8,7 @@ import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
 import Types exposing (..)
 import Regex
 
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -58,25 +59,18 @@ update msg model =
 
                 Just tokenValue ->
                     ( { model | authToken = token, password = "" }
-                    ,   getUser tokenValue model.instanceUrl
+                    , getUser tokenValue model.instanceUrl
                     )
 
         UrlHasChanged location ->
             let
-                timeline =
-                    if location.hash == "#home" then
-                        Home
-                    else if location.hash == "#public" then
-                        Public
-                    else if location.hash == "#me" then
-                        User model.instanceUrl (model.userId |> withDefault "")
-                    else
-                        Home
+                timelineType =
+                    getTimelineType location model
             in
-                ( { model | timelineType = timeline }
+                ( { model | timelineType = timelineType }
                 , case model.authToken of
                     Just token ->
-                        getTimeline model.instanceUrl model.authToken timeline
+                        getTimeline model.instanceUrl model.authToken timelineType
 
                     Nothing ->
                         Cmd.none
@@ -107,8 +101,8 @@ getTimeline instanceUrl authToken timelineType =
                 List id ->
                     "/api/v1/timelines/list/" ++ Http.encodeUri id
 
-                User server id ->
-                    server ++ "/api/v1/accounts/" ++ Http.encodeUri id ++ "/statuses"
+                User id ->
+                    "/api/v1/accounts/" ++ Http.encodeUri id ++ "/statuses"
 
         headers =
             case authToken of
@@ -171,29 +165,13 @@ getUser authToken instanceUrl =
         )
 
 
-timeLineType : Location -> Model -> TimelineType
-timeLineType url model =
+getTimelineType : Location -> Model -> TimelineType
+getTimelineType url model =
     if url.hash == "#public" then
         Public
     else if url.hash == "#me" then
-        User model.instanceUrl (model.userId |> withDefault "")
+        User (model.userId |> withDefault "")
     else if String.startsWith "#user:" url.hash then
-        parseUserHash url.hash
+        User (String.dropLeft 6 url.hash)
     else
         Home
-
-parseUserHash : String -> TimelineType
-parseUserHash hash =
-    let
-        hashRe = Regex.regex "^#user:([^@]+)@([^:]+):(\\d+)$"
-        matches = Regex.find Regex.All hashRe hash
-    in
-        case matches of
-            [ match ] ->
-                case match.submatches of
-                    [ Just matchUsername, Just matchServer, Just matchId ] ->
-                        User matchServer matchId
-                    _ ->
-                        Home
-            _ ->
-                Home

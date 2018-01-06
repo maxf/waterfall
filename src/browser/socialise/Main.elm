@@ -20,10 +20,15 @@ main =
 
 
 init : Location -> ( Model, Cmd msg )
-init location =
+init url =
     let
         timeline =
-            if location.hash == "#public" then Public else Home
+            if url.hash == "#public" then
+                Public
+            else if String.startsWith "#user:" url.hash then
+                User (String.dropLeft 6 url.hash)
+            else
+                Home
     in
         ( { initialModel | timelineType = timeline }, checkAuthToken )
 
