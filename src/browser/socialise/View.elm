@@ -43,6 +43,8 @@ viewSidebar =
             , li [] [ a [ href "#me" ] [ text "My photos" ] ]
             ]
         , span [ onClick Logout ] [ text "Log out" ]
+        , br [] []
+        , a [ href "/organise" ] [ text "Manage your pictures" ]
         ]
 
 
