@@ -132,11 +132,16 @@ const rotate = async (req, res) => {
   const unmarkedPath = decodeURIComponent(req.query.photo).replace(/_\d+$/, '')
   const fullImagePath = photoFullPath(unmarkedPath)
   const jpegtranArgs = ['-copy', 'all', '-rotate', angle, '-outfile', fullImagePath, fullImagePath]
-  execFile(jpegtran, jpegtranArgs, function (err) {
-    if (err) {
-      console.log('rotate error', err)
-      res.status(400).send(JSON.stringify({ error: err }))
+  execFile(jpegtran, jpegtranArgs, function (err, stdout, stderr) {
+    // don't return an error for status code 2, as
+    // jpegtran uses it for warnings
+    if (err && err.code !== 2) {
+      console.log('jpegtran error', err)
+      res.status(500).send(JSON.stringify({ error: err }))
     } else {
+      if (err.code === 2) {
+        console.log('jpegtran produced a warning:', err)
+      }
       deleteThumbs(unmarkedPath)
       res.send(`"${unmarkedPath}_${Date.now()}"`)
     }
