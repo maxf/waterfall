@@ -139,7 +139,7 @@ const rotate = async (req, res) => {
       console.log('jpegtran error', err)
       res.status(500).send(JSON.stringify({ error: err }))
     } else {
-      if (err.code === 2) {
+      if (err && err.code === 2) {
         console.log('jpegtran produced a warning:', err)
       }
       deleteThumbs(unmarkedPath)
