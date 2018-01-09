@@ -68,15 +68,16 @@ type alias Attachment =
 
 
 
--- type of Timeline displayed on screen
+-- type of UI displayed on screen
 
 
-type TimelineType
+type Screen
     = Home
-    | Public
-    | Hashtag String
-    | List String -- List <id>
+    | PublicTimeline
+--    | Hashtag String
+--    | List String -- List <id>
     | User String -- User <user id>
+    | Share String -- Share <path of photo to share>
 
 
 

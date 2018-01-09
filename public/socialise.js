@@ -8796,146 +8796,9 @@ var _elm_lang$core$Time$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Time'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Time$init, onEffects: _elm_lang$core$Time$onEffects, onSelfMsg: _elm_lang$core$Time$onSelfMsg, tag: 'sub', subMap: _elm_lang$core$Time$subMap};
 
-//import Maybe, Native.List //
-
-var _elm_lang$core$Native_Regex = function() {
-
-function escape(str)
-{
-	return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-}
-function caseInsensitive(re)
-{
-	return new RegExp(re.source, 'gi');
-}
-function regex(raw)
-{
-	return new RegExp(raw, 'g');
-}
-
-function contains(re, string)
-{
-	return string.match(re) !== null;
-}
-
-function find(n, re, str)
-{
-	n = n.ctor === 'All' ? Infinity : n._0;
-	var out = [];
-	var number = 0;
-	var string = str;
-	var lastIndex = re.lastIndex;
-	var prevLastIndex = -1;
-	var result;
-	while (number++ < n && (result = re.exec(string)))
-	{
-		if (prevLastIndex === re.lastIndex) break;
-		var i = result.length - 1;
-		var subs = new Array(i);
-		while (i > 0)
-		{
-			var submatch = result[i];
-			subs[--i] = submatch === undefined
-				? _elm_lang$core$Maybe$Nothing
-				: _elm_lang$core$Maybe$Just(submatch);
-		}
-		out.push({
-			match: result[0],
-			submatches: _elm_lang$core$Native_List.fromArray(subs),
-			index: result.index,
-			number: number
-		});
-		prevLastIndex = re.lastIndex;
-	}
-	re.lastIndex = lastIndex;
-	return _elm_lang$core$Native_List.fromArray(out);
-}
-
-function replace(n, re, replacer, string)
-{
-	n = n.ctor === 'All' ? Infinity : n._0;
-	var count = 0;
-	function jsReplacer(match)
-	{
-		if (count++ >= n)
-		{
-			return match;
-		}
-		var i = arguments.length - 3;
-		var submatches = new Array(i);
-		while (i > 0)
-		{
-			var submatch = arguments[i];
-			submatches[--i] = submatch === undefined
-				? _elm_lang$core$Maybe$Nothing
-				: _elm_lang$core$Maybe$Just(submatch);
-		}
-		return replacer({
-			match: match,
-			submatches: _elm_lang$core$Native_List.fromArray(submatches),
-			index: arguments[arguments.length - 2],
-			number: count
-		});
-	}
-	return string.replace(re, jsReplacer);
-}
-
-function split(n, re, str)
-{
-	n = n.ctor === 'All' ? Infinity : n._0;
-	if (n === Infinity)
-	{
-		return _elm_lang$core$Native_List.fromArray(str.split(re));
-	}
-	var string = str;
-	var result;
-	var out = [];
-	var start = re.lastIndex;
-	var restoreLastIndex = re.lastIndex;
-	while (n--)
-	{
-		if (!(result = re.exec(string))) break;
-		out.push(string.slice(start, result.index));
-		start = re.lastIndex;
-	}
-	out.push(string.slice(start));
-	re.lastIndex = restoreLastIndex;
-	return _elm_lang$core$Native_List.fromArray(out);
-}
-
-return {
-	regex: regex,
-	caseInsensitive: caseInsensitive,
-	escape: escape,
-
-	contains: F2(contains),
-	find: F3(find),
-	replace: F4(replace),
-	split: F3(split)
-};
-
-}();
-
 var _elm_lang$core$Process$kill = _elm_lang$core$Native_Scheduler.kill;
 var _elm_lang$core$Process$sleep = _elm_lang$core$Native_Scheduler.sleep;
 var _elm_lang$core$Process$spawn = _elm_lang$core$Native_Scheduler.spawn;
-
-var _elm_lang$core$Regex$split = _elm_lang$core$Native_Regex.split;
-var _elm_lang$core$Regex$replace = _elm_lang$core$Native_Regex.replace;
-var _elm_lang$core$Regex$find = _elm_lang$core$Native_Regex.find;
-var _elm_lang$core$Regex$contains = _elm_lang$core$Native_Regex.contains;
-var _elm_lang$core$Regex$caseInsensitive = _elm_lang$core$Native_Regex.caseInsensitive;
-var _elm_lang$core$Regex$regex = _elm_lang$core$Native_Regex.regex;
-var _elm_lang$core$Regex$escape = _elm_lang$core$Native_Regex.escape;
-var _elm_lang$core$Regex$Match = F4(
-	function (a, b, c, d) {
-		return {match: a, submatches: b, index: c, number: d};
-	});
-var _elm_lang$core$Regex$Regex = {ctor: 'Regex'};
-var _elm_lang$core$Regex$AtMost = function (a) {
-	return {ctor: 'AtMost', _0: a};
-};
-var _elm_lang$core$Regex$All = {ctor: 'All'};
 
 var _elm_lang$dom$Native_Dom = function() {
 
@@ -10041,16 +9904,13 @@ var _user$project$Types$statusDecoder = A3(
 					_elm_lang$core$Json_Decode$string,
 					_elm_lang$core$Json_Decode$succeed(_user$project$Types$Status))))));
 var _user$project$Types$timelineDecoder = _elm_lang$core$Json_Decode$list(_user$project$Types$statusDecoder);
+var _user$project$Types$Share = function (a) {
+	return {ctor: 'Share', _0: a};
+};
 var _user$project$Types$User = function (a) {
 	return {ctor: 'User', _0: a};
 };
-var _user$project$Types$List = function (a) {
-	return {ctor: 'List', _0: a};
-};
-var _user$project$Types$Hashtag = function (a) {
-	return {ctor: 'Hashtag', _0: a};
-};
-var _user$project$Types$Public = {ctor: 'Public'};
+var _user$project$Types$PublicTimeline = {ctor: 'PublicTimeline'};
 var _user$project$Types$Home = {ctor: 'Home'};
 
 var _user$project$Model$Model = function (a) {
@@ -10063,7 +9923,7 @@ var _user$project$Model$Model = function (a) {
 							return function (h) {
 								return function (i) {
 									return function (j) {
-										return {instanceUrl: a, clientId: b, authToken: c, username: d, userId: e, password: f, message: g, timeline: h, timelineType: i, attachmentShown: j};
+										return {instanceUrl: a, clientId: b, authToken: c, username: d, userId: e, password: f, message: g, timeline: h, screenShown: i, attachmentShown: j};
 									};
 								};
 							};
@@ -10113,9 +9973,34 @@ var _user$project$Auth$storeAuthToken = function (token) {
 };
 var _user$project$Auth$checkAuthToken = _user$project$Ports$localStorageGetItem('authToken');
 
+var _user$project$View$viewShare = function (model) {
+	var _p0 = model.screenShown;
+	if (_p0.ctor === 'Share') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$h1,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('SHARE!'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			});
+	} else {
+		return A2(
+			_elm_lang$html$Html$span,
+			{ctor: '[]'},
+			{ctor: '[]'});
+	}
+};
 var _user$project$View$viewAttachment = function (attachment) {
-	var _p0 = attachment.type_;
-	if (_p0.ctor === 'Unknown') {
+	var _p1 = attachment.type_;
+	if (_p1.ctor === 'Unknown') {
 		return A2(
 			_elm_lang$html$Html$span,
 			{ctor: '[]'},
@@ -10143,8 +10028,8 @@ var _user$project$View$viewAttachment = function (attachment) {
 	}
 };
 var _user$project$View$viewStatusContent = function (content) {
-	var _p1 = content;
-	if (_p1.ctor === 'Nothing') {
+	var _p2 = content;
+	if (_p2.ctor === 'Nothing') {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
@@ -10157,7 +10042,7 @@ var _user$project$View$viewStatusContent = function (content) {
 				_0: _elm_lang$html$Html_Attributes$class('content'),
 				_1: {
 					ctor: '::',
-					_0: _elm_community$html_extra$Html_Attributes_Extra$innerHtml(_p1._0),
+					_0: _elm_community$html_extra$Html_Attributes_Extra$innerHtml(_p2._0),
 					_1: {ctor: '[]'}
 				}
 			},
@@ -10394,11 +10279,41 @@ var _user$project$View$viewLogin = function (model) {
 		});
 };
 var _user$project$View$viewMain = function (model) {
-	var _p2 = model.authToken;
-	if (_p2.ctor === 'Nothing') {
-		return _user$project$View$viewLogin(model);
+	var _p3 = model.authToken;
+	if (_p3.ctor === 'Nothing') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _user$project$View$viewLogin(model),
+				_1: {ctor: '[]'}
+			});
 	} else {
-		return _user$project$View$viewTimeline(model.timeline);
+		var _p4 = model.screenShown;
+		if (_p4.ctor === 'Share') {
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _user$project$View$viewTimeline(model.timeline),
+					_1: {
+						ctor: '::',
+						_0: _user$project$View$viewShare(model),
+						_1: {ctor: '[]'}
+					}
+				});
+		} else {
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _user$project$View$viewTimeline(model.timeline),
+					_1: {ctor: '[]'}
+				});
+		}
 	}
 };
 var _user$project$View$viewSidebar = A2(
@@ -10543,8 +10458,8 @@ var _user$project$View$viewSidebar = A2(
 	});
 var _user$project$View$view = function (model) {
 	var message = function () {
-		var _p3 = model.message;
-		if (_p3.ctor === 'Nothing') {
+		var _p5 = model.message;
+		if (_p5.ctor === 'Nothing') {
 			return A2(
 				_elm_lang$html$Html$div,
 				{ctor: '[]'},
@@ -10563,7 +10478,7 @@ var _user$project$View$view = function (model) {
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(_p3._0),
+					_0: _elm_lang$html$Html$text(_p5._0),
 					_1: {ctor: '[]'}
 				});
 		}
@@ -10612,9 +10527,9 @@ var _user$project$View$view = function (model) {
 		});
 };
 
-var _user$project$Update$getTimelineType = F2(
+var _user$project$Update$getScreenType = F2(
 	function (url, model) {
-		return _elm_lang$core$Native_Utils.eq(url.hash, '#public') ? _user$project$Types$Public : (_elm_lang$core$Native_Utils.eq(url.hash, '#me') ? _user$project$Types$User(
+		return _elm_lang$core$Native_Utils.eq(url.hash, '#public') ? _user$project$Types$PublicTimeline : (_elm_lang$core$Native_Utils.eq(url.hash, '#me') ? _user$project$Types$User(
 			A2(_elm_lang$core$Maybe$withDefault, '', model.userId)) : (A2(_elm_lang$core$String$startsWith, '#user:', url.hash) ? _user$project$Types$User(
 			A2(_elm_lang$core$String$dropLeft, 6, url.hash)) : _user$project$Types$Home));
 	});
@@ -10667,7 +10582,7 @@ var _user$project$Update$httpErrorMessage = function (error) {
 	}
 };
 var _user$project$Update$getTimeline = F3(
-	function (instanceUrl, authToken, timelineType) {
+	function (instanceUrl, authToken, screenType) {
 		var headers = function () {
 			var _p2 = authToken;
 			if (_p2.ctor === 'Nothing') {
@@ -10684,23 +10599,11 @@ var _user$project$Update$getTimeline = F3(
 			}
 		}();
 		var urlPath = function () {
-			var _p3 = timelineType;
+			var _p3 = screenType;
 			switch (_p3.ctor) {
-				case 'Home':
-					return '/api/v1/timelines/home';
-				case 'Public':
+				case 'PublicTimeline':
 					return '/api/v1/timelines/public';
-				case 'Hashtag':
-					return A2(
-						_elm_lang$core$Basics_ops['++'],
-						'/api/v1/timelines/tag/',
-						_elm_lang$http$Http$encodeUri(_p3._0));
-				case 'List':
-					return A2(
-						_elm_lang$core$Basics_ops['++'],
-						'/api/v1/timelines/list/',
-						_elm_lang$http$Http$encodeUri(_p3._0));
-				default:
+				case 'User':
 					return A2(
 						_elm_lang$core$Basics_ops['++'],
 						'/api/v1/accounts/',
@@ -10708,6 +10611,8 @@ var _user$project$Update$getTimeline = F3(
 							_elm_lang$core$Basics_ops['++'],
 							_elm_lang$http$Http$encodeUri(_p3._0),
 							'/statuses'));
+				default:
+					return '/api/v1/timelines/home';
 			}
 		}();
 		var request = _elm_lang$http$Http$request(
@@ -10852,7 +10757,7 @@ var _user$project$Update$update = F2(
 								username: _p6.acct,
 								userId: _elm_lang$core$Maybe$Just(_p6.id)
 							}),
-						_1: A3(_user$project$Update$getTimeline, model.instanceUrl, model.authToken, model.timelineType)
+						_1: A3(_user$project$Update$getTimeline, model.instanceUrl, model.authToken, model.screenShown)
 					};
 				}
 			case 'CloseMessage':
@@ -10878,16 +10783,16 @@ var _user$project$Update$update = F2(
 					};
 				}
 			case 'UrlHasChanged':
-				var timelineType = A2(_user$project$Update$getTimelineType, _p4._0, model);
+				var screenType = A2(_user$project$Update$getScreenType, _p4._0, model);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{timelineType: timelineType}),
+						{screenShown: screenType}),
 					_1: function () {
 						var _p9 = model.authToken;
 						if (_p9.ctor === 'Just') {
-							return A3(_user$project$Update$getTimeline, model.instanceUrl, model.authToken, timelineType);
+							return A3(_user$project$Update$getTimeline, model.instanceUrl, model.authToken, screenType);
 						} else {
 							return _elm_lang$core$Platform_Cmd$none;
 						}
@@ -10908,13 +10813,14 @@ var _user$project$Main$subscriptions = function (_p0) {
 	return _user$project$Ports$localStorageRetrievedItem(_user$project$Types$AuthTokenRetrieved);
 };
 var _user$project$Main$init = function (url) {
-	var timeline = _elm_lang$core$Native_Utils.eq(url.hash, '#public') ? _user$project$Types$Public : (A2(_elm_lang$core$String$startsWith, '#user:', url.hash) ? _user$project$Types$User(
-		A2(_elm_lang$core$String$dropLeft, 6, url.hash)) : _user$project$Types$Home);
+	var whatToShow = _elm_lang$core$Native_Utils.eq(url.hash, '#public') ? _user$project$Types$PublicTimeline : (A2(_elm_lang$core$String$startsWith, '#user:', url.hash) ? _user$project$Types$User(
+		A2(_elm_lang$core$String$dropLeft, 6, url.hash)) : (A2(_elm_lang$core$String$startsWith, '#share:', url.hash) ? _user$project$Types$Share(
+		A2(_elm_lang$core$String$dropLeft, 6, url.hash)) : _user$project$Types$Home));
 	return {
 		ctor: '_Tuple2',
 		_0: _elm_lang$core$Native_Utils.update(
 			_user$project$Model$initialModel,
-			{timelineType: timeline}),
+			{screenShown: whatToShow}),
 		_1: _user$project$Auth$checkAuthToken
 	};
 };

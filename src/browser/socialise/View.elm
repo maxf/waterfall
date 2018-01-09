@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Attributes.Extra exposing (..)
 import Html.Events exposing (onInput, onClick)
-import Types exposing (Msg(..), Status, Attachment, AttachmentType(..))
+import Types exposing (Msg(..), Status, Attachment, AttachmentType(..), Screen(..))
 import Model exposing (Model)
 
 
@@ -52,10 +52,15 @@ viewMain : Model -> Html Msg
 viewMain model =
     case model.authToken of
         Nothing ->
-            viewLogin model
+            div [] [ viewLogin model ]
 
         Just _ ->
-            viewTimeline model.timeline
+            case model.screenShown of
+                Share _ ->
+                    div [] [ viewTimeline model.timeline, viewShare model ]
+
+                _ ->
+                    div [] [ viewTimeline model.timeline ]
 
 
 viewLogin : Model -> Html Msg
@@ -138,3 +143,16 @@ viewAttachment attachment =
 
         _ ->
             a [ href attachment.url ] [ img [ src attachment.previewUrl ] [] ]
+
+
+viewShare : Model -> Html Msg
+viewShare model =
+    case model.screenShown of
+        Share path ->
+            div [] [ h1 [] [ text "SHARE!" ] ]
+            -- here we need a form for the title and a preview of the picture
+            -- and a Toot button : Onclick createToot (path, title)
+            -- tootCallback: model | screenShown = Home,
+
+        _ ->
+            span [] []

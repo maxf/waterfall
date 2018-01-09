@@ -98,6 +98,12 @@ viewPhoto model =
                         , button
                             [ onClick (UserAskedToRotateAPhoto 270 path) ]
                             [ text "↺" ]
+                        , button
+                            []
+                            [ a
+                                [ href "/socialise#share:" ++ encodeUri path ]
+                                [ text "share" ]
+                            ]
                         , nextPhotoButton
                         ]
                     , span [ onClick UserClickedPhoto, class "close" ] [ text "❌" ]

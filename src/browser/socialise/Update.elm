@@ -6,7 +6,6 @@ import Navigation exposing (Location)
 import Model exposing (Model)
 import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
 import Types exposing (..)
-import Regex
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -46,7 +45,7 @@ update msg model =
 
         UserFetched (Ok account) ->
             ( { model | username = account.acct, userId = Just account.id }
-            , getTimeline model.instanceUrl model.authToken model.timelineType
+            , getTimeline model.instanceUrl model.authToken model.screenShown
             )
 
         CloseMessage ->
@@ -64,13 +63,13 @@ update msg model =
 
         UrlHasChanged location ->
             let
-                timelineType =
-                    getTimelineType location model
+                screenType =
+                    getScreenType location model
             in
-                ( { model | timelineType = timelineType }
+                ( { model | screenShown = screenType }
                 , case model.authToken of
                     Just token ->
-                        getTimeline model.instanceUrl model.authToken timelineType
+                        getTimeline model.instanceUrl model.authToken screenType
 
                     Nothing ->
                         Cmd.none
@@ -84,25 +83,22 @@ update msg model =
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#timelines
 
 
-getTimeline : String -> Maybe String -> TimelineType -> Cmd Msg
-getTimeline instanceUrl authToken timelineType =
+getTimeline : String -> Maybe String -> Screen -> Cmd Msg
+getTimeline instanceUrl authToken screenType =
     let
         urlPath =
-            case timelineType of
-                Home ->
-                    "/api/v1/timelines/home"
-
-                Public ->
+            case screenType of
+                PublicTimeline ->
                     "/api/v1/timelines/public"
-
-                Hashtag tag ->
-                    "/api/v1/timelines/tag/" ++ Http.encodeUri tag
-
-                List id ->
-                    "/api/v1/timelines/list/" ++ Http.encodeUri id
 
                 User id ->
                     "/api/v1/accounts/" ++ Http.encodeUri id ++ "/statuses"
+
+                _ ->
+                    "/api/v1/timelines/home"
+
+
+
 
         headers =
             case authToken of
@@ -165,10 +161,10 @@ getUser authToken instanceUrl =
         )
 
 
-getTimelineType : Location -> Model -> TimelineType
-getTimelineType url model =
+getScreenType : Location -> Model -> Screen
+getScreenType url model =
     if url.hash == "#public" then
-        Public
+        PublicTimeline
     else if url.hash == "#me" then
         User (model.userId |> withDefault "")
     else if String.startsWith "#user:" url.hash then

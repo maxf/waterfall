@@ -14,7 +14,7 @@ type alias Model =
     , password : String
     , message : Maybe String
     , timeline : List Status
-    , timelineType : TimelineType
+    , screenShown : Screen
     , attachmentShown : Maybe Attachment
     }
 
