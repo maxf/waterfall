@@ -36,25 +36,33 @@ const excludeFiles = function(file, stats) {
   return isDotFile(file) || (stats.isFile() && !isPhoto(file))
 }
 
-const exifOriginalDate = path => {
-  const file = fs.readFileSync(path)
-  let result
-  try {
-    const exifData = exif.create(file).parse()
-    result = exifData.tags.CreateDate
-  } catch (e) {
-    console.log("failed to parse Exif data in ", path)
-    result = null
-  }
-  return parseInt(result, 10)
+const readFilePromise = function(path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, (err, data) => err ? reject(err) : resolve(data))
+  })
 }
 
-const makePhotoObject = fileName => {
+
+const getExifOriginalDate = async function(path) {
+  try {
+    const fileData = await readFilePromise(path)
+    const exifData = exif.create(fileData).parse()
+    return parseInt(exifData.tags.CreateDate, 10)
+ } catch (err) {
+    console.log("failed to parse Exif data in ", path)
+    return null
+  }
+}
+
+
+const makePhotoObject = async function(fileName) {
+  let date = await getExifOriginalDate(fileName)
   return {
-    date: exifOriginalDate(fileName),
+    date: date,
     path: path.relative(photosDir, fileName)
   }
 }
+
 
 const dirs = function(req, res) {
   const dirToScan = path.join(photosDir, decodeURIComponent(req.query.base || ""))
@@ -69,12 +77,18 @@ const dirs = function(req, res) {
   })
 }
 
-const scan = function(req, res) {
+const scan = async function(req, res) {
   const album = decodeURIComponent(req.query.dir)
   const dirToScan = path.join(photosDir, album)
-  recursive(dirToScan, [excludeFiles], function (err, files) {
+  recursive(dirToScan, [excludeFiles], async function (err, files) {
     const photoList = files.map(makePhotoObject)
-    res.send(JSON.stringify(photoList))
+
+    try {
+      const list = await Promise.all(photoList)
+      return res.send(JSON.stringify(list))
+    } catch (e) {
+      res.status(500).send('failed to scan photos: ' + e)
+    }
   })
 }
 
