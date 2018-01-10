@@ -1,9 +1,9 @@
 module ViewPhotos exposing (viewPhotos)
 
-import Html exposing (Html, div, h1, h2, li, img, text, button, span)
-import Html.Keyed exposing (ul)
-import Html.Attributes exposing (src, id, style, class)
-import Html.Events exposing (onClick)
+import Html exposing (..)
+import Html.Keyed exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Http exposing (encodeUri)
 import Model exposing (Model, photoShown, photos, albumShown, nextPhoto, prevPhoto)
 import Types exposing (Photo)
@@ -31,7 +31,7 @@ viewThumbnails model =
     div
         []
         [ h2 [] [ text ((List.length (model |> photos) |> toString) ++ " photos") ]
-        , ul
+        , Html.Keyed.ul
             [ class "contact-print" ]
             (List.map
                 viewThumbnail
@@ -101,7 +101,7 @@ viewPhoto model =
                         , button
                             []
                             [ a
-                                [ href "/socialise#share:" ++ encodeUri path ]
+                                [ href ("/socialise#share:" ++ encodeUri path) ]
                                 [ text "share" ]
                             ]
                         , nextPhotoButton
