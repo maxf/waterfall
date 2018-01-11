@@ -43,7 +43,7 @@ const readFilePromise = function(path) {
 }
 
 
-const exifOriginalDate = async function(path) {
+const getExifOriginalDate = async function(path) {
   try {
     const fileData = await readFilePromise(path)
     const exifData = exif.create(fileData).parse()
@@ -58,7 +58,7 @@ const exifOriginalDate = async function(path) {
 const makePhotoObject = async function(fileName) {
   let date = await getExifOriginalDate(fileName)
   return {
-    date: exifOriginalDate(fileName),
+    date: date,
     path: path.relative(photosDir, fileName)
   }
 }
@@ -84,10 +84,10 @@ const scan = async function(req, res) {
     const photoList = files.map(makePhotoObject)
 
     try {
-      list = await Promise.all(photoList)
+      const list = await Promise.all(photoList)
       return res.send(JSON.stringify(list))
     } catch (e) {
-      res.status(500).send('failed to scan photos')
+      res.status(500).send('failed to scan photos: ' + e)
     }
   })
 }
