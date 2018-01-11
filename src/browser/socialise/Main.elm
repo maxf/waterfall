@@ -28,7 +28,7 @@ init url =
             else if String.startsWith "#user:" url.hash then
                 User (String.dropLeft 6 url.hash)
             else if String.startsWith "#share:" url.hash then
-                Share (String.dropLeft 6 url.hash)
+                Share (String.dropLeft 7 url.hash)
             else
                 Home
     in

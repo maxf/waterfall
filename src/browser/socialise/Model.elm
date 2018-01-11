@@ -5,6 +5,7 @@ import Types exposing (..)
 
 -- Model
 
+
 type alias Model =
     { instanceUrl : String
     , clientId : String
@@ -15,7 +16,7 @@ type alias Model =
     , message : Maybe String
     , timeline : List Status
     , screenShown : Screen
-    , attachmentShown : Maybe Attachment
+    , shareText : String
     }
 
 
@@ -31,4 +32,4 @@ initialModel =
         Nothing
         []
         Home
-        Nothing
+        ""

@@ -27,6 +27,18 @@ update msg model =
             { model | authToken = Just response.token, message = Nothing }
                 ! [ storeAuthToken response.token, getUser response.token model.instanceUrl ]
 
+        ShareTextInput text ->
+            ( { model | shareText = text }, Cmd.none )
+
+        ShareImage ->
+            ( model, shareImage model )
+
+        ImageShared (Err error) ->
+            ( { model | message = Just ("share error: " ++ httpErrorMessage error) }, Cmd.none )
+
+        ImageShared (Ok responseText) ->
+            ( { model | message = Just responseText }, Cmd.none )
+
         AuthReturn (Err error) ->
             ( { model | message = Just ("auth error: " ++ httpErrorMessage error) }, Cmd.none )
 
@@ -45,7 +57,7 @@ update msg model =
 
         UserFetched (Ok account) ->
             ( { model | username = account.acct, userId = Just account.id }
-            , getTimeline model.instanceUrl model.authToken model.screenShown
+            , prepareScreenToDisplay model
             )
 
         CloseMessage ->
@@ -68,8 +80,8 @@ update msg model =
             in
                 ( { model | screenShown = screenType }
                 , case model.authToken of
-                    Just token ->
-                        getTimeline model.instanceUrl model.authToken screenType
+                    Just _ ->
+                        prepareScreenToDisplay model
 
                     Nothing ->
                         Cmd.none
@@ -77,6 +89,16 @@ update msg model =
 
         Logout ->
             ( { model | authToken = Nothing }, clearAuthToken )
+
+
+prepareScreenToDisplay : Model -> Cmd Msg
+prepareScreenToDisplay model =
+    case model.screenShown of
+        Share _ ->
+            Cmd.none
+
+        _ ->
+            getTimeline model.instanceUrl model.authToken model.screenShown
 
 
 
@@ -96,9 +118,6 @@ getTimeline instanceUrl authToken screenType =
 
                 _ ->
                     "/api/v1/timelines/home"
-
-
-
 
         headers =
             case authToken of
@@ -159,6 +178,39 @@ getUser authToken instanceUrl =
             , withCredentials = False
             }
         )
+
+
+shareImage : Model -> Cmd Msg
+shareImage model =
+    let
+        imagePath =
+            case model.screenShown of
+                Share path ->
+                    path
+
+                _ ->
+                    ""
+
+        body =
+            Http.multipartBody
+                [ Http.stringPart "apiurl" model.instanceUrl
+                , Http.stringPart "text" model.shareText
+                , Http.stringPart "token" (model.authToken |> withDefault "")
+                , Http.stringPart "path" imagePath
+                ]
+
+        request =
+            Http.request
+                { method = "POST"
+                , headers = []
+                , url = "/share"
+                , body = body
+                , expect = Http.expectString
+                , timeout = Nothing
+                , withCredentials = False
+                }
+    in
+        Http.send ImageShared request
 
 
 getScreenType : Location -> Model -> Screen

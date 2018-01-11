@@ -12,6 +12,9 @@ type Msg
     | InstanceUrl String
     | AuthSubmit
     | AuthReturn (Result Http.Error AuthResponse)
+    | ShareTextInput String
+    | ShareImage
+    | ImageShared (Result Http.Error String)
     | TimelineFetched (Result Http.Error (List Status))
     | UserFetched (Result Http.Error Account)
     | CloseMessage
@@ -74,8 +77,6 @@ type alias Attachment =
 type Screen
     = Home
     | PublicTimeline
---    | Hashtag String
---    | List String -- List <id>
     | User String -- User <user id>
     | Share String -- Share <path of photo to share>
 

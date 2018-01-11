@@ -202,3 +202,9 @@ a:link, a:visited {
   max-height: 100vh;
   padding: 1em;
 }
+
+.share {
+  background: #444b5d;
+  padding: 1em;
+  border-radius: 3px;
+}

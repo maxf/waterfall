@@ -57,7 +57,7 @@ viewMain model =
         Just _ ->
             case model.screenShown of
                 Share _ ->
-                    div [] [ viewTimeline model.timeline, viewShare model ]
+                    div [] [ viewShare model ]
 
                 _ ->
                     div [] [ viewTimeline model.timeline ]
@@ -149,10 +149,14 @@ viewShare : Model -> Html Msg
 viewShare model =
     case model.screenShown of
         Share path ->
-            div [] [ h1 [] [ text "SHARE!" ] ]
-            -- here we need a form for the title and a preview of the picture
-            -- and a Toot button : Onclick createToot (path, title)
-            -- tootCallback: model | screenShown = Home,
+            div [ class "share" ]
+                [ h1 [] [ text "Share photo" ]
+                , img [ src ("/thumb?photo=" ++ path) ] []
+                , br [] []
+                , input [ type_ "text", onInput ShareTextInput, placeholder "title" ] []
+                , br [] []
+                , button [ onClick ShareImage ] [ text "Share" ]
+                ]
 
         _ ->
             span [] []
