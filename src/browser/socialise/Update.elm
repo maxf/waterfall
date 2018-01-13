@@ -192,12 +192,17 @@ shareImage model =
                     ""
 
         body =
-            Http.multipartBody
-                [ Http.stringPart "apiurl" model.instanceUrl
-                , Http.stringPart "text" model.shareText
-                , Http.stringPart "token" (model.authToken |> withDefault "")
-                , Http.stringPart "path" imagePath
-                ]
+            Http.stringBody
+                "application/x-www-form-urlencoded"
+                ("apiurl="
+                    ++ Http.encodeUri model.instanceUrl
+                    ++ "&text="
+                    ++ Http.encodeUri model.shareText
+                    ++ "&token="
+                    ++ Http.encodeUri (model.authToken |> withDefault "")
+                    ++ "&path="
+                    ++ Http.encodeUri imagePath
+                )
 
         request =
             Http.request

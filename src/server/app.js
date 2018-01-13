@@ -25,6 +25,7 @@ const sharp = require('sharp')
 const execFile = require('child_process').execFile
 const mkdirp = require('mkdirp')
 const request = require('request')
+const bodyParser = require('body-parser');
 require('dotenv').config()
 
 const isDotFile = file =>
@@ -171,7 +172,7 @@ const rotate = async (req, res) => {
   }
 }
 
-const uploadMediaAttachment = function(apiUrl, path, token) {
+const uploadMediaAttachment = function(apiUrl, photoPath, token) {
   // https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#uploading-a-media-attachment
   const options = {
     url: apiUrl + '/api/v1/media',
@@ -179,7 +180,7 @@ const uploadMediaAttachment = function(apiUrl, path, token) {
       'Authorization': token
     },
     formData: {
-      file: fs.createReadStream(path.join(photosDir, path))
+      file: fs.createReadStream(path.join(photosDir, photoPath))
     }
   }
   return new Promise((resolve, reject) =>
@@ -217,16 +218,18 @@ const postStatus = function(apiUrl, text, token, attachment) {
 }
 
 const share = async function(req, res) {
-  const apiUrl = req.query.apiurl
-  const text = req.query.text
-  const token = req.query.token
-  const path = req.query.path
+  const apiUrl = req.body.apiurl
+  const text = req.body.text
+  const token = req.body.token
+  const photoPath = req.body.path
 
-  uploadMediaAttachment(apiUrl, path, token)
+  uploadMediaAttachment(apiUrl, photoPath, token)
     .then(attachment => postStatus(apiUrl, text, token, JSON.parse(attachment)))
 }
 
 app.use(express.static('public', { extensions: ['html'] }))
+app.use(bodyParser.urlencoded({extended: true}));
+
 app.get('/', (req, res) => res.redirect('/organise'))
 app.get('/api/dirs', dirs)
 app.get('/api/scan', scan)
