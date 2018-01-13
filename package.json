@@ -11,7 +11,7 @@
     "exif-parser": "^0.1.12",
     "express": "^4.16.2",
     "mkdirp": "^0.5.1",
-    "nodemon": "^1.12.5",
+    "nodemon": "^1.14.11",
     "recursive-readdir": "^2.2.1",
     "sharp": "^0.18.4"
   }
