@@ -38,29 +38,20 @@ const excludeFiles = function(file, stats) {
   return isDotFile(file) || (stats.isFile() && !isPhoto(file))
 }
 
-const readFilePromise = function(path) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(path, (err, data) => err ? reject(err) : resolve(data))
-  })
-}
-
-
-const getExifOriginalDate = async function(path) {
+const exifOriginalDate = function(path) {
+  const fileData = fs.readFileSync(path)
   try {
-    const fileData = await readFilePromise(path)
     const exifData = exif.create(fileData).parse()
     return parseInt(exifData.tags.CreateDate, 10)
- } catch (err) {
-    console.log("failed to parse Exif data in ", path)
+  } catch (err) {
+    console.log("failed to parse Exif data in ", path, err)
     return null
   }
 }
 
-
-const makePhotoObject = async function(fileName) {
-  let date = await getExifOriginalDate(fileName)
+const makePhotoObject = function(fileName) {
   return {
-    date: date,
+    date: exifOriginalDate(fileName),
     path: path.relative(photosDir, fileName)
   }
 }
@@ -79,18 +70,12 @@ const dirs = function(req, res) {
   })
 }
 
-const scan = async function(req, res) {
+const scan = function(req, res) {
   const album = decodeURIComponent(req.query.dir)
   const dirToScan = path.join(photosDir, album)
-  recursive(dirToScan, [excludeFiles], async function (err, files) {
+  recursive(dirToScan, [excludeFiles], function (err, files) {
     const photoList = files.map(makePhotoObject)
-
-    try {
-      const list = await Promise.all(photoList)
-      return res.send(JSON.stringify(list))
-    } catch (e) {
-      res.status(500).send('failed to scan photos: ' + e)
-    }
+    res.send(JSON.stringify(photoList))
   })
 }
 
@@ -151,7 +136,7 @@ const rotateArg = angle => {
   }
 }
 
-const rotate = async (req, res) => {
+const rotate = function(req, res) {
   const angleArg = rotateArg(req.query.angle, 10)
   if (angleArg) {
     const unmarkedPath = decodeURIComponent(req.query.photo).replace(/_\d+$/, '')
@@ -173,7 +158,7 @@ const rotate = async (req, res) => {
 }
 
 
-const share = async function(req, res) {
+const share = function(req, res) {
   const apiUrl = req.body.apiurl
   const text = req.body.text
   const token = req.body.token
