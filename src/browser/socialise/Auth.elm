@@ -32,6 +32,7 @@ authenticate model =
                 ++ model.clientId
                 ++ "&grant_type=password&username="
                 ++ encodeUri model.username
+                ++ "&scope=read+write+follow"
                 ++ "&password="
                 ++ encodeUri model.password
 

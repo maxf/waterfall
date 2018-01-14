@@ -195,13 +195,13 @@ shareImage model =
             Http.stringBody
                 "application/x-www-form-urlencoded"
                 ("apiurl="
-                    ++ Http.encodeUri model.instanceUrl
+                    ++ model.instanceUrl
                     ++ "&text="
-                    ++ Http.encodeUri model.shareText
+                    ++ model.shareText
                     ++ "&token="
-                    ++ Http.encodeUri (model.authToken |> withDefault "")
+                    ++ (model.authToken |> withDefault "")
                     ++ "&path="
-                    ++ Http.encodeUri imagePath
+                    ++ imagePath
                 )
 
         request =

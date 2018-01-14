@@ -24,7 +24,7 @@ initialModel : Model
 initialModel =
     Model
         "https://mastodon.me.uk"
-        "6f130a3305de5b3505618a2b6a05305e99ffea12bec5032eb576572319b5bda9"
+        "905d23a2af70cd9eb36fce45febf533a46e20398fcc94afb1900558abe1a012b"
         Nothing
         ""
         Nothing
