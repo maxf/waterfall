@@ -1,5 +1,5 @@
 apps:
-  - script   : app.js
+  - script   : src/server/app.js
     instances: 4
     exec_mode: cluster
     watch  : true
