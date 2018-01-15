@@ -1,9 +1,11 @@
 # elm-package generated files
-elm-stuff/
+src/browser/organise/elm-stuff/
+src/browser/socialise/elm-stuff/
 # elm-repl generated files
 repl-temp-*
 
-elm.js
+src/browser/organise/elm.js
+src/browser/socialise/elm.js
 metadata.csv
 node_modules
 .tern-port
