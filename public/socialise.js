@@ -14776,12 +14776,8 @@ var _user$project$Update$update = F2(
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								message: _elm_lang$core$Maybe$Just(_p6._0._0)
-							}),
-						_1: _elm_lang$core$Platform_Cmd$none
+						_0: model,
+						_1: _elm_lang$navigation$Navigation$modifyUrl('#home')
 					};
 				}
 			case 'AuthReturn':
@@ -14903,16 +14899,18 @@ var _user$project$Update$update = F2(
 					};
 				}
 			case 'UrlHasChanged':
-				var screenType = A2(_user$project$Update$getScreenType, _p6._0, model);
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						screenShown: A2(_user$project$Update$getScreenType, _p6._0, model)
+					});
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{screenShown: screenType}),
+					_0: newModel,
 					_1: function () {
 						var _p11 = model.authToken;
 						if (_p11.ctor === 'Just') {
-							return _user$project$Update$prepareScreenToDisplay(model);
+							return _user$project$Update$prepareScreenToDisplay(newModel);
 						} else {
 							return _elm_lang$core$Platform_Cmd$none;
 						}

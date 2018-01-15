@@ -2,7 +2,7 @@ module Update exposing (update)
 
 import Http
 import Maybe exposing (withDefault)
-import Navigation exposing (Location)
+import Navigation exposing (Location, modifyUrl)
 import Model exposing (Model)
 import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
 import Types exposing (..)
@@ -37,7 +37,7 @@ update msg model =
             ( { model | message = Just ("share error: " ++ httpErrorMessage error) }, Cmd.none )
 
         ImageShared (Ok responseText) ->
-            ( { model | message = Just responseText }, Cmd.none )
+            ( model, modifyUrl "#home" )
 
         AuthReturn (Err error) ->
             ( { model | message = Just ("auth error: " ++ httpErrorMessage error) }, Cmd.none )
@@ -75,13 +75,13 @@ update msg model =
 
         UrlHasChanged location ->
             let
-                screenType =
-                    getScreenType location model
+                newModel =
+                  { model | screenShown = getScreenType location model }
             in
-                ( { model | screenShown = screenType }
+                ( newModel
                 , case model.authToken of
                     Just _ ->
-                        prepareScreenToDisplay model
+                        prepareScreenToDisplay newModel
 
                     Nothing ->
                         Cmd.none

@@ -157,7 +157,6 @@ const rotate = function(req, res) {
   }
 }
 
-
 const share = function(req, res) {
   const apiUrl = req.body.apiurl
   const text = req.body.text
