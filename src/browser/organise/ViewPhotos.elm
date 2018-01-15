@@ -5,6 +5,11 @@ import Html.Keyed exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http exposing (encodeUri)
+import Color exposing (black, red)
+import Material.Icons.Navigation exposing (arrow_forward, arrow_back)
+import Material.Icons.Social exposing (share)
+import Material.Icons.Action exposing (delete_forever, highlight_off)
+import Material.Icons.Image exposing (rotate_left, rotate_right)
 import Model exposing (Model, photoShown, photos, albumShown, nextPhoto, prevPhoto)
 import Types exposing (Photo)
 import Update exposing (Msg(UserAskedToDeleteAPhoto, UserAskedToRotateAPhoto, UserClickedThumbnail, UserClickedPhoto))
@@ -71,18 +76,18 @@ viewPhoto model =
                 prevPhotoButton =
                     case model |> prevPhoto of
                         Nothing ->
-                            span [ class "disabled" ] [ text "🢀" ]
+                            span [ class "disabled" ] [ arrow_back black 40 ]
 
                         Just previous ->
-                            span [ onClick (UserClickedThumbnail previous) ] [ text "🢀" ]
+                            span [ onClick (UserClickedThumbnail previous) ] [ arrow_back black 40 ]
 
                 nextPhotoButton =
                     case model |> nextPhoto of
                         Nothing ->
-                            span [ class "disabled" ] [ text "🢂" ]
+                            span [ class "disabled" ] [ arrow_forward black 20 ]
 
                         Just next ->
-                            span [ onClick (UserClickedThumbnail next) ] [ text "🢂" ]
+                            span [ onClick (UserClickedThumbnail next) ] [ arrow_forward black 40 ]
             in
                 div [ class "lightbox" ]
                     [ div [ class "lightbox-inner", onClick UserClickedPhoto ]
@@ -91,20 +96,20 @@ viewPhoto model =
                         [ prevPhotoButton
                         , button
                             [ onClick (UserAskedToDeleteAPhoto path) ]
-                            [ text "🗑" ]
+                            [ delete_forever black 40 ]
                         , button
                             [ onClick (UserAskedToRotateAPhoto 90 path) ]
-                            [ text "↻" ]
+                            [ rotate_left black 40 ]
                         , button
                             [ onClick (UserAskedToRotateAPhoto 270 path) ]
-                            [ text "↺" ]
+                            [ rotate_right black 40 ]
                         , button
                             []
                             [ a
                                 [ href ("/socialise#share:" ++ encodeUri path) ]
-                                [ text "share" ]
+                                [ share black 40 ]
                             ]
                         , nextPhotoButton
                         ]
-                    , span [ onClick UserClickedPhoto, class "close" ] [ text "❌" ]
+                    , span [ onClick UserClickedPhoto, class "close" ] [ highlight_off red 60 ]
                     ]

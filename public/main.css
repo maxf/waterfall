@@ -125,14 +125,12 @@ h1 a {
   text-decoration: none;
   display: inline-block;
   color: #aaa;
-  background: black;
   padding: 0;
   cursor: pointer;
   width: 40px;
   margin-left: 40px;
-  border-radius: 40px;
-  border: 5px solid #aaa;
 }
+
 .lightbox .buttons {
   position: absolute;
   bottom: 0;
