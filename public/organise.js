@@ -18754,7 +18754,7 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 			var _p1 = _user$project$Model$nextPhoto(model);
 			if (_p1.ctor === 'Nothing') {
 				return A2(
-					_elm_lang$html$Html$span,
+					_elm_lang$html$Html$button,
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html_Attributes$class('disabled'),
@@ -18762,12 +18762,12 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 					},
 					{
 						ctor: '::',
-						_0: A2(_elm_community$material_icons$Material_Icons_Navigation$arrow_forward, _elm_lang$core$Color$black, 20),
+						_0: A2(_elm_community$material_icons$Material_Icons_Navigation$arrow_forward, _elm_lang$core$Color$black, 40),
 						_1: {ctor: '[]'}
 					});
 			} else {
 				return A2(
-					_elm_lang$html$Html$span,
+					_elm_lang$html$Html$button,
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html_Events$onClick(
@@ -18785,7 +18785,7 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 			var _p2 = _user$project$Model$prevPhoto(model);
 			if (_p2.ctor === 'Nothing') {
 				return A2(
-					_elm_lang$html$Html$span,
+					_elm_lang$html$Html$button,
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html_Attributes$class('disabled'),
@@ -18798,7 +18798,7 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 					});
 			} else {
 				return A2(
-					_elm_lang$html$Html$span,
+					_elm_lang$html$Html$button,
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html_Events$onClick(
@@ -18847,7 +18847,26 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 								_1: {ctor: '[]'}
 							},
 							{ctor: '[]'}),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$span,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onClick(_user$project$Update$UserClickedPhoto),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('close'),
+										_1: {ctor: '[]'}
+									}
+								},
+								{
+									ctor: '::',
+									_0: A2(_elm_community$material_icons$Material_Icons_Action$highlight_off, _elm_lang$core$Color$red, 30),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
 					}),
 				_1: {
 					ctor: '::',
@@ -18888,7 +18907,7 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 										},
 										{
 											ctor: '::',
-											_0: A2(_elm_community$material_icons$Material_Icons_Image$rotate_left, _elm_lang$core$Color$black, 40),
+											_0: A2(_elm_community$material_icons$Material_Icons_Image$rotate_right, _elm_lang$core$Color$black, 40),
 											_1: {ctor: '[]'}
 										}),
 									_1: {
@@ -18903,7 +18922,7 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 											},
 											{
 												ctor: '::',
-												_0: A2(_elm_community$material_icons$Material_Icons_Image$rotate_right, _elm_lang$core$Color$black, 40),
+												_0: A2(_elm_community$material_icons$Material_Icons_Image$rotate_left, _elm_lang$core$Color$black, 40),
 												_1: {ctor: '[]'}
 											}),
 										_1: {
@@ -18941,26 +18960,7 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 								}
 							}
 						}),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$span,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onClick(_user$project$Update$UserClickedPhoto),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('close'),
-									_1: {ctor: '[]'}
-								}
-							},
-							{
-								ctor: '::',
-								_0: A2(_elm_community$material_icons$Material_Icons_Action$highlight_off, _elm_lang$core$Color$red, 60),
-								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
-					}
+					_1: {ctor: '[]'}
 				}
 			});
 	}

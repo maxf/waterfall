@@ -76,22 +76,27 @@ viewPhoto model =
                 prevPhotoButton =
                     case model |> prevPhoto of
                         Nothing ->
-                            span [ class "disabled" ] [ arrow_back black 40 ]
+                            button [ class "disabled" ] [ arrow_back black 40 ]
 
                         Just previous ->
-                            span [ onClick (UserClickedThumbnail previous) ] [ arrow_back black 40 ]
+                            button [ onClick (UserClickedThumbnail previous) ] [ arrow_back black 40 ]
 
                 nextPhotoButton =
                     case model |> nextPhoto of
                         Nothing ->
-                            span [ class "disabled" ] [ arrow_forward black 20 ]
+                            button [ class "disabled" ] [ arrow_forward black 40 ]
 
                         Just next ->
-                            span [ onClick (UserClickedThumbnail next) ] [ arrow_forward black 40 ]
+                            button [ onClick (UserClickedThumbnail next) ] [ arrow_forward black 40 ]
             in
                 div [ class "lightbox" ]
-                    [ div [ class "lightbox-inner", onClick UserClickedPhoto ]
-                        [ img [ src ("/preview?photo=" ++ encodeUri path) ] [] ]
+                    [ div
+                        [ class "lightbox-inner", onClick UserClickedPhoto ]
+                        [ img [ src ("/preview?photo=" ++ encodeUri path) ] []
+                        , span
+                            [ onClick UserClickedPhoto, class "close" ]
+                            [ highlight_off red 30 ]
+                        ]
                     , div [ class "buttons" ]
                         [ prevPhotoButton
                         , button
@@ -99,10 +104,10 @@ viewPhoto model =
                             [ delete_forever black 40 ]
                         , button
                             [ onClick (UserAskedToRotateAPhoto 90 path) ]
-                            [ rotate_left black 40 ]
+                            [ rotate_right black 40 ]
                         , button
                             [ onClick (UserAskedToRotateAPhoto 270 path) ]
-                            [ rotate_right black 40 ]
+                            [ rotate_left black 40 ]
                         , button
                             []
                             [ a
@@ -111,5 +116,4 @@ viewPhoto model =
                             ]
                         , nextPhotoButton
                         ]
-                    , span [ onClick UserClickedPhoto, class "close" ] [ highlight_off red 60 ]
                     ]
