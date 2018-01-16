@@ -66,7 +66,7 @@ viewMain model =
 viewLogin : Model -> Html Msg
 viewLogin model =
     div []
-        [ div []
+        [ Html.form [ onSubmit AuthSubmit ]
             [ label [ for "instanceUrl" ] [ text "Instance URL" ]
             , input
                 [ type_ "text"
