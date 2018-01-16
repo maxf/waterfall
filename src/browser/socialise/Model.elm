@@ -1,4 +1,4 @@
-module Model exposing (Model, initialModel)
+module Model exposing (Model, initialModel, changeServerUrl)
 
 import Types exposing (..)
 
@@ -7,8 +7,7 @@ import Types exposing (..)
 
 
 type alias Model =
-    { instanceUrl : String
-    , clientId : String
+    { server : MastodonServer
     , authToken : Maybe String
     , username : String
     , userId : Maybe String
@@ -23,8 +22,7 @@ type alias Model =
 initialModel : Model
 initialModel =
     Model
-        "https://mastodon.me.uk"
-        "905d23a2af70cd9eb36fce45febf533a46e20398fcc94afb1900558abe1a012b"
+        defaultServer
         Nothing
         ""
         Nothing
@@ -33,3 +31,15 @@ initialModel =
         []
         Home
         ""
+
+
+changeServerUrl : Model -> String -> Model
+changeServerUrl model url =
+    let
+        server = lookupServer url
+    in
+        case server of
+            Nothing ->
+                { model | server = defaultServer }
+            Just s ->
+                { model | server = s }

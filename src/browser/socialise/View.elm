@@ -3,8 +3,9 @@ module View exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Attributes.Extra exposing (..)
-import Html.Events exposing (onInput, onClick)
-import Types exposing (Msg(..), Status, Attachment, AttachmentType(..), Screen(..))
+import Html.Events exposing (onInput, onClick, onSubmit, on)
+import Json.Decode exposing (string)
+import Types exposing (Msg(..), Status, Attachment, AttachmentType(..), Screen(..), servers)
 import Model exposing (Model)
 
 
@@ -43,7 +44,7 @@ viewSidebar =
             , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
             , li [] [ a [ href "#me" ] [ text "My photos" ] ]
             ]
-        , span [ onClick Logout ] [ text "Log out" ]
+        , span [ onClick Logout, class "logout" ] [ text "Log out" ]
         , br [] []
         ]
 
@@ -68,13 +69,9 @@ viewLogin model =
     div []
         [ Html.form [ onSubmit AuthSubmit ]
             [ label [ for "instanceUrl" ] [ text "Instance URL" ]
-            , input
-                [ type_ "text"
-                , id "instance"
-                , onInput InstanceUrl
-                , value model.instanceUrl
-                ]
-                []
+            , select
+                [ onInput ServerSelect ]
+                (List.map (\s -> option [ value s.url ] [ text s.url ]) servers)
             ]
         , div []
             [ label [ for "username" ] [ text "Username" ]

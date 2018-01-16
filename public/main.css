@@ -131,11 +131,16 @@ h1 a {
   margin-left: 40px;
 }
 
+.logout {
+  cursor: pointer;
+}
+
 .lightbox .buttons {
   position: absolute;
   bottom: 0;
   opacity: 0.5;
 }
+
 .lightbox .buttons button {
   padding: 0;
   border: 0;

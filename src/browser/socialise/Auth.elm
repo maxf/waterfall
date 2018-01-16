@@ -29,7 +29,7 @@ authenticate model =
         postParams : String
         postParams =
             "client_id="
-                ++ model.clientId
+                ++ model.server.clientId
                 ++ "&grant_type=password&username="
                 ++ encodeUri model.username
                 ++ "&scope=read+write+follow"
@@ -38,7 +38,7 @@ authenticate model =
 
         request =
             Http.post
-                (model.instanceUrl ++ "/oauth/token")
+                (model.server.url ++ "/oauth/token")
                 (Http.stringBody "application/x-www-form-urlencoded" postParams)
                 oauthResponseDecoder
     in
