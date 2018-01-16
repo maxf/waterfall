@@ -18,7 +18,7 @@ update msg model =
             ( { model | password = password }, Cmd.none )
 
         InstanceUrl url ->
-            ( { model | instanceUrl = url }, Cmd.none )
+            ( { model | server = lookupServer url }, Cmd.none )
 
         AuthSubmit ->
             ( model, authenticate model )

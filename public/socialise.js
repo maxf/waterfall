@@ -14155,8 +14155,12 @@ var _user$project$View$viewLogin = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$div,
-				{ctor: '[]'},
+				_elm_lang$html$Html$form,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onClick(_user$project$Types$AuthSubmit),
+					_1: {ctor: '[]'}
+				},
 				{
 					ctor: '::',
 					_0: A2(

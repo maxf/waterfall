@@ -3,7 +3,7 @@ module View exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Attributes.Extra exposing (..)
-import Html.Events exposing (onInput, onClick)
+import Html.Events exposing (onInput, onClick, onSubmit)
 import Types exposing (Msg(..), Status, Attachment, AttachmentType(..), Screen(..))
 import Model exposing (Model)
 
@@ -68,13 +68,13 @@ viewLogin model =
     div []
         [ Html.form [ onSubmit AuthSubmit ]
             [ label [ for "instanceUrl" ] [ text "Instance URL" ]
-            , input
-                [ type_ "text"
-                , id "instance"
-                , onInput InstanceUrl
-                , value model.instanceUrl
-                ]
-                []
+            -- , input
+            --     [ type_ "text"
+            --     , id "instance"
+            --     , onInput InstanceUrl
+            --     , value model.instanceUrl
+            --     ]
+            --     []
             ]
         , div []
             [ label [ for "username" ] [ text "Username" ]
