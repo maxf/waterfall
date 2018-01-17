@@ -3,7 +3,7 @@ module Update exposing (update)
 import Http
 import Maybe exposing (withDefault)
 import Navigation exposing (Location, modifyUrl)
-import Model exposing (Model)
+import Model exposing (Model, changeServerUrl)
 import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
 import Types exposing (..)
 
@@ -17,15 +17,15 @@ update msg model =
         Password password ->
             ( { model | password = password }, Cmd.none )
 
-        InstanceUrl url ->
-            ( { model | server = lookupServer url }, Cmd.none )
+        ServerSelect url ->
+            ( changeServerUrl model url, Cmd.none )
 
         AuthSubmit ->
             ( model, authenticate model )
 
         AuthReturn (Ok response) ->
             { model | authToken = Just response.token, message = Nothing }
-                ! [ storeAuthToken response.token, getUser response.token model.instanceUrl ]
+                ! [ storeAuthToken response.token, getUser response.token model.server.url ]
 
         ShareTextInput text ->
             ( { model | shareText = text }, Cmd.none )
@@ -70,7 +70,7 @@ update msg model =
 
                 Just tokenValue ->
                     ( { model | authToken = token, password = "" }
-                    , getUser tokenValue model.instanceUrl
+                    , getUser tokenValue model.server.url
                     )
 
         UrlHasChanged location ->
@@ -98,7 +98,7 @@ prepareScreenToDisplay model =
             Cmd.none
 
         _ ->
-            getTimeline model.instanceUrl model.authToken model.screenShown
+            getTimeline model.server.url model.authToken model.screenShown
 
 
 
@@ -195,7 +195,7 @@ shareImage model =
             Http.stringBody
                 "application/x-www-form-urlencoded"
                 ("apiurl="
-                    ++ model.instanceUrl
+                    ++ model.server.url
                     ++ "&text="
                     ++ model.shareText
                     ++ "&token="

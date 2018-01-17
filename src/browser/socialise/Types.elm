@@ -8,8 +8,8 @@ import Navigation exposing (Location)
 
 type Msg
     = Username String
+    | ServerSelect String
     | Password String
-    | InstanceUrl String
     | AuthSubmit
     | AuthReturn (Result Http.Error AuthResponse)
     | ShareTextInput String
@@ -32,15 +32,17 @@ type alias MastodonServer =
     , clientId : String
     }
 
+defaultServer =
+    MastodonServer
+        "https://mastodon.me.uk"
+        "905d23a2af70cd9eb36fce45febf533a46e20398fcc94afb1900558abe1a012b"
 
 servers : List MastodonServer
 servers =
-    [ MastodonServer
+    [ defaultServer
+    , MastodonServer
         "https://mastodon.social"
         "7b07523894c7441f0334bcc79ff100abe91f187cc21befeb3ade360df581d37e"
-    , MastodonServer
-        "https://mastodon.me.uk"
-        "905d23a2af70cd9eb36fce45febf533a46e20398fcc94afb1900558abe1a012b"
     , MastodonServer
         "https://pawoo.net"
         "e0becd2b4d162124a074e168908f83cec9f2d83bdbd141c3da5884ce60804045"
