@@ -5,6 +5,7 @@ import Maybe exposing (withDefault)
 import Navigation exposing (Location, modifyUrl)
 import Model exposing (Model, changeServerUrl)
 import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
+import Ports exposing (fileSelected)
 import Types exposing (..)
 
 
@@ -33,10 +34,42 @@ update msg model =
         ShareImage ->
             ( model, shareImage model )
 
-        ImageShared (Err error) ->
-            ( { model | message = Just ("share error: " ++ httpErrorMessage error) }, Cmd.none )
+        UploadImage ->
+            ( model, uploadAttachment model )
 
-        ImageShared (Ok responseText) ->
+        -- A media attachment was uploaded
+        AttachmentUploaded (Ok attachment) ->
+            ( model, postStatus model attachment )
+
+        AttachmentUploaded (Err error) ->
+            ( { model | message = Just ("Failed to upload image" ++ (httpErrorMessage error)) }
+            , Cmd.none
+            )
+
+        -- A status was posted
+        StatusPosted (Ok status) ->
+            ( { model | message = Just "Status posted!" }, Cmd.none )
+
+        StatusPosted (Err error) ->
+            ( { model | message = Just ("Failed to post status:" ++ (httpErrorMessage error)) }
+            , Cmd.none
+            )
+
+        -- The user has selected an image to upload
+        ImageSelected ->
+            ( model, fileSelected "file-upload" )
+
+        ImageRead imageData ->
+            ( { model | screenShown = ShareUpload (Just imageData.contents) }
+            , Cmd.none
+            )
+
+        ImageShared (Err error) ->
+            ( { model | message = Just ("share error: " ++ httpErrorMessage error) }
+            , Cmd.none
+            )
+
+        ImageShared (Ok _) ->
             ( model, modifyUrl "#home" )
 
         AuthReturn (Err error) ->
@@ -76,7 +109,7 @@ update msg model =
         UrlHasChanged location ->
             let
                 newModel =
-                  { model | screenShown = getScreenType location model }
+                    { model | screenShown = getScreenType location model }
             in
                 ( newModel
                 , case model.authToken of
@@ -94,7 +127,10 @@ update msg model =
 prepareScreenToDisplay : Model -> Cmd Msg
 prepareScreenToDisplay model =
     case model.screenShown of
-        Share _ ->
+        SharePath _ ->
+            Cmd.none
+
+        ShareUpload _ ->
             Cmd.none
 
         _ ->
@@ -180,12 +216,76 @@ getUser authToken instanceUrl =
         )
 
 
+uploadAttachment : Model -> Cmd Msg
+uploadAttachment model =
+    case model.screenShown of
+        ShareUpload (Just imageData) ->
+            let
+                body =
+                    Http.multipartBody
+                        [ Http.stringPart "file" imageData
+                        , Http.stringPart "description" "uploaded image"
+                        ]
+
+                token =
+                    model.authToken |> Maybe.withDefault ""
+            in
+                Http.send
+                    AttachmentUploaded
+                    (Http.request
+                        { method = "POST"
+                        , headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+                        , url = model.server.url ++ "/api/v1/media"
+                        , body = body
+                        , expect = Http.expectJson mediaAttachmentDecoder
+                        , timeout = Nothing
+                        , withCredentials = False
+                        }
+                    )
+
+        _ ->
+            Cmd.none
+
+
+
+-- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#posting-a-new-status
+
+
+postStatus : Model -> Attachment -> Cmd Msg
+postStatus model attachment =
+    let
+        body =
+            Http.stringBody
+                "application/x-www-form-urlencoded"
+                ("status="
+                    ++ (Http.encodeUri model.shareText)
+                    ++ "media_ids[]="
+                    ++ attachment.id
+                )
+
+        token =
+            model.authToken |> Maybe.withDefault ""
+    in
+        Http.send
+            StatusPosted
+            (Http.request
+                { method = "POST"
+                , headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
+                , url = model.server.url ++ "/api/v1/media"
+                , body = body
+                , expect = Http.expectJson statusDecoder
+                , timeout = Nothing
+                , withCredentials = False
+                }
+            )
+
+
 shareImage : Model -> Cmd Msg
 shareImage model =
     let
         imagePath =
             case model.screenShown of
-                Share path ->
+                SharePath path ->
                     path
 
                 _ ->
@@ -226,5 +326,7 @@ getScreenType url model =
         User (model.userId |> withDefault "")
     else if String.startsWith "#user:" url.hash then
         User (String.dropLeft 6 url.hash)
+    else if String.startsWith "#upload" url.hash then
+        ShareUpload Nothing
     else
         Home

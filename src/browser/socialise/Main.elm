@@ -4,7 +4,7 @@ import Navigation exposing (Location)
 import View exposing (view)
 import Model exposing (Model, initialModel)
 import Update exposing (update)
-import Ports exposing (localStorageRetrievedItem)
+import Ports exposing (localStorageRetrievedItem, fileContentRead)
 import Types exposing (..)
 import Auth exposing (checkAuthToken)
 
@@ -28,7 +28,9 @@ init url =
             else if String.startsWith "#user:" url.hash then
                 User (String.dropLeft 6 url.hash)
             else if String.startsWith "#share:" url.hash then
-                Share (String.dropLeft 7 url.hash)
+                SharePath (String.dropLeft 7 url.hash)
+            else if String.startsWith "#upload" url.hash then
+                ShareUpload Nothing
             else
                 Home
     in
@@ -37,4 +39,7 @@ init url =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    localStorageRetrievedItem AuthTokenRetrieved
+    Sub.batch
+        [ localStorageRetrievedItem AuthTokenRetrieved
+        , fileContentRead ImageRead
+        ]

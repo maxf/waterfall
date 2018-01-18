@@ -36,10 +36,12 @@ initialModel =
 changeServerUrl : Model -> String -> Model
 changeServerUrl model url =
     let
-        server = lookupServer url
+        server =
+            lookupServer url
     in
         case server of
             Nothing ->
                 { model | server = defaultServer }
+
             Just s ->
                 { model | server = s }

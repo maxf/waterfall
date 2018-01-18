@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Attributes.Extra exposing (..)
 import Html.Events exposing (onInput, onClick, onSubmit, on)
-import Json.Decode exposing (string)
+import Json.Decode exposing (succeed)
 import Types exposing (Msg(..), Status, Attachment, AttachmentType(..), Screen(..), servers)
 import Model exposing (Model)
 
@@ -39,6 +39,8 @@ viewSidebar =
         [ class "sidebar" ]
         [ h1 [] [ a [ href "/" ] [ text "Waterfall" ] ]
         , a [ href "/organise" ] [ text "Manage your pictures" ]
+        , br [] []
+        , a [ href "#upload" ] [ text "Upload a picture" ]
         , ul []
             [ li [] [ a [ href "#home" ] [ text "My timeline" ] ]
             , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
@@ -57,8 +59,14 @@ viewMain model =
 
         Just _ ->
             case model.screenShown of
-                Share _ ->
-                    div [] [ viewShare model ]
+                SharePath path ->
+                    viewSharePath path
+
+                ShareUpload Nothing ->
+                    viewShareUpload
+
+                ShareUpload (Just dataUrl) ->
+                    viewShareUploaded dataUrl
 
                 _ ->
                     div [] [ viewTimeline model.timeline ]
@@ -142,18 +150,36 @@ viewAttachment attachment =
             a [ href attachment.url ] [ img [ src attachment.previewUrl ] [] ]
 
 
-viewShare : Model -> Html Msg
-viewShare model =
-    case model.screenShown of
-        Share path ->
-            div [ class "share" ]
-                [ h1 [] [ text "Share photo" ]
-                , img [ src ("/thumb?photo=" ++ path) ] []
-                , br [] []
-                , input [ type_ "text", onInput ShareTextInput, placeholder "title" ] []
-                , br [] []
-                , button [ onClick ShareImage ] [ text "Share" ]
-                ]
+viewSharePath : String -> Html Msg
+viewSharePath path =
+        div [ class "share" ]
+            [ h1 [] [ text "Share photo" ]
+            , img [ src ("/thumb?photo=" ++ path) ] []
+            , br [] []
+            , input [ type_ "text", onInput ShareTextInput, placeholder "title" ] []
+            , br [] []
+            , button [ onClick ShareImage ] [ text "Share" ]
+            ]
 
-        _ ->
-            span [] []
+viewShareUpload : Html Msg
+viewShareUpload =
+        div [ class "share" ]
+            [ h1 [] [ text "Select photo" ]
+            , input
+                  [ type_ "file"
+                  , id "file-upload"
+                  , on "change" (succeed ImageSelected)
+                  ]
+                  []
+            ]
+
+viewShareUploaded : String -> Html Msg
+viewShareUploaded dataUrl =
+        div [ class "share" ]
+            [ h1 [] [ text "Upload photo" ]
+            , img [ src dataUrl ] []
+            , br [] []
+            , input [ type_ "text", onInput ShareTextInput, placeholder "title" ] []
+            , br [] []
+            , button [ onClick UploadImage ] [ text "Share" ]
+            ]

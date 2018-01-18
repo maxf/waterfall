@@ -14,6 +14,11 @@ type Msg
     | AuthReturn (Result Http.Error AuthResponse)
     | ShareTextInput String
     | ShareImage
+    | UploadImage
+    | AttachmentUploaded (Result Http.Error Attachment)
+    | StatusPosted (Result Http.Error Status)
+    | ImageSelected
+    | ImageRead ImagePortData
     | ImageShared (Result Http.Error String)
     | TimelineFetched (Result Http.Error (List Status))
     | UserFetched (Result Http.Error Account)
@@ -32,10 +37,19 @@ type alias MastodonServer =
     , clientId : String
     }
 
+
+type alias ImagePortData =
+    { contents : String
+    , filename : String
+    }
+
+
+defaultServer : MastodonServer
 defaultServer =
     MastodonServer
         "https://mastodon.me.uk"
         "905d23a2af70cd9eb36fce45febf533a46e20398fcc94afb1900558abe1a012b"
+
 
 servers : List MastodonServer
 servers =
@@ -51,7 +65,8 @@ servers =
 
 lookupServer : String -> Maybe MastodonServer
 lookupServer url =
-    List.head (List.filter (\s -> s.url == url ) servers)
+    List.head (List.filter (\s -> s.url == url) servers)
+
 
 
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#account
@@ -103,8 +118,9 @@ type alias Attachment =
 type Screen
     = Home
     | PublicTimeline
-    | User String -- User <user id>
-    | Share String -- Share <path of photo to share>
+    | User String -- <user id>
+    | SharePath String -- <path of photo to share on server>
+    | ShareUpload (Maybe String) -- <data of the image loaded>
 
 
 
