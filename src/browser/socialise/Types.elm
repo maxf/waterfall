@@ -15,10 +15,10 @@ type Msg
     | ShareTextInput String
     | ShareImage
     | UploadImage
-    | AttachmentUploaded (Result Http.Error Attachment)
-    | StatusPosted (Result Http.Error Status)
+--    | AttachmentUploaded (Result Http.Error Attachment)
+    | StatusPosted (Maybe String)
     | ImageSelected
-    | ImageRead ImagePortData
+    | FormImageRead ImagePortData
     | ImageShared (Result Http.Error String)
     | TimelineFetched (Result Http.Error (List Status))
     | UserFetched (Result Http.Error Account)

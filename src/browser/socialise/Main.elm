@@ -4,7 +4,7 @@ import Navigation exposing (Location)
 import View exposing (view)
 import Model exposing (Model, initialModel)
 import Update exposing (update)
-import Ports exposing (localStorageRetrievedItem, fileContentRead)
+import Ports exposing (localStorageRetrievedItem, formImageRetrieved, statusPosted)
 import Types exposing (..)
 import Auth exposing (checkAuthToken)
 
@@ -41,5 +41,6 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ localStorageRetrievedItem AuthTokenRetrieved
-        , fileContentRead ImageRead
+        , formImageRetrieved FormImageRead
+        , statusPosted StatusPosted
         ]

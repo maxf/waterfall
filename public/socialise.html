@@ -29,7 +29,7 @@
        app.ports.localStorageRetrievedItem.send([keyName, value]);
      });
 
-     app.ports.fileSelected.subscribe(function (id) {
+     app.ports.getImageFromForm.subscribe(function (id) {
        var node = document.getElementById(id);
        if (node === null) {
          return;
@@ -55,12 +55,90 @@
 
          // We call the `fileContentRead` port with the file data
          // which will be sent to our Elm runtime via Subscriptions.
-         app.ports.fileContentRead.send(portData);
+         app.ports.formImageRetrieved.send(portData);
        });
 
        // Connect our FileReader with the file that was selected in our `input` node.
        reader.readAsDataURL(file);
      });
+
+     app.ports.fileUpload.subscribe(function(args) {
+       var inputElementId = args[0]
+       var serverUrl = args[1]
+       var authToken = args[2]
+       var text = args[3]
+       console.log(args)
+       var img = document.getElementById(inputElementId)
+       console.log(img)
+       if (img === null) {
+         app.ports.statusPosted.send('Could not find element with id ' + inputElementId)
+       } else {
+         sendMediaFile(img.src, serverUrl, authToken, text)
+       }
+     });
+
+
+     function sendMediaFile(imageData, serverUrl, authToken, text) {
+       console.log('sendMediaFile', imageData, serverUrl)
+       var xhr = new XMLHttpRequest()
+       var formData = new FormData()
+       var blob = dataURItoBlob(imageData);
+       formData.append('file', blob)
+       formData.append('description', 'attached picture')
+       xhr.open('POST', serverUrl+'/api/v1/media')
+       xhr.setRequestHeader('Authorization', 'Bearer ' + authToken)
+       xhr.onload = function() {
+         if (xhr.status === 200) {
+           var attachment = JSON.parse(xhr.responseText)
+           sendStatus(serverUrl, authToken, text, attachment.id)
+         } else {
+           app.ports.statusPosted.send('failed to upload media: ' + xhr.status)
+         }
+       }
+       xhr.send(formData)
+     }
+
+
+     // https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#posting-a-new-status
+     function sendStatus(serverUrl, authToken, text, attachmentId) {
+       var xhr = new XMLHttpRequest()
+       xhr.open('POST', serverUrl + '/api/v1/statuses')
+       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+       xhr.setRequestHeader('Authorization', 'Bearer ' + authToken)
+       xhr.onload = function() {
+         if (xhr.status === 200) {
+           app.ports.statusPosted.send(null)
+         } else {
+           app.ports.statusPosted.send('failed to send status' + xhr.status )
+         }
+       };
+       xhr.send(
+         'status=' + encodeURIComponent(text) +
+         '&media_ids[]=' + encodeURIComponent(attachmentId)
+       )
+     }
+
+
+
+     function dataURItoBlob(dataURI) {
+       // convert base64/URLEncoded data component to raw binary data held in a string
+       var byteString;
+       if (dataURI.split(',')[0].indexOf('base64') >= 0)
+         byteString = atob(dataURI.split(',')[1]);
+       else
+         byteString = unescape(dataURI.split(',')[1]);
+
+       // separate out the mime component
+       var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+       // write the bytes of the string to a typed array
+       var ia = new Uint8Array(byteString.length);
+       for (var i = 0; i < byteString.length; i++) {
+         ia[i] = byteString.charCodeAt(i);
+       }
+
+       return new Blob([ia], {type:mimeString});
+     }
 
     </script>
   </body>

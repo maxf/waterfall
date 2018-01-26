@@ -177,7 +177,7 @@ viewShareUploaded : String -> Html Msg
 viewShareUploaded dataUrl =
         div [ class "share" ]
             [ h1 [] [ text "Upload photo" ]
-            , img [ src dataUrl ] []
+            , img [ id "file-upload", src dataUrl ] []
             , br [] []
             , input [ type_ "text", onInput ShareTextInput, placeholder "title" ] []
             , br [] []

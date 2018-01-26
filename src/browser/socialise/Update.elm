@@ -5,7 +5,7 @@ import Maybe exposing (withDefault)
 import Navigation exposing (Location, modifyUrl)
 import Model exposing (Model, changeServerUrl)
 import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
-import Ports exposing (fileSelected)
+import Ports exposing (..)
 import Types exposing (..)
 
 
@@ -35,31 +35,20 @@ update msg model =
             ( model, shareImage model )
 
         UploadImage ->
-            ( model, uploadAttachment model )
-
-        -- A media attachment was uploaded
-        AttachmentUploaded (Ok attachment) ->
-            ( model, postStatus model attachment )
-
-        AttachmentUploaded (Err error) ->
-            ( { model | message = Just ("Failed to upload image" ++ (httpErrorMessage error)) }
-            , Cmd.none
-            )
+            ( model, uploadImage model )
 
         -- A status was posted
-        StatusPosted (Ok status) ->
-            ( { model | message = Just "Status posted!" }, Cmd.none )
+        StatusPosted Nothing ->
+            ( model, modifyUrl "#home" )
 
-        StatusPosted (Err error) ->
-            ( { model | message = Just ("Failed to post status:" ++ (httpErrorMessage error)) }
-            , Cmd.none
-            )
+        StatusPosted (Just error) ->
+            ( { model | message = Just error }, Cmd.none )
 
         -- The user has selected an image to upload
         ImageSelected ->
-            ( model, fileSelected "file-upload" )
+            ( model, getImageFromForm "file-upload" )
 
-        ImageRead imageData ->
+        FormImageRead imageData ->
             ( { model | screenShown = ShareUpload (Just imageData.contents) }
             , Cmd.none
             )
@@ -216,68 +205,14 @@ getUser authToken instanceUrl =
         )
 
 
-uploadAttachment : Model -> Cmd Msg
-uploadAttachment model =
-    case model.screenShown of
-        ShareUpload (Just imageData) ->
-            let
-                body =
-                    Http.multipartBody
-                        [ Http.stringPart "file" imageData
-                        , Http.stringPart "description" "uploaded image"
-                        ]
-
-                token =
-                    model.authToken |> Maybe.withDefault ""
-            in
-                Http.send
-                    AttachmentUploaded
-                    (Http.request
-                        { method = "POST"
-                        , headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
-                        , url = model.server.url ++ "/api/v1/media"
-                        , body = body
-                        , expect = Http.expectJson mediaAttachmentDecoder
-                        , timeout = Nothing
-                        , withCredentials = False
-                        }
-                    )
-
-        _ ->
-            Cmd.none
-
-
-
--- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#posting-a-new-status
-
-
-postStatus : Model -> Attachment -> Cmd Msg
-postStatus model attachment =
-    let
-        body =
-            Http.stringBody
-                "application/x-www-form-urlencoded"
-                ("status="
-                    ++ (Http.encodeUri model.shareText)
-                    ++ "media_ids[]="
-                    ++ attachment.id
-                )
-
-        token =
-            model.authToken |> Maybe.withDefault ""
-    in
-        Http.send
-            StatusPosted
-            (Http.request
-                { method = "POST"
-                , headers = [ Http.header "Authorization" ("Bearer " ++ token) ]
-                , url = model.server.url ++ "/api/v1/media"
-                , body = body
-                , expect = Http.expectJson statusDecoder
-                , timeout = Nothing
-                , withCredentials = False
-                }
-            )
+uploadImage : Model -> Cmd Msg
+uploadImage model =
+    fileUpload
+        ( "file-upload"
+        , model.server.url
+        , (model.authToken |> Maybe.withDefault "")
+        , model.shareText
+        )
 
 
 shareImage : Model -> Cmd Msg

@@ -15,10 +15,10 @@ port localStorageGetItem : String -> Cmd msg
 port localStorageRemoveItem : String -> Cmd msg
 
 
-port fileSelected : String -> Cmd msg
+port getImageFromForm : String -> Cmd msg
 
 
-port fileContentRead : (ImagePortData -> msg) -> Sub msg
+port fileUpload : ( String, String, String, String ) -> Cmd msg
 
 
 
@@ -26,3 +26,9 @@ port fileContentRead : (ImagePortData -> msg) -> Sub msg
 
 
 port localStorageRetrievedItem : (( String, Maybe String ) -> msg) -> Sub msg
+
+
+port formImageRetrieved : (ImagePortData -> msg) -> Sub msg
+
+
+port statusPosted : (Maybe String -> msg) -> Sub msg
