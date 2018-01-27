@@ -67,9 +67,7 @@
        var serverUrl = args[1]
        var authToken = args[2]
        var text = args[3]
-       console.log(args)
        var img = document.getElementById(inputElementId)
-       console.log(img)
        if (img === null) {
          app.ports.statusPosted.send('Could not find element with id ' + inputElementId)
        } else {
@@ -79,7 +77,6 @@
 
 
      function sendMediaFile(imageData, serverUrl, authToken, text) {
-       console.log('sendMediaFile', imageData, serverUrl)
        var xhr = new XMLHttpRequest()
        var formData = new FormData()
        var blob = dataURItoBlob(imageData);
