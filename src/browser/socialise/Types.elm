@@ -24,6 +24,8 @@ type Msg
     | UserFetched (Result Http.Error Account)
     | CloseMessage
     | AuthTokenRetrieved ( String, Maybe String )
+    | ViewPhoto Status Attachment
+    | ClosePhoto
     | UrlHasChanged Location
     | Logout
 
@@ -121,6 +123,7 @@ type Screen
     | User String -- <user id>
     | SharePath String -- <path of photo to share on server>
     | ShareUpload (Maybe String) -- <data of the image loaded>
+    | ShowPhoto Status Attachment
 
 
 

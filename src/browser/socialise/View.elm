@@ -69,8 +69,19 @@ viewMain model =
                 ShareUpload (Just dataUrl) ->
                     viewShareUploaded dataUrl
 
+                ShowPhoto status attachment ->
+                    viewPhoto status attachment
+
                 _ ->
                     div [] [ viewTimeline model.timeline ]
+
+
+viewPhoto : Status -> Attachment -> Html Msg
+viewPhoto status attachment =
+    div [ class "lightbox", onClick ClosePhoto ]
+        [ img [ class "photo", src attachment.url ][]
+        , viewStatusContent status.content
+        ]
 
 
 viewLogin : Model -> Html Msg
@@ -130,8 +141,8 @@ viewStatusContent content =
 viewStatus : Status -> Html Msg
 viewStatus status =
     div [ class "status" ]
-        [ div [] (List.map viewAttachment status.mediaAttachments)
-        , viewStatusContent status.content
+        [ div [] (List.map (viewAttachment status) status.mediaAttachments)
+--        , viewStatusContent status.content
         , div
             [ class "account" ]
             [ a
@@ -141,14 +152,16 @@ viewStatus status =
         ]
 
 
-viewAttachment : Attachment -> Html Msg
-viewAttachment attachment =
+viewAttachment : Status -> Attachment -> Html Msg
+viewAttachment status attachment =
     case attachment.type_ of
         Unknown ->
             span [] []
 
         _ ->
-            a [ href attachment.url ] [ img [ src attachment.previewUrl ] [] ]
+            span
+                [ onClick (ViewPhoto status attachment)  ]
+                [ img [ src attachment.previewUrl ] [] ]
 
 
 viewSharePath : String -> Html Msg

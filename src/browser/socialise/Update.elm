@@ -2,7 +2,7 @@ module Update exposing (update)
 
 import Http
 import Maybe exposing (withDefault)
-import Navigation exposing (Location, modifyUrl)
+import Navigation exposing (Location, modifyUrl, newUrl)
 import Model exposing (Model, changeServerUrl)
 import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
 import Ports exposing (..)
@@ -95,6 +95,16 @@ update msg model =
                     , getUser tokenValue model.server.url
                     )
 
+        ViewPhoto status attachment ->
+            ( { model | currentStatus = Just status, currentPhoto = Just attachment }
+            , newUrl ("#photo:" ++ status.id ++ ":" ++ attachment.id)
+            )
+
+        ClosePhoto ->
+            ( { model | currentStatus = Nothing, currentPhoto = Nothing }
+            , newUrl "#home" -- WRONG: we should remember the preceding timeline
+            )
+
         UrlHasChanged location ->
             let
                 newModel =
@@ -120,6 +130,9 @@ prepareScreenToDisplay model =
             Cmd.none
 
         ShareUpload _ ->
+            Cmd.none
+
+        ShowPhoto _ _ ->
             Cmd.none
 
         _ ->
@@ -263,5 +276,12 @@ getScreenType url model =
         User (String.dropLeft 6 url.hash)
     else if String.startsWith "#upload" url.hash then
         ShareUpload Nothing
+    else if String.startsWith "#photo:" url.hash then
+        case ( model.currentStatus, model.currentPhoto ) of
+            ( Just status, Just photo ) ->
+                ShowPhoto status photo
+
+            _ ->
+                Home
     else
         Home

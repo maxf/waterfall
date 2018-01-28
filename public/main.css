@@ -151,7 +151,6 @@ h1 a {
   cursor: default;
 }
 
-
 .status {
   position: relative;
   display: inline-block;
@@ -162,18 +161,19 @@ h1 a {
 }
 
 .status img {
-  height: 400px;
+  height: 200px;
   vertical-align: middle;
 }
 
-.status .content {
+.content {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  background: rgba(0,0,0,0.7)
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.7);
+  font-size: 1.5em;
 }
 
-.status .content p {
+.content p {
   margin: 0.1em 0.2em 0.1em 0.2em;
 }
 

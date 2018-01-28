@@ -31,6 +31,10 @@ init url =
                 SharePath (String.dropLeft 7 url.hash)
             else if String.startsWith "#upload" url.hash then
                 ShareUpload Nothing
+--            else if String.startsWith "#photo:" url.hash then
+--                extract statusId and attachmentId from hash
+--                fetch status and attachment
+--                ShowPhoto status attachment
             else
                 Home
     in
