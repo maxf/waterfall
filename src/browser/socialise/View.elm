@@ -38,8 +38,9 @@ viewSidebar =
     div
         [ class "sidebar" ]
         [ h1 [] [ a [ href "/" ] [ text "Waterfall" ] ]
-        , a [ href "/organise" ] [ text "Manage your pictures" ]
-        , br [] []
+
+        --        , a [ href "/organise" ] [ text "Manage your pictures" ]
+        --        , br [] []
         , a [ href "#upload" ] [ text "Upload a picture" ]
         , ul []
             [ li [] [ a [ href "#home" ] [ text "My timeline" ] ]
@@ -152,34 +153,36 @@ viewAttachment attachment =
 
 viewSharePath : String -> Html Msg
 viewSharePath path =
-        div [ class "share" ]
-            [ h1 [] [ text "Share photo" ]
-            , img [ src ("/thumb?photo=" ++ path) ] []
-            , br [] []
-            , input [ type_ "text", onInput ShareTextInput, placeholder "title" ] []
-            , br [] []
-            , button [ onClick ShareImage ] [ text "Share" ]
-            ]
+    div [ class "share" ]
+        [ h1 [] [ text "Share photo" ]
+        , img [ src ("/thumb?photo=" ++ path) ] []
+        , br [] []
+        , input [ type_ "text", onInput ShareTextInput, placeholder "title" ] []
+        , br [] []
+        , button [ onClick ShareImage ] [ text "Share" ]
+        ]
+
 
 viewShareUpload : Html Msg
 viewShareUpload =
-        div [ class "share" ]
-            [ h1 [] [ text "Select photo" ]
-            , input
-                  [ type_ "file"
-                  , id "file-upload"
-                  , on "change" (succeed ImageSelected)
-                  ]
-                  []
+    div [ class "share" ]
+        [ h1 [] [ text "Select photo" ]
+        , input
+            [ type_ "file"
+            , id "file-upload"
+            , on "change" (succeed ImageSelected)
             ]
+            []
+        ]
+
 
 viewShareUploaded : String -> Html Msg
 viewShareUploaded dataUrl =
-        div [ class "share" ]
-            [ h1 [] [ text "Upload photo" ]
-            , img [ id "file-upload", src dataUrl ] []
-            , br [] []
-            , input [ type_ "text", onInput ShareTextInput, placeholder "title" ] []
-            , br [] []
-            , button [ onClick UploadImage ] [ text "Share" ]
-            ]
+    div [ class "share" ]
+        [ h1 [] [ text "Upload photo" ]
+        , img [ id "file-upload", src dataUrl ] []
+        , br [] []
+        , input [ type_ "text", onInput ShareTextInput, placeholder "title" ] []
+        , br [] []
+        , button [ onClick UploadImage ] [ text "Share" ]
+        ]
