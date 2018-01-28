@@ -14421,7 +14421,7 @@ var _user$project$View$viewLogin = function (model) {
 							},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text('Username'),
+								_0: _elm_lang$html$Html$text('Email address'),
 								_1: {ctor: '[]'}
 							}),
 						_1: {

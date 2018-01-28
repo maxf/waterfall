@@ -83,7 +83,7 @@ viewLogin model =
                 (List.map (\s -> option [ value s.url ] [ text s.url ]) servers)
             ]
         , div []
-            [ label [ for "username" ] [ text "Username" ]
+            [ label [ for "username" ] [ text "Email address" ]
             , input
                 [ type_ "text"
                 , id "username"
