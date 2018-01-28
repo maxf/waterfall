@@ -210,7 +210,7 @@ uploadImage model =
     fileUpload
         ( "file-upload"
         , model.server.url
-        , (model.authToken |> Maybe.withDefault "")
+        , model.authToken |> Maybe.withDefault ""
         , model.shareText
         )
 

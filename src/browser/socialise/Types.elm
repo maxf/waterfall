@@ -15,7 +15,7 @@ type Msg
     | ShareTextInput String
     | ShareImage
     | UploadImage
---    | AttachmentUploaded (Result Http.Error Attachment)
+      --    | AttachmentUploaded (Result Http.Error Attachment)
     | StatusPosted (Maybe String)
     | ImageSelected
     | FormImageRead ImagePortData
