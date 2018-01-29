@@ -10379,7 +10379,7 @@ var _user$project$View$viewStatusContent = function (content) {
 			{ctor: '[]'});
 	} else {
 		return A2(
-			_elm_lang$html$Html$div,
+			_elm_lang$html$Html$main_,
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$class('content'),
@@ -10597,22 +10597,33 @@ var _user$project$View$viewPhoto = F2(
 			{
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$img,
+					_elm_lang$html$Html$div,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('photo'),
+						_0: _elm_lang$html$Html_Attributes$class('lightbox-inner'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$img,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('photo'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$src(attachment.url),
+									_1: {ctor: '[]'}
+								}
+							},
+							{ctor: '[]'}),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$src(attachment.url),
+							_0: _user$project$View$viewStatusContent(status.content),
 							_1: {ctor: '[]'}
 						}
-					},
-					{ctor: '[]'}),
-				_1: {
-					ctor: '::',
-					_0: _user$project$View$viewStatusContent(status.content),
-					_1: {ctor: '[]'}
-				}
+					}),
+				_1: {ctor: '[]'}
 			});
 	});
 var _user$project$View$viewMain = function (model) {

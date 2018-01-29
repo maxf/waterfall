@@ -79,8 +79,10 @@ viewMain model =
 viewPhoto : Status -> Attachment -> Html Msg
 viewPhoto status attachment =
     div [ class "lightbox", onClick ClosePhoto ]
-        [ img [ class "photo", src attachment.url ][]
-        , viewStatusContent status.content
+        [ div [ class "lightbox-inner" ]
+              [ img [ class "photo", src attachment.url ][]
+              , viewStatusContent status.content
+              ]
         ]
 
 
@@ -135,7 +137,7 @@ viewStatusContent content =
             div [] []
 
         Just html ->
-            div [ class "content", innerHtml html ] []
+            main_ [ class "content", innerHtml html ] []
 
 
 viewStatus : Status -> Html Msg
