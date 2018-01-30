@@ -49,7 +49,7 @@ update msg model =
             ( model, getImageFromForm "file-upload" )
 
         FormImageRead imageData ->
-            ( { model | screenShown = ShareUpload (Just imageData.contents) }
+            ( { model | screenShown = UploadFile (Just imageData.contents) }
             , Cmd.none
             )
 
@@ -129,10 +129,10 @@ prepareScreenToDisplay model =
         SharePath _ ->
             Cmd.none
 
-        ShareUpload _ ->
+        UploadFile _ ->
             Cmd.none
 
-        ShowPhoto _ _ ->
+        Photo _ _ ->
             Cmd.none
 
         _ ->
@@ -143,7 +143,7 @@ prepareScreenToDisplay model =
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#timelines
 
 
-getTimeline : String -> Maybe String -> Screen -> Cmd Msg
+getTimeline : String -> Maybe String -> View -> Cmd Msg
 getTimeline instanceUrl authToken screenType =
     let
         urlPath =
@@ -151,7 +151,7 @@ getTimeline instanceUrl authToken screenType =
                 PublicTimeline ->
                     "/api/v1/timelines/public"
 
-                User id ->
+                UserTimeline id ->
                     "/api/v1/accounts/" ++ Http.encodeUri id ++ "/statuses"
 
                 _ ->
@@ -266,22 +266,22 @@ shareImage model =
         Http.send ImageShared request
 
 
-getScreenType : Location -> Model -> Screen
+getScreenType : Location -> Model -> View
 getScreenType url model =
     if url.hash == "#public" then
         PublicTimeline
     else if url.hash == "#me" then
-        User (model.userId |> withDefault "")
+        UserTimeline (model.userId |> withDefault "")
     else if String.startsWith "#user:" url.hash then
-        User (String.dropLeft 6 url.hash)
+        UserTimeline (String.dropLeft 6 url.hash)
     else if String.startsWith "#upload" url.hash then
-        ShareUpload Nothing
+        UploadFile Nothing
     else if String.startsWith "#photo:" url.hash then
         case ( model.currentStatus, model.currentPhoto ) of
             ( Just status, Just photo ) ->
-                ShowPhoto status photo
+                Photo status photo
 
             _ ->
-                Home
+                HomeTimeline
     else
-        Home
+        HomeTimeline

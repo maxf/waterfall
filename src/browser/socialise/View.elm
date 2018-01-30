@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Attributes.Extra exposing (..)
 import Html.Events exposing (onInput, onClick, onSubmit, on)
 import Json.Decode exposing (succeed)
-import Types exposing (Msg(..), Status, Attachment, AttachmentType(..), Screen(..), servers)
+import Types exposing (Msg(..), Status, Attachment, AttachmentType(..), View(..), servers)
 import Model exposing (Model)
 
 
@@ -63,13 +63,13 @@ viewMain model =
                 SharePath path ->
                     viewSharePath path
 
-                ShareUpload Nothing ->
+                UploadFile Nothing ->
                     viewShareUpload
 
-                ShareUpload (Just dataUrl) ->
+                UploadFile (Just dataUrl) ->
                     viewShareUploaded dataUrl
 
-                ShowPhoto status attachment ->
+                Photo status attachment ->
                     viewPhoto status attachment
 
                 _ ->

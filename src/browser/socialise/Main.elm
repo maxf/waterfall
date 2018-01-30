@@ -26,17 +26,17 @@ init url =
             if url.hash == "#public" then
                 PublicTimeline
             else if String.startsWith "#user:" url.hash then
-                User (String.dropLeft 6 url.hash)
+                UserTimeline (String.dropLeft 6 url.hash)
             else if String.startsWith "#share:" url.hash then
                 SharePath (String.dropLeft 7 url.hash)
             else if String.startsWith "#upload" url.hash then
-                ShareUpload Nothing
+                UploadFile Nothing
 --            else if String.startsWith "#photo:" url.hash then
 --                extract statusId and attachmentId from hash
 --                fetch status and attachment
 --                ShowPhoto status attachment
             else
-                Home
+                HomeTimeline
     in
         ( { initialModel | screenShown = whatToShow }, checkAuthToken )
 

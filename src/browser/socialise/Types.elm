@@ -117,13 +117,13 @@ type alias Attachment =
 -- type of UI displayed on screen
 
 
-type Screen
-    = Home
+type View
+    = HomeTimeline
     | PublicTimeline
-    | User String -- <user id>
+    | UserTimeline String -- <user id>
     | SharePath String -- <path of photo to share on server>
-    | ShareUpload (Maybe String) -- <data of the image loaded>
-    | ShowPhoto Status Attachment
+    | UploadFile (Maybe String) -- <data of the image loaded>
+    | Photo Status Attachment
 
 
 

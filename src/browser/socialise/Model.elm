@@ -14,7 +14,7 @@ type alias Model =
     , password : String
     , message : Maybe String
     , timeline : List Status
-    , screenShown : Screen
+    , screenShown : View
     , shareText : String
     , currentStatus : Maybe Status
     , currentPhoto : Maybe Attachment
@@ -31,7 +31,7 @@ initialModel =
         ""
         Nothing
         []
-        Home
+        HomeTimeline
         ""
         Nothing
         Nothing

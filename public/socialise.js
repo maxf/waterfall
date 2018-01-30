@@ -9913,21 +9913,21 @@ var _user$project$Types$statusDecoder = A3(
 					_elm_lang$core$Json_Decode$string,
 					_elm_lang$core$Json_Decode$succeed(_user$project$Types$Status))))));
 var _user$project$Types$timelineDecoder = _elm_lang$core$Json_Decode$list(_user$project$Types$statusDecoder);
-var _user$project$Types$ShowPhoto = F2(
+var _user$project$Types$Photo = F2(
 	function (a, b) {
-		return {ctor: 'ShowPhoto', _0: a, _1: b};
+		return {ctor: 'Photo', _0: a, _1: b};
 	});
-var _user$project$Types$ShareUpload = function (a) {
-	return {ctor: 'ShareUpload', _0: a};
+var _user$project$Types$UploadFile = function (a) {
+	return {ctor: 'UploadFile', _0: a};
 };
 var _user$project$Types$SharePath = function (a) {
 	return {ctor: 'SharePath', _0: a};
 };
-var _user$project$Types$User = function (a) {
-	return {ctor: 'User', _0: a};
+var _user$project$Types$UserTimeline = function (a) {
+	return {ctor: 'UserTimeline', _0: a};
 };
 var _user$project$Types$PublicTimeline = {ctor: 'PublicTimeline'};
-var _user$project$Types$Home = {ctor: 'Home'};
+var _user$project$Types$HomeTimeline = {ctor: 'HomeTimeline'};
 
 var _user$project$Ports$localStorageSetItem = _elm_lang$core$Native_Platform.outgoingPort(
 	'localStorageSetItem',
@@ -10045,7 +10045,7 @@ var _user$project$Model$Model = function (a) {
 	};
 };
 var _user$project$Model$initialModel = _user$project$Model$Model(_user$project$Types$defaultServer)(_elm_lang$core$Maybe$Nothing)('')(_elm_lang$core$Maybe$Nothing)('')(_elm_lang$core$Maybe$Nothing)(
-	{ctor: '[]'})(_user$project$Types$Home)('')(_elm_lang$core$Maybe$Nothing)(_elm_lang$core$Maybe$Nothing);
+	{ctor: '[]'})(_user$project$Types$HomeTimeline)('')(_elm_lang$core$Maybe$Nothing)(_elm_lang$core$Maybe$Nothing);
 
 var _user$project$Auth$oauthResponseDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
@@ -10642,13 +10642,13 @@ var _user$project$View$viewMain = function (model) {
 		switch (_p3.ctor) {
 			case 'SharePath':
 				return _user$project$View$viewSharePath(_p3._0);
-			case 'ShareUpload':
+			case 'UploadFile':
 				if (_p3._0.ctor === 'Nothing') {
 					return _user$project$View$viewShareUpload;
 				} else {
 					return _user$project$View$viewShareUploaded(_p3._0._0);
 				}
-			case 'ShowPhoto':
+			case 'Photo':
 				return A2(_user$project$View$viewPhoto, _p3._0, _p3._1);
 			default:
 				return A2(
@@ -10883,25 +10883,25 @@ var _user$project$Update$getScreenType = F2(
 			return _user$project$Types$PublicTimeline;
 		} else {
 			if (_elm_lang$core$Native_Utils.eq(url.hash, '#me')) {
-				return _user$project$Types$User(
+				return _user$project$Types$UserTimeline(
 					A2(_elm_lang$core$Maybe$withDefault, '', model.userId));
 			} else {
 				if (A2(_elm_lang$core$String$startsWith, '#user:', url.hash)) {
-					return _user$project$Types$User(
+					return _user$project$Types$UserTimeline(
 						A2(_elm_lang$core$String$dropLeft, 6, url.hash));
 				} else {
 					if (A2(_elm_lang$core$String$startsWith, '#upload', url.hash)) {
-						return _user$project$Types$ShareUpload(_elm_lang$core$Maybe$Nothing);
+						return _user$project$Types$UploadFile(_elm_lang$core$Maybe$Nothing);
 					} else {
 						if (A2(_elm_lang$core$String$startsWith, '#photo:', url.hash)) {
 							var _p0 = {ctor: '_Tuple2', _0: model.currentStatus, _1: model.currentPhoto};
 							if (((_p0.ctor === '_Tuple2') && (_p0._0.ctor === 'Just')) && (_p0._1.ctor === 'Just')) {
-								return A2(_user$project$Types$ShowPhoto, _p0._0._0, _p0._1._0);
+								return A2(_user$project$Types$Photo, _p0._0._0, _p0._1._0);
 							} else {
-								return _user$project$Types$Home;
+								return _user$project$Types$HomeTimeline;
 							}
 						} else {
-							return _user$project$Types$Home;
+							return _user$project$Types$HomeTimeline;
 						}
 					}
 				}
@@ -11031,7 +11031,7 @@ var _user$project$Update$getTimeline = F3(
 			switch (_p5.ctor) {
 				case 'PublicTimeline':
 					return '/api/v1/timelines/public';
-				case 'User':
+				case 'UserTimeline':
 					return A2(
 						_elm_lang$core$Basics_ops['++'],
 						'/api/v1/accounts/',
@@ -11063,9 +11063,9 @@ var _user$project$Update$prepareScreenToDisplay = function (model) {
 	switch (_p6.ctor) {
 		case 'SharePath':
 			return _elm_lang$core$Platform_Cmd$none;
-		case 'ShareUpload':
+		case 'UploadFile':
 			return _elm_lang$core$Platform_Cmd$none;
-		case 'ShowPhoto':
+		case 'Photo':
 			return _elm_lang$core$Platform_Cmd$none;
 		default:
 			return A3(_user$project$Update$getTimeline, model.server.url, model.authToken, model.screenShown);
@@ -11153,7 +11153,7 @@ var _user$project$Update$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							screenShown: _user$project$Types$ShareUpload(
+							screenShown: _user$project$Types$UploadFile(
 								_elm_lang$core$Maybe$Just(_p7._0.contents))
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -11372,9 +11372,9 @@ var _user$project$Main$subscriptions = function (_p0) {
 		});
 };
 var _user$project$Main$init = function (url) {
-	var whatToShow = _elm_lang$core$Native_Utils.eq(url.hash, '#public') ? _user$project$Types$PublicTimeline : (A2(_elm_lang$core$String$startsWith, '#user:', url.hash) ? _user$project$Types$User(
+	var whatToShow = _elm_lang$core$Native_Utils.eq(url.hash, '#public') ? _user$project$Types$PublicTimeline : (A2(_elm_lang$core$String$startsWith, '#user:', url.hash) ? _user$project$Types$UserTimeline(
 		A2(_elm_lang$core$String$dropLeft, 6, url.hash)) : (A2(_elm_lang$core$String$startsWith, '#share:', url.hash) ? _user$project$Types$SharePath(
-		A2(_elm_lang$core$String$dropLeft, 7, url.hash)) : (A2(_elm_lang$core$String$startsWith, '#upload', url.hash) ? _user$project$Types$ShareUpload(_elm_lang$core$Maybe$Nothing) : _user$project$Types$Home)));
+		A2(_elm_lang$core$String$dropLeft, 7, url.hash)) : (A2(_elm_lang$core$String$startsWith, '#upload', url.hash) ? _user$project$Types$UploadFile(_elm_lang$core$Maybe$Nothing) : _user$project$Types$HomeTimeline)));
 	return {
 		ctor: '_Tuple2',
 		_0: _elm_lang$core$Native_Utils.update(
