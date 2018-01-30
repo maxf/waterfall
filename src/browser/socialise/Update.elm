@@ -102,7 +102,7 @@ update msg model =
 
         ClosePhoto ->
             ( { model | currentStatus = Nothing, currentPhoto = Nothing }
-            , newUrl "#home" -- WRONG: we should remember the preceding timeline
+            , Navigation.back 1
             )
 
         UrlHasChanged location ->

@@ -11324,7 +11324,7 @@ var _user$project$Update$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{currentStatus: _elm_lang$core$Maybe$Nothing, currentPhoto: _elm_lang$core$Maybe$Nothing}),
-					_1: _elm_lang$navigation$Navigation$newUrl('#home')
+					_1: _elm_lang$navigation$Navigation$back(1)
 				};
 			case 'UrlHasChanged':
 				var newModel = _elm_lang$core$Native_Utils.update(
