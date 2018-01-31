@@ -59,7 +59,7 @@ viewMain model =
             div [] [ viewLogin model ]
 
         Just _ ->
-            case model.screenShown of
+            case model.view of
                 SharePath path ->
                     viewSharePath path
 

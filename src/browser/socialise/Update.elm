@@ -49,7 +49,7 @@ update msg model =
             ( model, getImageFromForm "file-upload" )
 
         FormImageRead imageData ->
-            ( { model | screenShown = UploadFile (Just imageData.contents) }
+            ( { model | view = UploadFile (Just imageData.contents) }
             , Cmd.none
             )
 
@@ -96,19 +96,17 @@ update msg model =
                     )
 
         ViewPhoto status attachment ->
-            ( { model | currentStatus = Just status, currentPhoto = Just attachment }
+            ( { model | view = Photo status attachment }
             , newUrl ("#photo:" ++ status.id ++ ":" ++ attachment.id)
             )
 
         ClosePhoto ->
-            ( { model | currentStatus = Nothing, currentPhoto = Nothing }
-            , Navigation.back 1
-            )
+            ( model, Navigation.back 1 )
 
         UrlHasChanged location ->
             let
                 newModel =
-                    { model | screenShown = getScreenType location model }
+                    { model | view = getScreenType location model }
             in
                 ( newModel
                 , case model.authToken of
@@ -125,7 +123,7 @@ update msg model =
 
 prepareScreenToDisplay : Model -> Cmd Msg
 prepareScreenToDisplay model =
-    case model.screenShown of
+    case model.view of
         SharePath _ ->
             Cmd.none
 
@@ -136,7 +134,7 @@ prepareScreenToDisplay model =
             Cmd.none
 
         _ ->
-            getTimeline model.server.url model.authToken model.screenShown
+            getTimeline model.server.url model.authToken model.view
 
 
 
@@ -232,7 +230,7 @@ shareImage : Model -> Cmd Msg
 shareImage model =
     let
         imagePath =
-            case model.screenShown of
+            case model.view of
                 SharePath path ->
                     path
 
@@ -277,11 +275,8 @@ getScreenType url model =
     else if String.startsWith "#upload" url.hash then
         UploadFile Nothing
     else if String.startsWith "#photo:" url.hash then
-        case ( model.currentStatus, model.currentPhoto ) of
-            ( Just status, Just photo ) ->
-                Photo status photo
-
-            _ ->
-                HomeTimeline
+        -- extract statusId and attachmentId
+        -- then find status and attachment in model.timeline
+        Photo status attachment
     else
         HomeTimeline

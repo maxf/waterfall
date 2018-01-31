@@ -14,10 +14,8 @@ type alias Model =
     , password : String
     , message : Maybe String
     , timeline : List Status
-    , screenShown : View
+    , view : View
     , shareText : String
-    , currentStatus : Maybe Status
-    , currentPhoto : Maybe Attachment
     }
 
 
@@ -33,8 +31,6 @@ initialModel =
         []
         HomeTimeline
         ""
-        Nothing
-        Nothing
 
 
 changeServerUrl : Model -> String -> Model
