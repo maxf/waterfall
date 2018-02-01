@@ -69,8 +69,12 @@ viewMain model =
                 ShareUpload (Just dataUrl) ->
                     viewShareUploaded dataUrl
 
-                ShowPhoto status attachment ->
-                    viewPhoto status attachment
+                ShowPhoto _ _ ->
+                    case ( model.currentStatus, model.currentPhoto ) of
+                        (Just status, Just photo) ->
+                            viewPhoto status photo
+                        _ ->
+                            div [] [ viewTimeline model.timeline ]
 
                 _ ->
                     div [] [ viewTimeline model.timeline ]
@@ -161,8 +165,8 @@ viewAttachment status attachment =
             span [] []
 
         _ ->
-            span
-                [ onClick (ViewPhoto status attachment)  ]
+            a
+                [ href ("#photo:" ++ status.id ++ ":" ++ attachment.id) ]
                 [ img [ src attachment.previewUrl ] [] ]
 
 

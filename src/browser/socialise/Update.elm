@@ -82,6 +82,29 @@ update msg model =
             , prepareScreenToDisplay model
             )
 
+        UserFetched (Err e) ->
+            ( { model | message = Just ("account fetch error: " ++ httpErrorMessage e) }
+            , Cmd.none
+            )
+
+        UserFetched (Ok account) ->
+            ( { model | username = account.acct, userId = Just account.id }
+            , prepareScreenToDisplay model
+            )
+
+        PhotoFetched attachmentId (Ok status) ->
+            ( { model
+                | currentStatus = status
+                , currentPhoto = status.mediaAttachments.find attachmentId
+              }
+            , Cmd.none
+            )
+
+        PhotoFetched attachmentId (Err e) ->
+            ( { model | message = Just ("status fetch error: " ++ httpErrorMessage e) }
+            , Cmd.none
+            )
+
         CloseMessage ->
             ( { model | message = Nothing }, Cmd.none )
 
@@ -95,14 +118,10 @@ update msg model =
                     , getUser tokenValue model.server.url
                     )
 
-        ViewPhoto status attachment ->
-            ( { model | currentStatus = Just status, currentPhoto = Just attachment }
-            , newUrl ("#photo:" ++ status.id ++ ":" ++ attachment.id)
-            )
-
         ClosePhoto ->
             ( { model | currentStatus = Nothing, currentPhoto = Nothing }
-            , newUrl "#home" -- WRONG: we should remember the preceding timeline
+            , newUrl "#home"
+              -- WRONG: we should remember the preceding timeline
             )
 
         UrlHasChanged location ->
@@ -132,11 +151,43 @@ prepareScreenToDisplay model =
         ShareUpload _ ->
             Cmd.none
 
-        ShowPhoto _ _ ->
-            Cmd.none
+        ShowPhoto statusId attachmentId ->
+            getPhoto model.server.url model.authToken statusId attachmentId
 
         _ ->
             getTimeline model.server.url model.authToken model.screenShown
+
+
+
+-- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#fetching-a-status
+
+
+getPhoto : String -> String -> String -> String -> Cmd Msg
+getPhoto instanceUrl authToken statusId attachmentId =
+    let
+        urlPath =
+            "/api/v1/statuses/" ++ Http.encodeUri statusId
+
+        headers =
+            case authToken of
+                Nothing ->
+                    []
+
+                Just token ->
+                    [ Http.header "Authorization" ("Bearer " ++ token) ]
+
+        request =
+            Http.request
+                { method = "GET"
+                , headers = headers
+                , url = instanceUrl ++ urlPath
+                , body = Http.emptyBody
+                , expect = Http.expectJson statusDecoder
+                , timeout = Nothing
+                , withCredentials = False
+                }
+    in
+        Http.send (PhotoFetched attachmentId) request
 
 
 
@@ -276,12 +327,12 @@ getScreenType url model =
         User (String.dropLeft 6 url.hash)
     else if String.startsWith "#upload" url.hash then
         ShareUpload Nothing
-    else if String.startsWith "#photo:" url.hash then
-        case ( model.currentStatus, model.currentPhoto ) of
-            ( Just status, Just photo ) ->
-                ShowPhoto status photo
-
-            _ ->
-                Home
+        --    else if String.startsWith "#photo:" url.hash then
+        --        case ( model.currentStatus, model.currentPhoto ) of
+        --            ( Just status, Just photo ) ->
+        --                ShowPhoto status photo
+        --
+        --            _ ->
+        --                Home
     else
         Home
