@@ -60,6 +60,14 @@ viewMain model =
 
         Just _ ->
             case model.screenShown of
+                Photo _ attachmentId ->
+                    case ( model.currentStatus, attachmentId ) of
+                        ( Just status, photoId ) ->
+                            viewPhoto status photoId
+
+                        _ ->
+                            div [] []
+
                 SharePath path ->
                     viewSharePath path
 
@@ -69,21 +77,45 @@ viewMain model =
                 ShareUpload (Just dataUrl) ->
                     viewShareUploaded dataUrl
 
-                ShowPhoto status attachment ->
-                    viewPhoto status attachment
-
                 _ ->
                     div [] [ viewTimeline model.timeline ]
 
 
-viewPhoto : Status -> Attachment -> Html Msg
-viewPhoto status attachment =
-    div [ class "lightbox", onClick ClosePhoto ]
-        [ div [ class "lightbox-inner" ]
-              [ img [ class "photo", src attachment.url ][]
-              , viewStatusContent status.content
-              ]
-        ]
+viewPhoto : Status -> String -> Html Msg
+viewPhoto status attachmentId =
+    let
+        attachment : List Attachment
+        attachment =
+            List.filter
+                (\a -> a.id == attachmentId)
+                status.mediaAttachments
+    in
+        case attachment of
+            [ image ] ->
+                let
+                    element =
+                        case image.type_ of
+                            Image ->
+                                img [ class "photo", src image.url ] []
+
+                            Video ->
+                                video [] [ source [ src image.url ] [] ]
+
+                            Gifv ->
+                                video [] [ source [ src image.url ] [] ]
+
+                            _ ->
+                                span [] [ text "Can't show this content" ]
+                in
+                    div [ class "lightbox" ]
+                        [ div [ class "lightbox-inner" ]
+                            [ element
+                            , viewStatusContent status.content
+                            ]
+                        ]
+
+            _ ->
+                div [] []
 
 
 viewLogin : Model -> Html Msg
@@ -144,7 +176,6 @@ viewStatus : Status -> Html Msg
 viewStatus status =
     div [ class "status" ]
         [ div [] (List.map (viewAttachment status) status.mediaAttachments)
---        , viewStatusContent status.content
         , div
             [ class "account" ]
             [ a
@@ -162,7 +193,7 @@ viewAttachment status attachment =
 
         _ ->
             span
-                [ onClick (ViewPhoto status attachment)  ]
+                [ onClick (ViewPhoto status attachment) ]
                 [ img [ src attachment.previewUrl ] [] ]
 
 

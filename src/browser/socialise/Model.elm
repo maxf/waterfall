@@ -17,7 +17,6 @@ type alias Model =
     , screenShown : Screen
     , shareText : String
     , currentStatus : Maybe Status
-    , currentPhoto : Maybe Attachment
     }
 
 
@@ -33,7 +32,6 @@ initialModel =
         []
         Home
         ""
-        Nothing
         Nothing
 
 

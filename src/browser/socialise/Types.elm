@@ -22,10 +22,10 @@ type Msg
     | ImageShared (Result Http.Error String)
     | TimelineFetched (Result Http.Error (List Status))
     | UserFetched (Result Http.Error Account)
+    | PhotoFetched (Result Http.Error Status)
     | CloseMessage
     | AuthTokenRetrieved ( String, Maybe String )
     | ViewPhoto Status Attachment
-    | ClosePhoto
     | UrlHasChanged Location
     | Logout
 
@@ -121,6 +121,7 @@ type Screen
     = Home
     | PublicTimeline
     | User String -- <user id>
+    | Photo String String -- <statusId> <attachmentId>
     | SharePath String -- <path of photo to share on server>
     | ShareUpload (Maybe String) -- <data of the image loaded>
     | ShowPhoto Status Attachment

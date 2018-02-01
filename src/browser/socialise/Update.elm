@@ -1,8 +1,9 @@
 module Update exposing (update)
 
 import Http
+import Regex exposing (Regex, regex, find, HowMany(..))
 import Maybe exposing (withDefault)
-import Navigation exposing (Location, modifyUrl, newUrl)
+import Navigation exposing (Location, newUrl, modifyUrl)
 import Model exposing (Model, changeServerUrl)
 import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
 import Ports exposing (..)
@@ -82,6 +83,16 @@ update msg model =
             , prepareScreenToDisplay model
             )
 
+        PhotoFetched (Err e) ->
+            ( { model | message = Just ("timeline error: " ++ httpErrorMessage e) }
+            , Cmd.none
+            )
+
+        PhotoFetched (Ok status) ->
+            ( { model | currentStatus = Just status }
+            , Cmd.none
+            )
+
         CloseMessage ->
             ( { model | message = Nothing }, Cmd.none )
 
@@ -96,31 +107,46 @@ update msg model =
                     )
 
         ViewPhoto status attachment ->
-            ( { model | currentStatus = Just status, currentPhoto = Just attachment }
+            ( { model | screenShown = Photo status.id attachment.id }
             , newUrl ("#photo:" ++ status.id ++ ":" ++ attachment.id)
             )
 
-        ClosePhoto ->
-            ( { model | currentStatus = Nothing, currentPhoto = Nothing }
-            , newUrl "#home" -- WRONG: we should remember the preceding timeline
-            )
-
-        UrlHasChanged location ->
-            let
-                newModel =
-                    { model | screenShown = getScreenType location model }
-            in
-                ( newModel
-                , case model.authToken of
-                    Just _ ->
-                        prepareScreenToDisplay newModel
-
-                    Nothing ->
-                        Cmd.none
-                )
-
         Logout ->
             ( { model | authToken = Nothing }, clearAuthToken )
+
+        UrlHasChanged location ->
+            ( { model | screenShown = screenType location model }
+            , prepareScreenToDisplay model
+            )
+
+
+
+-- URL change update model
+
+
+screenType : Location -> Model -> Screen
+screenType url model =
+    if url.hash == "#public" then
+        PublicTimeline
+    else if url.hash == "#me" then
+        User (model.userId |> withDefault "")
+    else if String.startsWith "#user:" url.hash then
+        User (String.dropLeft 6 url.hash)
+    else if String.startsWith "#upload" url.hash then
+        ShareUpload Nothing
+    else if String.startsWith "#photo" url.hash then
+        case photoHashParts url.hash of
+            Ok ( statusId, attachmentId ) ->
+                Photo statusId attachmentId
+
+            Err _ ->
+                Home
+    else
+        Home
+
+
+
+-- URL change generate command
 
 
 prepareScreenToDisplay : Model -> Cmd Msg
@@ -132,11 +158,68 @@ prepareScreenToDisplay model =
         ShareUpload _ ->
             Cmd.none
 
-        ShowPhoto _ _ ->
-            Cmd.none
+        Photo statusId _ ->
+            getStatus model.server.url model.authToken statusId
 
         _ ->
             getTimeline model.server.url model.authToken model.screenShown
+
+
+
+-- parse photo hash
+
+
+photoUrlRegex : Regex
+photoUrlRegex =
+    regex "#photo:([^:]+):(.*)"
+
+
+photoHashParts : String -> Result String ( String, String )
+photoHashParts hash =
+    let
+        matches =
+            find (AtMost 1) photoUrlRegex hash
+    in
+        case matches of
+            [ match ] ->
+                case match.submatches of
+                    [ Just photoId, Just attachmentId ] ->
+                        Ok ( photoId, attachmentId )
+
+                    _ ->
+                        Err "no photo URL parts matched"
+
+            _ ->
+                Err "no matches found in photo URL"
+
+
+
+-- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#fetching-a-status
+
+
+getStatus : String -> Maybe String -> String -> Cmd Msg
+getStatus instanceUrl authToken statusId =
+    let
+        headers =
+            case authToken of
+                Nothing ->
+                    []
+
+                Just token ->
+                    [ Http.header "Authorization" ("Bearer " ++ token) ]
+
+        request =
+            Http.request
+                { method = "GET"
+                , headers = headers
+                , url = instanceUrl ++ "/api/v1/statuses/" ++ statusId
+                , body = Http.emptyBody
+                , expect = Http.expectJson statusDecoder
+                , timeout = Nothing
+                , withCredentials = False
+                }
+    in
+        Http.send PhotoFetched request
 
 
 
@@ -264,24 +347,3 @@ shareImage model =
                 }
     in
         Http.send ImageShared request
-
-
-getScreenType : Location -> Model -> Screen
-getScreenType url model =
-    if url.hash == "#public" then
-        PublicTimeline
-    else if url.hash == "#me" then
-        User (model.userId |> withDefault "")
-    else if String.startsWith "#user:" url.hash then
-        User (String.dropLeft 6 url.hash)
-    else if String.startsWith "#upload" url.hash then
-        ShareUpload Nothing
-    else if String.startsWith "#photo:" url.hash then
-        case ( model.currentStatus, model.currentPhoto ) of
-            ( Just status, Just photo ) ->
-                ShowPhoto status photo
-
-            _ ->
-                Home
-    else
-        Home
