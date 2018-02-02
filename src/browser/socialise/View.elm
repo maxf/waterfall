@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Attributes.Extra exposing (..)
 import Html.Events exposing (onInput, onClick, onSubmit, on)
 import Json.Decode exposing (succeed)
-import Types exposing (Msg(..), Status, Attachment, AttachmentType(..), Screen(..), servers)
+import Types exposing (..)
 import Model exposing (Model)
 
 
@@ -81,14 +81,14 @@ viewMain model =
                     div [] [ viewTimeline model.timeline ]
 
 
-viewPhoto : Status -> String -> Html Msg
+viewPhoto : Status -> AttachmentId -> Html Msg
 viewPhoto status attachmentId =
     let
         attachment : List Attachment
         attachment =
             List.filter
                 (\a -> a.id == attachmentId)
-                status.mediaAttachments
+                status.attachments
     in
         case attachment of
             [ image ] ->
@@ -156,7 +156,7 @@ viewTimeline : List Status -> Html Msg
 viewTimeline timeline =
     let
         timelineOnlyAttachments =
-            List.filter (\s -> s.mediaAttachments /= []) timeline
+            List.filter (\s -> s.attachments /= []) timeline
     in
         div [ class "timeline" ]
             (List.map viewStatus timelineOnlyAttachments)
@@ -175,7 +175,7 @@ viewStatusContent content =
 viewStatus : Status -> Html Msg
 viewStatus status =
     div [ class "status" ]
-        [ div [] (List.map (viewAttachment status) status.mediaAttachments)
+        [ div [] (List.map (viewAttachment status) status.attachments)
         , div
             [ class "account" ]
             [ a
