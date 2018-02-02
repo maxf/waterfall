@@ -108,7 +108,7 @@ update msg model =
 
         ViewPhoto status attachment ->
             ( { model | screenShown = Photo status.id attachment.id }
-            , newUrl ("#photo:" ++ status.id ++ ":" ++ attachment.id)
+            , newUrl ("#photo:" ++ (statusIdToString status.id) ++ ":" ++ attachment.id)
             )
 
         Logout ->
@@ -174,7 +174,7 @@ photoUrlRegex =
     regex "#photo:([^:]+):(.*)"
 
 
-photoHashParts : String -> Result String ( String, String )
+photoHashParts : String -> Result String ( StatusId, String )
 photoHashParts hash =
     let
         matches =
@@ -184,7 +184,7 @@ photoHashParts hash =
             [ match ] ->
                 case match.submatches of
                     [ Just photoId, Just attachmentId ] ->
-                        Ok ( photoId, attachmentId )
+                        Ok ( StatusId photoId, attachmentId )
 
                     _ ->
                         Err "no photo URL parts matched"
@@ -197,8 +197,8 @@ photoHashParts hash =
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#fetching-a-status
 
 
-getStatus : String -> Maybe String -> String -> Cmd Msg
-getStatus instanceUrl authToken statusId =
+getStatus : String -> Maybe String -> StatusId -> Cmd Msg
+getStatus instanceUrl authToken (StatusId statusId) =
     let
         headers =
             case authToken of

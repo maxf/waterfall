@@ -85,8 +85,17 @@ type alias Account =
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#status
 
 
+type StatusId
+    = StatusId String
+
+
+statusIdToString : StatusId -> String
+statusIdToString (StatusId sid) =
+    sid
+
+
 type alias Status =
-    { id : String
+    { id : StatusId
     , url : Maybe String
     , account : Account
     , content : Maybe String
@@ -105,8 +114,17 @@ type AttachmentType
     | Unknown
 
 
+type AttachmentId
+    = AttachmentId String
+
+
+attachmentIdToString : AttachmentId -> String
+attachmentIdToString (AttachmentId aid) =
+    aid
+
+
 type alias Attachment =
-    { id : String
+    { id : AttachmentId
     , type_ : AttachmentType
     , url : String -- URL of the locally hosted version of the image
     , previewUrl : String -- URL of the preview image
@@ -121,7 +139,7 @@ type Screen
     = Home
     | PublicTimeline
     | User String -- <user id>
-    | Photo String String -- <statusId> <attachmentId>
+    | Photo StatusId String -- <statusId> <attachmentId>
     | SharePath String -- <path of photo to share on server>
     | ShareUpload (Maybe String) -- <data of the image loaded>
     | ShowPhoto Status Attachment
@@ -161,6 +179,11 @@ mediaAttachmentDecoder =
         |> required "preview_url" string
 
 
+mediaAttachmentIdDecoder : Decoder AttachmentId
+mediaAttachmentIdDecoder =
+    map (\s -> AttachmentId s) string
+
+
 accountDecoder : Decoder Account
 accountDecoder =
     succeed Account
@@ -172,8 +195,13 @@ accountDecoder =
 statusDecoder : Decoder Status
 statusDecoder =
     succeed Status
-        |> required "id" string
+        |> required "id" statusIdDecoder
         |> optional "url" (nullable string) Nothing
         |> required "account" accountDecoder
         |> optional "content" (nullable string) Nothing
         |> required "media_attachments" (list mediaAttachmentDecoder)
+
+
+statusIdDecoder : Decoder StatusId
+statusIdDecoder =
+    map (\s -> StatusId s) string
