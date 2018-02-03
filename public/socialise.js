@@ -11646,14 +11646,15 @@ var _user$project$Update$update = F2(
 					_1: _user$project$Auth$clearAuthToken
 				};
 			default:
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						screenShown: A2(_user$project$Update$screenType, _p12._0, model)
+					});
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							screenShown: A2(_user$project$Update$screenType, _p12._0, model)
-						}),
-					_1: _user$project$Update$prepareScreenToDisplay(model)
+					_0: newModel,
+					_1: _user$project$Update$prepareScreenToDisplay(newModel)
 				};
 		}
 	});

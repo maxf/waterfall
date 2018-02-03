@@ -120,9 +120,11 @@ update msg model =
             ( { model | authToken = Nothing }, clearAuthToken )
 
         UrlHasChanged location ->
-            ( { model | screenShown = screenType location model }
-            , prepareScreenToDisplay model
-            )
+            let
+                newModel =
+                    { model | screenShown = screenType location model }
+            in
+                ( newModel, prepareScreenToDisplay newModel )
 
 
 
