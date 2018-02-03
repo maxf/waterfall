@@ -18899,63 +18899,31 @@ var _user$project$ViewPhotos$viewPhoto = function (model) {
 									ctor: '::',
 									_0: A2(
 										_elm_lang$html$Html$button,
+										{ctor: '[]'},
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html_Events$onClick(
-												A2(_user$project$Update$UserAskedToRotateAPhoto, 90, path)),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: A2(_elm_community$material_icons$Material_Icons_Image$rotate_right, _elm_lang$core$Color$black, 40),
+											_0: A2(
+												_elm_lang$html$Html$a,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$href(
+														A2(
+															_elm_lang$core$Basics_ops['++'],
+															'/socialise#share:',
+															_elm_lang$http$Http$encodeUri(path))),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: A2(_elm_community$material_icons$Material_Icons_Social$share, _elm_lang$core$Color$black, 40),
+													_1: {ctor: '[]'}
+												}),
 											_1: {ctor: '[]'}
 										}),
 									_1: {
 										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$button,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onClick(
-													A2(_user$project$Update$UserAskedToRotateAPhoto, 270, path)),
-												_1: {ctor: '[]'}
-											},
-											{
-												ctor: '::',
-												_0: A2(_elm_community$material_icons$Material_Icons_Image$rotate_left, _elm_lang$core$Color$black, 40),
-												_1: {ctor: '[]'}
-											}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$button,
-												{ctor: '[]'},
-												{
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$a,
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$href(
-																A2(
-																	_elm_lang$core$Basics_ops['++'],
-																	'/socialise#share:',
-																	_elm_lang$http$Http$encodeUri(path))),
-															_1: {ctor: '[]'}
-														},
-														{
-															ctor: '::',
-															_0: A2(_elm_community$material_icons$Material_Icons_Social$share, _elm_lang$core$Color$black, 40),
-															_1: {ctor: '[]'}
-														}),
-													_1: {ctor: '[]'}
-												}),
-											_1: {
-												ctor: '::',
-												_0: nextPhotoButton,
-												_1: {ctor: '[]'}
-											}
-										}
+										_0: nextPhotoButton,
+										_1: {ctor: '[]'}
 									}
 								}
 							}
