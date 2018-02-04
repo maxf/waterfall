@@ -21,10 +21,10 @@ type Msg
     | FormImageRead ImagePortData
     | ImageShared (Result Http.Error String)
     | TimelineFetched (Result Http.Error (List Status))
-    | UserFetched (Result Http.Error Account)
+    | UserDetailsFetched (Result Http.Error Account)
     | PhotoFetched (Result Http.Error Status)
     | CloseMessage
-    | AuthTokenRetrieved ( String, Maybe String )
+    | AuthTokenRetrievedFromLocalStorage ( String, Maybe String )
     | ViewPhoto Status Attachment
     | UrlHasChanged Location
     | Logout
@@ -137,12 +137,14 @@ type alias Attachment =
 
 type Screen
     = Home
+    | Profile
     | PublicTimeline
     | User String -- <user id>
     | Photo StatusId AttachmentId -- <statusId> <attachmentId>
+    | Login
     | SharePath String -- <path of photo to share on server>
     | ShareUpload (Maybe String) -- <data of the image loaded>
-    | ShowPhoto Status Attachment
+
 
 
 
