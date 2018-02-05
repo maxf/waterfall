@@ -102,12 +102,12 @@ viewPhoto model =
                         , button
                             [ onClick (UserAskedToDeleteAPhoto path) ]
                             [ delete_forever black 40 ]
-                        , button
-                            [ onClick (UserAskedToRotateAPhoto 90 path) ]
-                            [ rotate_right black 40 ]
-                        , button
-                            [ onClick (UserAskedToRotateAPhoto 270 path) ]
-                            [ rotate_left black 40 ]
+                        -- , button
+                        --     [ onClick (UserAskedToRotateAPhoto 90 path) ]
+                        --     [ rotate_right black 40 ]
+                        -- , button
+                        --     [ onClick (UserAskedToRotateAPhoto 270 path) ]
+                        --     [ rotate_left black 40 ]
                         , button
                             []
                             [ a

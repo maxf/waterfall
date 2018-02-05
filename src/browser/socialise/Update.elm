@@ -1,11 +1,11 @@
-module Update exposing (update)
+module Update exposing (update, photoHashParts)
 
 import Http
 import Regex exposing (Regex, regex, find, HowMany(..))
 import Maybe exposing (withDefault)
 import Navigation exposing (Location, newUrl, modifyUrl)
 import Model exposing (Model, changeServerUrl)
-import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
+import Auth exposing (authenticate, storeAuthToken, clearAuthToken, checkAuthToken)
 import Ports exposing (..)
 import Types exposing (..)
 
@@ -25,9 +25,17 @@ update msg model =
         AuthSubmit ->
             ( model, authenticate model )
 
+        AuthReturn (Err error) ->
+            ( { model | message = Just ("auth error: " ++ httpErrorMessage error) }
+            , Cmd.none
+            )
+
         AuthReturn (Ok response) ->
             { model | authToken = Just response.token, message = Nothing }
-                ! [ storeAuthToken response.token, getUser response.token model.server.url ]
+                ! [ storeAuthToken response.token
+                  , fetchCurrentUserDetails response.token model.server.url
+                  , modifyUrl "#home"
+                  ]
 
         ShareTextInput text ->
             ( { model | shareText = text }, Cmd.none )
@@ -62,25 +70,26 @@ update msg model =
         ImageShared (Ok _) ->
             ( model, modifyUrl "#home" )
 
-        AuthReturn (Err error) ->
-            ( { model | message = Just ("auth error: " ++ httpErrorMessage error) }, Cmd.none )
-
         TimelineFetched (Ok timeline) ->
-            ( { model | timeline = List.filter (\s -> s.mediaAttachments /= []) timeline }
+            ( { model | timeline = List.filter (\s -> s.attachments /= []) timeline }
             , Cmd.none
             )
 
         TimelineFetched (Err e) ->
             ( { model | message = Just ("timeline error: " ++ httpErrorMessage e) }, Cmd.none )
 
-        UserFetched (Err e) ->
+        UserDetailsFetched (Err e) ->
             ( { model | message = Just ("account fetch error: " ++ httpErrorMessage e) }
             , Cmd.none
             )
 
-        UserFetched (Ok account) ->
-            ( { model | username = account.acct, userId = Just account.id }
-            , prepareScreenToDisplay model
+        UserDetailsFetched (Ok account) ->
+            let
+                newModel =
+                    { model | username = account.acct, userId = Just account.id }
+            in
+            ( newModel
+            , prepareScreenToDisplay newModel
             )
 
         PhotoFetched (Err e) ->
@@ -96,28 +105,42 @@ update msg model =
         CloseMessage ->
             ( { model | message = Nothing }, Cmd.none )
 
-        AuthTokenRetrieved ( _, token ) ->
+        AuthTokenRetrievedFromLocalStorage ( _, token ) ->
             case token of
                 Nothing ->
-                    ( model, Cmd.none )
+                    ( model, modifyUrl "#login" )
 
                 Just tokenValue ->
-                    ( { model | authToken = token, password = "" }
-                    , getUser tokenValue model.server.url
-                    )
+                    { model | authToken = token, password = "" }
+                    ! [ fetchCurrentUserDetails tokenValue model.server.url ]
+
+
 
         ViewPhoto status attachment ->
             ( { model | screenShown = Photo status.id attachment.id }
-            , newUrl ("#photo:" ++ (statusIdToString status.id) ++ ":" ++ attachment.id)
+            , newUrl
+                ("#photo:"
+                    ++ (statusIdToString status.id)
+                    ++ ":"
+                    ++ (attachmentIdToString attachment.id)
+                )
             )
 
         Logout ->
-            ( { model | authToken = Nothing }, clearAuthToken )
+            let
+                newModel =
+                    { model | authToken = Nothing }
+                _ = Debug.log "Logging" "out"
+            in
+                newModel ! [ clearAuthToken, Debug.log "><" (modifyUrl "") ]
 
         UrlHasChanged location ->
-            ( { model | screenShown = screenType location model }
-            , prepareScreenToDisplay model
-            )
+            let
+                newModel =
+                    { model | screenShown = screenType location model }
+                _ = Debug.log "type" (screenType location model)
+            in
+                ( newModel, prepareScreenToDisplay newModel )
 
 
 
@@ -126,23 +149,27 @@ update msg model =
 
 screenType : Location -> Model -> Screen
 screenType url model =
-    if url.hash == "#public" then
+    if url.hash == "#login" then
+        Login
+    else if url.hash == "" || url.hash == "#" then
         PublicTimeline
+    else if url.hash == "#home" then
+        Home
     else if url.hash == "#me" then
-        User (model.userId |> withDefault "")
+        Profile
     else if String.startsWith "#user:" url.hash then
         User (String.dropLeft 6 url.hash)
     else if String.startsWith "#upload" url.hash then
         ShareUpload Nothing
-    else if String.startsWith "#photo" url.hash then
+    else if String.startsWith "#photo:" url.hash then
         case photoHashParts url.hash of
             Ok ( statusId, attachmentId ) ->
                 Photo statusId attachmentId
 
             Err _ ->
-                Home
+                PublicTimeline
     else
-        Home
+        PublicTimeline
 
 
 
@@ -152,17 +179,51 @@ screenType url model =
 prepareScreenToDisplay : Model -> Cmd Msg
 prepareScreenToDisplay model =
     case model.screenShown of
-        SharePath _ ->
+        Login ->
             Cmd.none
 
+        SharePath _ ->
+            case model.authToken of
+                Nothing ->
+                    authenticate model
+
+                _ ->
+                    Cmd.none
+
         ShareUpload _ ->
-            Cmd.none
+            case model.authToken of
+                Nothing ->
+                    authenticate model
+
+                _ ->
+                    Cmd.none
 
         Photo statusId _ ->
             getStatus model.server.url model.authToken statusId
 
-        _ ->
-            getTimeline model.server.url model.authToken model.screenShown
+        Home ->
+            case model.authToken of
+                Nothing ->
+                    checkAuthToken
+
+                _ ->
+                    getTimeline (Debug.log "1" model.server.url) model.authToken Home
+
+        Profile ->
+            case model.authToken of
+                Nothing ->
+                    checkAuthToken
+
+                Just token ->
+                    case model.userId of
+                        Nothing ->
+                            Cmd.none -- wait until callback arrives
+
+                        Just id ->
+                            getTimeline model.server.url model.authToken (User id)
+
+        other ->
+            getTimeline (Debug.log "2" model.server.url) model.authToken other
 
 
 
@@ -174,7 +235,7 @@ photoUrlRegex =
     regex "#photo:([^:]+):(.*)"
 
 
-photoHashParts : String -> Result String ( StatusId, String )
+photoHashParts : String -> Result String ( StatusId, AttachmentId )
 photoHashParts hash =
     let
         matches =
@@ -184,7 +245,7 @@ photoHashParts hash =
             [ match ] ->
                 case match.submatches of
                     [ Just photoId, Just attachmentId ] ->
-                        Ok ( StatusId photoId, attachmentId )
+                        Ok ( StatusId photoId, AttachmentId attachmentId )
 
                     _ ->
                         Err "no photo URL parts matched"
@@ -285,10 +346,10 @@ httpErrorMessage error =
             "Bad payload: " ++ text
 
 
-getUser : String -> String -> Cmd Msg
-getUser authToken instanceUrl =
+fetchCurrentUserDetails : String -> String -> Cmd Msg
+fetchCurrentUserDetails authToken instanceUrl =
     Http.send
-        UserFetched
+        UserDetailsFetched
         (Http.request
             { method = "GET"
             , headers = [ Http.header "Authorization" ("Bearer " ++ authToken) ]

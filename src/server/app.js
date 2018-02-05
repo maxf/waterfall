@@ -97,6 +97,8 @@ const sendPhoto = size => (req, res) => {
       } else {
         sharp(photoFullPath(imagePath))
           .resize(size)
+          .withMetadata()
+          .rotate()
           .toFile(thumbPath)
           .then( () => res.sendFile(thumbPath))
           .catch(err => { res.status(500).send('resize error with:' + photoFullPath(imagePath) + ' -- ' + err) })

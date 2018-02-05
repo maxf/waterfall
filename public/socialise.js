@@ -13845,6 +13845,14 @@ var _elm_lang$navigation$Navigation$onEffects = F4(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Navigation'] = {pkg: 'elm-lang/navigation', init: _elm_lang$navigation$Navigation$init, onEffects: _elm_lang$navigation$Navigation$onEffects, onSelfMsg: _elm_lang$navigation$Navigation$onSelfMsg, tag: 'fx', cmdMap: _elm_lang$navigation$Navigation$cmdMap, subMap: _elm_lang$navigation$Navigation$subMap};
 
+var _user$project$Types$attachmentIdToString = function (_p0) {
+	var _p1 = _p0;
+	return _p1._0;
+};
+var _user$project$Types$statusIdToString = function (_p2) {
+	var _p3 = _p2;
+	return _p3._0;
+};
 var _user$project$Types$AuthResponse = function (a) {
 	return {token: a};
 };
@@ -13898,7 +13906,7 @@ var _user$project$Types$accountDecoder = A3(
 			_elm_lang$core$Json_Decode$succeed(_user$project$Types$Account))));
 var _user$project$Types$Status = F5(
 	function (a, b, c, d, e) {
-		return {id: a, url: b, account: c, content: d, mediaAttachments: e};
+		return {id: a, url: b, account: c, content: d, attachments: e};
 	});
 var _user$project$Types$Attachment = F4(
 	function (a, b, c, d) {
@@ -13912,15 +13920,15 @@ var _user$project$Types$ViewPhoto = F2(
 	function (a, b) {
 		return {ctor: 'ViewPhoto', _0: a, _1: b};
 	});
-var _user$project$Types$AuthTokenRetrieved = function (a) {
-	return {ctor: 'AuthTokenRetrieved', _0: a};
+var _user$project$Types$AuthTokenRetrievedFromLocalStorage = function (a) {
+	return {ctor: 'AuthTokenRetrievedFromLocalStorage', _0: a};
 };
 var _user$project$Types$CloseMessage = {ctor: 'CloseMessage'};
 var _user$project$Types$PhotoFetched = function (a) {
 	return {ctor: 'PhotoFetched', _0: a};
 };
-var _user$project$Types$UserFetched = function (a) {
-	return {ctor: 'UserFetched', _0: a};
+var _user$project$Types$UserDetailsFetched = function (a) {
+	return {ctor: 'UserDetailsFetched', _0: a};
 };
 var _user$project$Types$TimelineFetched = function (a) {
 	return {ctor: 'TimelineFetched', _0: a};
@@ -13953,13 +13961,22 @@ var _user$project$Types$ServerSelect = function (a) {
 var _user$project$Types$Username = function (a) {
 	return {ctor: 'Username', _0: a};
 };
+var _user$project$Types$StatusId = function (a) {
+	return {ctor: 'StatusId', _0: a};
+};
+var _user$project$Types$statusIdDecoder = A2(
+	_elm_lang$core$Json_Decode$map,
+	function (s) {
+		return _user$project$Types$StatusId(s);
+	},
+	_elm_lang$core$Json_Decode$string);
 var _user$project$Types$Unknown = {ctor: 'Unknown'};
 var _user$project$Types$Gifv = {ctor: 'Gifv'};
 var _user$project$Types$Video = {ctor: 'Video'};
 var _user$project$Types$Image = {ctor: 'Image'};
 var _user$project$Types$attachmentTypeDecoder = function (s) {
-	var _p0 = s;
-	switch (_p0) {
+	var _p4 = s;
+	switch (_p4) {
 		case 'image':
 			return _elm_lang$core$Json_Decode$succeed(_user$project$Types$Image);
 		case 'video':
@@ -13970,7 +13987,16 @@ var _user$project$Types$attachmentTypeDecoder = function (s) {
 			return _elm_lang$core$Json_Decode$succeed(_user$project$Types$Unknown);
 	}
 };
-var _user$project$Types$mediaAttachmentDecoder = A3(
+var _user$project$Types$AttachmentId = function (a) {
+	return {ctor: 'AttachmentId', _0: a};
+};
+var _user$project$Types$attachmentIdDecoder = A2(
+	_elm_lang$core$Json_Decode$map,
+	function (s) {
+		return _user$project$Types$AttachmentId(s);
+	},
+	_elm_lang$core$Json_Decode$string);
+var _user$project$Types$attachmentDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 	'preview_url',
 	_elm_lang$core$Json_Decode$string,
@@ -13985,12 +14011,12 @@ var _user$project$Types$mediaAttachmentDecoder = A3(
 			A3(
 				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 				'id',
-				_elm_lang$core$Json_Decode$string,
+				_user$project$Types$attachmentIdDecoder,
 				_elm_lang$core$Json_Decode$succeed(_user$project$Types$Attachment)))));
 var _user$project$Types$statusDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 	'media_attachments',
-	_elm_lang$core$Json_Decode$list(_user$project$Types$mediaAttachmentDecoder),
+	_elm_lang$core$Json_Decode$list(_user$project$Types$attachmentDecoder),
 	A4(
 		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$optional,
 		'content',
@@ -14008,19 +14034,16 @@ var _user$project$Types$statusDecoder = A3(
 				A3(
 					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
 					'id',
-					_elm_lang$core$Json_Decode$string,
+					_user$project$Types$statusIdDecoder,
 					_elm_lang$core$Json_Decode$succeed(_user$project$Types$Status))))));
 var _user$project$Types$timelineDecoder = _elm_lang$core$Json_Decode$list(_user$project$Types$statusDecoder);
-var _user$project$Types$ShowPhoto = F2(
-	function (a, b) {
-		return {ctor: 'ShowPhoto', _0: a, _1: b};
-	});
 var _user$project$Types$ShareUpload = function (a) {
 	return {ctor: 'ShareUpload', _0: a};
 };
 var _user$project$Types$SharePath = function (a) {
 	return {ctor: 'SharePath', _0: a};
 };
+var _user$project$Types$Login = {ctor: 'Login'};
 var _user$project$Types$Photo = F2(
 	function (a, b) {
 		return {ctor: 'Photo', _0: a, _1: b};
@@ -14029,6 +14052,7 @@ var _user$project$Types$User = function (a) {
 	return {ctor: 'User', _0: a};
 };
 var _user$project$Types$PublicTimeline = {ctor: 'PublicTimeline'};
+var _user$project$Types$Profile = {ctor: 'Profile'};
 var _user$project$Types$Home = {ctor: 'Home'};
 
 var _user$project$Ports$localStorageSetItem = _elm_lang$core$Native_Platform.outgoingPort(
@@ -14439,7 +14463,7 @@ var _user$project$View$viewStatus = function (status) {
 				A2(
 					_elm_lang$core$List$map,
 					_user$project$View$viewAttachment(status),
-					status.mediaAttachments)),
+					status.attachments)),
 			_1: {
 				ctor: '::',
 				_0: A2(
@@ -14497,7 +14521,7 @@ var _user$project$View$viewTimeline = function (timeline) {
 		_elm_lang$core$List$filter,
 		function (s) {
 			return !_elm_lang$core$Native_Utils.eq(
-				s.mediaAttachments,
+				s.attachments,
 				{ctor: '[]'});
 		},
 		timeline);
@@ -14688,7 +14712,7 @@ var _user$project$View$viewPhoto = F2(
 			function (a) {
 				return _elm_lang$core$Native_Utils.eq(a.id, attachmentId);
 			},
-			status.mediaAttachments);
+			status.attachments);
 		var _p2 = attachment;
 		if ((_p2.ctor === '::') && (_p2._1.ctor === '[]')) {
 			var _p4 = _p2._0;
@@ -14786,60 +14810,80 @@ var _user$project$View$viewPhoto = F2(
 		}
 	});
 var _user$project$View$viewMain = function (model) {
-	var _p5 = model.authToken;
-	if (_p5.ctor === 'Nothing') {
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: _user$project$View$viewLogin(model),
-				_1: {ctor: '[]'}
-			});
-	} else {
-		var _p6 = model.screenShown;
-		switch (_p6.ctor) {
-			case 'Photo':
-				var _p7 = {ctor: '_Tuple2', _0: model.currentStatus, _1: _p6._1};
-				if ((_p7.ctor === '_Tuple2') && (_p7._0.ctor === 'Just')) {
-					return A2(_user$project$View$viewPhoto, _p7._0._0, _p7._1);
-				} else {
-					return A2(
-						_elm_lang$html$Html$div,
-						{ctor: '[]'},
-						{ctor: '[]'});
-				}
-			case 'SharePath':
-				return _user$project$View$viewSharePath(_p6._0);
-			case 'ShareUpload':
-				if (_p6._0.ctor === 'Nothing') {
-					return _user$project$View$viewShareUpload;
-				} else {
-					return _user$project$View$viewShareUploaded(_p6._0._0);
-				}
-			default:
+	var _p5 = model.screenShown;
+	switch (_p5.ctor) {
+		case 'Login':
+			return _user$project$View$viewLogin(model);
+		case 'Photo':
+			var _p6 = {ctor: '_Tuple2', _0: model.currentStatus, _1: _p5._1};
+			if ((_p6.ctor === '_Tuple2') && (_p6._0.ctor === 'Just')) {
+				return A2(_user$project$View$viewPhoto, _p6._0._0, _p6._1);
+			} else {
+				return A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{ctor: '[]'});
+			}
+		case 'SharePath':
+			var _p7 = model.authToken;
+			if (_p7.ctor === 'Nothing') {
 				return A2(
 					_elm_lang$html$Html$div,
 					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _user$project$View$viewTimeline(model.timeline),
+						_0: _user$project$View$viewLogin(model),
 						_1: {ctor: '[]'}
 					});
-		}
+			} else {
+				return _user$project$View$viewSharePath(_p5._0);
+			}
+		case 'ShareUpload':
+			if (_p5._0.ctor === 'Nothing') {
+				var _p8 = model.authToken;
+				if (_p8.ctor === 'Nothing') {
+					return A2(
+						_elm_lang$html$Html$div,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _user$project$View$viewLogin(model),
+							_1: {ctor: '[]'}
+						});
+				} else {
+					return _user$project$View$viewShareUpload;
+				}
+			} else {
+				var _p9 = model.authToken;
+				if (_p9.ctor === 'Nothing') {
+					return A2(
+						_elm_lang$html$Html$div,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _user$project$View$viewLogin(model),
+							_1: {ctor: '[]'}
+						});
+				} else {
+					return _user$project$View$viewShareUploaded(_p5._0._0);
+				}
+			}
+		default:
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _user$project$View$viewTimeline(model.timeline),
+					_1: {ctor: '[]'}
+				});
 	}
 };
-var _user$project$View$viewSidebar = A2(
-	_elm_lang$html$Html$div,
-	{
-		ctor: '::',
-		_0: _elm_lang$html$Html_Attributes$class('sidebar'),
-		_1: {ctor: '[]'}
-	},
-	{
-		ctor: '::',
-		_0: A2(
-			_elm_lang$html$Html$h1,
+var _user$project$View$viewUserDetails = function (model) {
+	var _p10 = model.userId;
+	if (_p10.ctor === 'Nothing') {
+		return A2(
+			_elm_lang$html$Html$div,
 			{ctor: '[]'},
 			{
 				ctor: '::',
@@ -14847,78 +14891,113 @@ var _user$project$View$viewSidebar = A2(
 					_elm_lang$html$Html$a,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href('/'),
+						_0: _elm_lang$html$Html_Attributes$href('#login'),
 						_1: {ctor: '[]'}
 					},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text('Waterfall'),
+						_0: _elm_lang$html$Html$text('Log in'),
 						_1: {ctor: '[]'}
 					}),
 				_1: {ctor: '[]'}
-			}),
-		_1: {
+			});
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$span,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							A2(_elm_lang$core$Basics_ops['++'], 'You are: ', _p10._0)),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$br,
+						{ctor: '[]'},
+						{ctor: '[]'}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$span,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onClick(_user$project$Types$Logout),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('logout'),
+									_1: {ctor: '[]'}
+								}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Log out'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
+				}
+			});
+	}
+};
+var _user$project$View$viewSidebar = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('sidebar'),
+			_1: {ctor: '[]'}
+		},
+		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$a,
+				_elm_lang$html$Html$h1,
+				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$href('#upload'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('Upload a picture'),
+					_0: A2(
+						_elm_lang$html$Html$a,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$href('/socialise'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Waterfall'),
+							_1: {ctor: '[]'}
+						}),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$ul,
-					{ctor: '[]'},
-					{
+				_0: _user$project$View$viewUserDetails(model),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$a,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$href('#upload'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Upload a picture'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$li,
+							_elm_lang$html$Html$ul,
 							{ctor: '[]'},
 							{
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$a,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$href('#home'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('My timeline'),
-										_1: {ctor: '[]'}
-									}),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$li,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$a,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$href('#public'),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('Public photos'),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
 								ctor: '::',
 								_0: A2(
 									_elm_lang$html$Html$li,
@@ -14929,54 +15008,79 @@ var _user$project$View$viewSidebar = A2(
 											_elm_lang$html$Html$a,
 											{
 												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$href('#me'),
+												_0: _elm_lang$html$Html_Attributes$href('#home'),
 												_1: {ctor: '[]'}
 											},
 											{
 												ctor: '::',
-												_0: _elm_lang$html$Html$text('My photos'),
+												_0: _elm_lang$html$Html$text('My timeline'),
 												_1: {ctor: '[]'}
 											}),
 										_1: {ctor: '[]'}
 									}),
-								_1: {ctor: '[]'}
-							}
-						}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$span,
-						{
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$li,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$a,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$href('#public'),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('Public photos'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$li,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$a,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$href('#me'),
+														_1: {ctor: '[]'}
+													},
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text('My photos'),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}
+								}
+							}),
+						_1: {
 							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onClick(_user$project$Types$Logout),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('logout'),
-								_1: {ctor: '[]'}
-							}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('Log out'),
+							_0: A2(
+								_elm_lang$html$Html$br,
+								{ctor: '[]'},
+								{ctor: '[]'}),
 							_1: {ctor: '[]'}
-						}),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$br,
-							{ctor: '[]'},
-							{ctor: '[]'}),
-						_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
-		}
-	});
+		});
+};
 var _user$project$View$view = function (model) {
 	var message = function () {
-		var _p8 = model.message;
-		if (_p8.ctor === 'Nothing') {
+		var _p11 = model.message;
+		if (_p11.ctor === 'Nothing') {
 			return A2(
 				_elm_lang$html$Html$div,
 				{ctor: '[]'},
@@ -14995,7 +15099,7 @@ var _user$project$View$view = function (model) {
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(_p8._0),
+					_0: _elm_lang$html$Html$text(_p11._0),
 					_1: {ctor: '[]'}
 				});
 		}
@@ -15018,7 +15122,7 @@ var _user$project$View$view = function (model) {
 				},
 				{
 					ctor: '::',
-					_0: _user$project$View$viewSidebar,
+					_0: _user$project$View$viewSidebar(model),
 					_1: {
 						ctor: '::',
 						_0: A2(
@@ -15097,11 +15201,11 @@ var _user$project$Update$uploadImage = function (model) {
 			_3: model.shareText
 		});
 };
-var _user$project$Update$getUser = F2(
+var _user$project$Update$fetchCurrentUserDetails = F2(
 	function (authToken, instanceUrl) {
 		return A2(
 			_elm_lang$http$Http$send,
-			_user$project$Types$UserFetched,
+			_user$project$Types$UserDetailsFetched,
 			_elm_lang$http$Http$request(
 				{
 					method: 'GET',
@@ -15195,10 +15299,11 @@ var _user$project$Update$getTimeline = F3(
 		return A2(_elm_lang$http$Http$send, _user$project$Types$TimelineFetched, request);
 	});
 var _user$project$Update$getStatus = F3(
-	function (instanceUrl, authToken, statusId) {
+	function (instanceUrl, authToken, _p5) {
+		var _p6 = _p5;
 		var headers = function () {
-			var _p5 = authToken;
-			if (_p5.ctor === 'Nothing') {
+			var _p7 = authToken;
+			if (_p7.ctor === 'Nothing') {
 				return {ctor: '[]'};
 			} else {
 				return {
@@ -15206,7 +15311,7 @@ var _user$project$Update$getStatus = F3(
 					_0: A2(
 						_elm_lang$http$Http$header,
 						'Authorization',
-						A2(_elm_lang$core$Basics_ops['++'], 'Bearer ', _p5._0)),
+						A2(_elm_lang$core$Basics_ops['++'], 'Bearer ', _p7._0)),
 					_1: {ctor: '[]'}
 				};
 			}
@@ -15218,7 +15323,7 @@ var _user$project$Update$getStatus = F3(
 				url: A2(
 					_elm_lang$core$Basics_ops['++'],
 					instanceUrl,
-					A2(_elm_lang$core$Basics_ops['++'], '/api/v1/statuses/', statusId)),
+					A2(_elm_lang$core$Basics_ops['++'], '/api/v1/statuses/', _p6._0)),
 				body: _elm_lang$http$Http$emptyBody,
 				expect: _elm_lang$http$Http$expectJson(_user$project$Types$statusDecoder),
 				timeout: _elm_lang$core$Maybe$Nothing,
@@ -15233,12 +15338,16 @@ var _user$project$Update$photoHashParts = function (hash) {
 		_elm_lang$core$Regex$AtMost(1),
 		_user$project$Update$photoUrlRegex,
 		hash);
-	var _p6 = matches;
-	if ((_p6.ctor === '::') && (_p6._1.ctor === '[]')) {
-		var _p7 = _p6._0.submatches;
-		if (((((_p7.ctor === '::') && (_p7._0.ctor === 'Just')) && (_p7._1.ctor === '::')) && (_p7._1._0.ctor === 'Just')) && (_p7._1._1.ctor === '[]')) {
+	var _p8 = matches;
+	if ((_p8.ctor === '::') && (_p8._1.ctor === '[]')) {
+		var _p9 = _p8._0.submatches;
+		if (((((_p9.ctor === '::') && (_p9._0.ctor === 'Just')) && (_p9._1.ctor === '::')) && (_p9._1._0.ctor === 'Just')) && (_p9._1._1.ctor === '[]')) {
 			return _elm_lang$core$Result$Ok(
-				{ctor: '_Tuple2', _0: _p7._0._0, _1: _p7._1._0._0});
+				{
+					ctor: '_Tuple2',
+					_0: _user$project$Types$StatusId(_p9._0._0),
+					_1: _user$project$Types$AttachmentId(_p9._1._0._0)
+				});
 		} else {
 			return _elm_lang$core$Result$Err('no photo URL parts matched');
 		}
@@ -15247,43 +15356,93 @@ var _user$project$Update$photoHashParts = function (hash) {
 	}
 };
 var _user$project$Update$prepareScreenToDisplay = function (model) {
-	var _p8 = model.screenShown;
-	switch (_p8.ctor) {
+	var _p10 = model.screenShown;
+	switch (_p10.ctor) {
+		case 'Login':
+			return _elm_lang$core$Platform_Cmd$none;
 		case 'SharePath':
-			return _elm_lang$core$Platform_Cmd$none;
+			var _p11 = model.authToken;
+			if (_p11.ctor === 'Nothing') {
+				return _user$project$Auth$authenticate(model);
+			} else {
+				return _elm_lang$core$Platform_Cmd$none;
+			}
 		case 'ShareUpload':
-			return _elm_lang$core$Platform_Cmd$none;
+			var _p12 = model.authToken;
+			if (_p12.ctor === 'Nothing') {
+				return _user$project$Auth$authenticate(model);
+			} else {
+				return _elm_lang$core$Platform_Cmd$none;
+			}
 		case 'Photo':
-			return A3(_user$project$Update$getStatus, model.server.url, model.authToken, _p8._0);
+			return A3(_user$project$Update$getStatus, model.server.url, model.authToken, _p10._0);
+		case 'Home':
+			var _p13 = model.authToken;
+			if (_p13.ctor === 'Nothing') {
+				return _user$project$Auth$checkAuthToken;
+			} else {
+				return A3(
+					_user$project$Update$getTimeline,
+					A2(_elm_lang$core$Debug$log, '1', model.server.url),
+					model.authToken,
+					_user$project$Types$Home);
+			}
+		case 'Profile':
+			var _p14 = model.authToken;
+			if (_p14.ctor === 'Nothing') {
+				return _user$project$Auth$checkAuthToken;
+			} else {
+				var _p15 = model.userId;
+				if (_p15.ctor === 'Nothing') {
+					return _elm_lang$core$Platform_Cmd$none;
+				} else {
+					return A3(
+						_user$project$Update$getTimeline,
+						model.server.url,
+						model.authToken,
+						_user$project$Types$User(_p15._0));
+				}
+			}
 		default:
-			return A3(_user$project$Update$getTimeline, model.server.url, model.authToken, model.screenShown);
+			return A3(
+				_user$project$Update$getTimeline,
+				A2(_elm_lang$core$Debug$log, '2', model.server.url),
+				model.authToken,
+				_p10);
 	}
 };
 var _user$project$Update$screenType = F2(
 	function (url, model) {
-		if (_elm_lang$core$Native_Utils.eq(url.hash, '#public')) {
-			return _user$project$Types$PublicTimeline;
+		if (_elm_lang$core$Native_Utils.eq(url.hash, '#login')) {
+			return _user$project$Types$Login;
 		} else {
-			if (_elm_lang$core$Native_Utils.eq(url.hash, '#me')) {
-				return _user$project$Types$User(
-					A2(_elm_lang$core$Maybe$withDefault, '', model.userId));
+			if (_elm_lang$core$Native_Utils.eq(url.hash, '') || _elm_lang$core$Native_Utils.eq(url.hash, '#')) {
+				return _user$project$Types$PublicTimeline;
 			} else {
-				if (A2(_elm_lang$core$String$startsWith, '#user:', url.hash)) {
-					return _user$project$Types$User(
-						A2(_elm_lang$core$String$dropLeft, 6, url.hash));
+				if (_elm_lang$core$Native_Utils.eq(url.hash, '#home')) {
+					return _user$project$Types$Home;
 				} else {
-					if (A2(_elm_lang$core$String$startsWith, '#upload', url.hash)) {
-						return _user$project$Types$ShareUpload(_elm_lang$core$Maybe$Nothing);
+					if (_elm_lang$core$Native_Utils.eq(url.hash, '#me')) {
+						return _user$project$Types$Profile;
 					} else {
-						if (A2(_elm_lang$core$String$startsWith, '#photo', url.hash)) {
-							var _p9 = _user$project$Update$photoHashParts(url.hash);
-							if (_p9.ctor === 'Ok') {
-								return A2(_user$project$Types$Photo, _p9._0._0, _p9._0._1);
-							} else {
-								return _user$project$Types$Home;
-							}
+						if (A2(_elm_lang$core$String$startsWith, '#user:', url.hash)) {
+							return _user$project$Types$User(
+								A2(_elm_lang$core$String$dropLeft, 6, url.hash));
 						} else {
-							return _user$project$Types$Home;
+							if (A2(_elm_lang$core$String$startsWith, '#upload', url.hash)) {
+								return _user$project$Types$ShareUpload(_elm_lang$core$Maybe$Nothing);
+							} else {
+								if (A2(_elm_lang$core$String$startsWith, '#photo:', url.hash)) {
+									var _p16 = _user$project$Update$photoHashParts(url.hash);
+									if (_p16.ctor === 'Ok') {
+										return A2(_user$project$Types$Photo, _p16._0._0, _p16._0._1);
+									} else {
+										return _user$project$Types$PublicTimeline;
+									}
+								} else {
+									return _user$project$Types$PublicTimeline;
+								}
+							}
 						}
 					}
 				}
@@ -15292,14 +15451,14 @@ var _user$project$Update$screenType = F2(
 	});
 var _user$project$Update$update = F2(
 	function (msg, model) {
-		var _p10 = msg;
-		switch (_p10.ctor) {
+		var _p17 = msg;
+		switch (_p17.ctor) {
 			case 'Username':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{username: _p10._0}),
+						{username: _p17._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'Password':
@@ -15307,13 +15466,13 @@ var _user$project$Update$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{password: _p10._0}),
+						{password: _p17._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'ServerSelect':
 				return {
 					ctor: '_Tuple2',
-					_0: A2(_user$project$Model$changeServerUrl, model, _p10._0),
+					_0: A2(_user$project$Model$changeServerUrl, model, _p17._0),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'AuthSubmit':
@@ -15322,12 +15481,51 @@ var _user$project$Update$update = F2(
 					_0: model,
 					_1: _user$project$Auth$authenticate(model)
 				};
+			case 'AuthReturn':
+				if (_p17._0.ctor === 'Err') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								message: _elm_lang$core$Maybe$Just(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'auth error: ',
+										_user$project$Update$httpErrorMessage(_p17._0._0)))
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					var _p18 = _p17._0._0;
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								authToken: _elm_lang$core$Maybe$Just(_p18.token),
+								message: _elm_lang$core$Maybe$Nothing
+							}),
+						{
+							ctor: '::',
+							_0: _user$project$Auth$storeAuthToken(_p18.token),
+							_1: {
+								ctor: '::',
+								_0: A2(_user$project$Update$fetchCurrentUserDetails, _p18.token, model.server.url),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$navigation$Navigation$modifyUrl('#home'),
+									_1: {ctor: '[]'}
+								}
+							}
+						});
+				}
 			case 'ShareTextInput':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{shareText: _p10._0}),
+						{shareText: _p17._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'ShareImage':
@@ -15343,7 +15541,7 @@ var _user$project$Update$update = F2(
 					_1: _user$project$Update$uploadImage(model)
 				};
 			case 'StatusPosted':
-				if (_p10._0.ctor === 'Nothing') {
+				if (_p17._0.ctor === 'Nothing') {
 					return {
 						ctor: '_Tuple2',
 						_0: model,
@@ -15355,7 +15553,7 @@ var _user$project$Update$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								message: _elm_lang$core$Maybe$Just(_p10._0._0)
+								message: _elm_lang$core$Maybe$Just(_p17._0._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -15373,12 +15571,12 @@ var _user$project$Update$update = F2(
 						model,
 						{
 							screenShown: _user$project$Types$ShareUpload(
-								_elm_lang$core$Maybe$Just(_p10._0.contents))
+								_elm_lang$core$Maybe$Just(_p17._0.contents))
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'ImageShared':
-				if (_p10._0.ctor === 'Err') {
+				if (_p17._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -15388,7 +15586,7 @@ var _user$project$Update$update = F2(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'share error: ',
-										_user$project$Update$httpErrorMessage(_p10._0._0)))
+										_user$project$Update$httpErrorMessage(_p17._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -15399,43 +15597,8 @@ var _user$project$Update$update = F2(
 						_1: _elm_lang$navigation$Navigation$modifyUrl('#home')
 					};
 				}
-			case 'AuthReturn':
-				if (_p10._0.ctor === 'Ok') {
-					var _p11 = _p10._0._0;
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{
-								authToken: _elm_lang$core$Maybe$Just(_p11.token),
-								message: _elm_lang$core$Maybe$Nothing
-							}),
-						{
-							ctor: '::',
-							_0: _user$project$Auth$storeAuthToken(_p11.token),
-							_1: {
-								ctor: '::',
-								_0: A2(_user$project$Update$getUser, _p11.token, model.server.url),
-								_1: {ctor: '[]'}
-							}
-						});
-				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								message: _elm_lang$core$Maybe$Just(
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										'auth error: ',
-										_user$project$Update$httpErrorMessage(_p10._0._0)))
-							}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				}
 			case 'TimelineFetched':
-				if (_p10._0.ctor === 'Ok') {
+				if (_p17._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -15445,10 +15608,10 @@ var _user$project$Update$update = F2(
 									_elm_lang$core$List$filter,
 									function (s) {
 										return !_elm_lang$core$Native_Utils.eq(
-											s.mediaAttachments,
+											s.attachments,
 											{ctor: '[]'});
 									},
-									_p10._0._0)
+									_p17._0._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -15462,13 +15625,13 @@ var _user$project$Update$update = F2(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'timeline error: ',
-										_user$project$Update$httpErrorMessage(_p10._0._0)))
+										_user$project$Update$httpErrorMessage(_p17._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
-			case 'UserFetched':
-				if (_p10._0.ctor === 'Err') {
+			case 'UserDetailsFetched':
+				if (_p17._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -15478,25 +15641,26 @@ var _user$project$Update$update = F2(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'account fetch error: ',
-										_user$project$Update$httpErrorMessage(_p10._0._0)))
+										_user$project$Update$httpErrorMessage(_p17._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var _p12 = _p10._0._0;
+					var _p19 = _p17._0._0;
+					var newModel = _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							username: _p19.acct,
+							userId: _elm_lang$core$Maybe$Just(_p19.id)
+						});
 					return {
 						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								username: _p12.acct,
-								userId: _elm_lang$core$Maybe$Just(_p12.id)
-							}),
-						_1: _user$project$Update$prepareScreenToDisplay(model)
+						_0: newModel,
+						_1: _user$project$Update$prepareScreenToDisplay(newModel)
 					};
 				}
 			case 'PhotoFetched':
-				if (_p10._0.ctor === 'Err') {
+				if (_p17._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -15506,7 +15670,7 @@ var _user$project$Update$update = F2(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'timeline error: ',
-										_user$project$Update$httpErrorMessage(_p10._0._0)))
+										_user$project$Update$httpErrorMessage(_p17._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -15516,7 +15680,7 @@ var _user$project$Update$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								currentStatus: _elm_lang$core$Maybe$Just(_p10._0._0)
+								currentStatus: _elm_lang$core$Maybe$Just(_p17._0._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -15529,29 +15693,36 @@ var _user$project$Update$update = F2(
 						{message: _elm_lang$core$Maybe$Nothing}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'AuthTokenRetrieved':
-				var _p14 = _p10._0._1;
-				var _p13 = _p14;
-				if (_p13.ctor === 'Nothing') {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				} else {
+			case 'AuthTokenRetrievedFromLocalStorage':
+				var _p21 = _p17._0._1;
+				var _p20 = _p21;
+				if (_p20.ctor === 'Nothing') {
 					return {
 						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{authToken: _p14, password: ''}),
-						_1: A2(_user$project$Update$getUser, _p13._0, model.server.url)
+						_0: model,
+						_1: _elm_lang$navigation$Navigation$modifyUrl('#login')
 					};
+				} else {
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{authToken: _p21, password: ''}),
+						{
+							ctor: '::',
+							_0: A2(_user$project$Update$fetchCurrentUserDetails, _p20._0, model.server.url),
+							_1: {ctor: '[]'}
+						});
 				}
 			case 'ViewPhoto':
-				var _p16 = _p10._0;
-				var _p15 = _p10._1;
+				var _p23 = _p17._0;
+				var _p22 = _p17._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							screenShown: A2(_user$project$Types$Photo, _p16.id, _p15.id)
+							screenShown: A2(_user$project$Types$Photo, _p23.id, _p22.id)
 						}),
 					_1: _elm_lang$navigation$Navigation$newUrl(
 						A2(
@@ -15559,26 +15730,47 @@ var _user$project$Update$update = F2(
 							'#photo:',
 							A2(
 								_elm_lang$core$Basics_ops['++'],
-								_p16.id,
-								A2(_elm_lang$core$Basics_ops['++'], ':', _p15.id))))
+								_user$project$Types$statusIdToString(_p23.id),
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									':',
+									_user$project$Types$attachmentIdToString(_p22.id)))))
 				};
 			case 'Logout':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{authToken: _elm_lang$core$Maybe$Nothing}),
-					_1: _user$project$Auth$clearAuthToken
-				};
+				var _p24 = A2(_elm_lang$core$Debug$log, 'Logging', 'out');
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{authToken: _elm_lang$core$Maybe$Nothing});
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					newModel,
+					{
+						ctor: '::',
+						_0: _user$project$Auth$clearAuthToken,
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$core$Debug$log,
+								'><',
+								_elm_lang$navigation$Navigation$modifyUrl('')),
+							_1: {ctor: '[]'}
+						}
+					});
 			default:
+				var _p26 = _p17._0;
+				var _p25 = A2(
+					_elm_lang$core$Debug$log,
+					'type',
+					A2(_user$project$Update$screenType, _p26, model));
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						screenShown: A2(_user$project$Update$screenType, _p26, model)
+					});
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							screenShown: A2(_user$project$Update$screenType, _p10._0, model)
-						}),
-					_1: _user$project$Update$prepareScreenToDisplay(model)
+					_0: newModel,
+					_1: _user$project$Update$prepareScreenToDisplay(newModel)
 				};
 		}
 	});
@@ -15587,7 +15779,7 @@ var _user$project$Main$subscriptions = function (_p0) {
 	return _elm_lang$core$Platform_Sub$batch(
 		{
 			ctor: '::',
-			_0: _user$project$Ports$localStorageRetrievedItem(_user$project$Types$AuthTokenRetrieved),
+			_0: _user$project$Ports$localStorageRetrievedItem(_user$project$Types$AuthTokenRetrievedFromLocalStorage),
 			_1: {
 				ctor: '::',
 				_0: _user$project$Ports$formImageRetrieved(_user$project$Types$FormImageRead),
@@ -15600,16 +15792,104 @@ var _user$project$Main$subscriptions = function (_p0) {
 		});
 };
 var _user$project$Main$init = function (url) {
-	var whatToShow = _elm_lang$core$Native_Utils.eq(url.hash, '#public') ? _user$project$Types$PublicTimeline : (A2(_elm_lang$core$String$startsWith, '#user:', url.hash) ? _user$project$Types$User(
-		A2(_elm_lang$core$String$dropLeft, 6, url.hash)) : (A2(_elm_lang$core$String$startsWith, '#share:', url.hash) ? _user$project$Types$SharePath(
-		A2(_elm_lang$core$String$dropLeft, 7, url.hash)) : (A2(_elm_lang$core$String$startsWith, '#upload', url.hash) ? _user$project$Types$ShareUpload(_elm_lang$core$Maybe$Nothing) : _user$project$Types$Home)));
-	return {
-		ctor: '_Tuple2',
-		_0: _elm_lang$core$Native_Utils.update(
-			_user$project$Model$initialModel,
-			{screenShown: whatToShow}),
-		_1: _user$project$Auth$checkAuthToken
-	};
+	if (A2(_elm_lang$core$String$startsWith, '#login', url.hash)) {
+		return {
+			ctor: '_Tuple2',
+			_0: _elm_lang$core$Native_Utils.update(
+				_user$project$Model$initialModel,
+				{screenShown: _user$project$Types$Login, authToken: _elm_lang$core$Maybe$Nothing}),
+			_1: _user$project$Auth$clearAuthToken
+		};
+	} else {
+		if (A2(_elm_lang$core$String$startsWith, '#user:', url.hash)) {
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					_user$project$Model$initialModel,
+					{
+						screenShown: _user$project$Types$User(
+							A2(_elm_lang$core$String$dropLeft, 6, url.hash))
+					}),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
+		} else {
+			if (A2(_elm_lang$core$String$startsWith, '#photo:', url.hash)) {
+				var _p1 = _user$project$Update$photoHashParts(url.hash);
+				if (_p1.ctor === 'Ok') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							_user$project$Model$initialModel,
+							{
+								screenShown: A2(_user$project$Types$Photo, _p1._0._0, _p1._0._1)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							_user$project$Model$initialModel,
+							{screenShown: _user$project$Types$PublicTimeline}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
+			} else {
+				if (_elm_lang$core$Native_Utils.eq(url.hash, '#home')) {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							_user$project$Model$initialModel,
+							{screenShown: _user$project$Types$Home}),
+						_1: _user$project$Auth$checkAuthToken
+					};
+				} else {
+					if (_elm_lang$core$Native_Utils.eq(url.hash, '#me')) {
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								_user$project$Model$initialModel,
+								{screenShown: _user$project$Types$Profile}),
+							_1: _user$project$Auth$checkAuthToken
+						};
+					} else {
+						if (A2(_elm_lang$core$String$startsWith, '#share:', url.hash)) {
+							return {
+								ctor: '_Tuple2',
+								_0: _elm_lang$core$Native_Utils.update(
+									_user$project$Model$initialModel,
+									{
+										screenShown: _user$project$Types$SharePath(
+											A2(_elm_lang$core$String$dropLeft, 7, url.hash))
+									}),
+								_1: _user$project$Auth$checkAuthToken
+							};
+						} else {
+							if (A2(_elm_lang$core$String$startsWith, '#upload:', url.hash)) {
+								return {
+									ctor: '_Tuple2',
+									_0: _elm_lang$core$Native_Utils.update(
+										_user$project$Model$initialModel,
+										{
+											screenShown: _user$project$Types$ShareUpload(_elm_lang$core$Maybe$Nothing)
+										}),
+									_1: _user$project$Auth$checkAuthToken
+								};
+							} else {
+								return {
+									ctor: '_Tuple2',
+									_0: _elm_lang$core$Native_Utils.update(
+										_user$project$Model$initialModel,
+										{screenShown: _user$project$Types$PublicTimeline}),
+									_1: _elm_lang$navigation$Navigation$modifyUrl('')
+								};
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 };
 var _user$project$Main$main = A2(
 	_elm_lang$navigation$Navigation$program,
@@ -15619,7 +15899,7 @@ var _user$project$Main$main = A2(
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Types.Msg":{"args":[],"tags":{"UploadImage":[],"UserFetched":["Result.Result Http.Error Types.Account"],"Logout":[],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"CloseMessage":[],"ServerSelect":["String"],"FormImageRead":["Types.ImagePortData"],"ShareTextInput":["String"],"TimelineFetched":["Result.Result Http.Error (List Types.Status)"],"Username":["String"],"AuthTokenRetrieved":["( String, Maybe.Maybe String )"],"ViewPhoto":["Types.Status","Types.Attachment"],"AuthSubmit":[],"Password":["String"],"ShareImage":[],"StatusPosted":["Maybe.Maybe String"],"UrlHasChanged":["Navigation.Location"],"ImageShared":["Result.Result Http.Error String"],"ImageSelected":[],"PhotoFetched":["Result.Result Http.Error Types.Status"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Unknown":[],"Video":[],"Gifv":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}}},"aliases":{"Types.Attachment":{"args":[],"type":"{ id : String , type_ : Types.AttachmentType , url : String , previewUrl : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.ImagePortData":{"args":[],"type":"{ contents : String, filename : String }"},"Types.Status":{"args":[],"type":"{ id : String , url : Maybe.Maybe String , account : Types.Account , content : Maybe.Maybe String , mediaAttachments : List Types.Attachment }"},"Types.Account":{"args":[],"type":"{ id : String, acct : String, displayName : String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Types.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Types.StatusId":{"args":[],"tags":{"StatusId":["String"]}},"Types.Msg":{"args":[],"tags":{"UploadImage":[],"Logout":[],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"CloseMessage":[],"ServerSelect":["String"],"FormImageRead":["Types.ImagePortData"],"AuthTokenRetrievedFromLocalStorage":["( String, Maybe.Maybe String )"],"ShareTextInput":["String"],"TimelineFetched":["Result.Result Http.Error (List Types.Status)"],"Username":["String"],"ViewPhoto":["Types.Status","Types.Attachment"],"AuthSubmit":[],"Password":["String"],"ShareImage":[],"StatusPosted":["Maybe.Maybe String"],"UrlHasChanged":["Navigation.Location"],"ImageShared":["Result.Result Http.Error String"],"ImageSelected":[],"UserDetailsFetched":["Result.Result Http.Error Types.Account"],"PhotoFetched":["Result.Result Http.Error Types.Status"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Unknown":[],"Video":[],"Gifv":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Types.AttachmentId":{"args":[],"tags":{"AttachmentId":["String"]}}},"aliases":{"Types.Attachment":{"args":[],"type":"{ id : Types.AttachmentId , type_ : Types.AttachmentType , url : String , previewUrl : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"},"Types.ImagePortData":{"args":[],"type":"{ contents : String, filename : String }"},"Types.Status":{"args":[],"type":"{ id : Types.StatusId , url : Maybe.Maybe String , account : Types.Account , content : Maybe.Maybe String , attachments : List Types.Attachment }"},"Types.Account":{"args":[],"type":"{ id : String, acct : String, displayName : String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"}},"message":"Types.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])

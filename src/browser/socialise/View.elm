@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Attributes.Extra exposing (..)
 import Html.Events exposing (onInput, onClick, onSubmit, on)
 import Json.Decode exposing (succeed)
-import Types exposing (Msg(..), Status, Attachment, AttachmentType(..), Screen(..), servers)
+import Types exposing (..)
 import Model exposing (Model)
 
 
@@ -26,69 +26,91 @@ view model =
             [ class "outer" ]
             [ div
                 [ class "columns" ]
-                [ viewSidebar
+                [ viewSidebar model
                 , div [ id "photos" ] [ viewMain model ]
                 ]
             , message
             ]
 
 
-viewSidebar : Html Msg
-viewSidebar =
+viewUserDetails : Model -> Html Msg
+viewUserDetails model =
+    case model.userId of
+        Nothing ->
+            div [] [ a [ href "#login" ] [ text "Log in" ] ]
+        Just id ->
+            div []
+                [ span [] [ text ("You are: " ++ id) ]
+                , br [] []
+                , span [ onClick Logout, class "logout" ] [ text "Log out" ]
+                ]
+
+
+viewSidebar : Model -> Html Msg
+viewSidebar model =
     div
         [ class "sidebar" ]
-        [ h1 [] [ a [ href "/" ] [ text "Waterfall" ] ]
-
+        [ h1 [] [ a [ href "/socialise" ] [ text "Waterfall" ] ]
+        , viewUserDetails model
         --        , a [ href "/organise" ] [ text "Manage your pictures" ]
-        --        , br [] []
         , a [ href "#upload" ] [ text "Upload a picture" ]
         , ul []
             [ li [] [ a [ href "#home" ] [ text "My timeline" ] ]
             , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
             , li [] [ a [ href "#me" ] [ text "My photos" ] ]
             ]
-        , span [ onClick Logout, class "logout" ] [ text "Log out" ]
+
         , br [] []
         ]
 
 
 viewMain : Model -> Html Msg
 viewMain model =
-    case model.authToken of
-        Nothing ->
-            div [] [ viewLogin model ]
+    case model.screenShown of
+        Login ->
+            viewLogin model
 
-        Just _ ->
-            case model.screenShown of
-                Photo _ attachmentId ->
-                    case ( model.currentStatus, attachmentId ) of
-                        ( Just status, photoId ) ->
-                            viewPhoto status photoId
-
-                        _ ->
-                            div [] []
-
-                SharePath path ->
-                    viewSharePath path
-
-                ShareUpload Nothing ->
-                    viewShareUpload
-
-                ShareUpload (Just dataUrl) ->
-                    viewShareUploaded dataUrl
+        Photo _ attachmentId ->
+            case ( model.currentStatus, attachmentId ) of
+                ( Just status, photoId ) ->
+                    viewPhoto status photoId
 
                 _ ->
-                    div [] [ viewTimeline model.timeline ]
+                    div [] []
+
+        SharePath path ->
+            case model.authToken of
+                Nothing ->
+                    div [] [ viewLogin model ]
+                _ ->
+                    viewSharePath path
+
+        ShareUpload Nothing ->
+            case model.authToken of
+                Nothing ->
+                    div [] [ viewLogin model ]
+                _ ->
+                    viewShareUpload
+
+        ShareUpload (Just dataUrl) ->
+            case model.authToken of
+                Nothing ->
+                    div [] [ viewLogin model ]
+                _ ->
+                    viewShareUploaded dataUrl
+
+        _ ->
+            div [] [ viewTimeline model.timeline ]
 
 
-viewPhoto : Status -> String -> Html Msg
+viewPhoto : Status -> AttachmentId -> Html Msg
 viewPhoto status attachmentId =
     let
         attachment : List Attachment
         attachment =
             List.filter
                 (\a -> a.id == attachmentId)
-                status.mediaAttachments
+                status.attachments
     in
         case attachment of
             [ image ] ->
@@ -156,7 +178,7 @@ viewTimeline : List Status -> Html Msg
 viewTimeline timeline =
     let
         timelineOnlyAttachments =
-            List.filter (\s -> s.mediaAttachments /= []) timeline
+            List.filter (\s -> s.attachments /= []) timeline
     in
         div [ class "timeline" ]
             (List.map viewStatus timelineOnlyAttachments)
@@ -175,7 +197,7 @@ viewStatusContent content =
 viewStatus : Status -> Html Msg
 viewStatus status =
     div [ class "status" ]
-        [ div [] (List.map (viewAttachment status) status.mediaAttachments)
+        [ div [] (List.map (viewAttachment status) status.attachments)
         , div
             [ class "account" ]
             [ a
