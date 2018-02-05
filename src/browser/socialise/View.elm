@@ -33,41 +33,40 @@ view model =
             ]
 
 
-viewUserDetails : Model -> Html Msg
-viewUserDetails model =
-    case model.userId of
-        Nothing ->
-            div [] [ a [ href "#login" ] [ text "Log in" ] ]
-        Just id ->
-            div []
-                [ span [] [ text ("You are: " ++ id) ]
-                , br [] []
-                , span [ onClick Logout, class "logout" ] [ text "Log out" ]
-                ]
-
-
 viewSidebar : Model -> Html Msg
 viewSidebar model =
     div
         [ class "sidebar" ]
         [ h1 [] [ a [ href "/socialise" ] [ text "Waterfall" ] ]
-        , viewUserDetails model
-        --        , a [ href "/organise" ] [ text "Manage your pictures" ]
-        , a [ href "#upload" ] [ text "Upload a picture" ]
-        , ul []
-            [ li [] [ a [ href "#home" ] [ text "My timeline" ] ]
-            , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
-            , li [] [ a [ href "#me" ] [ text "My photos" ] ]
-            ]
-
-        , br [] []
+        , viewSidebarLinks model.userId
         ]
+
+
+viewSidebarLinks : Maybe String -> Html Msg
+viewSidebarLinks userId =
+    case userId of
+        Nothing ->
+            div [] [ a [ onClick Login ] [ text "Log in" ] ]
+
+        Just id ->
+            div []
+                [ div []
+                    [ span [] [ text ("You are: " ++ id) ]
+                    , br [] []
+                    , span [ onClick Logout, class "logout" ] [ text "Log out" ]
+                    ]
+                , ul []
+                    [ li [] [ a [ href "#home" ] [ text "My timeline" ] ]
+                    , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
+                    , li [] [ a [ href "#me" ] [ text "My photos" ] ]
+                    ]
+                ]
 
 
 viewMain : Model -> Html Msg
 viewMain model =
     case model.screenShown of
-        Login ->
+        LoginPage ->
             viewLogin model
 
         Photo _ attachmentId ->
@@ -82,6 +81,7 @@ viewMain model =
             case model.authToken of
                 Nothing ->
                     div [] [ viewLogin model ]
+
                 _ ->
                     viewSharePath path
 
@@ -89,6 +89,7 @@ viewMain model =
             case model.authToken of
                 Nothing ->
                     div [] [ viewLogin model ]
+
                 _ ->
                     viewShareUpload
 
@@ -96,6 +97,7 @@ viewMain model =
             case model.authToken of
                 Nothing ->
                     div [] [ viewLogin model ]
+
                 _ ->
                     viewShareUploaded dataUrl
 

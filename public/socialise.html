@@ -21,11 +21,13 @@
      });
 
      app.ports.localStorageRemoveItem.subscribe(function(keyName) {
+       console.log("removing item");
        localStorage.removeItem(keyName);
      });
 
      app.ports.localStorageGetItem.subscribe(function(keyName) {
        var value = localStorage.getItem(keyName);
+       console.log("getting item");
        app.ports.localStorageRetrievedItem.send([keyName, value]);
      });
 

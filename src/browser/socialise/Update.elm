@@ -34,7 +34,6 @@ update msg model =
             { model | authToken = Just response.token, message = Nothing }
                 ! [ storeAuthToken response.token
                   , fetchCurrentUserDetails response.token model.server.url
-                  , modifyUrl "#home"
                   ]
 
         ShareTextInput text ->
@@ -86,11 +85,14 @@ update msg model =
         UserDetailsFetched (Ok account) ->
             let
                 newModel =
-                    { model | username = account.acct, userId = Just account.id }
+                    { model
+                        | username = account.acct
+                        , userId = Just account.id
+                    }
             in
-            ( newModel
-            , prepareScreenToDisplay newModel
-            )
+                ( newModel
+                , modifyUrl "#home"
+                )
 
         PhotoFetched (Err e) ->
             ( { model | message = Just ("timeline error: " ++ httpErrorMessage e) }
@@ -108,13 +110,12 @@ update msg model =
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->
             case token of
                 Nothing ->
-                    ( model, modifyUrl "#login" )
+                    ( model, Cmd.none )
 
                 Just tokenValue ->
-                    { model | authToken = token, password = "" }
-                    ! [ fetchCurrentUserDetails tokenValue model.server.url ]
-
-
+                    ( { model | authToken = token, password = "" }
+                    , fetchCurrentUserDetails tokenValue model.server.url
+                    )
 
         ViewPhoto status attachment ->
             ( { model | screenShown = Photo status.id attachment.id }
@@ -126,19 +127,29 @@ update msg model =
                 )
             )
 
+        Login ->
+            ( { model | screenShown = LoginPage }, Cmd.none )
+
         Logout ->
             let
                 newModel =
                     { model | authToken = Nothing }
-                _ = Debug.log "Logging" "out"
+
+                _ =
+                    Debug.log "Logging" "out"
             in
-                newModel ! [ clearAuthToken, Debug.log "><" (modifyUrl "") ]
+                newModel ! [ clearAuthToken, modifyUrl "" ]
 
         UrlHasChanged location ->
             let
+                newScreen =
+                    screenType location model
+
+                _ = Debug.log ("new url: "++location.hash) newScreen
+
                 newModel =
-                    { model | screenShown = screenType location model }
-                _ = Debug.log "type" (screenType location model)
+                    { model | screenShown = newScreen }
+
             in
                 ( newModel, prepareScreenToDisplay newModel )
 
@@ -149,9 +160,7 @@ update msg model =
 
 screenType : Location -> Model -> Screen
 screenType url model =
-    if url.hash == "#login" then
-        Login
-    else if url.hash == "" || url.hash == "#" then
+    if url.hash == "" || url.hash == "#" then
         PublicTimeline
     else if url.hash == "#home" then
         Home
@@ -179,9 +188,6 @@ screenType url model =
 prepareScreenToDisplay : Model -> Cmd Msg
 prepareScreenToDisplay model =
     case model.screenShown of
-        Login ->
-            Cmd.none
-
         SharePath _ ->
             case model.authToken of
                 Nothing ->
@@ -217,8 +223,9 @@ prepareScreenToDisplay model =
                 Just token ->
                     case model.userId of
                         Nothing ->
-                            Cmd.none -- wait until callback arrives
+                            Cmd.none
 
+                        -- wait until callback arrives
                         Just id ->
                             getTimeline model.server.url model.authToken (User id)
 

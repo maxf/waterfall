@@ -27,6 +27,7 @@ type Msg
     | AuthTokenRetrievedFromLocalStorage ( String, Maybe String )
     | ViewPhoto Status Attachment
     | UrlHasChanged Location
+    | Login
     | Logout
 
 
@@ -137,11 +138,11 @@ type alias Attachment =
 
 type Screen
     = Home
+    | LoginPage
     | Profile
     | PublicTimeline
     | User String -- <user id>
     | Photo StatusId AttachmentId -- <statusId> <attachmentId>
-    | Login
     | SharePath String -- <path of photo to share on server>
     | ShareUpload (Maybe String) -- <data of the image loaded>
 

@@ -21,11 +21,7 @@ main =
 
 init : Location -> ( Model, Cmd msg )
 init url =
-    if String.startsWith "#login" url.hash then
-        ( { initialModel | screenShown = Login, authToken = Nothing }
-        , clearAuthToken
-        )
-    else if String.startsWith "#user:" url.hash then
+    if String.startsWith "#user:" url.hash then
         ( { initialModel | screenShown =  User (String.dropLeft 6 url.hash) }
         , Cmd.none
         )
