@@ -9954,7 +9954,6 @@ var _user$project$Types$Attachment = F4(
 		return {id: a, type_: b, url: c, previewUrl: d};
 	});
 var _user$project$Types$Logout = {ctor: 'Logout'};
-var _user$project$Types$Login = {ctor: 'Login'};
 var _user$project$Types$AuthTokenRetrievedFromLocalStorage = function (a) {
 	return {ctor: 'AuthTokenRetrievedFromLocalStorage', _0: a};
 };
@@ -10606,105 +10605,67 @@ var _user$project$View$viewLogin = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$form,
+				_elm_lang$html$Html$h1,
+				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Events$onSubmit(
-						_user$project$Types$Auth(_user$project$Types$AuthSubmit)),
+					_0: _elm_lang$html$Html$text('Log in'),
 					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$label,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$for('instanceUrl'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('Instance URL'),
-							_1: {ctor: '[]'}
-						}),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$select,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onInput(
-									function (_p4) {
-										return _user$project$Types$Auth(
-											_user$project$Types$ServerSelect(_p4));
-									}),
-								_1: {ctor: '[]'}
-							},
-							A2(
-								_elm_lang$core$List$map,
-								function (s) {
-									return A2(
-										_elm_lang$html$Html$option,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$value(s.url),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text(s.url),
-											_1: {ctor: '[]'}
-										});
-								},
-								_user$project$Types$servers)),
-						_1: {ctor: '[]'}
-					}
 				}),
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
+					_elm_lang$html$Html$form,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onSubmit(
+							_user$project$Types$Auth(_user$project$Types$AuthSubmit)),
+						_1: {ctor: '[]'}
+					},
 					{
 						ctor: '::',
 						_0: A2(
 							_elm_lang$html$Html$label,
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$for('username'),
+								_0: _elm_lang$html$Html_Attributes$for('instanceUrl'),
 								_1: {ctor: '[]'}
 							},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text('Email address'),
+								_0: _elm_lang$html$Html$text('Instance URL'),
 								_1: {ctor: '[]'}
 							}),
 						_1: {
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$input,
+								_elm_lang$html$Html$select,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$type_('text'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$id('username'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$html$Html_Events$onInput(
-												function (_p5) {
-													return _user$project$Types$Auth(
-														_user$project$Types$Username(_p5));
-												}),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$value(model.username),
-												_1: {ctor: '[]'}
-											}
-										}
-									}
+									_0: _elm_lang$html$Html_Events$onInput(
+										function (_p4) {
+											return _user$project$Types$Auth(
+												_user$project$Types$ServerSelect(_p4));
+										}),
+									_1: {ctor: '[]'}
 								},
-								{ctor: '[]'}),
+								A2(
+									_elm_lang$core$List$map,
+									function (s) {
+										return A2(
+											_elm_lang$html$Html$option,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$value(s.url),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text(s.url),
+												_1: {ctor: '[]'}
+											});
+									},
+									_user$project$Types$servers)),
 							_1: {ctor: '[]'}
 						}
 					}),
@@ -10719,12 +10680,12 @@ var _user$project$View$viewLogin = function (model) {
 								_elm_lang$html$Html$label,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$for('password'),
+									_0: _elm_lang$html$Html_Attributes$for('username'),
 									_1: {ctor: '[]'}
 								},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text('Password'),
+									_0: _elm_lang$html$Html$text('Email address'),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
@@ -10733,20 +10694,20 @@ var _user$project$View$viewLogin = function (model) {
 									_elm_lang$html$Html$input,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$type_('password'),
+										_0: _elm_lang$html$Html_Attributes$type_('text'),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$id('password'),
+											_0: _elm_lang$html$Html_Attributes$id('username'),
 											_1: {
 												ctor: '::',
 												_0: _elm_lang$html$Html_Events$onInput(
-													function (_p6) {
+													function (_p5) {
 														return _user$project$Types$Auth(
-															_user$project$Types$Password(_p6));
+															_user$project$Types$Username(_p5));
 													}),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$value(model.password),
+													_0: _elm_lang$html$Html_Attributes$value(model.username),
 													_1: {ctor: '[]'}
 												}
 											}
@@ -10764,21 +10725,70 @@ var _user$project$View$viewLogin = function (model) {
 							{
 								ctor: '::',
 								_0: A2(
-									_elm_lang$html$Html$button,
+									_elm_lang$html$Html$label,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onClick(
-											_user$project$Types$Auth(_user$project$Types$AuthSubmit)),
+										_0: _elm_lang$html$Html_Attributes$for('password'),
 										_1: {ctor: '[]'}
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text('Log in'),
+										_0: _elm_lang$html$Html$text('Password'),
 										_1: {ctor: '[]'}
 									}),
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$input,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$type_('password'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$id('password'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onInput(
+														function (_p6) {
+															return _user$project$Types$Auth(
+																_user$project$Types$Password(_p6));
+														}),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$value(model.password),
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										},
+										{ctor: '[]'}),
+									_1: {ctor: '[]'}
+								}
 							}),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$button,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Events$onClick(
+												_user$project$Types$Auth(_user$project$Types$AuthSubmit)),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Log in'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
@@ -10947,14 +10957,86 @@ var _user$project$View$viewMain = function (model) {
 					return _user$project$View$viewShareUploaded(_p10._0._0);
 				}
 			}
+		case 'Home':
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$h1,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Your timeline'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _user$project$View$viewTimeline(model.timeline),
+						_1: {ctor: '[]'}
+					}
+				});
+		case 'PublicTimeline':
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$h1,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Public timeline'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _user$project$View$viewTimeline(model.timeline),
+						_1: {ctor: '[]'}
+					}
+				});
+		case 'User':
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$h1,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								A2(_elm_lang$core$Basics_ops['++'], 'User', _p10._0)),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _user$project$View$viewTimeline(model.timeline),
+						_1: {ctor: '[]'}
+					}
+				});
 		default:
 			return A2(
 				_elm_lang$html$Html$div,
 				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _user$project$View$viewTimeline(model.timeline),
-					_1: {ctor: '[]'}
+					_0: A2(
+						_elm_lang$html$Html$h1,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Your pictures'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _user$project$View$viewTimeline(model.timeline),
+						_1: {ctor: '[]'}
+					}
 				});
 	}
 };
@@ -10970,8 +11052,7 @@ var _user$project$View$viewSidebarLinks = function (userId) {
 					_elm_lang$html$Html$a,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(
-							_user$project$Types$Auth(_user$project$Types$Login)),
+						_0: _elm_lang$html$Html_Attributes$href('#login'),
 						_1: {ctor: '[]'}
 					},
 					{
@@ -11051,7 +11132,7 @@ var _user$project$View$viewSidebarLinks = function (userId) {
 										},
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html$text('My timeline'),
+											_0: _elm_lang$html$Html$text('Timeline'),
 											_1: {ctor: '[]'}
 										}),
 									_1: {ctor: '[]'}
@@ -11436,40 +11517,53 @@ var _user$project$Update$prepareScreenToDisplay = function (model) {
 		case 'SharePath':
 			var _p13 = model.authToken;
 			if (_p13.ctor === 'Nothing') {
-				return _user$project$Auth$authenticate(model);
+				return _elm_lang$navigation$Navigation$modifyUrl('#login');
 			} else {
 				return _elm_lang$core$Platform_Cmd$none;
 			}
 		case 'ShareUpload':
 			var _p14 = model.authToken;
 			if (_p14.ctor === 'Nothing') {
-				return _user$project$Auth$authenticate(model);
+				return _elm_lang$navigation$Navigation$modifyUrl('#login');
 			} else {
 				return _elm_lang$core$Platform_Cmd$none;
 			}
 		case 'Photo':
 			return A3(_user$project$Update$getStatus, model.server.url, model.authToken, _p12._0);
-		case 'Home':
+		case 'User':
 			var _p15 = model.authToken;
 			if (_p15.ctor === 'Nothing') {
-				return _user$project$Auth$checkAuthToken;
+				return _elm_lang$navigation$Navigation$modifyUrl('#login');
+			} else {
+				return A3(
+					_user$project$Update$getTimeline,
+					model.server.url,
+					_p15,
+					_user$project$Types$User(_p12._0));
+			}
+		case 'Home':
+			var _p16 = model.authToken;
+			if (_p16.ctor === 'Nothing') {
+				return _elm_lang$navigation$Navigation$modifyUrl('#login');
 			} else {
 				return A3(_user$project$Update$getTimeline, model.server.url, model.authToken, _user$project$Types$Home);
 			}
+		case 'LoginPage':
+			return _elm_lang$core$Platform_Cmd$none;
 		case 'Profile':
-			var _p16 = model.authToken;
-			if (_p16.ctor === 'Nothing') {
-				return _user$project$Auth$checkAuthToken;
+			var _p17 = model.authToken;
+			if (_p17.ctor === 'Nothing') {
+				return _elm_lang$navigation$Navigation$modifyUrl('#login');
 			} else {
-				var _p17 = model.userId;
-				if (_p17.ctor === 'Nothing') {
+				var _p18 = model.userId;
+				if (_p18.ctor === 'Nothing') {
 					return _elm_lang$core$Platform_Cmd$none;
 				} else {
 					return A3(
 						_user$project$Update$getTimeline,
 						model.server.url,
 						model.authToken,
-						_user$project$Types$User(_p17._0));
+						_user$project$Types$User(_p18._0));
 				}
 			}
 		default:
@@ -11480,28 +11574,32 @@ var _user$project$Update$screenType = function (url) {
 	if (_elm_lang$core$Native_Utils.eq(url.hash, '') || _elm_lang$core$Native_Utils.eq(url.hash, '#')) {
 		return _user$project$Types$PublicTimeline;
 	} else {
-		if (_elm_lang$core$Native_Utils.eq(url.hash, '#home')) {
-			return _user$project$Types$Home;
+		if (_elm_lang$core$Native_Utils.eq(url.hash, '#login')) {
+			return _user$project$Types$LoginPage;
 		} else {
-			if (_elm_lang$core$Native_Utils.eq(url.hash, '#me')) {
-				return _user$project$Types$Profile;
+			if (_elm_lang$core$Native_Utils.eq(url.hash, '#home')) {
+				return _user$project$Types$Home;
 			} else {
-				if (A2(_elm_lang$core$String$startsWith, '#user:', url.hash)) {
-					return _user$project$Types$User(
-						A2(_elm_lang$core$String$dropLeft, 6, url.hash));
+				if (_elm_lang$core$Native_Utils.eq(url.hash, '#me')) {
+					return _user$project$Types$Profile;
 				} else {
-					if (A2(_elm_lang$core$String$startsWith, '#upload', url.hash)) {
-						return _user$project$Types$ShareUpload(_elm_lang$core$Maybe$Nothing);
+					if (A2(_elm_lang$core$String$startsWith, '#user:', url.hash)) {
+						return _user$project$Types$User(
+							A2(_elm_lang$core$String$dropLeft, 6, url.hash));
 					} else {
-						if (A2(_elm_lang$core$String$startsWith, '#photo:', url.hash)) {
-							var _p18 = _user$project$Update$photoHashParts(url.hash);
-							if (_p18.ctor === 'Ok') {
-								return A2(_user$project$Types$Photo, _p18._0._0, _p18._0._1);
+						if (A2(_elm_lang$core$String$startsWith, '#upload', url.hash)) {
+							return _user$project$Types$ShareUpload(_elm_lang$core$Maybe$Nothing);
+						} else {
+							if (A2(_elm_lang$core$String$startsWith, '#photo:', url.hash)) {
+								var _p19 = _user$project$Update$photoHashParts(url.hash);
+								if (_p19.ctor === 'Ok') {
+									return A2(_user$project$Types$Photo, _p19._0._0, _p19._0._1);
+								} else {
+									return _user$project$Types$PublicTimeline;
+								}
 							} else {
 								return _user$project$Types$PublicTimeline;
 							}
-						} else {
-							return _user$project$Types$PublicTimeline;
 						}
 					}
 				}
@@ -11511,14 +11609,14 @@ var _user$project$Update$screenType = function (url) {
 };
 var _user$project$Update$updateShare = F2(
 	function (msg, model) {
-		var _p19 = msg;
-		switch (_p19.ctor) {
+		var _p20 = msg;
+		switch (_p20.ctor) {
 			case 'ShareTextInput':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{shareText: _p19._0}),
+						{shareText: _p20._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'ShareImage':
@@ -11534,7 +11632,7 @@ var _user$project$Update$updateShare = F2(
 					_1: _user$project$Update$uploadImage(model)
 				};
 			case 'StatusPosted':
-				if (_p19._0.ctor === 'Nothing') {
+				if (_p20._0.ctor === 'Nothing') {
 					return {
 						ctor: '_Tuple2',
 						_0: model,
@@ -11546,7 +11644,7 @@ var _user$project$Update$updateShare = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								message: _elm_lang$core$Maybe$Just(_p19._0._0)
+								message: _elm_lang$core$Maybe$Just(_p20._0._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -11564,12 +11662,12 @@ var _user$project$Update$updateShare = F2(
 						model,
 						{
 							screenShown: _user$project$Types$ShareUpload(
-								_elm_lang$core$Maybe$Just(_p19._0.contents))
+								_elm_lang$core$Maybe$Just(_p20._0.contents))
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			default:
-				if (_p19._0.ctor === 'Err') {
+				if (_p20._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -11579,7 +11677,7 @@ var _user$project$Update$updateShare = F2(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'share error: ',
-										_user$project$Update$httpErrorMessage(_p19._0._0)))
+										_user$project$Update$httpErrorMessage(_p20._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -11594,14 +11692,14 @@ var _user$project$Update$updateShare = F2(
 	});
 var _user$project$Update$updateAuth = F2(
 	function (msg, model) {
-		var _p20 = msg;
-		switch (_p20.ctor) {
+		var _p21 = msg;
+		switch (_p21.ctor) {
 			case 'Username':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{username: _p20._0}),
+						{username: _p21._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'Password':
@@ -11609,13 +11707,13 @@ var _user$project$Update$updateAuth = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{password: _p20._0}),
+						{password: _p21._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'ServerSelect':
 				return {
 					ctor: '_Tuple2',
-					_0: A2(_user$project$Model$changeServerUrl, model, _p20._0),
+					_0: A2(_user$project$Model$changeServerUrl, model, _p21._0),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'AuthSubmit':
@@ -11625,7 +11723,7 @@ var _user$project$Update$updateAuth = F2(
 					_1: _user$project$Auth$authenticate(model)
 				};
 			case 'AuthReturn':
-				if (_p20._0.ctor === 'Err') {
+				if (_p21._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -11635,32 +11733,32 @@ var _user$project$Update$updateAuth = F2(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'auth error: ',
-										_user$project$Update$httpErrorMessage(_p20._0._0)))
+										_user$project$Update$httpErrorMessage(_p21._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var _p21 = _p20._0._0;
+					var _p22 = _p21._0._0;
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								authToken: _elm_lang$core$Maybe$Just(_p21.token),
+								authToken: _elm_lang$core$Maybe$Just(_p22.token),
 								message: _elm_lang$core$Maybe$Nothing
 							}),
 						{
 							ctor: '::',
-							_0: _user$project$Auth$storeAuthToken(_p21.token),
+							_0: _user$project$Auth$storeAuthToken(_p22.token),
 							_1: {
 								ctor: '::',
-								_0: A2(_user$project$Update$fetchCurrentUserDetails, _p21.token, model.server.url),
+								_0: A2(_user$project$Update$fetchCurrentUserDetails, _p22.token, model.server.url),
 								_1: {ctor: '[]'}
 							}
 						});
 				}
 			case 'UserDetailsFetched':
-				if (_p20._0.ctor === 'Err') {
+				if (_p21._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -11670,17 +11768,17 @@ var _user$project$Update$updateAuth = F2(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'account fetch error: ',
-										_user$project$Update$httpErrorMessage(_p20._0._0)))
+										_user$project$Update$httpErrorMessage(_p21._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var _p22 = _p20._0._0;
+					var _p23 = _p21._0._0;
 					var newModel = _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							username: _p22.acct,
-							userId: _elm_lang$core$Maybe$Just(_p22.id)
+							username: _p23.acct,
+							userId: _elm_lang$core$Maybe$Just(_p23.id)
 						});
 					return {
 						ctor: '_Tuple2',
@@ -11689,27 +11787,23 @@ var _user$project$Update$updateAuth = F2(
 					};
 				}
 			case 'AuthTokenRetrievedFromLocalStorage':
-				var _p24 = _p20._0._1;
-				var _p23 = _p24;
-				if (_p23.ctor === 'Nothing') {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				var _p25 = _p21._0._1;
+				var _p24 = _p25;
+				if (_p24.ctor === 'Nothing') {
+					return {
+						ctor: '_Tuple2',
+						_0: model,
+						_1: _elm_lang$navigation$Navigation$newUrl('#login')
+					};
 				} else {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{authToken: _p24, password: ''}),
-						_1: A2(_user$project$Update$fetchCurrentUserDetails, _p23._0, model.server.url)
+							{authToken: _p25, password: ''}),
+						_1: A2(_user$project$Update$fetchCurrentUserDetails, _p24._0, model.server.url)
 					};
 				}
-			case 'Login':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{screenShown: _user$project$Types$LoginPage}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
 			default:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -11729,14 +11823,14 @@ var _user$project$Update$updateAuth = F2(
 	});
 var _user$project$Update$update = F2(
 	function (msg, model) {
-		var _p25 = msg;
-		switch (_p25.ctor) {
+		var _p26 = msg;
+		switch (_p26.ctor) {
 			case 'Auth':
-				return A2(_user$project$Update$updateAuth, _p25._0, model);
+				return A2(_user$project$Update$updateAuth, _p26._0, model);
 			case 'Share':
-				return A2(_user$project$Update$updateShare, _p25._0, model);
+				return A2(_user$project$Update$updateShare, _p26._0, model);
 			case 'TimelineFetched':
-				if (_p25._0.ctor === 'Ok') {
+				if (_p26._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -11749,7 +11843,7 @@ var _user$project$Update$update = F2(
 											s.attachments,
 											{ctor: '[]'});
 									},
-									_p25._0._0)
+									_p26._0._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -11763,13 +11857,13 @@ var _user$project$Update$update = F2(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'timeline error: ',
-										_user$project$Update$httpErrorMessage(_p25._0._0)))
+										_user$project$Update$httpErrorMessage(_p26._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 			case 'PhotoFetched':
-				if (_p25._0.ctor === 'Err') {
+				if (_p26._0.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -11779,7 +11873,7 @@ var _user$project$Update$update = F2(
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'timeline error: ',
-										_user$project$Update$httpErrorMessage(_p25._0._0)))
+										_user$project$Update$httpErrorMessage(_p26._0._0)))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -11789,7 +11883,7 @@ var _user$project$Update$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								currentStatus: _elm_lang$core$Maybe$Just(_p25._0._0)
+								currentStatus: _elm_lang$core$Maybe$Just(_p26._0._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -11803,14 +11897,14 @@ var _user$project$Update$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'ViewPhoto':
-				var _p27 = _p25._0;
-				var _p26 = _p25._1;
+				var _p28 = _p26._0;
+				var _p27 = _p26._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							screenShown: A2(_user$project$Types$Photo, _p27.id, _p26.id)
+							screenShown: A2(_user$project$Types$Photo, _p28.id, _p27.id)
 						}),
 					_1: _elm_lang$navigation$Navigation$newUrl(
 						A2(
@@ -11818,17 +11912,17 @@ var _user$project$Update$update = F2(
 							'#photo:',
 							A2(
 								_elm_lang$core$Basics_ops['++'],
-								_user$project$Types$statusIdToString(_p27.id),
+								_user$project$Types$statusIdToString(_p28.id),
 								A2(
 									_elm_lang$core$Basics_ops['++'],
 									':',
-									_user$project$Types$attachmentIdToString(_p26.id)))))
+									_user$project$Types$attachmentIdToString(_p27.id)))))
 				};
 			default:
 				var newModel = _elm_lang$core$Native_Utils.update(
 					model,
 					{
-						screenShown: _user$project$Update$screenType(_p25._0)
+						screenShown: _user$project$Update$screenType(_p26._0)
 					});
 				return {
 					ctor: '_Tuple2',
@@ -11868,15 +11962,15 @@ var _user$project$Main$subscriptions = function (_p0) {
 };
 var _user$project$Main$init = function (url) {
 	if (A2(_elm_lang$core$String$startsWith, '#user:', url.hash)) {
+		var userId = A2(_elm_lang$core$String$dropLeft, 6, url.hash);
 		return {
 			ctor: '_Tuple2',
 			_0: _elm_lang$core$Native_Utils.update(
 				_user$project$Model$initialModel,
 				{
-					screenShown: _user$project$Types$User(
-						A2(_elm_lang$core$String$dropLeft, 6, url.hash))
+					screenShown: _user$project$Types$User(userId)
 				}),
-			_1: _elm_lang$core$Platform_Cmd$none
+			_1: _user$project$Auth$checkAuthToken
 		};
 	} else {
 		if (A2(_elm_lang$core$String$startsWith, '#photo:', url.hash)) {
@@ -11947,7 +12041,7 @@ var _user$project$Main$init = function (url) {
 								_0: _elm_lang$core$Native_Utils.update(
 									_user$project$Model$initialModel,
 									{screenShown: _user$project$Types$PublicTimeline}),
-								_1: _elm_lang$navigation$Navigation$modifyUrl('')
+								_1: _elm_lang$navigation$Navigation$modifyUrl('#public')
 							};
 						}
 					}

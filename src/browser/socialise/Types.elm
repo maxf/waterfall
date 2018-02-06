@@ -14,7 +14,6 @@ type AuthMsg
     | AuthReturn (Result Http.Error AuthResponse)
     | UserDetailsFetched (Result Http.Error Account)
     | AuthTokenRetrievedFromLocalStorage ( String, Maybe String )
-    | Login
     | Logout
 
 

@@ -19,12 +19,16 @@ main =
         }
 
 
-init : Location -> ( Model, Cmd msg )
+init : Location -> ( Model, Cmd Msg )
 init url =
     if String.startsWith "#user:" url.hash then
-        ( { initialModel | screenShown = User (String.dropLeft 6 url.hash) }
-        , Cmd.none
-        )
+        let
+            userId =
+                String.dropLeft 6 url.hash
+        in
+            ( { initialModel | screenShown = User userId }
+            , checkAuthToken
+            )
     else if String.startsWith "#photo:" url.hash then
         case photoHashParts url.hash of
             Ok ( statusId, attachmentId ) ->
@@ -33,19 +37,29 @@ init url =
                 )
 
             Err _ ->
-                ( { initialModel | screenShown = PublicTimeline }, Cmd.none )
+                ( { initialModel | screenShown = PublicTimeline }
+                , Cmd.none
+                )
     else if url.hash == "#home" then
-        ( { initialModel | screenShown = Home }, checkAuthToken )
+        ( { initialModel | screenShown = Home }
+        , checkAuthToken
+        )
     else if url.hash == "#me" then
-        ( { initialModel | screenShown = Profile }, checkAuthToken )
+        ( { initialModel | screenShown = Profile }
+        , checkAuthToken
+        )
     else if String.startsWith "#share:" url.hash then
         ( { initialModel | screenShown = SharePath (String.dropLeft 7 url.hash) }
         , checkAuthToken
         )
     else if String.startsWith "#upload:" url.hash then
-        ( { initialModel | screenShown = ShareUpload Nothing }, checkAuthToken )
+        ( { initialModel | screenShown = ShareUpload Nothing }
+        , checkAuthToken
+        )
     else
-        ( { initialModel | screenShown = PublicTimeline }, modifyUrl "" )
+        ( { initialModel | screenShown = PublicTimeline }
+        , modifyUrl "#public"
+        )
 
 
 subscriptions : Model -> Sub Msg

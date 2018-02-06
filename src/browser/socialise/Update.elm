@@ -1,11 +1,11 @@
-module Update exposing (update, photoHashParts)
+module Update exposing (update, photoHashParts, getTimeline)
 
 import Http
 import Regex exposing (Regex, regex, find, HowMany(..))
 import Maybe exposing (withDefault)
 import Navigation exposing (Location, newUrl, modifyUrl)
 import Model exposing (Model, changeServerUrl)
-import Auth exposing (authenticate, storeAuthToken, clearAuthToken, checkAuthToken)
+import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
 import Ports exposing (..)
 import Types exposing (..)
 
@@ -56,15 +56,12 @@ updateAuth msg model =
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->
             case token of
                 Nothing ->
-                    ( model, Cmd.none )
+                    ( model, newUrl "#login" )
 
                 Just tokenValue ->
                     ( { model | authToken = token, password = "" }
                     , fetchCurrentUserDetails tokenValue model.server.url
                     )
-
-        Login ->
-            ( { model | screenShown = LoginPage }, Cmd.none )
 
         Logout ->
             { model | authToken = Nothing, userId = Nothing }
@@ -164,6 +161,8 @@ screenType : Location -> Screen
 screenType url =
     if url.hash == "" || url.hash == "#" then
         PublicTimeline
+    else if url.hash == "#login" then
+        LoginPage
     else if url.hash == "#home" then
         Home
     else if url.hash == "#me" then
@@ -193,7 +192,7 @@ prepareScreenToDisplay model =
         SharePath _ ->
             case model.authToken of
                 Nothing ->
-                    authenticate model
+                    modifyUrl "#login"
 
                 _ ->
                     Cmd.none
@@ -201,7 +200,7 @@ prepareScreenToDisplay model =
         ShareUpload _ ->
             case model.authToken of
                 Nothing ->
-                    authenticate model
+                    modifyUrl "#login"
 
                 _ ->
                     Cmd.none
@@ -209,18 +208,29 @@ prepareScreenToDisplay model =
         Photo statusId _ ->
             getStatus model.server.url model.authToken statusId
 
+        User userId ->
+            case model.authToken of
+                Nothing ->
+                    modifyUrl "#login"
+
+                token ->
+                    getTimeline model.server.url token (User userId)
+
         Home ->
             case model.authToken of
                 Nothing ->
-                    checkAuthToken
+                    modifyUrl "#login"
 
                 _ ->
                     getTimeline model.server.url model.authToken Home
 
+        LoginPage ->
+            Cmd.none
+
         Profile ->
             case model.authToken of
                 Nothing ->
-                    checkAuthToken
+                    modifyUrl "#login"
 
                 Just _ ->
                     case model.userId of
