@@ -46,7 +46,7 @@ viewSidebarLinks : Maybe String -> Html Msg
 viewSidebarLinks userId =
     case userId of
         Nothing ->
-            div [] [ a [ onClick (Auth Login) ] [ text "Log in" ] ]
+            div [] [ a [ href "#login" ] [ text "Log in" ] ]
 
         Just id ->
             div []
@@ -56,7 +56,7 @@ viewSidebarLinks userId =
                     , span [ onClick (Auth Logout), class "logout" ] [ text "Log out" ]
                     ]
                 , ul []
-                    [ li [] [ a [ href "#home" ] [ text "My timeline" ] ]
+                    [ li [] [ a [ href "#home" ] [ text "Timeline" ] ]
                     , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
                     , li [] [ a [ href "#me" ] [ text "My photos" ] ]
                     ]
@@ -101,8 +101,29 @@ viewMain model =
                 _ ->
                     viewShareUploaded dataUrl
 
-        _ ->
-            div [] [ viewTimeline model.timeline ]
+        Home ->
+            div []
+                [ h1 [] [ text "Your timeline" ]
+                , viewTimeline model.timeline
+                ]
+
+        PublicTimeline ->
+            div []
+                [ h1 [] [ text "Public timeline" ]
+                , viewTimeline model.timeline
+                ]
+
+        User id ->
+            div []
+                [ h1 [] [ "User" ++ id |> text ]
+                , viewTimeline model.timeline
+                ]
+
+        Profile ->
+            div []
+                [ h1 [] [ text "Your pictures" ]
+                , viewTimeline model.timeline
+                ]
 
 
 viewPhoto : Status -> AttachmentId -> Html Msg
@@ -145,7 +166,8 @@ viewPhoto status attachmentId =
 viewLogin : Model -> Html Msg
 viewLogin model =
     div []
-        [ Html.form [ onSubmit (Auth AuthSubmit) ]
+        [ h1 [] [ text "Log in" ]
+        , Html.form [ onSubmit (Auth AuthSubmit) ]
             [ label [ for "instanceUrl" ] [ text "Instance URL" ]
             , select
                 [ onInput (Auth << ServerSelect) ]
