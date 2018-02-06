@@ -10,8 +10,8 @@ import Ports exposing (..)
 import Types exposing (..)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+updateAuth : AuthMsg -> Model -> ( Model, Cmd Msg )
+updateAuth msg model =
     case msg of
         Username username ->
             ( { model | username = username }, Cmd.none )
@@ -36,6 +36,44 @@ update msg model =
                   , fetchCurrentUserDetails response.token model.server.url
                   ]
 
+        UserDetailsFetched (Err e) ->
+            ( { model | message = Just ("account fetch error: " ++ httpErrorMessage e) }
+            , Cmd.none
+            )
+
+        UserDetailsFetched (Ok account) ->
+            let
+                newModel =
+                    { model
+                        | username = account.acct
+                        , userId = Just account.id
+                    }
+            in
+                ( newModel
+                , modifyUrl "#home"
+                )
+
+        AuthTokenRetrievedFromLocalStorage ( _, token ) ->
+            case token of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just tokenValue ->
+                    ( { model | authToken = token, password = "" }
+                    , fetchCurrentUserDetails tokenValue model.server.url
+                    )
+
+        Login ->
+            ( { model | screenShown = LoginPage }, Cmd.none )
+
+        Logout ->
+            { model | authToken = Nothing, userId = Nothing }
+                ! [ clearAuthToken, modifyUrl "#public" ]
+
+
+updateShare : ShareMsg -> Model -> ( Model, Cmd Msg )
+updateShare msg model =
+    case msg of
         ShareTextInput text ->
             ( { model | shareText = text }, Cmd.none )
 
@@ -69,6 +107,16 @@ update msg model =
         ImageShared (Ok _) ->
             ( model, modifyUrl "#home" )
 
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        Auth authMsg ->
+            updateAuth authMsg model
+
+        Share shareMsg ->
+            updateShare shareMsg model
+
         TimelineFetched (Ok timeline) ->
             ( { model | timeline = List.filter (\s -> s.attachments /= []) timeline }
             , Cmd.none
@@ -76,23 +124,6 @@ update msg model =
 
         TimelineFetched (Err e) ->
             ( { model | message = Just ("timeline error: " ++ httpErrorMessage e) }, Cmd.none )
-
-        UserDetailsFetched (Err e) ->
-            ( { model | message = Just ("account fetch error: " ++ httpErrorMessage e) }
-            , Cmd.none
-            )
-
-        UserDetailsFetched (Ok account) ->
-            let
-                newModel =
-                    { model
-                        | username = account.acct
-                        , userId = Just account.id
-                    }
-            in
-                ( newModel
-                , modifyUrl "#home"
-                )
 
         PhotoFetched (Err e) ->
             ( { model | message = Just ("timeline error: " ++ httpErrorMessage e) }
@@ -107,37 +138,20 @@ update msg model =
         CloseMessage ->
             ( { model | message = Nothing }, Cmd.none )
 
-        AuthTokenRetrievedFromLocalStorage ( _, token ) ->
-            case token of
-                Nothing ->
-                    ( model, Cmd.none )
-
-                Just tokenValue ->
-                    ( { model | authToken = token, password = "" }
-                    , fetchCurrentUserDetails tokenValue model.server.url
-                    )
-
         ViewPhoto status attachment ->
             ( { model | screenShown = Photo status.id attachment.id }
             , newUrl
                 ("#photo:"
-                    ++ (statusIdToString status.id)
+                    ++ statusIdToString status.id
                     ++ ":"
-                    ++ (attachmentIdToString attachment.id)
+                    ++ attachmentIdToString attachment.id
                 )
             )
-
-        Login ->
-            ( { model | screenShown = LoginPage }, Cmd.none )
-
-        Logout ->
-            { model | authToken = Nothing, userId = Nothing }
-                ! [ clearAuthToken, modifyUrl "#public" ]
 
         UrlHasChanged location ->
             let
                 newModel =
-                    { model | screenShown = screenType location model }
+                    { model | screenShown = screenType location }
             in
                 ( newModel, prepareScreenToDisplay newModel )
 
@@ -146,8 +160,8 @@ update msg model =
 -- URL change update model
 
 
-screenType : Location -> Model -> Screen
-screenType url model =
+screenType : Location -> Screen
+screenType url =
     if url.hash == "" || url.hash == "#" then
         PublicTimeline
     else if url.hash == "#home" then
@@ -208,12 +222,11 @@ prepareScreenToDisplay model =
                 Nothing ->
                     checkAuthToken
 
-                Just token ->
+                Just _ ->
                     case model.userId of
                         Nothing ->
                             Cmd.none
 
-                        -- wait until callback arrives
                         Just id ->
                             getTimeline model.server.url model.authToken (User id)
 
@@ -344,7 +357,7 @@ httpErrorMessage error =
 fetchCurrentUserDetails : String -> String -> Cmd Msg
 fetchCurrentUserDetails authToken instanceUrl =
     Http.send
-        UserDetailsFetched
+        (Auth << UserDetailsFetched)
         (Http.request
             { method = "GET"
             , headers = [ Http.header "Authorization" ("Bearer " ++ authToken) ]
@@ -402,4 +415,4 @@ shareImage model =
                 , withCredentials = False
                 }
     in
-        Http.send ImageShared request
+        Http.send (Share << ImageShared) request

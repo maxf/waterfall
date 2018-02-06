@@ -6,7 +6,7 @@ import Model exposing (Model, initialModel)
 import Update exposing (update, photoHashParts)
 import Ports exposing (localStorageRetrievedItem, formImageRetrieved, statusPosted)
 import Types exposing (..)
-import Auth exposing (checkAuthToken, clearAuthToken)
+import Auth exposing (checkAuthToken)
 
 
 main : Program Never Model Msg
@@ -22,7 +22,7 @@ main =
 init : Location -> ( Model, Cmd msg )
 init url =
     if String.startsWith "#user:" url.hash then
-        ( { initialModel | screenShown =  User (String.dropLeft 6 url.hash) }
+        ( { initialModel | screenShown = User (String.dropLeft 6 url.hash) }
         , Cmd.none
         )
     else if String.startsWith "#photo:" url.hash then
@@ -51,7 +51,7 @@ init url =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ localStorageRetrievedItem AuthTokenRetrievedFromLocalStorage
-        , formImageRetrieved FormImageRead
-        , statusPosted StatusPosted
+        [ localStorageRetrievedItem (Auth << AuthTokenRetrievedFromLocalStorage)
+        , formImageRetrieved (Share << FormImageRead)
+        , statusPosted (Share << StatusPosted)
         ]

@@ -6,13 +6,20 @@ import Json.Decode.Pipeline exposing (..)
 import Navigation exposing (Location)
 
 
-type Msg
+type AuthMsg
     = Username String
     | ServerSelect String
     | Password String
     | AuthSubmit
     | AuthReturn (Result Http.Error AuthResponse)
-    | ShareTextInput String
+    | UserDetailsFetched (Result Http.Error Account)
+    | AuthTokenRetrievedFromLocalStorage ( String, Maybe String )
+    | Login
+    | Logout
+
+
+type ShareMsg
+    = ShareTextInput String
     | ShareImage
     | UploadImage
       --    | AttachmentUploaded (Result Http.Error Attachment)
@@ -20,15 +27,16 @@ type Msg
     | ImageSelected
     | FormImageRead ImagePortData
     | ImageShared (Result Http.Error String)
+
+
+type Msg
+    = Auth AuthMsg
+    | Share ShareMsg
     | TimelineFetched (Result Http.Error (List Status))
-    | UserDetailsFetched (Result Http.Error Account)
     | PhotoFetched (Result Http.Error Status)
     | CloseMessage
-    | AuthTokenRetrievedFromLocalStorage ( String, Maybe String )
     | ViewPhoto Status Attachment
     | UrlHasChanged Location
-    | Login
-    | Logout
 
 
 type alias AuthResponse =
@@ -145,7 +153,6 @@ type Screen
     | Photo StatusId AttachmentId -- <statusId> <attachmentId>
     | SharePath String -- <path of photo to share on server>
     | ShareUpload (Maybe String) -- <data of the image loaded>
-
 
 
 

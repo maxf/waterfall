@@ -46,14 +46,14 @@ viewSidebarLinks : Maybe String -> Html Msg
 viewSidebarLinks userId =
     case userId of
         Nothing ->
-            div [] [ a [ onClick Login ] [ text "Log in" ] ]
+            div [] [ a [ onClick (Auth Login) ] [ text "Log in" ] ]
 
         Just id ->
             div []
                 [ div []
                     [ span [] [ text ("You are: " ++ id) ]
                     , br [] []
-                    , span [ onClick Logout, class "logout" ] [ text "Log out" ]
+                    , span [ onClick (Auth Logout), class "logout" ] [ text "Log out" ]
                     ]
                 , ul []
                     [ li [] [ a [ href "#home" ] [ text "My timeline" ] ]
@@ -145,10 +145,10 @@ viewPhoto status attachmentId =
 viewLogin : Model -> Html Msg
 viewLogin model =
     div []
-        [ Html.form [ onSubmit AuthSubmit ]
+        [ Html.form [ onSubmit (Auth AuthSubmit) ]
             [ label [ for "instanceUrl" ] [ text "Instance URL" ]
             , select
-                [ onInput ServerSelect ]
+                [ onInput (Auth << ServerSelect) ]
                 (List.map (\s -> option [ value s.url ] [ text s.url ]) servers)
             ]
         , div []
@@ -156,7 +156,7 @@ viewLogin model =
             , input
                 [ type_ "text"
                 , id "username"
-                , onInput Username
+                , onInput (Auth << Username)
                 , value model.username
                 ]
                 []
@@ -166,13 +166,13 @@ viewLogin model =
             , input
                 [ type_ "password"
                 , id "password"
-                , onInput Password
+                , onInput (Auth << Password)
                 , value model.password
                 ]
                 []
             ]
         , div []
-            [ button [ onClick AuthSubmit ] [ text "Log in" ] ]
+            [ button [ onClick (Auth AuthSubmit) ] [ text "Log in" ] ]
         ]
 
 
@@ -227,9 +227,9 @@ viewSharePath path =
         [ h1 [] [ text "Share photo" ]
         , img [ src ("/thumb?photo=" ++ path) ] []
         , br [] []
-        , input [ type_ "text", onInput ShareTextInput, placeholder "title" ] []
+        , input [ type_ "text", onInput (Share << ShareTextInput), placeholder "title" ] []
         , br [] []
-        , button [ onClick ShareImage ] [ text "Share" ]
+        , button [ onClick (Share ShareImage) ] [ text "Share" ]
         ]
 
 
@@ -240,7 +240,7 @@ viewShareUpload =
         , input
             [ type_ "file"
             , id "file-upload"
-            , on "change" (succeed ImageSelected)
+            , on "change" (succeed (Share ImageSelected))
             ]
             []
         ]
@@ -252,7 +252,7 @@ viewShareUploaded dataUrl =
         [ h1 [] [ text "Upload photo" ]
         , img [ id "file-upload", src dataUrl ] []
         , br [] []
-        , input [ type_ "text", onInput ShareTextInput, placeholder "title" ] []
+        , input [ type_ "text", onInput (Share << ShareTextInput), placeholder "title" ] []
         , br [] []
-        , button [ onClick UploadImage ] [ text "Share" ]
+        , button [ onClick (Share UploadImage) ] [ text "Share" ]
         ]

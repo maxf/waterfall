@@ -4,7 +4,7 @@ import Http exposing (encodeUri)
 import Json.Decode
 import Json.Decode.Pipeline
 import Ports exposing (localStorageGetItem, localStorageSetItem, localStorageRemoveItem)
-import Types exposing (Msg(..), AuthResponse)
+import Types exposing (..)
 import Model exposing (Model)
 
 
@@ -42,7 +42,7 @@ authenticate model =
                 (Http.stringBody "application/x-www-form-urlencoded" postParams)
                 oauthResponseDecoder
     in
-        Http.send AuthReturn request
+        Http.send (Auth << AuthReturn) request
 
 
 oauthResponseDecoder : Json.Decode.Decoder AuthResponse
