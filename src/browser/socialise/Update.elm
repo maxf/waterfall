@@ -131,25 +131,13 @@ update msg model =
             ( { model | screenShown = LoginPage }, Cmd.none )
 
         Logout ->
-            let
-                newModel =
-                    { model | authToken = Nothing }
-
-                _ =
-                    Debug.log "Logging" "out"
-            in
-                newModel ! [ clearAuthToken, modifyUrl "" ]
+            { model | authToken = Nothing, userId = Nothing }
+                ! [ clearAuthToken, modifyUrl "#public" ]
 
         UrlHasChanged location ->
             let
-                newScreen =
-                    screenType location model
-
-                _ = Debug.log ("new url: "++location.hash) newScreen
-
                 newModel =
-                    { model | screenShown = newScreen }
-
+                    { model | screenShown = screenType location model }
             in
                 ( newModel, prepareScreenToDisplay newModel )
 
@@ -213,7 +201,7 @@ prepareScreenToDisplay model =
                     checkAuthToken
 
                 _ ->
-                    getTimeline (Debug.log "1" model.server.url) model.authToken Home
+                    getTimeline model.server.url model.authToken Home
 
         Profile ->
             case model.authToken of
@@ -230,7 +218,7 @@ prepareScreenToDisplay model =
                             getTimeline model.server.url model.authToken (User id)
 
         other ->
-            getTimeline (Debug.log "2" model.server.url) model.authToken other
+            getTimeline model.server.url model.authToken other
 
 
 
