@@ -11639,20 +11639,30 @@ var _user$project$Update$updateShare = F2(
 			case 'ShareImage':
 				return {
 					ctor: '_Tuple2',
-					_0: model,
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							message: _elm_lang$core$Maybe$Just('Uploading image')
+						}),
 					_1: _user$project$Update$shareImage(model)
 				};
 			case 'UploadImage':
 				return {
 					ctor: '_Tuple2',
-					_0: model,
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							message: _elm_lang$core$Maybe$Just('Uploading image')
+						}),
 					_1: _user$project$Update$uploadImage(model)
 				};
 			case 'StatusPosted':
 				if (_p20._0.ctor === 'Nothing') {
 					return {
 						ctor: '_Tuple2',
-						_0: model,
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{message: _elm_lang$core$Maybe$Nothing}),
 						_1: _elm_lang$navigation$Navigation$modifyUrl('#home')
 					};
 				} else {
@@ -11701,7 +11711,9 @@ var _user$project$Update$updateShare = F2(
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: model,
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{message: _elm_lang$core$Maybe$Nothing}),
 						_1: _elm_lang$navigation$Navigation$modifyUrl('#home')
 					};
 				}

@@ -80,14 +80,18 @@ updateShare msg model =
             ( { model | shareText = text }, Cmd.none )
 
         ShareImage ->
-            ( model, shareImage model )
+            ( { model | message = Just "Uploading image" }
+            , shareImage model
+            )
 
         UploadImage ->
-            ( model, uploadImage model )
+            ( { model | message = Just "Uploading image" }
+            , uploadImage model
+            )
 
         -- A status was posted
         StatusPosted Nothing ->
-            ( model, modifyUrl "#home" )
+            ( { model | message = Nothing }, modifyUrl "#home" )
 
         StatusPosted (Just error) ->
             ( { model | message = Just error }, Cmd.none )
@@ -107,7 +111,7 @@ updateShare msg model =
             )
 
         ImageShared (Ok _) ->
-            ( model, modifyUrl "#home" )
+            ( { model | message = Nothing }, modifyUrl "#home" )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -213,7 +217,7 @@ prepareScreenToDisplay model =
         PhotoPage statusId _ ->
             getStatus model.server.url model.authToken statusId
 
-        UserPage userId ->
+        UserPage _ ->
             case model.authToken of
                 Nothing ->
                     modifyUrl "#login"
@@ -242,7 +246,7 @@ prepareScreenToDisplay model =
                         Nothing ->
                             Cmd.none
 
-                        Just id ->
+                        Just _ ->
                             getTimeline model.server.url model.authToken model.view
 
         other ->

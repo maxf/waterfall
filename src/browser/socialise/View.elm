@@ -109,7 +109,7 @@ viewMain model =
 
         HomePage ->
             div []
-                [ h1 [] [ text ((model.username|>withDefault "") ++ "'s timeline") ]
+                [ h1 [] [ text ((model.username |> withDefault "") ++ "'s timeline") ]
                 , viewTimeline model.timeline
                 ]
 
