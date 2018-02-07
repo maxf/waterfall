@@ -26,7 +26,7 @@ init url =
             userId =
                 String.dropLeft 6 url.hash
         in
-            ( { initialModel | screenShown = User userId }
+            ( { initialModel | screenShown = UserPage userId }
             , checkAuthToken
             )
     else if String.startsWith "#photo:" url.hash then

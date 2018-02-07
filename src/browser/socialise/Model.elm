@@ -9,9 +9,10 @@ import Types exposing (..)
 type alias Model =
     { server : MastodonServer
     , authToken : Maybe String
-    , userEmail : String
+    , userEmail : Maybe String
+    , username : Maybe String
     , userId : Maybe String
-    , password : String
+    , password : Maybe String
     , message : Maybe String
     , timeline : List Status
     , screenShown : Screen
@@ -25,9 +26,10 @@ initialModel =
     Model
         defaultServer
         Nothing
-        ""
         Nothing
-        ""
+        Nothing
+        Nothing
+        Nothing
         Nothing
         []
         Home

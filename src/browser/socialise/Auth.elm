@@ -1,5 +1,6 @@
 module Auth exposing (..)
 
+import Maybe exposing (withDefault)
 import Http exposing (encodeUri)
 import Json.Decode
 import Json.Decode.Pipeline
@@ -31,10 +32,10 @@ authenticate model =
             "client_id="
                 ++ model.server.clientId
                 ++ "&grant_type=password&username="
-                ++ encodeUri model.userEmail
+                ++ encodeUri (model.userEmail |> withDefault "")
                 ++ "&scope=read+write+follow"
                 ++ "&password="
-                ++ encodeUri model.password
+                ++ encodeUri (model.password |> withDefault "")
 
         request =
             Http.post

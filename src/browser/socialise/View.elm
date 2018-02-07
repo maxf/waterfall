@@ -5,6 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Attributes.Extra exposing (..)
 import Html.Events exposing (onInput, onClick, onSubmit, on)
 import Json.Decode exposing (succeed)
+import Maybe exposing (withDefault)
 import Types exposing (..)
 import Model exposing (Model)
 
@@ -37,22 +38,26 @@ viewSidebar : Model -> Html Msg
 viewSidebar model =
     div
         [ class "sidebar" ]
-        [ h1 [] [ a [ href "/socialise" ] [ text "Waterfall" ] ]
-        , viewSidebarLinks model.userId
+        [ h1 [] [ a [ href "/" ] [ text "Waterfall" ] ]
+        , viewSidebarLinks model.userId model.screenShown
         ]
 
 
-viewSidebarLinks : Maybe String -> Html Msg
-viewSidebarLinks userId =
+viewSidebarLinks : Maybe String -> Screen -> Html Msg
+viewSidebarLinks userId pageType =
     case userId of
         Nothing ->
-            div [] [ a [ href "#login" ] [ text "Log in" ] ]
+            case pageType of
+                LoginPage ->
+                    div [] []
+
+                _ ->
+                    div [] [ a [ href "#login" ] [ text "Log in" ] ]
 
         Just id ->
             div []
                 [ div []
-                    [ span [] [ text ("You are: " ++ id) ]
-                    , br [] []
+                    [ span [] [ text (userId |> Maybe.withDefault "") ]
                     , span [ onClick (Auth Logout), class "logout" ] [ text "Log out" ]
                     ]
                 , ul []
@@ -114,9 +119,9 @@ viewMain model =
                 , viewTimeline model.timeline
                 ]
 
-        User id ->
+        UserPage userId ->
             div []
-                [ h1 [] [ "User" ++ id |> text ]
+                [ h1 [] [ "User" ++ userId |> text ]
                 , viewTimeline model.timeline
                 ]
 
@@ -180,7 +185,7 @@ viewLogin model =
                 [ type_ "text"
                 , id "user-email"
                 , onInput (Auth << UserEmail)
-                , value model.userEmail
+                , value (model.userEmail |> Maybe.withDefault "")
                 ]
                 []
             ]
@@ -190,7 +195,7 @@ viewLogin model =
                 [ type_ "password"
                 , id "password"
                 , onInput (Auth << Password)
-                , value model.password
+                , value (model.password |> withDefault "")
                 ]
                 []
             ]

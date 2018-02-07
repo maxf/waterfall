@@ -14,10 +14,10 @@ updateAuth : AuthMsg -> Model -> ( Model, Cmd Msg )
 updateAuth msg model =
     case msg of
         UserEmail email ->
-            ( { model | userEmail = email }, Cmd.none )
+            ( { model | userEmail = Just email }, Cmd.none )
 
         Password password ->
-            ( { model | password = password }, Cmd.none )
+            ( { model | password = Just password }, Cmd.none )
 
         ServerSelect url ->
             ( changeServerUrl model url, Cmd.none )
@@ -45,9 +45,8 @@ updateAuth msg model =
             let
                 newModel =
                     { model
---                        | username = account.acct
---                        , userId = Just account.id
-                        | userId = Just account.id
+                        | username = Just account.acct
+                        , userId = Just account.id
                     }
             in
                 ( newModel
@@ -60,12 +59,17 @@ updateAuth msg model =
                     ( model, newUrl "#login" )
 
                 Just tokenValue ->
-                    ( { model | authToken = token, password = "" }
+                    ( { model | authToken = token, password = Nothing }
                     , fetchCurrentUserDetails tokenValue model.server.url
                     )
 
         Logout ->
-            { model | authToken = Nothing, userId = Nothing, userEmail = "" }
+            { model
+                | authToken = Nothing
+                , userId = Nothing
+                , userEmail = Nothing
+                , username = Nothing
+            }
                 ! [ clearAuthToken, modifyUrl "#public" ]
 
 
@@ -169,7 +173,7 @@ screenType url =
     else if url.hash == "#me" then
         Profile
     else if String.startsWith "#user:" url.hash then
-        User (String.dropLeft 6 url.hash)
+        UserPage (String.dropLeft 6 url.hash)
     else if String.startsWith "#upload" url.hash then
         ShareUpload Nothing
     else if String.startsWith "#photo:" url.hash then
@@ -209,13 +213,13 @@ prepareScreenToDisplay model =
         Photo statusId _ ->
             getStatus model.server.url model.authToken statusId
 
-        User userId ->
+        UserPage userId ->
             case model.authToken of
                 Nothing ->
                     modifyUrl "#login"
 
                 token ->
-                    getTimeline model.server.url token (User userId)
+                    getTimeline model.server.url token model.screenShown
 
         Home ->
             case model.authToken of
@@ -239,7 +243,7 @@ prepareScreenToDisplay model =
                             Cmd.none
 
                         Just id ->
-                            getTimeline model.server.url model.authToken (User id)
+                            getTimeline model.server.url model.authToken model.screenShown
 
         other ->
             getTimeline model.server.url model.authToken other
@@ -314,7 +318,7 @@ getTimeline instanceUrl authToken screenType =
                 PublicTimeline ->
                     "/api/v1/timelines/public"
 
-                User id ->
+                UserPage id ->
                     "/api/v1/accounts/" ++ Http.encodeUri id ++ "/statuses"
 
                 _ ->
