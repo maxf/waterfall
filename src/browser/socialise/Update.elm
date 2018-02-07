@@ -97,7 +97,7 @@ updateShare msg model =
             ( model, getImageFromForm "file-upload" )
 
         FormImageRead imageData ->
-            ( { model | screenShown = ShareUpload (Just imageData.contents) }
+            ( { model | view = ShareUploadPage (Just imageData.contents) }
             , Cmd.none
             )
 
@@ -141,7 +141,7 @@ update msg model =
             ( { model | message = Nothing }, Cmd.none )
 
         ViewPhoto status attachment ->
-            ( { model | screenShown = Photo status.id attachment.id }
+            ( { model | view = PhotoPage status.id attachment.id }
             , newUrl
                 ("#photo:"
                     ++ statusIdToString status.id
@@ -153,7 +153,7 @@ update msg model =
         UrlHasChanged location ->
             let
                 newModel =
-                    { model | screenShown = screenType location }
+                    { model | view = screenType location }
             in
                 ( newModel, prepareScreenToDisplay newModel )
 
@@ -169,17 +169,17 @@ screenType url =
     else if url.hash == "#login" then
         LoginPage
     else if url.hash == "#home" then
-        Home
+        HomePage
     else if url.hash == "#me" then
-        Profile
+        ProfilePage
     else if String.startsWith "#user:" url.hash then
         UserPage (String.dropLeft 6 url.hash)
     else if String.startsWith "#upload" url.hash then
-        ShareUpload Nothing
+        ShareUploadPage Nothing
     else if String.startsWith "#photo:" url.hash then
         case photoHashParts url.hash of
             Ok ( statusId, attachmentId ) ->
-                Photo statusId attachmentId
+                PhotoPage statusId attachmentId
 
             Err _ ->
                 PublicTimeline
@@ -193,8 +193,8 @@ screenType url =
 
 prepareScreenToDisplay : Model -> Cmd Msg
 prepareScreenToDisplay model =
-    case model.screenShown of
-        SharePath _ ->
+    case model.view of
+        SharePathPage _ ->
             case model.authToken of
                 Nothing ->
                     modifyUrl "#login"
@@ -202,7 +202,7 @@ prepareScreenToDisplay model =
                 _ ->
                     Cmd.none
 
-        ShareUpload _ ->
+        ShareUploadPage _ ->
             case model.authToken of
                 Nothing ->
                     modifyUrl "#login"
@@ -210,7 +210,7 @@ prepareScreenToDisplay model =
                 _ ->
                     Cmd.none
 
-        Photo statusId _ ->
+        PhotoPage statusId _ ->
             getStatus model.server.url model.authToken statusId
 
         UserPage userId ->
@@ -219,20 +219,20 @@ prepareScreenToDisplay model =
                     modifyUrl "#login"
 
                 token ->
-                    getTimeline model.server.url token model.screenShown
+                    getTimeline model.server.url token model.view
 
-        Home ->
+        HomePage ->
             case model.authToken of
                 Nothing ->
                     modifyUrl "#login"
 
                 _ ->
-                    getTimeline model.server.url model.authToken Home
+                    getTimeline model.server.url model.authToken HomePage
 
         LoginPage ->
             Cmd.none
 
-        Profile ->
+        ProfilePage ->
             case model.authToken of
                 Nothing ->
                     modifyUrl "#login"
@@ -243,7 +243,7 @@ prepareScreenToDisplay model =
                             Cmd.none
 
                         Just id ->
-                            getTimeline model.server.url model.authToken model.screenShown
+                            getTimeline model.server.url model.authToken model.view
 
         other ->
             getTimeline model.server.url model.authToken other
@@ -399,8 +399,8 @@ shareImage : Model -> Cmd Msg
 shareImage model =
     let
         imagePath =
-            case model.screenShown of
-                SharePath path ->
+            case model.view of
+                SharePathPage path ->
                     path
 
                 _ ->

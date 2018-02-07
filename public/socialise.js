@@ -10084,23 +10084,23 @@ var _user$project$Types$statusDecoder = A3(
 					_user$project$Types$statusIdDecoder,
 					_elm_lang$core$Json_Decode$succeed(_user$project$Types$Status))))));
 var _user$project$Types$timelineDecoder = _elm_lang$core$Json_Decode$list(_user$project$Types$statusDecoder);
-var _user$project$Types$ShareUpload = function (a) {
-	return {ctor: 'ShareUpload', _0: a};
+var _user$project$Types$ShareUploadPage = function (a) {
+	return {ctor: 'ShareUploadPage', _0: a};
 };
-var _user$project$Types$SharePath = function (a) {
-	return {ctor: 'SharePath', _0: a};
+var _user$project$Types$SharePathPage = function (a) {
+	return {ctor: 'SharePathPage', _0: a};
 };
-var _user$project$Types$Photo = F2(
+var _user$project$Types$PhotoPage = F2(
 	function (a, b) {
-		return {ctor: 'Photo', _0: a, _1: b};
+		return {ctor: 'PhotoPage', _0: a, _1: b};
 	});
 var _user$project$Types$UserPage = function (a) {
 	return {ctor: 'UserPage', _0: a};
 };
 var _user$project$Types$PublicTimeline = {ctor: 'PublicTimeline'};
-var _user$project$Types$Profile = {ctor: 'Profile'};
+var _user$project$Types$ProfilePage = {ctor: 'ProfilePage'};
 var _user$project$Types$LoginPage = {ctor: 'LoginPage'};
-var _user$project$Types$Home = {ctor: 'Home'};
+var _user$project$Types$HomePage = {ctor: 'HomePage'};
 
 var _user$project$Ports$localStorageSetItem = _elm_lang$core$Native_Platform.outgoingPort(
 	'localStorageSetItem',
@@ -10205,7 +10205,7 @@ var _user$project$Model$Model = function (a) {
 								return function (i) {
 									return function (j) {
 										return function (k) {
-											return {server: a, authToken: b, userEmail: c, username: d, userId: e, password: f, message: g, timeline: h, screenShown: i, shareText: j, currentStatus: k};
+											return {server: a, authToken: b, userEmail: c, username: d, userId: e, password: f, message: g, timeline: h, view: i, shareText: j, currentStatus: k};
 										};
 									};
 								};
@@ -10218,7 +10218,7 @@ var _user$project$Model$Model = function (a) {
 	};
 };
 var _user$project$Model$initialModel = _user$project$Model$Model(_user$project$Types$defaultServer)(_elm_lang$core$Maybe$Nothing)(_elm_lang$core$Maybe$Nothing)(_elm_lang$core$Maybe$Nothing)(_elm_lang$core$Maybe$Nothing)(_elm_lang$core$Maybe$Nothing)(_elm_lang$core$Maybe$Nothing)(
-	{ctor: '[]'})(_user$project$Types$Home)('')(_elm_lang$core$Maybe$Nothing);
+	{ctor: '[]'})(_user$project$Types$HomePage)('')(_elm_lang$core$Maybe$Nothing);
 
 var _user$project$Auth$oauthResponseDecoder = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
@@ -10893,11 +10893,11 @@ var _user$project$View$viewPhoto = F2(
 		}
 	});
 var _user$project$View$viewMain = function (model) {
-	var _p10 = model.screenShown;
+	var _p10 = model.view;
 	switch (_p10.ctor) {
 		case 'LoginPage':
 			return _user$project$View$viewLogin;
-		case 'Photo':
+		case 'PhotoPage':
 			var _p11 = {ctor: '_Tuple2', _0: model.currentStatus, _1: _p10._1};
 			if ((_p11.ctor === '_Tuple2') && (_p11._0.ctor === 'Just')) {
 				return A2(_user$project$View$viewPhoto, _p11._0._0, _p11._1);
@@ -10907,7 +10907,7 @@ var _user$project$View$viewMain = function (model) {
 					{ctor: '[]'},
 					{ctor: '[]'});
 			}
-		case 'SharePath':
+		case 'SharePathPage':
 			var _p12 = model.authToken;
 			if (_p12.ctor === 'Nothing') {
 				return A2(
@@ -10921,7 +10921,7 @@ var _user$project$View$viewMain = function (model) {
 			} else {
 				return _user$project$View$viewSharePath(_p10._0);
 			}
-		case 'ShareUpload':
+		case 'ShareUploadPage':
 			if (_p10._0.ctor === 'Nothing') {
 				var _p13 = model.authToken;
 				if (_p13.ctor === 'Nothing') {
@@ -10951,7 +10951,7 @@ var _user$project$View$viewMain = function (model) {
 					return _user$project$View$viewShareUploaded(_p10._0._0);
 				}
 			}
-		case 'Home':
+		case 'HomePage':
 			return A2(
 				_elm_lang$html$Html$div,
 				{ctor: '[]'},
@@ -11244,7 +11244,7 @@ var _user$project$View$viewSidebar = function (model) {
 				}),
 			_1: {
 				ctor: '::',
-				_0: A2(_user$project$View$viewSidebarLinks, model.username, model.screenShown),
+				_0: A2(_user$project$View$viewSidebarLinks, model.username, model.view),
 				_1: {ctor: '[]'}
 			}
 		});
@@ -11322,8 +11322,8 @@ var _user$project$View$view = function (model) {
 
 var _user$project$Update$shareImage = function (model) {
 	var imagePath = function () {
-		var _p0 = model.screenShown;
-		if (_p0.ctor === 'SharePath') {
+		var _p0 = model.view;
+		if (_p0.ctor === 'SharePathPage') {
 			return _p0._0;
 		} else {
 			return '';
@@ -11537,41 +11537,41 @@ var _user$project$Update$photoHashParts = function (hash) {
 	}
 };
 var _user$project$Update$prepareScreenToDisplay = function (model) {
-	var _p12 = model.screenShown;
+	var _p12 = model.view;
 	switch (_p12.ctor) {
-		case 'SharePath':
+		case 'SharePathPage':
 			var _p13 = model.authToken;
 			if (_p13.ctor === 'Nothing') {
 				return _elm_lang$navigation$Navigation$modifyUrl('#login');
 			} else {
 				return _elm_lang$core$Platform_Cmd$none;
 			}
-		case 'ShareUpload':
+		case 'ShareUploadPage':
 			var _p14 = model.authToken;
 			if (_p14.ctor === 'Nothing') {
 				return _elm_lang$navigation$Navigation$modifyUrl('#login');
 			} else {
 				return _elm_lang$core$Platform_Cmd$none;
 			}
-		case 'Photo':
+		case 'PhotoPage':
 			return A3(_user$project$Update$getStatus, model.server.url, model.authToken, _p12._0);
 		case 'UserPage':
 			var _p15 = model.authToken;
 			if (_p15.ctor === 'Nothing') {
 				return _elm_lang$navigation$Navigation$modifyUrl('#login');
 			} else {
-				return A3(_user$project$Update$getTimeline, model.server.url, _p15, model.screenShown);
+				return A3(_user$project$Update$getTimeline, model.server.url, _p15, model.view);
 			}
-		case 'Home':
+		case 'HomePage':
 			var _p16 = model.authToken;
 			if (_p16.ctor === 'Nothing') {
 				return _elm_lang$navigation$Navigation$modifyUrl('#login');
 			} else {
-				return A3(_user$project$Update$getTimeline, model.server.url, model.authToken, _user$project$Types$Home);
+				return A3(_user$project$Update$getTimeline, model.server.url, model.authToken, _user$project$Types$HomePage);
 			}
 		case 'LoginPage':
 			return _elm_lang$core$Platform_Cmd$none;
-		case 'Profile':
+		case 'ProfilePage':
 			var _p17 = model.authToken;
 			if (_p17.ctor === 'Nothing') {
 				return _elm_lang$navigation$Navigation$modifyUrl('#login');
@@ -11580,7 +11580,7 @@ var _user$project$Update$prepareScreenToDisplay = function (model) {
 				if (_p18.ctor === 'Nothing') {
 					return _elm_lang$core$Platform_Cmd$none;
 				} else {
-					return A3(_user$project$Update$getTimeline, model.server.url, model.authToken, model.screenShown);
+					return A3(_user$project$Update$getTimeline, model.server.url, model.authToken, model.view);
 				}
 			}
 		default:
@@ -11595,22 +11595,22 @@ var _user$project$Update$screenType = function (url) {
 			return _user$project$Types$LoginPage;
 		} else {
 			if (_elm_lang$core$Native_Utils.eq(url.hash, '#home')) {
-				return _user$project$Types$Home;
+				return _user$project$Types$HomePage;
 			} else {
 				if (_elm_lang$core$Native_Utils.eq(url.hash, '#me')) {
-					return _user$project$Types$Profile;
+					return _user$project$Types$ProfilePage;
 				} else {
 					if (A2(_elm_lang$core$String$startsWith, '#user:', url.hash)) {
 						return _user$project$Types$UserPage(
 							A2(_elm_lang$core$String$dropLeft, 6, url.hash));
 					} else {
 						if (A2(_elm_lang$core$String$startsWith, '#upload', url.hash)) {
-							return _user$project$Types$ShareUpload(_elm_lang$core$Maybe$Nothing);
+							return _user$project$Types$ShareUploadPage(_elm_lang$core$Maybe$Nothing);
 						} else {
 							if (A2(_elm_lang$core$String$startsWith, '#photo:', url.hash)) {
 								var _p19 = _user$project$Update$photoHashParts(url.hash);
 								if (_p19.ctor === 'Ok') {
-									return A2(_user$project$Types$Photo, _p19._0._0, _p19._0._1);
+									return A2(_user$project$Types$PhotoPage, _p19._0._0, _p19._0._1);
 								} else {
 									return _user$project$Types$PublicTimeline;
 								}
@@ -11678,7 +11678,7 @@ var _user$project$Update$updateShare = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							screenShown: _user$project$Types$ShareUpload(
+							view: _user$project$Types$ShareUploadPage(
 								_elm_lang$core$Maybe$Just(_p20._0.contents))
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -11925,7 +11925,7 @@ var _user$project$Update$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							screenShown: A2(_user$project$Types$Photo, _p28.id, _p27.id)
+							view: A2(_user$project$Types$PhotoPage, _p28.id, _p27.id)
 						}),
 					_1: _elm_lang$navigation$Navigation$newUrl(
 						A2(
@@ -11943,7 +11943,7 @@ var _user$project$Update$update = F2(
 				var newModel = _elm_lang$core$Native_Utils.update(
 					model,
 					{
-						screenShown: _user$project$Update$screenType(_p26._0)
+						view: _user$project$Update$screenType(_p26._0)
 					});
 				return {
 					ctor: '_Tuple2',
@@ -11989,7 +11989,7 @@ var _user$project$Main$init = function (url) {
 			_0: _elm_lang$core$Native_Utils.update(
 				_user$project$Model$initialModel,
 				{
-					screenShown: _user$project$Types$UserPage(userId)
+					view: _user$project$Types$UserPage(userId)
 				}),
 			_1: _user$project$Auth$checkAuthToken
 		};
@@ -12002,7 +12002,7 @@ var _user$project$Main$init = function (url) {
 					_0: _elm_lang$core$Native_Utils.update(
 						_user$project$Model$initialModel,
 						{
-							screenShown: A2(_user$project$Types$Photo, _p4._0._0, _p4._0._1)
+							view: A2(_user$project$Types$PhotoPage, _p4._0._0, _p4._0._1)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -12011,7 +12011,7 @@ var _user$project$Main$init = function (url) {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						_user$project$Model$initialModel,
-						{screenShown: _user$project$Types$PublicTimeline}),
+						{view: _user$project$Types$PublicTimeline}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			}
@@ -12021,7 +12021,7 @@ var _user$project$Main$init = function (url) {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						_user$project$Model$initialModel,
-						{screenShown: _user$project$Types$Home}),
+						{view: _user$project$Types$HomePage}),
 					_1: _user$project$Auth$checkAuthToken
 				};
 			} else {
@@ -12030,7 +12030,7 @@ var _user$project$Main$init = function (url) {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							_user$project$Model$initialModel,
-							{screenShown: _user$project$Types$Profile}),
+							{view: _user$project$Types$ProfilePage}),
 						_1: _user$project$Auth$checkAuthToken
 					};
 				} else {
@@ -12040,7 +12040,7 @@ var _user$project$Main$init = function (url) {
 							_0: _elm_lang$core$Native_Utils.update(
 								_user$project$Model$initialModel,
 								{
-									screenShown: _user$project$Types$SharePath(
+									view: _user$project$Types$SharePathPage(
 										A2(_elm_lang$core$String$dropLeft, 7, url.hash))
 								}),
 							_1: _user$project$Auth$checkAuthToken
@@ -12052,7 +12052,7 @@ var _user$project$Main$init = function (url) {
 								_0: _elm_lang$core$Native_Utils.update(
 									_user$project$Model$initialModel,
 									{
-										screenShown: _user$project$Types$ShareUpload(_elm_lang$core$Maybe$Nothing)
+										view: _user$project$Types$ShareUploadPage(_elm_lang$core$Maybe$Nothing)
 									}),
 								_1: _user$project$Auth$checkAuthToken
 							};
@@ -12061,7 +12061,7 @@ var _user$project$Main$init = function (url) {
 								ctor: '_Tuple2',
 								_0: _elm_lang$core$Native_Utils.update(
 									_user$project$Model$initialModel,
-									{screenShown: _user$project$Types$PublicTimeline}),
+									{view: _user$project$Types$PublicTimeline}),
 								_1: _elm_lang$navigation$Navigation$modifyUrl('#public')
 							};
 						}

@@ -39,7 +39,7 @@ viewSidebar model =
     div
         [ class "sidebar" ]
         [ h1 [] [ a [ href "/" ] [ text "Waterfall" ] ]
-        , viewSidebarLinks model.username model.screenShown
+        , viewSidebarLinks model.username model.view
         ]
 
 
@@ -71,11 +71,11 @@ viewSidebarLinks username pageType =
 
 viewMain : Model -> Html Msg
 viewMain model =
-    case model.screenShown of
+    case model.view of
         LoginPage ->
             viewLogin
 
-        Photo _ attachmentId ->
+        PhotoPage _ attachmentId ->
             case ( model.currentStatus, attachmentId ) of
                 ( Just status, photoId ) ->
                     viewPhoto status photoId
@@ -83,7 +83,7 @@ viewMain model =
                 _ ->
                     div [] []
 
-        SharePath path ->
+        SharePathPage path ->
             case model.authToken of
                 Nothing ->
                     div [] [ viewLogin ]
@@ -91,7 +91,7 @@ viewMain model =
                 _ ->
                     viewSharePath path
 
-        ShareUpload Nothing ->
+        ShareUploadPage Nothing ->
             case model.authToken of
                 Nothing ->
                     div [] [ viewLogin ]
@@ -99,7 +99,7 @@ viewMain model =
                 _ ->
                     viewShareUpload
 
-        ShareUpload (Just dataUrl) ->
+        ShareUploadPage (Just dataUrl) ->
             case model.authToken of
                 Nothing ->
                     div [] [ viewLogin ]
@@ -107,7 +107,7 @@ viewMain model =
                 _ ->
                     viewShareUploaded dataUrl
 
-        Home ->
+        HomePage ->
             div []
                 [ h1 [] [ text ((model.username|>withDefault "") ++ "'s timeline") ]
                 , viewTimeline model.timeline
@@ -125,7 +125,7 @@ viewMain model =
                 , viewTimeline model.timeline
                 ]
 
-        Profile ->
+        ProfilePage ->
             div []
                 [ h1 [] [ text "Your pictures" ]
                 , viewTimeline model.timeline

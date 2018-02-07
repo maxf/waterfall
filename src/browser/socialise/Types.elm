@@ -144,14 +144,14 @@ type alias Attachment =
 
 
 type Screen
-    = Home
+    = HomePage
     | LoginPage
-    | Profile
+    | ProfilePage
     | PublicTimeline
     | UserPage String -- <user id>
-    | Photo StatusId AttachmentId -- <statusId> <attachmentId>
-    | SharePath String -- <path of photo to share on server>
-    | ShareUpload (Maybe String) -- <data of the image loaded>
+    | PhotoPage StatusId AttachmentId -- <statusId> <attachmentId>
+    | SharePathPage String -- <path of photo to share on server>
+    | ShareUploadPage (Maybe String) -- <data of the image loaded>
 
 
 

@@ -15,7 +15,7 @@ type alias Model =
     , password : Maybe String
     , message : Maybe String
     , timeline : List Status
-    , screenShown : Screen
+    , view : Screen
     , shareText : String
     , currentStatus : Maybe Status
     }
@@ -32,7 +32,7 @@ initialModel =
         Nothing
         Nothing
         []
-        Home
+        HomePage
         ""
         Nothing
 

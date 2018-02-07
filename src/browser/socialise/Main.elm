@@ -26,38 +26,38 @@ init url =
             userId =
                 String.dropLeft 6 url.hash
         in
-            ( { initialModel | screenShown = UserPage userId }
+            ( { initialModel | view = UserPage userId }
             , checkAuthToken
             )
     else if String.startsWith "#photo:" url.hash then
         case photoHashParts url.hash of
             Ok ( statusId, attachmentId ) ->
-                ( { initialModel | screenShown = Photo statusId attachmentId }
+                ( { initialModel | view = PhotoPage statusId attachmentId }
                 , Cmd.none
                 )
 
             Err _ ->
-                ( { initialModel | screenShown = PublicTimeline }
+                ( { initialModel | view = PublicTimeline }
                 , Cmd.none
                 )
     else if url.hash == "#home" then
-        ( { initialModel | screenShown = Home }
+        ( { initialModel | view = HomePage }
         , checkAuthToken
         )
     else if url.hash == "#me" then
-        ( { initialModel | screenShown = Profile }
+        ( { initialModel | view = ProfilePage }
         , checkAuthToken
         )
     else if String.startsWith "#share:" url.hash then
-        ( { initialModel | screenShown = SharePath (String.dropLeft 7 url.hash) }
+        ( { initialModel | view = SharePathPage (String.dropLeft 7 url.hash) }
         , checkAuthToken
         )
     else if String.startsWith "#upload:" url.hash then
-        ( { initialModel | screenShown = ShareUpload Nothing }
+        ( { initialModel | view = ShareUploadPage Nothing }
         , checkAuthToken
         )
     else
-        ( { initialModel | screenShown = PublicTimeline }
+        ( { initialModel | view = PublicTimeline }
         , modifyUrl "#public"
         )
 
