@@ -73,7 +73,7 @@ viewMain : Model -> Html Msg
 viewMain model =
     case model.screenShown of
         LoginPage ->
-            viewLogin model
+            viewLogin
 
         Photo _ attachmentId ->
             case ( model.currentStatus, attachmentId ) of
@@ -86,7 +86,7 @@ viewMain model =
         SharePath path ->
             case model.authToken of
                 Nothing ->
-                    div [] [ viewLogin model ]
+                    div [] [ viewLogin ]
 
                 _ ->
                     viewSharePath path
@@ -94,7 +94,7 @@ viewMain model =
         ShareUpload Nothing ->
             case model.authToken of
                 Nothing ->
-                    div [] [ viewLogin model ]
+                    div [] [ viewLogin ]
 
                 _ ->
                     viewShareUpload
@@ -102,7 +102,7 @@ viewMain model =
         ShareUpload (Just dataUrl) ->
             case model.authToken of
                 Nothing ->
-                    div [] [ viewLogin model ]
+                    div [] [ viewLogin ]
 
                 _ ->
                     viewShareUploaded dataUrl
@@ -169,8 +169,8 @@ viewPhoto status attachmentId =
                 div [] []
 
 
-viewLogin : Model -> Html Msg
-viewLogin model =
+viewLogin : Html Msg
+viewLogin =
     div []
         [ h1 [] [ text "Log in" ]
         , Html.form [ onSubmit (Auth AuthSubmit) ]
@@ -185,7 +185,6 @@ viewLogin model =
                 [ type_ "text"
                 , id "user-email"
                 , onInput (Auth << UserEmail)
-                , value (model.userEmail |> Maybe.withDefault "")
                 ]
                 []
             ]
@@ -195,7 +194,6 @@ viewLogin model =
                 [ type_ "password"
                 , id "password"
                 , onInput (Auth << Password)
-                , value (model.password |> withDefault "")
                 ]
                 []
             ]

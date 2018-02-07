@@ -10602,74 +10602,117 @@ var _user$project$View$viewTimeline = function (timeline) {
 		},
 		A2(_elm_lang$core$List$map, _user$project$View$viewStatus, timelineOnlyAttachments));
 };
-var _user$project$View$viewLogin = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		{
+var _user$project$View$viewLogin = A2(
+	_elm_lang$html$Html$div,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: A2(
+			_elm_lang$html$Html$h1,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('Log in'),
+				_1: {ctor: '[]'}
+			}),
+		_1: {
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$h1,
-				{ctor: '[]'},
+				_elm_lang$html$Html$form,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('Log in'),
+					_0: _elm_lang$html$Html_Events$onSubmit(
+						_user$project$Types$Auth(_user$project$Types$AuthSubmit)),
 					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$label,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$for('instanceUrl'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Instance URL'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$select,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onInput(
+									function (_p4) {
+										return _user$project$Types$Auth(
+											_user$project$Types$ServerSelect(_p4));
+									}),
+								_1: {ctor: '[]'}
+							},
+							A2(
+								_elm_lang$core$List$map,
+								function (s) {
+									return A2(
+										_elm_lang$html$Html$option,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$value(s.url),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(s.url),
+											_1: {ctor: '[]'}
+										});
+								},
+								_user$project$Types$servers)),
+						_1: {ctor: '[]'}
+					}
 				}),
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$form,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onSubmit(
-							_user$project$Types$Auth(_user$project$Types$AuthSubmit)),
-						_1: {ctor: '[]'}
-					},
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
 					{
 						ctor: '::',
 						_0: A2(
 							_elm_lang$html$Html$label,
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$for('instanceUrl'),
+								_0: _elm_lang$html$Html_Attributes$for('user-email'),
 								_1: {ctor: '[]'}
 							},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text('Instance URL'),
+								_0: _elm_lang$html$Html$text('Email address'),
 								_1: {ctor: '[]'}
 							}),
 						_1: {
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$select,
+								_elm_lang$html$Html$input,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Events$onInput(
-										function (_p4) {
-											return _user$project$Types$Auth(
-												_user$project$Types$ServerSelect(_p4));
-										}),
-									_1: {ctor: '[]'}
+									_0: _elm_lang$html$Html_Attributes$type_('text'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$id('user-email'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Events$onInput(
+												function (_p5) {
+													return _user$project$Types$Auth(
+														_user$project$Types$UserEmail(_p5));
+												}),
+											_1: {ctor: '[]'}
+										}
+									}
 								},
-								A2(
-									_elm_lang$core$List$map,
-									function (s) {
-										return A2(
-											_elm_lang$html$Html$option,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$value(s.url),
-												_1: {ctor: '[]'}
-											},
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html$text(s.url),
-												_1: {ctor: '[]'}
-											});
-									},
-									_user$project$Types$servers)),
+								{ctor: '[]'}),
 							_1: {ctor: '[]'}
 						}
 					}),
@@ -10684,12 +10727,12 @@ var _user$project$View$viewLogin = function (model) {
 								_elm_lang$html$Html$label,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$for('user-email'),
+									_0: _elm_lang$html$Html_Attributes$for('password'),
 									_1: {ctor: '[]'}
 								},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text('Email address'),
+									_0: _elm_lang$html$Html$text('Password'),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
@@ -10698,23 +10741,18 @@ var _user$project$View$viewLogin = function (model) {
 									_elm_lang$html$Html$input,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$type_('text'),
+										_0: _elm_lang$html$Html_Attributes$type_('password'),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$id('user-email'),
+											_0: _elm_lang$html$Html_Attributes$id('password'),
 											_1: {
 												ctor: '::',
 												_0: _elm_lang$html$Html_Events$onInput(
-													function (_p5) {
+													function (_p6) {
 														return _user$project$Types$Auth(
-															_user$project$Types$UserEmail(_p5));
+															_user$project$Types$Password(_p6));
 													}),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$value(
-														A2(_elm_lang$core$Maybe$withDefault, '', model.userEmail)),
-													_1: {ctor: '[]'}
-												}
+												_1: {ctor: '[]'}
 											}
 										}
 									},
@@ -10730,76 +10768,26 @@ var _user$project$View$viewLogin = function (model) {
 							{
 								ctor: '::',
 								_0: A2(
-									_elm_lang$html$Html$label,
+									_elm_lang$html$Html$button,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$for('password'),
+										_0: _elm_lang$html$Html_Events$onClick(
+											_user$project$Types$Auth(_user$project$Types$AuthSubmit)),
 										_1: {ctor: '[]'}
 									},
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html$text('Password'),
+										_0: _elm_lang$html$Html$text('Log in'),
 										_1: {ctor: '[]'}
 									}),
-								_1: {
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$input,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$type_('password'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$id('password'),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onInput(
-														function (_p6) {
-															return _user$project$Types$Auth(
-																_user$project$Types$Password(_p6));
-														}),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$value(
-															A2(_elm_lang$core$Maybe$withDefault, '', model.password)),
-														_1: {ctor: '[]'}
-													}
-												}
-											}
-										},
-										{ctor: '[]'}),
-									_1: {ctor: '[]'}
-								}
+								_1: {ctor: '[]'}
 							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$button,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Events$onClick(
-												_user$project$Types$Auth(_user$project$Types$AuthSubmit)),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('Log in'),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
-						}
+						_1: {ctor: '[]'}
 					}
 				}
 			}
-		});
-};
+		}
+	});
 var _user$project$View$viewPhoto = F2(
 	function (status, attachmentId) {
 		var attachment = A2(
@@ -10908,7 +10896,7 @@ var _user$project$View$viewMain = function (model) {
 	var _p10 = model.screenShown;
 	switch (_p10.ctor) {
 		case 'LoginPage':
-			return _user$project$View$viewLogin(model);
+			return _user$project$View$viewLogin;
 		case 'Photo':
 			var _p11 = {ctor: '_Tuple2', _0: model.currentStatus, _1: _p10._1};
 			if ((_p11.ctor === '_Tuple2') && (_p11._0.ctor === 'Just')) {
@@ -10927,7 +10915,7 @@ var _user$project$View$viewMain = function (model) {
 					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _user$project$View$viewLogin(model),
+						_0: _user$project$View$viewLogin,
 						_1: {ctor: '[]'}
 					});
 			} else {
@@ -10942,7 +10930,7 @@ var _user$project$View$viewMain = function (model) {
 						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _user$project$View$viewLogin(model),
+							_0: _user$project$View$viewLogin,
 							_1: {ctor: '[]'}
 						});
 				} else {
@@ -10956,7 +10944,7 @@ var _user$project$View$viewMain = function (model) {
 						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _user$project$View$viewLogin(model),
+							_0: _user$project$View$viewLogin,
 							_1: {ctor: '[]'}
 						});
 				} else {
