@@ -31,7 +31,7 @@ authenticate model =
             "client_id="
                 ++ model.server.clientId
                 ++ "&grant_type=password&username="
-                ++ encodeUri model.username
+                ++ encodeUri model.userEmail
                 ++ "&scope=read+write+follow"
                 ++ "&password="
                 ++ encodeUri model.password

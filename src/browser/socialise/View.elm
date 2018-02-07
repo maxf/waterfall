@@ -175,12 +175,12 @@ viewLogin model =
                 (List.map (\s -> option [ value s.url ] [ text s.url ]) servers)
             ]
         , div []
-            [ label [ for "username" ] [ text "Email address" ]
+            [ label [ for "user-email" ] [ text "Email address" ]
             , input
                 [ type_ "text"
-                , id "username"
-                , onInput (Auth << Username)
-                , value model.username
+                , id "user-email"
+                , onInput (Auth << UserEmail)
+                , value model.userEmail
                 ]
                 []
             ]

@@ -13,8 +13,8 @@ import Types exposing (..)
 updateAuth : AuthMsg -> Model -> ( Model, Cmd Msg )
 updateAuth msg model =
     case msg of
-        Username username ->
-            ( { model | username = username }, Cmd.none )
+        UserEmail email ->
+            ( { model | userEmail = email }, Cmd.none )
 
         Password password ->
             ( { model | password = password }, Cmd.none )
@@ -45,8 +45,9 @@ updateAuth msg model =
             let
                 newModel =
                     { model
-                        | username = account.acct
-                        , userId = Just account.id
+--                        | username = account.acct
+--                        , userId = Just account.id
+                        | userId = Just account.id
                     }
             in
                 ( newModel
@@ -64,7 +65,7 @@ updateAuth msg model =
                     )
 
         Logout ->
-            { model | authToken = Nothing, userId = Nothing }
+            { model | authToken = Nothing, userId = Nothing, userEmail = "" }
                 ! [ clearAuthToken, modifyUrl "#public" ]
 
 

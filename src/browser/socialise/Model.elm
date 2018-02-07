@@ -9,7 +9,7 @@ import Types exposing (..)
 type alias Model =
     { server : MastodonServer
     , authToken : Maybe String
-    , username : String
+    , userEmail : String
     , userId : Maybe String
     , password : String
     , message : Maybe String

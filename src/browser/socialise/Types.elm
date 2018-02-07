@@ -7,7 +7,7 @@ import Navigation exposing (Location)
 
 
 type AuthMsg
-    = Username String
+    = UserEmail String
     | ServerSelect String
     | Password String
     | AuthSubmit
