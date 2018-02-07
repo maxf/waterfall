@@ -59,6 +59,7 @@ viewSidebarLinks userId =
                     [ li [] [ a [ href "#home" ] [ text "Timeline" ] ]
                     , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
                     , li [] [ a [ href "#me" ] [ text "My photos" ] ]
+                    , li [] [ a [ href "#upload" ] [ text "Upload" ] ]
                     ]
                 ]
 
