@@ -10962,7 +10962,11 @@ var _user$project$View$viewMain = function (model) {
 						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text('Your timeline'),
+							_0: _elm_lang$html$Html$text(
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									A2(_elm_lang$core$Maybe$withDefault, '', model.username),
+									'\'s timeline')),
 							_1: {ctor: '[]'}
 						}),
 					_1: {
@@ -11035,8 +11039,8 @@ var _user$project$View$viewMain = function (model) {
 	}
 };
 var _user$project$View$viewSidebarLinks = F2(
-	function (userId, pageType) {
-		var _p15 = userId;
+	function (username, pageType) {
+		var _p15 = username;
 		if (_p15.ctor === 'Nothing') {
 			var _p16 = pageType;
 			if (_p16.ctor === 'LoginPage') {
@@ -11078,11 +11082,14 @@ var _user$project$View$viewSidebarLinks = F2(
 							ctor: '::',
 							_0: A2(
 								_elm_lang$html$Html$span,
-								{ctor: '[]'},
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text(
-										A2(_elm_lang$core$Maybe$withDefault, '', userId)),
+									_0: _elm_lang$html$Html_Attributes$class('username'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(_p15._0),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
@@ -11237,7 +11244,7 @@ var _user$project$View$viewSidebar = function (model) {
 				}),
 			_1: {
 				ctor: '::',
-				_0: A2(_user$project$View$viewSidebarLinks, model.userId, model.screenShown),
+				_0: A2(_user$project$View$viewSidebarLinks, model.username, model.screenShown),
 				_1: {ctor: '[]'}
 			}
 		});

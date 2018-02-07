@@ -39,13 +39,13 @@ viewSidebar model =
     div
         [ class "sidebar" ]
         [ h1 [] [ a [ href "/" ] [ text "Waterfall" ] ]
-        , viewSidebarLinks model.userId model.screenShown
+        , viewSidebarLinks model.username model.screenShown
         ]
 
 
 viewSidebarLinks : Maybe String -> Screen -> Html Msg
-viewSidebarLinks userId pageType =
-    case userId of
+viewSidebarLinks username pageType =
+    case username of
         Nothing ->
             case pageType of
                 LoginPage ->
@@ -54,10 +54,10 @@ viewSidebarLinks userId pageType =
                 _ ->
                     div [] [ a [ href "#login" ] [ text "Log in" ] ]
 
-        Just id ->
+        Just name ->
             div []
                 [ div []
-                    [ span [] [ text (userId |> Maybe.withDefault "") ]
+                    [ span [ class "username" ] [ text name ]
                     , span [ onClick (Auth Logout), class "logout" ] [ text "Log out" ]
                     ]
                 , ul []
@@ -109,7 +109,7 @@ viewMain model =
 
         Home ->
             div []
-                [ h1 [] [ text "Your timeline" ]
+                [ h1 [] [ text ((model.username|>withDefault "") ++ "'s timeline") ]
                 , viewTimeline model.timeline
                 ]
 

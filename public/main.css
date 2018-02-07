@@ -132,7 +132,14 @@ h1 a {
 }
 
 .logout {
+  display: inline-block;
   cursor: pointer;
+  font-size: 0.8em;
+  margin-left: 2em;
+}
+
+.username {
+  font-size: 1.5em;
 }
 
 .lightbox .buttons {
