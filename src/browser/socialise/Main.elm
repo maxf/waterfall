@@ -4,7 +4,12 @@ import Navigation exposing (Location, modifyUrl)
 import View exposing (view)
 import Model exposing (Model, initialModel)
 import Update exposing (update, photoHashParts)
-import Ports exposing (localStorageRetrievedItem, formImageRetrieved, statusPosted)
+import Ports
+    exposing
+        ( localStorageRetrievedItem
+        , formImageRetrieved
+        , statusPosted
+        )
 import Types exposing (..)
 import Auth exposing (checkAuthToken)
 

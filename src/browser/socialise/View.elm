@@ -58,7 +58,9 @@ viewSidebarLinks username pageType =
             div []
                 [ div []
                     [ span [ class "username" ] [ text name ]
-                    , span [ onClick (Auth Logout), class "logout" ] [ text "Log out" ]
+                    , span
+                        [ onClick (Auth Logout), class "logout" ]
+                        [ text "Log out" ]
                     ]
                 , ul []
                     [ li [] [ a [ href "#home" ] [ text "Timeline" ] ]
@@ -108,10 +110,14 @@ viewMain model =
                     viewShareUploaded dataUrl
 
         HomePage ->
-            div []
-                [ h1 [] [ text ((model.username |> withDefault "") ++ "'s timeline") ]
-                , viewTimeline model.timeline
-                ]
+            let
+                title =
+                    (model.username |> withDefault "") ++ "'s timeline"
+            in
+                div []
+                    [ h1 [] [ text title ]
+                    , viewTimeline model.timeline
+                    ]
 
         PublicTimeline ->
             div []
@@ -253,7 +259,12 @@ viewSharePath path =
         [ h1 [] [ text "Share photo" ]
         , img [ src ("/thumb?photo=" ++ path) ] []
         , br [] []
-        , input [ type_ "text", onInput (Share << ShareTextInput), placeholder "title" ] []
+        , input
+            [ type_ "text"
+            , onInput (Share << ShareTextInput)
+            , placeholder "title"
+            ]
+            []
         , br [] []
         , button [ onClick (Share ShareImage) ] [ text "Share" ]
         ]
@@ -278,7 +289,12 @@ viewShareUploaded dataUrl =
         [ h1 [] [ text "Upload photo" ]
         , img [ id "file-upload", src dataUrl ] []
         , br [] []
-        , input [ type_ "text", onInput (Share << ShareTextInput), placeholder "title" ] []
+        , input
+            [ type_ "text"
+            , onInput (Share << ShareTextInput)
+            , placeholder "title"
+            ]
+            []
         , br [] []
         , button [ onClick (Share UploadImage) ] [ text "Share" ]
         ]

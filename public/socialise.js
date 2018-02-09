@@ -10952,6 +10952,10 @@ var _user$project$View$viewMain = function (model) {
 				}
 			}
 		case 'HomePage':
+			var title = A2(
+				_elm_lang$core$Basics_ops['++'],
+				A2(_elm_lang$core$Maybe$withDefault, '', model.username),
+				'\'s timeline');
 			return A2(
 				_elm_lang$html$Html$div,
 				{ctor: '[]'},
@@ -10962,11 +10966,7 @@ var _user$project$View$viewMain = function (model) {
 						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									A2(_elm_lang$core$Maybe$withDefault, '', model.username),
-									'\'s timeline')),
+							_0: _elm_lang$html$Html$text(title),
 							_1: {ctor: '[]'}
 						}),
 					_1: {

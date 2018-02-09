@@ -84,7 +84,7 @@ lookupServer url =
 
 type alias Account =
     { id : String -- The ID of the account
-    , acct : String -- username for local users, includes @domain for remote ones
+    , acct : String -- username, includes @domain for remote users
     , displayName : String -- The account's display name
     }
 

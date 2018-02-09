@@ -4,7 +4,12 @@ import Maybe exposing (withDefault)
 import Http exposing (encodeUri)
 import Json.Decode
 import Json.Decode.Pipeline
-import Ports exposing (localStorageGetItem, localStorageSetItem, localStorageRemoveItem)
+import Ports
+    exposing
+        ( localStorageGetItem
+        , localStorageSetItem
+        , localStorageRemoveItem
+        )
 import Types exposing (..)
 import Model exposing (Model)
 

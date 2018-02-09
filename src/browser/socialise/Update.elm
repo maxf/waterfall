@@ -26,7 +26,10 @@ updateAuth msg model =
             ( model, authenticate model )
 
         AuthReturn (Err error) ->
-            ( { model | message = Just ("auth error: " ++ httpErrorMessage error) }
+            ( { model
+                | message =
+                    Just ("auth error: " ++ httpErrorMessage error)
+              }
             , Cmd.none
             )
 
@@ -37,7 +40,10 @@ updateAuth msg model =
                   ]
 
         UserDetailsFetched (Err e) ->
-            ( { model | message = Just ("account fetch error: " ++ httpErrorMessage e) }
+            ( { model
+                | message =
+                    Just ("account fetch error: " ++ httpErrorMessage e)
+              }
             , Cmd.none
             )
 
@@ -106,7 +112,10 @@ updateShare msg model =
             )
 
         ImageShared (Err error) ->
-            ( { model | message = Just ("share error: " ++ httpErrorMessage error) }
+            ( { model
+                | message =
+                    Just ("share error: " ++ httpErrorMessage error)
+              }
             , Cmd.none
             )
 
@@ -124,15 +133,26 @@ update msg model =
             updateShare shareMsg model
 
         TimelineFetched (Ok timeline) ->
-            ( { model | timeline = List.filter (\s -> s.attachments /= []) timeline }
+            ( { model
+                | timeline =
+                    List.filter (\s -> s.attachments /= []) timeline
+              }
             , Cmd.none
             )
 
         TimelineFetched (Err e) ->
-            ( { model | message = Just ("timeline error: " ++ httpErrorMessage e) }, Cmd.none )
+            ( { model
+                | message =
+                    Just ("timeline error: " ++ httpErrorMessage e)
+              }
+            , Cmd.none
+            )
 
         PhotoFetched (Err e) ->
-            ( { model | message = Just ("timeline error: " ++ httpErrorMessage e) }
+            ( { model
+                | message =
+                    Just ("timeline error: " ++ httpErrorMessage e)
+              }
             , Cmd.none
             )
 
@@ -247,7 +267,10 @@ prepareScreenToDisplay model =
                             Cmd.none
 
                         Just _ ->
-                            getTimeline model.server.url model.authToken model.view
+                            getTimeline
+                                model.server.url
+                                model.authToken
+                                model.view
 
         other ->
             getTimeline model.server.url model.authToken other
