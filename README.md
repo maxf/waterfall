@@ -1,8 +1,21 @@
 # waterfall
-A simple photo gallery
+
+Waterfall is two things:
+
+- a web app to organise your pictures locally. It typically runs on your local
+  machine and you can organise your picture files on it. You can delete, rotate
+  and share your pictures (currently on Mastodon only)
+
+- a Mastodon front-end which is meant to act as an open alternative to Flickr or
+  Instagram. It runs entirely in the browser, so only needs a static file server
+  to run. For instance
+  [maxf.github.io/waterfall](https://maxf.github.io/waterfall).
 
 
-## Running
+
+## Running the app locally
+
+This is only if you want to organise your pictures. For the mastodon front-end, just look for index.html right here.
 
 Install git, node, npm and exiftran.
 
