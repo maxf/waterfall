@@ -1,6 +1,7 @@
 module Update exposing (update, photoHashParts, getTimeline)
 
 import Http
+import Json.Decode exposing (..)
 import Regex exposing (Regex, regex, find, HowMany(..))
 import Maybe exposing (withDefault)
 import Navigation exposing (Location, newUrl, modifyUrl)
@@ -237,13 +238,8 @@ prepareScreenToDisplay model =
         PhotoPage statusId _ ->
             getStatus model.server.url model.authToken statusId
 
-        UserPage _ ->
-            case model.authToken of
-                Nothing ->
-                    modifyUrl "#login"
-
-                token ->
-                    getTimeline model.server.url token model.view
+        UserPage userId ->
+            getUserPage model.server.url userId
 
         HomePage ->
             case model.authToken of
@@ -334,6 +330,23 @@ getStatus instanceUrl authToken (StatusId statusId) =
 
 
 
+-- No API call for getting a user's timeline.
+-- https://github.com/tootsuite/mastodon/issues/6443
+-- so we need to read from the user's atom feed
+
+getUserPage : String -> String -> Cmd Msg
+getUserPage serverUrl username =
+    let
+        feedUrl =
+            serverUrl ++ "/users/" ++ username ++ ".atom"
+        request =
+            Http.get feedUrl decodeValue
+    in
+        Http.send
+            decodeUserAtom
+            request
+
+
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#timelines
 
 
@@ -344,9 +357,6 @@ getTimeline instanceUrl authToken screenType =
             case screenType of
                 PublicTimeline ->
                     "/api/v1/timelines/public"
-
-                UserPage id ->
-                    "/api/v1/accounts/" ++ Http.encodeUri id ++ "/statuses"
 
                 _ ->
                     "/api/v1/timelines/home"

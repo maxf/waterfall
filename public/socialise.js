@@ -11560,7 +11560,11 @@ var _user$project$Update$prepareScreenToDisplay = function (model) {
 			if (_p15.ctor === 'Nothing') {
 				return _elm_lang$navigation$Navigation$modifyUrl('#login');
 			} else {
-				return A3(_user$project$Update$getTimeline, model.server.url, _p15, model.view);
+				return A3(
+					_user$project$Update$getTimeline,
+					model.server.url,
+					_elm_lang$core$Maybe$Nothing,
+					_user$project$Types$UserPage(_p12._0));
 			}
 		case 'HomePage':
 			var _p16 = model.authToken;
@@ -12003,7 +12007,7 @@ var _user$project$Main$init = function (url) {
 				{
 					view: _user$project$Types$UserPage(userId)
 				}),
-			_1: _user$project$Auth$checkAuthToken
+			_1: _elm_lang$core$Platform_Cmd$none
 		};
 	} else {
 		if (A2(_elm_lang$core$String$startsWith, '#photo:', url.hash)) {

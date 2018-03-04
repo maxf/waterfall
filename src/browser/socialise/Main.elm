@@ -32,7 +32,7 @@ init url =
                 String.dropLeft 6 url.hash
         in
             ( { initialModel | view = UserPage userId }
-            , checkAuthToken
+            , Cmd.none
             )
     else if String.startsWith "#photo:" url.hash then
         case photoHashParts url.hash of
