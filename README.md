@@ -2,6 +2,8 @@
 A simple photo gallery
 
 
+testing magithub
+
 ## Running
 
 Install git, node, npm and exiftran.
