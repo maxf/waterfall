@@ -1,5 +1,5 @@
 # waterfall
-A simple photo gallery
+A simple photo gallery.
 
 
 ## Running
