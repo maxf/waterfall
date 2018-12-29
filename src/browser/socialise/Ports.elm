@@ -17,8 +17,14 @@ port localStorageRemoveItem : String -> Cmd msg
 
 port getImageFromForm : String -> Cmd msg
 
+type alias UploadParams =
+    { inputElementId : String
+    , serverUrl : String
+    , authToken : String
+    , text : String
+    }
 
-port fileUpload : ( String, String, String, String ) -> Cmd msg
+port fileUpload : UploadParams -> Cmd msg
 
 
 

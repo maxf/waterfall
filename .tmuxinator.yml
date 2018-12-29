@@ -1,0 +1,17 @@
+# ~/.tmuxinator/waterfall.yml
+
+name: waterfall
+root: ~/dev/waterfall
+#pre_window: export WATERFALL_INSTALL_DIR=dreamhost:lapin-bl.eu/
+
+windows:
+  - main:
+      layout: main-vertical
+      panes:
+        - emacs26 -nw .
+#        - cd src/browser/socialise && find . -name \*.elm | entr -r sh -c 'clear; elm-analyse;'
+#        - cd src/browser/organise && find . -name \*.elm | entr -r sh -c 'clear; elm-analyse;'
+        - cd src/browser/socialise && find . -name \*.elm | entr -r sh -c 'clear; ./build.sh;'
+#        - cd src/browser/organise && find . -name \*.elm | entr -r sh -c 'clear; ./build.sh;'
+#        - ./node_modules/.bin/nodemon src/server/app.js
+        -

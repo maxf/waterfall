@@ -1,9 +1,11 @@
-module Types exposing (..)
+module Types exposing (Account, Attachment, AttachmentId(..), AttachmentType(..), AuthMsg(..), AuthResponse, ImagePortData, MastodonServer, Msg(..), Screen(..), ShareMsg(..), Status, StatusId(..), accountDecoder, attachmentDecoder, attachmentIdDecoder, attachmentIdToString, attachmentTypeDecoder, defaultServer, lookupServer, servers, statusDecoder, statusIdDecoder, statusIdToString, timelineDecoder)
 
+import Browser
+import Browser.Navigation as Nav
 import Http
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (..)
-import Navigation exposing (Location)
+import Url
 
 
 type AuthMsg
@@ -35,7 +37,8 @@ type Msg
     | PhotoFetched (Result Http.Error Status)
     | CloseMessage
     | ViewPhoto Status Attachment
-    | UrlHasChanged Location
+    | UrlHasChanged Url.Url
+    | LinkWasClicked Browser.UrlRequest
 
 
 type alias AuthResponse =

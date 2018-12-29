@@ -1,6 +1,7 @@
 module Main exposing (main)
 
-import Navigation exposing (Location, modifyUrl)
+import Browser
+import Browser.Navigation as Nav
 import View exposing (view)
 import Model exposing (Model, initialModel)
 import Update exposing (update, photoHashParts)
@@ -12,59 +13,66 @@ import Ports
         )
 import Types exposing (..)
 import Auth exposing (checkAuthToken)
+import Url
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Navigation.program UrlHasChanged
+    Browser.application
         { init = init
         , view = view
         , update = update
         , subscriptions = subscriptions
+        , onUrlChange = UrlHasChanged
+        , onUrlRequest = LinkWasClicked
         }
 
 
-init : Location -> ( Model, Cmd Msg )
-init url =
-    if String.startsWith "#user:" url.hash then
-        let
-            userId =
-                String.dropLeft 6 url.hash
-        in
-            ( { initialModel | view = UserPage userId }
-            , checkAuthToken
-            )
-    else if String.startsWith "#photo:" url.hash then
-        case photoHashParts url.hash of
-            Ok ( statusId, attachmentId ) ->
-                ( { initialModel | view = PhotoPage statusId attachmentId }
-                , Cmd.none
+init :  () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init flags url key =
+    case url.fragment of
+        Nothing ->
+            ( initialModel key PublicTimeline, Cmd.none )
+
+        Just "home" ->
+            ( initialModel key HomePage, checkAuthToken )
+
+        Just "me" ->
+            ( initialModel key ProfilePage, checkAuthToken )
+
+        Just fragment ->
+            if String.startsWith "user:" fragment then
+                let
+                    userId =
+                        String.dropLeft 5 fragment
+                in
+                ( initialModel key (UserPage userId)
+                , checkAuthToken
+                )
+            else if String.startsWith "photo:" fragment then
+                case photoHashParts fragment of
+                    Ok ( statusId, attachmentId ) ->
+                        ( initialModel key (PhotoPage statusId attachmentId)
+                        , Cmd.none
+                        )
+
+                    Err _ ->
+                        ( initialModel key PublicTimeline
+                        , Cmd.none
+                        )
+            else if String.startsWith "#share:" fragment then
+                ( initialModel key (SharePathPage (String.dropLeft 6 fragment))
+                , checkAuthToken
                 )
 
-            Err _ ->
-                ( { initialModel | view = PublicTimeline }
-                , Cmd.none
+            else if String.startsWith "#upload:" fragment then
+                ( initialModel key (ShareUploadPage Nothing)
+                , checkAuthToken
                 )
-    else if url.hash == "#home" then
-        ( { initialModel | view = HomePage }
-        , checkAuthToken
-        )
-    else if url.hash == "#me" then
-        ( { initialModel | view = ProfilePage }
-        , checkAuthToken
-        )
-    else if String.startsWith "#share:" url.hash then
-        ( { initialModel | view = SharePathPage (String.dropLeft 7 url.hash) }
-        , checkAuthToken
-        )
-    else if String.startsWith "#upload:" url.hash then
-        ( { initialModel | view = ShareUploadPage Nothing }
-        , checkAuthToken
-        )
-    else
-        ( { initialModel | view = PublicTimeline }
-        , modifyUrl "#public"
-        )
+            else
+                ( initialModel key PublicTimeline
+                , Nav.pushUrl key "#public"
+                )
 
 
 subscriptions : Model -> Sub Msg

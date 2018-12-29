@@ -1,8 +1,9 @@
 module View exposing (view)
 
+import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Attributes.Extra exposing (..)
+--import Html.Attributes.Extra exposing (..)
 import Html.Events exposing (onInput, onClick, onSubmit, on)
 import Json.Decode exposing (succeed)
 import Maybe exposing (withDefault)
@@ -10,7 +11,7 @@ import Types exposing (..)
 import Model exposing (Model)
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
     let
         message =
@@ -23,16 +24,19 @@ view model =
                         [ class "error", onClick CloseMessage ]
                         [ messageText |> text ]
     in
-        div
-            [ class "outer" ]
+        { title = "Waterfall"
+        , body =
             [ div
-                [ class "columns" ]
-                [ viewSidebar model
-                , div [ id "photos" ] [ viewMain model ]
+                [ class "outer" ]
+                [ div
+                    [ class "columns" ]
+                    [ viewSidebar model
+                    , div [ id "photos" ] [ viewMain model ]
+                    ]
+                , message
                 ]
-            , message
             ]
-
+        }
 
 viewSidebar : Model -> Html Msg
 viewSidebar model =
@@ -225,7 +229,7 @@ viewStatusContent content =
             div [] []
 
         Just html ->
-            main_ [ class "content", innerHtml html ] []
+            main_ [ class "content" {--, innerHtml html --} ] [ text "here is the content" ]
 
 
 viewStatus : Status -> Html Msg

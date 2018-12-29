@@ -64,16 +64,12 @@
        reader.readAsDataURL(file);
      });
 
-     app.ports.fileUpload.subscribe(function(args) {
-       var inputElementId = args[0]
-       var serverUrl = args[1]
-       var authToken = args[2]
-       var text = args[3]
-       var img = document.getElementById(inputElementId)
+     app.ports.fileUpload.subscribe(function(params) {
+       var img = document.getElementById(params.inputElementId)
        if (img === null) {
-         app.ports.statusPosted.send('Could not find element with id ' + inputElementId)
+         app.ports.statusPosted.send('Could not find element with id ' + params.inputElementId)
        } else {
-         sendMediaFile(img.src, serverUrl, authToken, text)
+         sendMediaFile(img.src, params.serverUrl, params.authToken, params.text)
        }
      });
 

@@ -1,7 +1,6 @@
 module Auth exposing (..)
 
 import Maybe exposing (withDefault)
-import Http exposing (encodeUri)
 import Json.Decode
 import Json.Decode.Pipeline
 import Ports
@@ -12,6 +11,8 @@ import Ports
         )
 import Types exposing (..)
 import Model exposing (Model)
+import Url
+import Http
 
 
 checkAuthToken : Cmd msg
@@ -37,18 +38,18 @@ authenticate model =
             "client_id="
                 ++ model.server.clientId
                 ++ "&grant_type=password&username="
-                ++ encodeUri (model.userEmail |> withDefault "")
+                ++ Url.percentEncode (model.userEmail |> withDefault "")
                 ++ "&scope=read+write+follow"
                 ++ "&password="
-                ++ encodeUri (model.password |> withDefault "")
+                ++ Url.percentEncode (model.password |> withDefault "")
 
-        request =
-            Http.post
-                (model.server.url ++ "/oauth/token")
-                (Http.stringBody "application/x-www-form-urlencoded" postParams)
-                oauthResponseDecoder
     in
-        Http.send (Auth << AuthReturn) request
+    Http.post
+        { url = model.server.url ++ "/oauth/token"
+        , body = Http.stringBody "application/x-www-form-urlencoded" postParams
+        , expect = Http.expectJson (Auth << AuthReturn) oauthResponseDecoder
+        }
+
 
 
 oauthResponseDecoder : Json.Decode.Decoder AuthResponse

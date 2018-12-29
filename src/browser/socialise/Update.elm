@@ -1,13 +1,17 @@
-module Update exposing (update, photoHashParts, getTimeline)
+module Update exposing (getTimeline, photoHashParts, update)
 
+import Auth exposing (authenticate, clearAuthToken, storeAuthToken)
+import Browser
+import Browser.Navigation as Nav
 import Http
-import Regex exposing (Regex, regex, find, HowMany(..))
 import Maybe exposing (withDefault)
-import Navigation exposing (Location, newUrl, modifyUrl)
 import Model exposing (Model, changeServerUrl)
-import Auth exposing (authenticate, storeAuthToken, clearAuthToken)
 import Ports exposing (..)
+import Regex exposing (Regex, find, fromString)
+import String exposing (fromInt)
 import Types exposing (..)
+import Url
+import Url.Builder
 
 
 updateAuth : AuthMsg -> Model -> ( Model, Cmd Msg )
@@ -34,10 +38,12 @@ updateAuth msg model =
             )
 
         AuthReturn (Ok response) ->
-            { model | authToken = Just response.token, message = Nothing }
-                ! [ storeAuthToken response.token
-                  , fetchCurrentUserDetails response.token model.server.url
-                  ]
+            ( { model | authToken = Just response.token, message = Nothing }
+            , Cmd.batch
+                [ storeAuthToken response.token
+                , fetchCurrentUserDetails response.token model.server.url
+                ]
+            )
 
         UserDetailsFetched (Err e) ->
             ( { model
@@ -55,14 +61,14 @@ updateAuth msg model =
                         , userId = Just account.id
                     }
             in
-                ( newModel
-                , modifyUrl "#home"
-                )
+            ( newModel
+            , Nav.replaceUrl model.key "#home"
+            )
 
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->
             case token of
                 Nothing ->
-                    ( model, newUrl "#login" )
+                    ( model, Nav.pushUrl model.key "#login" )
 
                 Just tokenValue ->
                     ( { model | authToken = token, password = Nothing }
@@ -70,13 +76,14 @@ updateAuth msg model =
                     )
 
         Logout ->
-            { model
+            ( { model
                 | authToken = Nothing
                 , userId = Nothing
                 , userEmail = Nothing
                 , username = Nothing
-            }
-                ! [ clearAuthToken, modifyUrl "#public" ]
+              }
+            , Cmd.batch [ clearAuthToken, Nav.replaceUrl model.key "#public" ]
+            )
 
 
 updateShare : ShareMsg -> Model -> ( Model, Cmd Msg )
@@ -97,7 +104,7 @@ updateShare msg model =
 
         -- A status was posted
         StatusPosted Nothing ->
-            ( { model | message = Nothing }, modifyUrl "#home" )
+            ( { model | message = Nothing }, Nav.replaceUrl model.key "#home" )
 
         StatusPosted (Just error) ->
             ( { model | message = Just error }, Cmd.none )
@@ -120,7 +127,7 @@ updateShare msg model =
             )
 
         ImageShared (Ok _) ->
-            ( { model | message = Nothing }, modifyUrl "#home" )
+            ( { model | message = Nothing }, Nav.replaceUrl model.key "#home" )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -166,7 +173,8 @@ update msg model =
 
         ViewPhoto status attachment ->
             ( { model | view = PhotoPage status.id attachment.id }
-            , newUrl
+            , Nav.pushUrl
+                model.key
                 ("#photo:"
                     ++ statusIdToString status.id
                     ++ ":"
@@ -179,36 +187,53 @@ update msg model =
                 newModel =
                     { model | view = screenType location }
             in
-                ( newModel, prepareScreenToDisplay newModel )
+            ( newModel, prepareScreenToDisplay newModel )
+
+        LinkWasClicked urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, Nav.pushUrl model.key (Url.toString url) )
+
+                Browser.External href ->
+                    ( model, Nav.load href )
 
 
 
 -- URL change update model
 
 
-screenType : Location -> Screen
+screenType : Url.Url -> Screen
 screenType url =
-    if url.hash == "" || url.hash == "#" then
-        PublicTimeline
-    else if url.hash == "#login" then
-        LoginPage
-    else if url.hash == "#home" then
-        HomePage
-    else if url.hash == "#me" then
-        ProfilePage
-    else if String.startsWith "#user:" url.hash then
-        UserPage (String.dropLeft 6 url.hash)
-    else if String.startsWith "#upload" url.hash then
-        ShareUploadPage Nothing
-    else if String.startsWith "#photo:" url.hash then
-        case photoHashParts url.hash of
-            Ok ( statusId, attachmentId ) ->
-                PhotoPage statusId attachmentId
+    case url.fragment of
+        Nothing ->
+            PublicTimeline
 
-            Err _ ->
+        Just "login" ->
+            LoginPage
+
+        Just "home" ->
+            HomePage
+
+        Just "me" ->
+            ProfilePage
+
+        Just fragment ->
+            if String.startsWith "user:" fragment then
+                UserPage (String.dropLeft 5 fragment)
+
+            else if String.startsWith "upload" fragment then
+                ShareUploadPage Nothing
+
+            else if String.startsWith "photo:" fragment then
+                case photoHashParts fragment of
+                    Ok ( statusId, attachmentId ) ->
+                        PhotoPage statusId attachmentId
+
+                    Err _ ->
+                        PublicTimeline
+
+            else
                 PublicTimeline
-    else
-        PublicTimeline
 
 
 
@@ -221,7 +246,7 @@ prepareScreenToDisplay model =
         SharePathPage _ ->
             case model.authToken of
                 Nothing ->
-                    modifyUrl "#login"
+                    Nav.replaceUrl model.key "#login"
 
                 _ ->
                     Cmd.none
@@ -229,7 +254,7 @@ prepareScreenToDisplay model =
         ShareUploadPage _ ->
             case model.authToken of
                 Nothing ->
-                    modifyUrl "#login"
+                    Nav.replaceUrl model.key "#login"
 
                 _ ->
                     Cmd.none
@@ -240,7 +265,7 @@ prepareScreenToDisplay model =
         UserPage _ ->
             case model.authToken of
                 Nothing ->
-                    modifyUrl "#login"
+                    Nav.replaceUrl model.key "#login"
 
                 token ->
                     getTimeline model.server.url token model.view
@@ -248,7 +273,7 @@ prepareScreenToDisplay model =
         HomePage ->
             case model.authToken of
                 Nothing ->
-                    modifyUrl "#login"
+                    Nav.replaceUrl model.key "#login"
 
                 _ ->
                     getTimeline model.server.url model.authToken HomePage
@@ -259,7 +284,7 @@ prepareScreenToDisplay model =
         ProfilePage ->
             case model.authToken of
                 Nothing ->
-                    modifyUrl "#login"
+                    Nav.replaceUrl model.key "#login"
 
                 Just _ ->
                     case model.userId of
@@ -282,26 +307,23 @@ prepareScreenToDisplay model =
 
 photoUrlRegex : Regex
 photoUrlRegex =
-    regex "#photo:([^:]+):(.*)"
+    Regex.fromString "#photo:([^:]+):(.*)"
+        |> Maybe.withDefault Regex.never
 
 
 photoHashParts : String -> Result String ( StatusId, AttachmentId )
 photoHashParts hash =
-    let
-        matches =
-            find (AtMost 1) photoUrlRegex hash
-    in
-        case matches of
-            [ match ] ->
-                case match.submatches of
-                    [ Just photoId, Just attachmentId ] ->
-                        Ok ( StatusId photoId, AttachmentId attachmentId )
+    case find photoUrlRegex hash of
+        [ match ] ->
+            case match.submatches of
+                [ Just photoId, Just attachmentId ] ->
+                    Ok ( StatusId photoId, AttachmentId attachmentId )
 
-                    _ ->
-                        Err "no photo URL parts matched"
+                _ ->
+                    Err "no photo URL parts matched"
 
-            _ ->
-                Err "no matches found in photo URL"
+        _ ->
+            Err "no matches found in photo URL"
 
 
 
@@ -318,19 +340,16 @@ getStatus instanceUrl authToken (StatusId statusId) =
 
                 Just token ->
                     [ Http.header "Authorization" ("Bearer " ++ token) ]
-
-        request =
-            Http.request
-                { method = "GET"
-                , headers = headers
-                , url = instanceUrl ++ "/api/v1/statuses/" ++ statusId
-                , body = Http.emptyBody
-                , expect = Http.expectJson statusDecoder
-                , timeout = Nothing
-                , withCredentials = False
-                }
     in
-        Http.send PhotoFetched request
+    Http.request
+        { method = "GET"
+        , headers = headers
+        , url = instanceUrl ++ "/api/v1/statuses/" ++ statusId
+        , body = Http.emptyBody
+        , expect = Http.expectJson PhotoFetched statusDecoder
+        , timeout = Nothing
+        , tracker = Nothing
+        }
 
 
 
@@ -338,18 +357,21 @@ getStatus instanceUrl authToken (StatusId statusId) =
 
 
 getTimeline : String -> Maybe String -> Screen -> Cmd Msg
-getTimeline instanceUrl authToken screenType =
+getTimeline instanceUrl authToken pageType =
     let
         urlPath =
-            case screenType of
+            case pageType of
                 PublicTimeline ->
-                    "/api/v1/timelines/public"
+                    [ "api", "v1", "timelines", "public" ]
 
                 UserPage id ->
-                    "/api/v1/accounts/" ++ Http.encodeUri id ++ "/statuses"
+                    [ "api", "v1", "accounts", id, "statuses" ]
 
                 _ ->
-                    "/api/v1/timelines/home"
+                    [ "api", "v1", "timelines", "home" ]
+
+        url =
+            Url.Builder.crossOrigin instanceUrl urlPath [ Url.Builder.int "limit" 40 ]
 
         headers =
             case authToken of
@@ -358,19 +380,16 @@ getTimeline instanceUrl authToken screenType =
 
                 Just token ->
                     [ Http.header "Authorization" ("Bearer " ++ token) ]
-
-        request =
-            Http.request
-                { method = "GET"
-                , headers = headers
-                , url = instanceUrl ++ urlPath ++ "?limit=40"
-                , body = Http.emptyBody
-                , expect = Http.expectJson timelineDecoder
-                , timeout = Nothing
-                , withCredentials = False
-                }
     in
-        Http.send TimelineFetched request
+    Http.request
+        { method = "GET"
+        , headers = headers
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson TimelineFetched timelineDecoder
+        , timeout = Nothing
+        , tracker = Nothing
+        }
 
 
 httpErrorMessage : Http.Error -> String
@@ -385,41 +404,34 @@ httpErrorMessage error =
         Http.NetworkError ->
             "Network error"
 
-        Http.BadStatus response ->
-            toString response.status.code
-                ++ " ("
-                ++ response.status.message
-                ++ ") - "
-                ++ response.body
+        Http.BadStatus code ->
+            "Bad status: " ++ fromInt code
 
-        Http.BadPayload text _ ->
+        Http.BadBody text ->
             "Bad payload: " ++ text
 
 
 fetchCurrentUserDetails : String -> String -> Cmd Msg
 fetchCurrentUserDetails authToken instanceUrl =
-    Http.send
-        (Auth << UserDetailsFetched)
-        (Http.request
-            { method = "GET"
-            , headers = [ Http.header "Authorization" ("Bearer " ++ authToken) ]
-            , url = instanceUrl ++ "/api/v1/accounts/verify_credentials"
-            , body = Http.emptyBody
-            , expect = Http.expectJson accountDecoder
-            , timeout = Nothing
-            , withCredentials = False
-            }
-        )
+    Http.request
+        { method = "GET"
+        , headers = [ Http.header "Authorization" ("Bearer " ++ authToken) ]
+        , url = instanceUrl ++ "/api/v1/accounts/verify_credentials"
+        , body = Http.emptyBody
+        , expect = Http.expectJson (Auth << UserDetailsFetched) accountDecoder
+        , timeout = Nothing
+        , tracker = Nothing
+        }
 
 
 uploadImage : Model -> Cmd Msg
 uploadImage model =
     fileUpload
-        ( "file-upload"
-        , model.server.url
-        , model.authToken |> Maybe.withDefault ""
-        , model.shareText
-        )
+        { inputElementId = "file-upload"
+        , serverUrl = model.server.url
+        , authToken = model.authToken |> Maybe.withDefault ""
+        , text = model.shareText
+        }
 
 
 shareImage : Model -> Cmd Msg
@@ -445,16 +457,13 @@ shareImage model =
                     ++ "&path="
                     ++ imagePath
                 )
-
-        request =
-            Http.request
-                { method = "POST"
-                , headers = []
-                , url = "/share"
-                , body = body
-                , expect = Http.expectString
-                , timeout = Nothing
-                , withCredentials = False
-                }
     in
-        Http.send (Share << ImageShared) request
+    Http.request
+        { method = "POST"
+        , headers = []
+        , url = "/share"
+        , body = body
+        , expect = Http.expectString (Share << ImageShared)
+        , timeout = Nothing
+        , tracker = Nothing
+        }
