@@ -265,14 +265,6 @@ nextCommand model =
         PhotoPage statusId _ ->
             getStatus model.server.url model.authToken statusId
 
-        UserPage _ ->
-            case model.authToken of
-                Nothing ->
-                    Nav.replaceUrl model.key "#login"
-
-                token ->
-                    getTimeline model.server.url token model.view
-
         HomePage ->
             case model.authToken of
                 Nothing ->
@@ -301,7 +293,7 @@ nextCommand model =
                                 model.view
 
         other ->
-            getTimeline model.server.url model.authToken other
+            getTimeline model.server.url model.authToken (Debug.log ">" other)
 
 
 

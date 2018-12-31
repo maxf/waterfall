@@ -11,7 +11,7 @@ import Ports
         , statusPosted
         )
 import Types exposing (..)
-import Update exposing (photoHashParts, update, getStatus)
+import Update exposing (photoHashParts, update, getStatus, getTimeline)
 import Url
 import View exposing (view)
 
@@ -45,9 +45,11 @@ init flags url key =
                 let
                     userId =
                         String.dropLeft 5 fragment
+                    model =
+                        initialModel key (UserPage userId)
                 in
-                ( initialModel key (UserPage userId)
-                , checkAuthToken
+                ( model
+                , getTimeline model.server.url model.authToken (UserPage userId)
                 )
 
             else if String.startsWith "photo:" fragment then
