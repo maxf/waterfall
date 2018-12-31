@@ -60,8 +60,8 @@ type alias ImagePortData =
 defaultServer : MastodonServer
 defaultServer =
     MastodonServer
-        "https://mastodon.me.uk"
-        "905d23a2af70cd9eb36fce45febf533a46e20398fcc94afb1900558abe1a012b"
+        "https://mastodon.social"
+        "7b07523894c7441f0334bcc79ff100abe91f187cc21befeb3ade360df581d37e"
 
 
 servers : List MastodonServer
