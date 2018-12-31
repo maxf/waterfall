@@ -10704,7 +10704,6 @@ var author$project$Update$httpErrorMessage = function (error) {
 	}
 };
 var elm$browser$Browser$Navigation$replaceUrl = _Browser_replaceUrl;
-var elm$core$Debug$log = _Debug_log;
 var author$project$Update$nextCommand = function (model) {
 	var _n0 = model.view;
 	switch (_n0.$) {
@@ -10748,11 +10747,7 @@ var author$project$Update$nextCommand = function (model) {
 			}
 		default:
 			var other = _n0;
-			return A3(
-				author$project$Update$getTimeline,
-				model.server.url,
-				model.authToken,
-				A2(elm$core$Debug$log, '>', other));
+			return A3(author$project$Update$getTimeline, model.server.url, model.authToken, other);
 	}
 };
 var author$project$Types$LoginPage = {$: 'LoginPage'};

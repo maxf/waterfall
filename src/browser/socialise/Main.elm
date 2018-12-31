@@ -11,7 +11,7 @@ import Ports
         , statusPosted
         )
 import Types exposing (..)
-import Update exposing (photoHashParts, update, getStatus, getTimeline)
+import Update exposing (getStatus, getTimeline, photoHashParts, update)
 import Url
 import View exposing (view)
 
@@ -45,6 +45,7 @@ init flags url key =
                 let
                     userId =
                         String.dropLeft 5 fragment
+
                     model =
                         initialModel key (UserPage userId)
                 in

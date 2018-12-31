@@ -1,7 +1,9 @@
-module Model exposing (Model, initialModel, changeServerUrl)
+module Model exposing (Model, changeServerUrl, initialModel)
 
-import Types exposing (..)
 import Browser.Navigation as Nav
+import Types exposing (..)
+
+
 
 -- Model
 
@@ -24,19 +26,20 @@ type alias Model =
 
 initialModel : Nav.Key -> Screen -> Model
 initialModel key view =
-   { server = defaultServer
-   , authToken = Nothing
-   , userEmail = Nothing
-   , username = Nothing
-   , userId = Nothing
-   , password = Nothing
-   , message = Nothing
-   , timeline = []
-   , view = view
-   , shareText = ""
-   , currentStatus = Nothing
-   , key = key
-   }
+    { server = defaultServer
+    , authToken = Nothing
+    , userEmail = Nothing
+    , username = Nothing
+    , userId = Nothing
+    , password = Nothing
+    , message = Nothing
+    , timeline = []
+    , view = view
+    , shareText = ""
+    , currentStatus = Nothing
+    , key = key
+    }
+
 
 changeServerUrl : Model -> String -> Model
 changeServerUrl model url =
@@ -44,9 +47,9 @@ changeServerUrl model url =
         server =
             lookupServer url
     in
-        case server of
-            Nothing ->
-                { model | server = defaultServer }
+    case server of
+        Nothing ->
+            { model | server = defaultServer }
 
-            Just s ->
-                { model | server = s }
+        Just s ->
+            { model | server = s }

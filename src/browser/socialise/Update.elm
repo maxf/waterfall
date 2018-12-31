@@ -1,4 +1,4 @@
-module Update exposing (getTimeline, photoHashParts, update, getStatus)
+module Update exposing (getStatus, getTimeline, photoHashParts, update)
 
 import Auth exposing (authenticate, clearAuthToken, storeAuthToken)
 import Browser
@@ -69,9 +69,10 @@ updateAuth msg model =
             case token of
                 Nothing ->
                     let
-                        newModel = { model | view = PublicTimeline }
+                        newModel =
+                            { model | view = PublicTimeline }
                     in
-                        ( newModel, nextCommand newModel )
+                    ( newModel, nextCommand newModel )
 
                 Just tokenValue ->
                     ( { model | authToken = token, password = Nothing }
@@ -293,7 +294,7 @@ nextCommand model =
                                 model.view
 
         other ->
-            getTimeline model.server.url model.authToken (Debug.log ">" other)
+            getTimeline model.server.url model.authToken other
 
 
 

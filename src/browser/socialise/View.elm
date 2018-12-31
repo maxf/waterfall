@@ -1,14 +1,15 @@
 module View exposing (view)
 
+--import Html.Attributes.Extra exposing (..)
+
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
---import Html.Attributes.Extra exposing (..)
-import Html.Events exposing (onInput, onClick, onSubmit, on)
+import Html.Events exposing (on, onClick, onInput, onSubmit)
 import Json.Decode exposing (succeed)
 import Maybe exposing (withDefault)
-import Types exposing (..)
 import Model exposing (Model)
+import Types exposing (..)
 
 
 view : Model -> Browser.Document Msg
@@ -24,19 +25,20 @@ view model =
                         [ class "error", onClick CloseMessage ]
                         [ messageText |> text ]
     in
-        { title = "Waterfall"
-        , body =
+    { title = "Waterfall"
+    , body =
+        [ div
+            [ class "outer" ]
             [ div
-                [ class "outer" ]
-                [ div
-                    [ class "columns" ]
-                    [ viewSidebar model
-                    , div [ id "photos" ] [ viewMain model ]
-                    ]
-                , message
+                [ class "columns" ]
+                [ viewSidebar model
+                , div [ id "photos" ] [ viewMain model ]
                 ]
+            , message
             ]
-        }
+        ]
+    }
+
 
 viewSidebar : Model -> Html Msg
 viewSidebar model =
@@ -118,10 +120,10 @@ viewMain model =
                 title =
                     (model.username |> withDefault "") ++ "'s timeline"
             in
-                div []
-                    [ h1 [] [ text title ]
-                    , viewTimeline model.timeline
-                    ]
+            div []
+                [ h1 [] [ text title ]
+                , viewTimeline model.timeline
+                ]
 
         PublicTimeline ->
             div []
@@ -151,32 +153,32 @@ viewPhoto status attachmentId =
                 (\a -> a.id == attachmentId)
                 status.attachments
     in
-        case attachment of
-            [ image ] ->
-                let
-                    element =
-                        case image.type_ of
-                            Image ->
-                                img [ class "photo", src image.url ] []
+    case attachment of
+        [ image ] ->
+            let
+                element =
+                    case image.type_ of
+                        Image ->
+                            img [ class "photo", src image.url ] []
 
-                            Video ->
-                                video [] [ source [ src image.url ] [] ]
+                        Video ->
+                            video [] [ source [ src image.url ] [] ]
 
-                            Gifv ->
-                                video [] [ source [ src image.url ] [] ]
+                        Gifv ->
+                            video [] [ source [ src image.url ] [] ]
 
-                            _ ->
-                                span [] [ text "Can't show this content" ]
-                in
-                    div [ class "lightbox" ]
-                        [ div [ class "lightbox-inner" ]
-                            [ element
-                            , viewStatusContent status.content
-                            ]
-                        ]
+                        _ ->
+                            span [] [ text "Can't show this content" ]
+            in
+            div [ class "lightbox" ]
+                [ div [ class "lightbox-inner" ]
+                    [ element
+                    , viewStatusContent status.content
+                    ]
+                ]
 
-            _ ->
-                div [] []
+        _ ->
+            div [] []
 
 
 viewLogin : Html Msg
@@ -218,8 +220,8 @@ viewTimeline timeline =
         timelineOnlyAttachments =
             List.filter (\s -> s.attachments /= []) timeline
     in
-        div [ class "timeline" ]
-            (List.map viewStatus timelineOnlyAttachments)
+    div [ class "timeline" ]
+        (List.map viewStatus timelineOnlyAttachments)
 
 
 viewStatusContent : Maybe String -> Html Msg
@@ -229,7 +231,12 @@ viewStatusContent content =
             div [] []
 
         Just html ->
-            main_ [ class "content" {--, innerHtml html --} ] [ text "here is the content" ]
+            main_
+                [ class "content"
+
+                {--, innerHtml html --}
+                ]
+                [ text "here is the content" ]
 
 
 viewStatus : Status -> Html Msg

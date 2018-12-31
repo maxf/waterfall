@@ -1,18 +1,18 @@
-module Auth exposing (..)
+module Auth exposing (authenticate, checkAuthToken, clearAuthToken, oauthResponseDecoder, storeAuthToken)
 
-import Maybe exposing (withDefault)
+import Http
 import Json.Decode
 import Json.Decode.Pipeline
+import Maybe exposing (withDefault)
+import Model exposing (Model)
 import Ports
     exposing
         ( localStorageGetItem
-        , localStorageSetItem
         , localStorageRemoveItem
+        , localStorageSetItem
         )
 import Types exposing (..)
-import Model exposing (Model)
 import Url
-import Http
 
 
 checkAuthToken : Cmd msg
@@ -42,14 +42,12 @@ authenticate model =
                 ++ "&scope=read+write+follow"
                 ++ "&password="
                 ++ Url.percentEncode (model.password |> withDefault "")
-
     in
     Http.post
         { url = model.server.url ++ "/oauth/token"
         , body = Http.stringBody "application/x-www-form-urlencoded" postParams
         , expect = Http.expectJson (Auth << AuthReturn) oauthResponseDecoder
         }
-
 
 
 oauthResponseDecoder : Json.Decode.Decoder AuthResponse
