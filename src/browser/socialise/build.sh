@@ -1,1 +1,1 @@
-elm make Main.elm $WATERFALL_ELM_DEBUG --output=../../../public/socialise.js
+elm make Main.elm --debug --output=../../../public/socialise.js

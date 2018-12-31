@@ -1,4 +1,4 @@
-module Update exposing (getTimeline, photoHashParts, update)
+module Update exposing (getTimeline, photoHashParts, update, getStatus)
 
 import Auth exposing (authenticate, clearAuthToken, storeAuthToken)
 import Browser
@@ -68,7 +68,10 @@ updateAuth msg model =
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->
             case token of
                 Nothing ->
-                    ( model, Nav.pushUrl model.key "#login" )
+                    let
+                        newModel = { model | view = PublicTimeline }
+                    in
+                        ( newModel, nextCommand newModel )
 
                 Just tokenValue ->
                     ( { model | authToken = token, password = Nothing }
@@ -187,7 +190,7 @@ update msg model =
                 newModel =
                     { model | view = screenType location }
             in
-            ( newModel, prepareScreenToDisplay newModel )
+            ( newModel, nextCommand newModel )
 
         LinkWasClicked urlRequest ->
             case urlRequest of
@@ -240,8 +243,8 @@ screenType url =
 -- URL change generate command
 
 
-prepareScreenToDisplay : Model -> Cmd Msg
-prepareScreenToDisplay model =
+nextCommand : Model -> Cmd Msg
+nextCommand model =
     case model.view of
         SharePathPage _ ->
             case model.authToken of
@@ -307,7 +310,7 @@ prepareScreenToDisplay model =
 
 photoUrlRegex : Regex
 photoUrlRegex =
-    Regex.fromString "#photo:([^:]+):(.*)"
+    Regex.fromString "photo:([^:]+):(.*)"
         |> Maybe.withDefault Regex.never
 
 

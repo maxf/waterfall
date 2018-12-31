@@ -9,7 +9,7 @@
     <script src="public/socialise.js"></script>
     <script>
      var node = document.getElementById('main');
-     var app = Elm.Main.embed(node);
+     var app = Elm.Main.init({ node: node });
      var localStorage = window.localStorage;
 
      app.ports.localStorageSetItem.subscribe(function(keyValuePair) {

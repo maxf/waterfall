@@ -1,19 +1,19 @@
 module Main exposing (main)
 
+import Auth exposing (checkAuthToken)
 import Browser
 import Browser.Navigation as Nav
-import View exposing (view)
 import Model exposing (Model, initialModel)
-import Update exposing (update, photoHashParts)
 import Ports
     exposing
-        ( localStorageRetrievedItem
-        , formImageRetrieved
+        ( formImageRetrieved
+        , localStorageRetrievedItem
         , statusPosted
         )
 import Types exposing (..)
-import Auth exposing (checkAuthToken)
+import Update exposing (photoHashParts, update, getStatus)
 import Url
+import View exposing (view)
 
 
 main : Program () Model Msg
@@ -28,11 +28,11 @@ main =
         }
 
 
-init :  () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     case url.fragment of
         Nothing ->
-            ( initialModel key PublicTimeline, Cmd.none )
+            ( initialModel key HomePage, checkAuthToken )
 
         Just "home" ->
             ( initialModel key HomePage, checkAuthToken )
@@ -49,17 +49,23 @@ init flags url key =
                 ( initialModel key (UserPage userId)
                 , checkAuthToken
                 )
+
             else if String.startsWith "photo:" fragment then
                 case photoHashParts fragment of
                     Ok ( statusId, attachmentId ) ->
-                        ( initialModel key (PhotoPage statusId attachmentId)
-                        , Cmd.none
+                        let
+                            model =
+                                initialModel key (PhotoPage statusId attachmentId)
+                        in
+                        ( model
+                        , getStatus model.server.url model.authToken statusId
                         )
 
                     Err _ ->
                         ( initialModel key PublicTimeline
                         , Cmd.none
                         )
+
             else if String.startsWith "#share:" fragment then
                 ( initialModel key (SharePathPage (String.dropLeft 6 fragment))
                 , checkAuthToken
@@ -69,6 +75,7 @@ init flags url key =
                 ( initialModel key (ShareUploadPage Nothing)
                 , checkAuthToken
                 )
+
             else
                 ( initialModel key PublicTimeline
                 , Nav.pushUrl key "#public"
