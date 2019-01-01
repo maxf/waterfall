@@ -10,6 +10,7 @@ import Ports
         , localStorageRetrievedItem
         , statusPosted
         )
+import String exposing (startsWith)
 import Types exposing (..)
 import Update exposing (getStatus, getTimeline, photoHashParts, update)
 import Url
@@ -30,59 +31,58 @@ main =
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
-    case url.fragment of
-        Nothing ->
-            ( initialModel key HomePage, checkAuthToken )
+    let
+        fragment =
+            url.fragment |> Maybe.withDefault ""
+    in
+    if fragment |> startsWith "home" then
+        ( initialModel key HomePage, checkAuthToken )
 
-        Just "home" ->
-            ( initialModel key HomePage, checkAuthToken )
+    else if fragment |> startsWith "me" then
+        ( initialModel key ProfilePage, checkAuthToken )
 
-        Just "me" ->
-            ( initialModel key ProfilePage, checkAuthToken )
+    else if fragment |> startsWith "user:" then
+        let
+            userId =
+                String.dropLeft 5 fragment
 
-        Just fragment ->
-            if String.startsWith "user:" fragment then
+            model =
+                initialModel key (UserPage userId)
+        in
+        ( model
+        , getTimeline model.server.url model.authToken (UserPage userId)
+        )
+
+    else if fragment |> startsWith "photo:" then
+        case photoHashParts fragment of
+            Ok ( statusId, attachmentId ) ->
                 let
-                    userId =
-                        String.dropLeft 5 fragment
-
                     model =
-                        initialModel key (UserPage userId)
+                        initialModel key (PhotoPage statusId attachmentId)
                 in
                 ( model
-                , getTimeline model.server.url model.authToken (UserPage userId)
+                , getStatus model.server.url model.authToken statusId
                 )
 
-            else if String.startsWith "photo:" fragment then
-                case photoHashParts fragment of
-                    Ok ( statusId, attachmentId ) ->
-                        let
-                            model =
-                                initialModel key (PhotoPage statusId attachmentId)
-                        in
-                        ( model
-                        , getStatus model.server.url model.authToken statusId
-                        )
-
-                    Err _ ->
-                        ( initialModel key PublicTimeline
-                        , Cmd.none
-                        )
-
-            else if String.startsWith "#share:" fragment then
-                ( initialModel key (SharePathPage (String.dropLeft 6 fragment))
-                , checkAuthToken
-                )
-
-            else if String.startsWith "#upload:" fragment then
-                ( initialModel key (ShareUploadPage Nothing)
-                , checkAuthToken
-                )
-
-            else
+            Err _ ->
                 ( initialModel key PublicTimeline
-                , Nav.pushUrl key "#public"
+                , Cmd.none
                 )
+
+    else if fragment |> startsWith "share:" then
+        ( initialModel key (SharePathPage (String.dropLeft 6 fragment))
+        , checkAuthToken
+        )
+
+    else if fragment |> startsWith "upload:" then
+        ( initialModel key (ShareUploadPage Nothing)
+        , checkAuthToken
+        )
+
+    else
+        ( initialModel key PublicTimeline
+        , Nav.pushUrl key "#public"
+        )
 
 
 subscriptions : Model -> Sub Msg

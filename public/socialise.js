@@ -10538,80 +10538,74 @@ var elm$url$Url$fromString = function (str) {
 var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var author$project$Main$init = F3(
 	function (flags, url, key) {
-		var _n0 = url.fragment;
-		if (_n0.$ === 'Nothing') {
+		var fragment = A2(elm$core$Maybe$withDefault, '', url.fragment);
+		if (A2(elm$core$String$startsWith, 'home', fragment)) {
 			return _Utils_Tuple2(
 				A2(author$project$Model$initialModel, key, author$project$Types$HomePage),
 				author$project$Auth$checkAuthToken);
 		} else {
-			switch (_n0.a) {
-				case 'home':
+			if (A2(elm$core$String$startsWith, 'me', fragment)) {
+				return _Utils_Tuple2(
+					A2(author$project$Model$initialModel, key, author$project$Types$ProfilePage),
+					author$project$Auth$checkAuthToken);
+			} else {
+				if (A2(elm$core$String$startsWith, 'user:', fragment)) {
+					var userId = A2(elm$core$String$dropLeft, 5, fragment);
+					var model = A2(
+						author$project$Model$initialModel,
+						key,
+						author$project$Types$UserPage(userId));
 					return _Utils_Tuple2(
-						A2(author$project$Model$initialModel, key, author$project$Types$HomePage),
-						author$project$Auth$checkAuthToken);
-				case 'me':
-					return _Utils_Tuple2(
-						A2(author$project$Model$initialModel, key, author$project$Types$ProfilePage),
-						author$project$Auth$checkAuthToken);
-				default:
-					var fragment = _n0.a;
-					if (A2(elm$core$String$startsWith, 'user:', fragment)) {
-						var userId = A2(elm$core$String$dropLeft, 5, fragment);
-						var model = A2(
-							author$project$Model$initialModel,
-							key,
-							author$project$Types$UserPage(userId));
-						return _Utils_Tuple2(
-							model,
-							A3(
-								author$project$Update$getTimeline,
-								model.server.url,
-								model.authToken,
-								author$project$Types$UserPage(userId)));
+						model,
+						A3(
+							author$project$Update$getTimeline,
+							model.server.url,
+							model.authToken,
+							author$project$Types$UserPage(userId)));
+				} else {
+					if (A2(elm$core$String$startsWith, 'photo:', fragment)) {
+						var _n0 = author$project$Update$photoHashParts(fragment);
+						if (_n0.$ === 'Ok') {
+							var _n1 = _n0.a;
+							var statusId = _n1.a;
+							var attachmentId = _n1.b;
+							var model = A2(
+								author$project$Model$initialModel,
+								key,
+								A2(author$project$Types$PhotoPage, statusId, attachmentId));
+							return _Utils_Tuple2(
+								model,
+								A3(author$project$Update$getStatus, model.server.url, model.authToken, statusId));
+						} else {
+							return _Utils_Tuple2(
+								A2(author$project$Model$initialModel, key, author$project$Types$PublicTimeline),
+								elm$core$Platform$Cmd$none);
+						}
 					} else {
-						if (A2(elm$core$String$startsWith, 'photo:', fragment)) {
-							var _n1 = author$project$Update$photoHashParts(fragment);
-							if (_n1.$ === 'Ok') {
-								var _n2 = _n1.a;
-								var statusId = _n2.a;
-								var attachmentId = _n2.b;
-								var model = A2(
+						if (A2(elm$core$String$startsWith, 'share:', fragment)) {
+							return _Utils_Tuple2(
+								A2(
 									author$project$Model$initialModel,
 									key,
-									A2(author$project$Types$PhotoPage, statusId, attachmentId));
-								return _Utils_Tuple2(
-									model,
-									A3(author$project$Update$getStatus, model.server.url, model.authToken, statusId));
-							} else {
-								return _Utils_Tuple2(
-									A2(author$project$Model$initialModel, key, author$project$Types$PublicTimeline),
-									elm$core$Platform$Cmd$none);
-							}
+									author$project$Types$SharePathPage(
+										A2(elm$core$String$dropLeft, 6, fragment))),
+								author$project$Auth$checkAuthToken);
 						} else {
-							if (A2(elm$core$String$startsWith, '#share:', fragment)) {
+							if (A2(elm$core$String$startsWith, 'upload:', fragment)) {
 								return _Utils_Tuple2(
 									A2(
 										author$project$Model$initialModel,
 										key,
-										author$project$Types$SharePathPage(
-											A2(elm$core$String$dropLeft, 6, fragment))),
+										author$project$Types$ShareUploadPage(elm$core$Maybe$Nothing)),
 									author$project$Auth$checkAuthToken);
 							} else {
-								if (A2(elm$core$String$startsWith, '#upload:', fragment)) {
-									return _Utils_Tuple2(
-										A2(
-											author$project$Model$initialModel,
-											key,
-											author$project$Types$ShareUploadPage(elm$core$Maybe$Nothing)),
-										author$project$Auth$checkAuthToken);
-								} else {
-									return _Utils_Tuple2(
-										A2(author$project$Model$initialModel, key, author$project$Types$PublicTimeline),
-										A2(elm$browser$Browser$Navigation$pushUrl, key, '#public'));
-								}
+								return _Utils_Tuple2(
+									A2(author$project$Model$initialModel, key, author$project$Types$PublicTimeline),
+									A2(elm$browser$Browser$Navigation$pushUrl, key, '#public'));
 							}
 						}
 					}
+				}
 			}
 		}
 	});
