@@ -5733,9 +5733,9 @@ var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 			A2(elm$json$Json$Decode$field, key, valDecoder),
 			decoder);
 	});
-var author$project$Types$Status = F5(
-	function (id, url, account, content, attachments) {
-		return {account: account, attachments: attachments, content: content, id: id, url: url};
+var author$project$Types$Status = F6(
+	function (id, url, account, content, attachments, sensitive) {
+		return {account: account, attachments: attachments, content: content, id: id, sensitive: sensitive, url: url};
 	});
 var author$project$Types$Account = F3(
 	function (id, acct, displayName) {
@@ -5814,6 +5814,7 @@ var author$project$Types$statusIdDecoder = A2(
 		return author$project$Types$StatusId(s);
 	},
 	elm$json$Json$Decode$string);
+var elm$json$Json$Decode$bool = _Json_decodeBool;
 var elm$json$Json$Decode$list = _Json_decodeList;
 var elm$json$Json$Decode$nullable = function (decoder) {
 	return elm$json$Json$Decode$oneOf(
@@ -5825,27 +5826,31 @@ var elm$json$Json$Decode$nullable = function (decoder) {
 };
 var author$project$Types$statusDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'media_attachments',
-	elm$json$Json$Decode$list(author$project$Types$attachmentDecoder),
-	A4(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
-		'content',
-		elm$json$Json$Decode$nullable(elm$json$Json$Decode$string),
-		elm$core$Maybe$Nothing,
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'account',
-			author$project$Types$accountDecoder,
-			A4(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
-				'url',
-				elm$json$Json$Decode$nullable(elm$json$Json$Decode$string),
-				elm$core$Maybe$Nothing,
-				A3(
-					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-					'id',
-					author$project$Types$statusIdDecoder,
-					elm$json$Json$Decode$succeed(author$project$Types$Status))))));
+	'sensitive',
+	elm$json$Json$Decode$bool,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'media_attachments',
+		elm$json$Json$Decode$list(author$project$Types$attachmentDecoder),
+		A4(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+			'content',
+			elm$json$Json$Decode$nullable(elm$json$Json$Decode$string),
+			elm$core$Maybe$Nothing,
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'account',
+				author$project$Types$accountDecoder,
+				A4(
+					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+					'url',
+					elm$json$Json$Decode$nullable(elm$json$Json$Decode$string),
+					elm$core$Maybe$Nothing,
+					A3(
+						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'id',
+						author$project$Types$statusIdDecoder,
+						elm$json$Json$Decode$succeed(author$project$Types$Status)))))));
 var elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var elm$core$Dict$empty = elm$core$Dict$RBEmpty_elm_builtin;
 var elm$core$Basics$compare = _Utils_compare;
@@ -6818,7 +6823,7 @@ var author$project$Update$getTimeline = F3(
 			instanceUrl,
 			{
 				path: urlPath,
-				query: elm$core$Maybe$Just('limit=40')
+				query: elm$core$Maybe$Just('limit=40&local=true')
 			});
 		var headers = function () {
 			if (authToken.$ === 'Nothing') {
@@ -11493,6 +11498,65 @@ var author$project$View$viewLogin = A2(
 						]))
 				]))
 		]));
+var elm$html$Html$img = _VirtualDom_node('img');
+var elm$html$Html$source = _VirtualDom_node('source');
+var elm$html$Html$video = _VirtualDom_node('video');
+var elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var author$project$View$attachmentMarkup = function (image) {
+	var _n0 = image.type_;
+	switch (_n0.$) {
+		case 'Image':
+			return A2(
+				elm$html$Html$img,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('photo'),
+						elm$html$Html$Attributes$src(image.url)
+					]),
+				_List_Nil);
+		case 'Video':
+			return A2(
+				elm$html$Html$video,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$source,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$src(image.url)
+							]),
+						_List_Nil)
+					]));
+		case 'Gifv':
+			return A2(
+				elm$html$Html$video,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$source,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$src(image.url)
+							]),
+						_List_Nil)
+					]));
+		default:
+			return A2(
+				elm$html$Html$span,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text('Can\'t show this content')
+					]));
+	}
+};
 var elm$html$Html$main_ = _VirtualDom_node('main');
 var author$project$View$viewStatusContent = function (content) {
 	if (content.$ === 'Nothing') {
@@ -11511,15 +11575,6 @@ var author$project$View$viewStatusContent = function (content) {
 				]));
 	}
 };
-var elm$html$Html$img = _VirtualDom_node('img');
-var elm$html$Html$source = _VirtualDom_node('source');
-var elm$html$Html$video = _VirtualDom_node('video');
-var elm$html$Html$Attributes$src = function (url) {
-	return A2(
-		elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
 var author$project$View$viewPhoto = F2(
 	function (status, attachmentId) {
 		var attachment = A2(
@@ -11530,56 +11585,13 @@ var author$project$View$viewPhoto = F2(
 			status.attachments);
 		if (attachment.b && (!attachment.b.b)) {
 			var image = attachment.a;
-			var element = function () {
-				var _n1 = image.type_;
-				switch (_n1.$) {
-					case 'Image':
-						return A2(
-							elm$html$Html$img,
-							_List_fromArray(
-								[
-									elm$html$Html$Attributes$class('photo'),
-									elm$html$Html$Attributes$src(image.url)
-								]),
-							_List_Nil);
-					case 'Video':
-						return A2(
-							elm$html$Html$video,
-							_List_Nil,
-							_List_fromArray(
-								[
-									A2(
-									elm$html$Html$source,
-									_List_fromArray(
-										[
-											elm$html$Html$Attributes$src(image.url)
-										]),
-									_List_Nil)
-								]));
-					case 'Gifv':
-						return A2(
-							elm$html$Html$video,
-							_List_Nil,
-							_List_fromArray(
-								[
-									A2(
-									elm$html$Html$source,
-									_List_fromArray(
-										[
-											elm$html$Html$Attributes$src(image.url)
-										]),
-									_List_Nil)
-								]));
-					default:
-						return A2(
-							elm$html$Html$span,
-							_List_Nil,
-							_List_fromArray(
-								[
-									elm$html$Html$text('Can\'t show this content')
-								]));
-				}
-			}();
+			var markup = status.sensitive ? A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text('Sensitive content')
+					])) : author$project$View$attachmentMarkup(image);
 			return A2(
 				elm$html$Html$div,
 				_List_fromArray(
@@ -11596,7 +11608,7 @@ var author$project$View$viewPhoto = F2(
 							]),
 						_List_fromArray(
 							[
-								element,
+								markup,
 								author$project$View$viewStatusContent(status.content)
 							]))
 					]));
@@ -12164,4 +12176,4 @@ var elm$browser$Browser$application = _Browser_application;
 var author$project$Main$main = elm$browser$Browser$application(
 	{init: author$project$Main$init, onUrlChange: author$project$Types$UrlHasChanged, onUrlRequest: author$project$Types$LinkWasClicked, subscriptions: author$project$Main$subscriptions, update: author$project$Update$update, view: author$project$View$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Types.Msg","aliases":{"Types.Account":{"args":[],"type":"{ id : String.String, acct : String.String, displayName : String.String }"},"Types.Attachment":{"args":[],"type":"{ id : Types.AttachmentId, type_ : Types.AttachmentType, url : String.String, previewUrl : String.String }"},"Types.Status":{"args":[],"type":"{ id : Types.StatusId, url : Maybe.Maybe String.String, account : Types.Account, content : Maybe.Maybe String.String, attachments : List.List Types.Attachment }"},"Url.Url":{"args":[],"type":"{ protocol : Url.Protocol, host : String.String, port_ : Maybe.Maybe Basics.Int, path : String.String, query : Maybe.Maybe String.String, fragment : Maybe.Maybe String.String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String.String }"},"Types.ImagePortData":{"args":[],"type":"{ contents : String.String, filename : String.String }"}},"unions":{"Types.Msg":{"args":[],"tags":{"Auth":["Types.AuthMsg"],"Share":["Types.ShareMsg"],"TimelineFetched":["Result.Result Http.Error (List.List Types.Status)"],"PhotoFetched":["Result.Result Http.Error Types.Status"],"CloseMessage":[],"ViewPhoto":["Types.Status","Types.Attachment"],"UrlHasChanged":["Url.Url"],"LinkWasClicked":["Browser.UrlRequest"]}},"Types.AttachmentId":{"args":[],"tags":{"AttachmentId":["String.String"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Video":[],"Gifv":[],"Unknown":[]}},"Types.AuthMsg":{"args":[],"tags":{"UserEmail":["String.String"],"ServerSelect":["String.String"],"Password":["String.String"],"AuthSubmit":[],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"UserDetailsFetched":["Result.Result Http.Error Types.Account"],"AuthTokenRetrievedFromLocalStorage":["( String.String, Maybe.Maybe String.String )"],"Logout":[]}},"Types.ShareMsg":{"args":[],"tags":{"ShareTextInput":["String.String"],"ShareImage":[],"UploadImage":[],"StatusPosted":["Maybe.Maybe String.String"],"ImageSelected":[],"FormImageRead":["Types.ImagePortData"],"ImageShared":["Result.Result Http.Error String.String"]}},"Types.StatusId":{"args":[],"tags":{"StatusId":["String.String"]}},"Browser.UrlRequest":{"args":[],"tags":{"Internal":["Url.Url"],"External":["String.String"]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Url.Protocol":{"args":[],"tags":{"Http":[],"Https":[]}}}}})}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Types.Msg","aliases":{"Types.Account":{"args":[],"type":"{ id : String.String, acct : String.String, displayName : String.String }"},"Types.Attachment":{"args":[],"type":"{ id : Types.AttachmentId, type_ : Types.AttachmentType, url : String.String, previewUrl : String.String }"},"Types.Status":{"args":[],"type":"{ id : Types.StatusId, url : Maybe.Maybe String.String, account : Types.Account, content : Maybe.Maybe String.String, attachments : List.List Types.Attachment, sensitive : Basics.Bool }"},"Url.Url":{"args":[],"type":"{ protocol : Url.Protocol, host : String.String, port_ : Maybe.Maybe Basics.Int, path : String.String, query : Maybe.Maybe String.String, fragment : Maybe.Maybe String.String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String.String }"},"Types.ImagePortData":{"args":[],"type":"{ contents : String.String, filename : String.String }"}},"unions":{"Types.Msg":{"args":[],"tags":{"Auth":["Types.AuthMsg"],"Share":["Types.ShareMsg"],"TimelineFetched":["Result.Result Http.Error (List.List Types.Status)"],"PhotoFetched":["Result.Result Http.Error Types.Status"],"CloseMessage":[],"ViewPhoto":["Types.Status","Types.Attachment"],"UrlHasChanged":["Url.Url"],"LinkWasClicked":["Browser.UrlRequest"]}},"Types.AttachmentId":{"args":[],"tags":{"AttachmentId":["String.String"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Video":[],"Gifv":[],"Unknown":[]}},"Types.AuthMsg":{"args":[],"tags":{"UserEmail":["String.String"],"ServerSelect":["String.String"],"Password":["String.String"],"AuthSubmit":[],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"UserDetailsFetched":["Result.Result Http.Error Types.Account"],"AuthTokenRetrievedFromLocalStorage":["( String.String, Maybe.Maybe String.String )"],"Logout":[]}},"Types.ShareMsg":{"args":[],"tags":{"ShareTextInput":["String.String"],"ShareImage":[],"UploadImage":[],"StatusPosted":["Maybe.Maybe String.String"],"ImageSelected":[],"FormImageRead":["Types.ImagePortData"],"ImageShared":["Result.Result Http.Error String.String"]}},"Types.StatusId":{"args":[],"tags":{"StatusId":["String.String"]}},"Browser.UrlRequest":{"args":[],"tags":{"Internal":["Url.Url"],"External":["String.String"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Url.Protocol":{"args":[],"tags":{"Http":[],"Https":[]}}}}})}});}(this));

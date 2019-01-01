@@ -366,7 +366,7 @@ getTimeline instanceUrl authToken pageType =
                     "/api/v1/timelines/home"
 
         url =
-            { instanceUrl | path = urlPath, query = Just "limit=40" }
+            { instanceUrl | path = urlPath, query = Just "limit=40&local=true" }
 
         headers =
             case authToken of

@@ -108,6 +108,7 @@ type alias Status =
     , account : Account
     , content : Maybe String
     , attachments : List Attachment
+    , sensitive : Bool -- Whether media attachments should be hidden by default
     }
 
 
@@ -209,6 +210,8 @@ statusDecoder =
         |> required "account" accountDecoder
         |> optional "content" (nullable string) Nothing
         |> required "media_attachments" (list attachmentDecoder)
+        |> required "sensitive" bool
+
 
 
 statusIdDecoder : Decoder StatusId

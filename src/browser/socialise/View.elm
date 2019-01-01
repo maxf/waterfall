@@ -145,6 +145,21 @@ viewMain model =
                 , viewTimeline model.timeline
                 ]
 
+attachmentMarkup : Attachment -> Html Msg
+attachmentMarkup image =
+    case image.type_ of
+        Image ->
+            img [ class "photo", src image.url ] []
+
+        Video ->
+            video [] [ source [ src image.url ] [] ]
+
+        Gifv ->
+            video [] [ source [ src image.url ] [] ]
+
+        _ ->
+            span [] [ text "Can't show this content" ]
+
 
 viewPhoto : Status -> AttachmentId -> Html Msg
 viewPhoto status attachmentId =
@@ -158,23 +173,15 @@ viewPhoto status attachmentId =
     case attachment of
         [ image ] ->
             let
-                element =
-                    case image.type_ of
-                        Image ->
-                            img [ class "photo", src image.url ] []
-
-                        Video ->
-                            video [] [ source [ src image.url ] [] ]
-
-                        Gifv ->
-                            video [] [ source [ src image.url ] [] ]
-
-                        _ ->
-                            span [] [ text "Can't show this content" ]
+                markup =
+                    if status.sensitive then
+                        div [] [ text "Sensitive content" ]
+                    else
+                        attachmentMarkup image
             in
             div [ class "lightbox" ]
                 [ div [ class "lightbox-inner" ]
-                    [ element
+                    [ markup
                     , viewStatusContent status.content
                     ]
                 ]
