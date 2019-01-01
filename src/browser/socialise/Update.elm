@@ -411,7 +411,7 @@ fetchCurrentUserDetails authToken instanceUrl =
     Http.request
         { method = "GET"
         , headers = [ Http.header "Authorization" ("Bearer " ++ authToken) ]
-        , url = { instanceUrl | path = "api/v1/accounts/verify_credentials" } |> toString
+        , url = { instanceUrl | path = "/api/v1/accounts/verify_credentials" } |> toString
         , body = Http.emptyBody
         , expect = Http.expectJson (Auth << UserDetailsFetched) accountDecoder
         , timeout = Nothing

@@ -48,6 +48,7 @@ type alias AuthResponse =
 type alias MastodonServer =
     { url : Url
     , clientId : String
+    , clientSecret : String
     }
 
 
@@ -60,7 +61,8 @@ type alias ImagePortData =
 defaultServer : MastodonServer
 defaultServer =
     { url = Url Https "mastodon.social" Nothing "" Nothing Nothing
-    , clientId = "73c343a2c31e1cee5fd530107b4d505ca39794d57e62e602e6f1ed1d86e791fa"
+    , clientId = "9a2d034cf1397da34c9ce5b9103560749efed1962208e875b28cf126914da95d"
+    , clientSecret = "5ab52772ae48cdf47ad2ffc4bb651de8d15f590b9a3888c887c56478043de061"
     }
 
 
@@ -70,12 +72,13 @@ servers =
     , MastodonServer
         (Url Https "pawoo.net" Nothing "" Nothing Nothing)
         "e0becd2b4d162124a074e168908f83cec9f2d83bdbd141c3da5884ce60804045"
+        "invalid"
     ]
 
 
 lookupServer : String -> Maybe MastodonServer
 lookupServer url =
-    List.head (List.filter (\s -> (toString s.url) == url) servers)
+    List.head (List.filter (\s -> toString s.url == url) servers)
 
 
 
@@ -211,7 +214,6 @@ statusDecoder =
         |> optional "content" (nullable string) Nothing
         |> required "media_attachments" (list attachmentDecoder)
         |> required "sensitive" bool
-
 
 
 statusIdDecoder : Decoder StatusId

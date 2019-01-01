@@ -37,6 +37,8 @@ authenticate model =
         postParams =
             "client_id="
                 ++ model.server.clientId
+                ++ "&client_secret="
+                ++ model.server.clientSecret
                 ++ "&grant_type=password&username="
                 ++ Url.percentEncode (model.userEmail |> withDefault "")
                 ++ "&scope=read+write+follow"

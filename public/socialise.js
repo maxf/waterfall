@@ -5647,7 +5647,8 @@ var elm$url$Url$Url = F6(
 		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
 	});
 var author$project$Types$defaultServer = {
-	clientId: '73c343a2c31e1cee5fd530107b4d505ca39794d57e62e602e6f1ed1d86e791fa',
+	clientId: '9a2d034cf1397da34c9ce5b9103560749efed1962208e875b28cf126914da95d',
+	clientSecret: '5ab52772ae48cdf47ad2ffc4bb651de8d15f590b9a3888c887c56478043de061',
 	url: A6(elm$url$Url$Url, elm$url$Url$Https, 'mastodon.social', elm$core$Maybe$Nothing, '', elm$core$Maybe$Nothing, elm$core$Maybe$Nothing)
 };
 var author$project$Model$initialModel = F2(
@@ -10824,9 +10825,9 @@ var elm$http$Http$stringBody = _Http_pair;
 var elm$url$Url$percentEncode = _Url_percentEncode;
 var author$project$Auth$authenticate = function (model) {
 	var url = model.server.url;
-	var postParams = 'client_id=' + (model.server.clientId + ('&grant_type=password&username=' + (elm$url$Url$percentEncode(
+	var postParams = 'client_id=' + (model.server.clientId + ('&client_secret=' + (model.server.clientSecret + ('&grant_type=password&username=' + (elm$url$Url$percentEncode(
 		A2(elm$core$Maybe$withDefault, '', model.userEmail)) + ('&scope=read+write+follow' + ('&password=' + elm$url$Url$percentEncode(
-		A2(elm$core$Maybe$withDefault, '', model.password)))))));
+		A2(elm$core$Maybe$withDefault, '', model.password)))))))));
 	return elm$http$Http$post(
 		{
 			body: A2(elm$http$Http$stringBody, 'application/x-www-form-urlencoded', postParams),
@@ -10860,17 +10861,18 @@ var author$project$Auth$storeAuthToken = function (token) {
 	return author$project$Ports$localStorageSetItem(
 		_Utils_Tuple2('authToken', token));
 };
-var author$project$Types$MastodonServer = F2(
-	function (url, clientId) {
-		return {clientId: clientId, url: url};
+var author$project$Types$MastodonServer = F3(
+	function (url, clientId, clientSecret) {
+		return {clientId: clientId, clientSecret: clientSecret, url: url};
 	});
 var author$project$Types$servers = _List_fromArray(
 	[
 		author$project$Types$defaultServer,
-		A2(
+		A3(
 		author$project$Types$MastodonServer,
 		A6(elm$url$Url$Url, elm$url$Url$Https, 'pawoo.net', elm$core$Maybe$Nothing, '', elm$core$Maybe$Nothing, elm$core$Maybe$Nothing),
-		'e0becd2b4d162124a074e168908f83cec9f2d83bdbd141c3da5884ce60804045')
+		'e0becd2b4d162124a074e168908f83cec9f2d83bdbd141c3da5884ce60804045',
+		'invalid')
 	]);
 var elm$core$List$filter = F2(
 	function (isGood, list) {
@@ -10939,7 +10941,7 @@ var author$project$Update$fetchCurrentUserDetails = F2(
 				url: elm$url$Url$toString(
 					_Utils_update(
 						instanceUrl,
-						{path: 'api/v1/accounts/verify_credentials'}))
+						{path: '/api/v1/accounts/verify_credentials'}))
 			});
 	});
 var author$project$Update$updateAuth = F2(
