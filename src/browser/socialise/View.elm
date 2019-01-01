@@ -46,7 +46,7 @@ viewSidebar model =
     div
         [ class "sidebar" ]
         [ h1 [] [ a [ href "/" ] [ text "Waterfall" ] ]
-        , p [] [ "Server: " ++ model.server.url.host |> text ]
+        , p [] [ model.server.url.host |> text ]
         , viewSidebarLinks model.username model.view
         ]
 

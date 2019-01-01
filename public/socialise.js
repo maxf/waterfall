@@ -12098,7 +12098,7 @@ var author$project$View$viewSidebar = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						elm$html$Html$text('Server: ' + model.server.url.host)
+						elm$html$Html$text(model.server.url.host)
 					])),
 				A2(author$project$View$viewSidebarLinks, model.username, model.view)
 			]));
