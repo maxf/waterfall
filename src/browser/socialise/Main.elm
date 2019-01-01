@@ -10,7 +10,7 @@ import Ports
         , localStorageRetrievedItem
         , statusPosted
         )
-import String exposing (startsWith)
+import String exposing (startsWith, contains)
 import Types exposing (..)
 import Update exposing (getStatus, getTimeline, photoHashParts, update)
 import Url
@@ -35,7 +35,19 @@ init flags url key =
         fragment =
             url.fragment |> Maybe.withDefault ""
     in
-    if fragment |> startsWith "home" then
+    if url.query |> Maybe.withDefault "" |> contains "code=" then
+        -- this is an auth response
+        -- http://localhost:8080/?code=3656c0c88c5efa583324be2b3fd83b2e4a088ae6667bb8f12d2e86dbe75b8bb8&state=meh#public
+        -- we need to extract the query-string parameters. We should use Url.Parser eventually
+        let
+            code = "blah blah"
+            model =
+                initialModel key url HomePage
+        in
+            ({ model | authToken = Just code }, Cmd.none)
+
+
+    else if fragment |> startsWith "home" then
         ( initialModel key url HomePage, checkAuthToken )
 
     else if fragment |> startsWith "me" then

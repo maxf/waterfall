@@ -202,19 +202,24 @@ update msg model =
 
         UserClickedLogin ->
             let
+                serverUrl =
+                    model.server.url
+
+                redirectUrl =
+                    model.baseUrl |> toString
+
+                query =
+                    "response_type=code&client_id=" ++ model.server.clientId ++ "&redirect_uri=" ++ redirectUrl ++ "&scope=read+write+follow+push&state=meh"
+            -- https://authorization-server.com/auth?response_type=code&client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=photos&state=1234zyx
+
                 url =
-                    Debug.log ">" model.server.url
-                fragment =
-                    "response_type=code&client_id=" ++ model.server.clientId ++ "&redirect_uri=" ++ (toString model.baseUrl) ++ "&scope=read+write+follow&state=meh"
-                -- https://authorization-server.com/auth?response_type=code&client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=photos&state=1234zyx
-            in
-                (model
-                , Nav.load
-                    ({ url
+                    { serverUrl
                         | path = "/oauth/authorize"
-                        , fragment = Just fragment
-                    } |> toString)
-                )
+                        , query = Just query
+                    }
+
+            in
+                (model, Nav.load (Debug.log ">>" (url |> toString)))
 
 
 -- URL change update model
