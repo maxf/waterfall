@@ -60,7 +60,7 @@ type alias ImagePortData =
 defaultServer : MastodonServer
 defaultServer =
     { url = Url Https "mastodon.social" Nothing "" Nothing Nothing
-    , clientId = "7b07523894c7441f0334bcc79ff100abe91f187cc21befeb3ade360df581d37e"
+    , clientId = "73c343a2c31e1cee5fd530107b4d505ca39794d57e62e602e6f1ed1d86e791fa"
     }
 
 

@@ -5647,7 +5647,7 @@ var elm$url$Url$Url = F6(
 		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
 	});
 var author$project$Types$defaultServer = {
-	clientId: '7b07523894c7441f0334bcc79ff100abe91f187cc21befeb3ade360df581d37e',
+	clientId: '73c343a2c31e1cee5fd530107b4d505ca39794d57e62e602e6f1ed1d86e791fa',
 	url: A6(elm$url$Url$Url, elm$url$Url$Https, 'mastodon.social', elm$core$Maybe$Nothing, '', elm$core$Maybe$Nothing, elm$core$Maybe$Nothing)
 };
 var author$project$Model$initialModel = F2(
