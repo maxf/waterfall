@@ -55,12 +55,7 @@ viewSidebarLinks : Maybe String -> Screen -> Html Msg
 viewSidebarLinks username pageType =
     case username of
         Nothing ->
-            case pageType of
-                LoginPage ->
-                    div [] []
-
-                _ ->
-                    div [] [ a [ href "#login" ] [ text "Log in" ] ]
+            div [] [ a [ onClick UserClickedLogin ] [ text "Log in" ] ]
 
         Just name ->
             div []
@@ -82,9 +77,6 @@ viewSidebarLinks username pageType =
 viewMain : Model -> Html Msg
 viewMain model =
     case model.view of
-        LoginPage ->
-            viewLogin
-
         PhotoPage _ attachmentId ->
             case ( model.currentStatus, attachmentId ) of
                 ( Just status, photoId ) ->
@@ -148,14 +140,14 @@ viewMain model =
 attachmentMarkup : Attachment -> Html Msg
 attachmentMarkup image =
     case image.type_ of
-        Image ->
-            img [ class "photo", src image.url ] []
+        -- Image ->
+        --     img [ class "photo", src image.url ] []
 
-        Video ->
-            video [] [ source [ src image.url ] [] ]
+        -- Video ->
+        --     video [] [ source [ src image.url ] [] ]
 
-        Gifv ->
-            video [] [ source [ src image.url ] [] ]
+        -- Gifv ->
+        --     video [] [ source [ src image.url ] [] ]
 
         _ ->
             span [] [ text "Can't show this content" ]
@@ -174,10 +166,10 @@ viewPhoto status attachmentId =
         [ image ] ->
             let
                 markup =
-                    if status.sensitive then
+--                    if status.sensitive then
                         div [] [ text "Sensitive content" ]
-                    else
-                        attachmentMarkup image
+--                    else
+--                        attachmentMarkup image
             in
             div [ class "lightbox" ]
                 [ div [ class "lightbox-inner" ]
@@ -270,7 +262,8 @@ viewAttachment status attachment =
         _ ->
             span
                 [ onClick (ViewPhoto status attachment) ]
-                [ img [ src attachment.previewUrl ] [] ]
+                []
+--                [ img [ src attachment.previewUrl ] [] ]
 
 
 viewSharePath : String -> Html Msg

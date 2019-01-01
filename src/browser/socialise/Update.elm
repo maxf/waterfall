@@ -200,6 +200,21 @@ update msg model =
                 Browser.External href ->
                     ( model, Nav.load href )
 
+        UserClickedLogin ->
+            let
+                url =
+                    Debug.log ">" model.server.url
+                fragment =
+                    "response_type=code&client_id=" ++ model.server.clientId ++ "&redirect_uri=" ++ (toString model.baseUrl) ++ "&scope=read+write+follow&state=meh"
+                -- https://authorization-server.com/auth?response_type=code&client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=photos&state=1234zyx
+            in
+                (model
+                , Nav.load
+                    ({ url
+                        | path = "/oauth/authorize"
+                        , fragment = Just fragment
+                    } |> toString)
+                )
 
 
 -- URL change update model
@@ -210,9 +225,6 @@ screenType url =
     case url.fragment of
         Nothing ->
             PublicTimeline
-
-        Just "login" ->
-            LoginPage
 
         Just "home" ->
             HomePage
@@ -272,9 +284,6 @@ nextCommand model =
 
                 _ ->
                     getTimeline model.server.url model.authToken HomePage
-
-        LoginPage ->
-            Cmd.none
 
         ProfilePage ->
             case model.authToken of

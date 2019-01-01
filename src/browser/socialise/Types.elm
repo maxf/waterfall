@@ -39,6 +39,7 @@ type Msg
     | ViewPhoto Status Attachment
     | UrlHasChanged Url
     | LinkWasClicked Browser.UrlRequest
+    | UserClickedLogin
 
 
 type alias AuthResponse =
@@ -149,7 +150,6 @@ type alias Attachment =
 
 type Screen
     = HomePage
-    | LoginPage
     | ProfilePage
     | PublicTimeline
     | UserPage String -- <user id>

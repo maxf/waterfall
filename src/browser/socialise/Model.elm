@@ -2,6 +2,7 @@ module Model exposing (Model, changeServerUrl, initialModel)
 
 import Browser.Navigation as Nav
 import Types exposing (..)
+import Url exposing (Url)
 
 
 
@@ -9,7 +10,8 @@ import Types exposing (..)
 
 
 type alias Model =
-    { server : MastodonServer
+    { baseUrl : Url
+    , server : MastodonServer
     , authToken : Maybe String
     , userEmail : Maybe String
     , username : Maybe String
@@ -24,9 +26,10 @@ type alias Model =
     }
 
 
-initialModel : Nav.Key -> Screen -> Model
-initialModel key view =
-    { server = defaultServer
+initialModel : Nav.Key -> Url -> Screen -> Model
+initialModel key url view =
+    { baseUrl = url
+    , server = defaultServer
     , authToken = Nothing
     , userEmail = Nothing
     , username = Nothing

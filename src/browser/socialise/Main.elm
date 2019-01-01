@@ -36,10 +36,10 @@ init flags url key =
             url.fragment |> Maybe.withDefault ""
     in
     if fragment |> startsWith "home" then
-        ( initialModel key HomePage, checkAuthToken )
+        ( initialModel key url HomePage, checkAuthToken )
 
     else if fragment |> startsWith "me" then
-        ( initialModel key ProfilePage, checkAuthToken )
+        ( initialModel key url ProfilePage, checkAuthToken )
 
     else if fragment |> startsWith "user:" then
         let
@@ -47,7 +47,7 @@ init flags url key =
                 String.dropLeft 5 fragment
 
             model =
-                initialModel key (UserPage userId)
+                initialModel key url (UserPage userId)
         in
         ( model
         , getTimeline model.server.url model.authToken (UserPage userId)
@@ -58,29 +58,29 @@ init flags url key =
             Ok ( statusId, attachmentId ) ->
                 let
                     model =
-                        initialModel key (PhotoPage statusId attachmentId)
+                        initialModel key url (PhotoPage statusId attachmentId)
                 in
                 ( model
                 , getStatus model.server.url model.authToken statusId
                 )
 
             Err _ ->
-                ( initialModel key PublicTimeline
+                ( initialModel key url PublicTimeline
                 , Cmd.none
                 )
 
     else if fragment |> startsWith "share:" then
-        ( initialModel key (SharePathPage (String.dropLeft 6 fragment))
+        ( initialModel key url (SharePathPage (String.dropLeft 6 fragment))
         , checkAuthToken
         )
 
     else if fragment |> startsWith "upload:" then
-        ( initialModel key (ShareUploadPage Nothing)
+        ( initialModel key url (ShareUploadPage Nothing)
         , checkAuthToken
         )
 
     else
-        ( initialModel key PublicTimeline
+        ( initialModel key url PublicTimeline
         , Nav.pushUrl key "#public"
         )
 
