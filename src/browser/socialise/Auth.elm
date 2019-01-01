@@ -42,9 +42,12 @@ authenticate model =
                 ++ "&scope=read+write+follow"
                 ++ "&password="
                 ++ Url.percentEncode (model.password |> withDefault "")
+
+        url =
+            model.server.url
     in
     Http.post
-        { url = model.server.url ++ "/oauth/token"
+        { url = Url.toString { url | path = "/oauth/token" }
         , body = Http.stringBody "application/x-www-form-urlencoded" postParams
         , expect = Http.expectJson (Auth << AuthReturn) oauthResponseDecoder
         }

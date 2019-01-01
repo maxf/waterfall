@@ -10,8 +10,7 @@ import Ports exposing (..)
 import Regex exposing (Regex, find, fromString)
 import String exposing (fromInt)
 import Types exposing (..)
-import Url
-import Url.Builder
+import Url exposing (..)
 
 
 updateAuth : AuthMsg -> Model -> ( Model, Cmd Msg )
@@ -206,7 +205,7 @@ update msg model =
 -- URL change update model
 
 
-screenType : Url.Url -> Screen
+screenType : Url -> Screen
 screenType url =
     case url.fragment of
         Nothing ->
@@ -326,7 +325,7 @@ photoHashParts hash =
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#fetching-a-status
 
 
-getStatus : String -> Maybe String -> StatusId -> Cmd Msg
+getStatus : Url -> Maybe String -> StatusId -> Cmd Msg
 getStatus instanceUrl authToken (StatusId statusId) =
     let
         headers =
@@ -340,7 +339,7 @@ getStatus instanceUrl authToken (StatusId statusId) =
     Http.request
         { method = "GET"
         , headers = headers
-        , url = instanceUrl ++ "/api/v1/statuses/" ++ statusId
+        , url = { instanceUrl | path = "/api/v1/statuses/" ++ statusId } |> toString
         , body = Http.emptyBody
         , expect = Http.expectJson PhotoFetched statusDecoder
         , timeout = Nothing
@@ -352,22 +351,22 @@ getStatus instanceUrl authToken (StatusId statusId) =
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#timelines
 
 
-getTimeline : String -> Maybe String -> Screen -> Cmd Msg
+getTimeline : Url -> Maybe String -> Screen -> Cmd Msg
 getTimeline instanceUrl authToken pageType =
     let
         urlPath =
             case pageType of
                 PublicTimeline ->
-                    [ "api", "v1", "timelines", "public" ]
+                    "/api/v1/timelines/public"
 
                 UserPage id ->
-                    [ "api", "v1", "accounts", id, "statuses" ]
+                    "/api/v1/accounts/" ++ id ++ "/statuses"
 
                 _ ->
-                    [ "api", "v1", "timelines", "home" ]
+                    "/api/v1/timelines/home"
 
         url =
-            Url.Builder.crossOrigin instanceUrl urlPath [ Url.Builder.int "limit" 40 ]
+            { instanceUrl | path = urlPath, query = Just "limit=40" }
 
         headers =
             case authToken of
@@ -380,7 +379,7 @@ getTimeline instanceUrl authToken pageType =
     Http.request
         { method = "GET"
         , headers = headers
-        , url = url
+        , url = url |> toString
         , body = Http.emptyBody
         , expect = Http.expectJson TimelineFetched timelineDecoder
         , timeout = Nothing
@@ -407,12 +406,12 @@ httpErrorMessage error =
             "Bad payload: " ++ text
 
 
-fetchCurrentUserDetails : String -> String -> Cmd Msg
+fetchCurrentUserDetails : String -> Url -> Cmd Msg
 fetchCurrentUserDetails authToken instanceUrl =
     Http.request
         { method = "GET"
         , headers = [ Http.header "Authorization" ("Bearer " ++ authToken) ]
-        , url = instanceUrl ++ "/api/v1/accounts/verify_credentials"
+        , url = { instanceUrl | path = "api/v1/accounts/verify_credentials" } |> toString
         , body = Http.emptyBody
         , expect = Http.expectJson (Auth << UserDetailsFetched) accountDecoder
         , timeout = Nothing
@@ -424,7 +423,7 @@ uploadImage : Model -> Cmd Msg
 uploadImage model =
     fileUpload
         { inputElementId = "file-upload"
-        , serverUrl = model.server.url
+        , serverUrl = model.server.url |> toString
         , authToken = model.authToken |> Maybe.withDefault ""
         , text = model.shareText
         }
@@ -445,7 +444,7 @@ shareImage model =
             Http.stringBody
                 "application/x-www-form-urlencoded"
                 ("apiurl="
-                    ++ model.server.url
+                    ++ toString model.server.url
                     ++ "&text="
                     ++ model.shareText
                     ++ "&token="

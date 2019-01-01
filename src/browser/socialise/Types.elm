@@ -5,7 +5,7 @@ import Browser.Navigation as Nav
 import Http
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (..)
-import Url
+import Url exposing (..)
 
 
 type AuthMsg
@@ -37,7 +37,7 @@ type Msg
     | PhotoFetched (Result Http.Error Status)
     | CloseMessage
     | ViewPhoto Status Attachment
-    | UrlHasChanged Url.Url
+    | UrlHasChanged Url
     | LinkWasClicked Browser.UrlRequest
 
 
@@ -46,7 +46,7 @@ type alias AuthResponse =
 
 
 type alias MastodonServer =
-    { url : String
+    { url : Url
     , clientId : String
     }
 
@@ -59,26 +59,23 @@ type alias ImagePortData =
 
 defaultServer : MastodonServer
 defaultServer =
-    MastodonServer
-        "https://mastodon.social"
-        "7b07523894c7441f0334bcc79ff100abe91f187cc21befeb3ade360df581d37e"
+    { url = Url Https "mastodon.social" Nothing "" Nothing Nothing
+    , clientId = "7b07523894c7441f0334bcc79ff100abe91f187cc21befeb3ade360df581d37e"
+    }
 
 
 servers : List MastodonServer
 servers =
     [ defaultServer
     , MastodonServer
-        "https://mastodon.social"
-        "7b07523894c7441f0334bcc79ff100abe91f187cc21befeb3ade360df581d37e"
-    , MastodonServer
-        "https://pawoo.net"
+        (Url Https "pawoo.net" Nothing "" Nothing Nothing)
         "e0becd2b4d162124a074e168908f83cec9f2d83bdbd141c3da5884ce60804045"
     ]
 
 
 lookupServer : String -> Maybe MastodonServer
 lookupServer url =
-    List.head (List.filter (\s -> s.url == url) servers)
+    List.head (List.filter (\s -> (toString s.url) == url) servers)
 
 
 

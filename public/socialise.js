@@ -2488,23 +2488,6 @@ function _Http_track(router, xhr, tracker)
 	});
 }
 
-function _Url_percentEncode(string)
-{
-	return encodeURIComponent(string);
-}
-
-function _Url_percentDecode(string)
-{
-	try
-	{
-		return elm$core$Maybe$Just(decodeURIComponent(string));
-	}
-	catch (e)
-	{
-		return elm$core$Maybe$Nothing;
-	}
-}
-
 // CREATE
 
 var _Regex_never = /.^/;
@@ -5163,7 +5146,24 @@ function _Browser_load(url)
 		}
 	}));
 }
-var elm$core$Array$branchFactor = 32;
+
+
+function _Url_percentEncode(string)
+{
+	return encodeURIComponent(string);
+}
+
+function _Url_percentDecode(string)
+{
+	try
+	{
+		return elm$core$Maybe$Just(decodeURIComponent(string));
+	}
+	catch (e)
+	{
+		return elm$core$Maybe$Nothing;
+	}
+}var elm$core$Array$branchFactor = 32;
 var elm$core$Array$Array_elm_builtin = F4(
 	function (a, b, c, d) {
 		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
@@ -5641,11 +5641,15 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 var elm$json$Json$Encode$string = _Json_wrap;
 var author$project$Ports$localStorageGetItem = _Platform_outgoingPort('localStorageGetItem', elm$json$Json$Encode$string);
 var author$project$Auth$checkAuthToken = author$project$Ports$localStorageGetItem('authToken');
-var author$project$Types$MastodonServer = F2(
-	function (url, clientId) {
-		return {clientId: clientId, url: url};
+var elm$url$Url$Https = {$: 'Https'};
+var elm$url$Url$Url = F6(
+	function (protocol, host, port_, path, query, fragment) {
+		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
 	});
-var author$project$Types$defaultServer = A2(author$project$Types$MastodonServer, 'https://mastodon.social', '7b07523894c7441f0334bcc79ff100abe91f187cc21befeb3ade360df581d37e');
+var author$project$Types$defaultServer = {
+	clientId: '7b07523894c7441f0334bcc79ff100abe91f187cc21befeb3ade360df581d37e',
+	url: A6(elm$url$Url$Url, elm$url$Url$Https, 'mastodon.social', elm$core$Maybe$Nothing, '', elm$core$Maybe$Nothing, elm$core$Maybe$Nothing)
+};
 var author$project$Model$initialModel = F2(
 	function (key, view) {
 		return {authToken: elm$core$Maybe$Nothing, currentStatus: elm$core$Maybe$Nothing, key: key, message: elm$core$Maybe$Nothing, password: elm$core$Maybe$Nothing, server: author$project$Types$defaultServer, shareText: '', timeline: _List_Nil, userEmail: elm$core$Maybe$Nothing, userId: elm$core$Maybe$Nothing, username: elm$core$Maybe$Nothing, view: view};
@@ -6721,6 +6725,50 @@ var elm$http$Http$request = function (r) {
 		elm$http$Http$Request(
 			{allowCookiesFromOtherDomains: false, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
 };
+var elm$url$Url$addPort = F2(
+	function (maybePort, starter) {
+		if (maybePort.$ === 'Nothing') {
+			return starter;
+		} else {
+			var port_ = maybePort.a;
+			return starter + (':' + elm$core$String$fromInt(port_));
+		}
+	});
+var elm$url$Url$addPrefixed = F3(
+	function (prefix, maybeSegment, starter) {
+		if (maybeSegment.$ === 'Nothing') {
+			return starter;
+		} else {
+			var segment = maybeSegment.a;
+			return _Utils_ap(
+				starter,
+				_Utils_ap(prefix, segment));
+		}
+	});
+var elm$url$Url$toString = function (url) {
+	var http = function () {
+		var _n0 = url.protocol;
+		if (_n0.$ === 'Http') {
+			return 'http://';
+		} else {
+			return 'https://';
+		}
+	}();
+	return A3(
+		elm$url$Url$addPrefixed,
+		'#',
+		url.fragment,
+		A3(
+			elm$url$Url$addPrefixed,
+			'?',
+			url.query,
+			_Utils_ap(
+				A2(
+					elm$url$Url$addPort,
+					url.port_,
+					_Utils_ap(http, url.host)),
+				url.path)));
+};
 var author$project$Update$getStatus = F3(
 	function (instanceUrl, authToken, _n0) {
 		var statusId = _n0.a;
@@ -6743,82 +6791,35 @@ var author$project$Update$getStatus = F3(
 				method: 'GET',
 				timeout: elm$core$Maybe$Nothing,
 				tracker: elm$core$Maybe$Nothing,
-				url: instanceUrl + ('/api/v1/statuses/' + statusId)
+				url: elm$url$Url$toString(
+					_Utils_update(
+						instanceUrl,
+						{path: '/api/v1/statuses/' + statusId}))
 			});
 	});
 var author$project$Types$TimelineFetched = function (a) {
 	return {$: 'TimelineFetched', a: a};
 };
 var author$project$Types$timelineDecoder = elm$json$Json$Decode$list(author$project$Types$statusDecoder);
-var elm$core$List$map = F2(
-	function (f, xs) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, acc) {
-					return A2(
-						elm$core$List$cons,
-						f(x),
-						acc);
-				}),
-			_List_Nil,
-			xs);
-	});
-var elm$url$Url$Builder$toQueryPair = function (_n0) {
-	var key = _n0.a;
-	var value = _n0.b;
-	return key + ('=' + value);
-};
-var elm$url$Url$Builder$toQuery = function (parameters) {
-	if (!parameters.b) {
-		return '';
-	} else {
-		return '?' + A2(
-			elm$core$String$join,
-			'&',
-			A2(elm$core$List$map, elm$url$Url$Builder$toQueryPair, parameters));
-	}
-};
-var elm$url$Url$Builder$crossOrigin = F3(
-	function (prePath, pathSegments, parameters) {
-		return prePath + ('/' + (A2(elm$core$String$join, '/', pathSegments) + elm$url$Url$Builder$toQuery(parameters)));
-	});
-var elm$url$Url$percentEncode = _Url_percentEncode;
-var elm$url$Url$Builder$QueryParameter = F2(
-	function (a, b) {
-		return {$: 'QueryParameter', a: a, b: b};
-	});
-var elm$url$Url$Builder$int = F2(
-	function (key, value) {
-		return A2(
-			elm$url$Url$Builder$QueryParameter,
-			elm$url$Url$percentEncode(key),
-			elm$core$String$fromInt(value));
-	});
 var author$project$Update$getTimeline = F3(
 	function (instanceUrl, authToken, pageType) {
 		var urlPath = function () {
 			switch (pageType.$) {
 				case 'PublicTimeline':
-					return _List_fromArray(
-						['api', 'v1', 'timelines', 'public']);
+					return '/api/v1/timelines/public';
 				case 'UserPage':
 					var id = pageType.a;
-					return _List_fromArray(
-						['api', 'v1', 'accounts', id, 'statuses']);
+					return '/api/v1/accounts/' + (id + '/statuses');
 				default:
-					return _List_fromArray(
-						['api', 'v1', 'timelines', 'home']);
+					return '/api/v1/timelines/home';
 			}
 		}();
-		var url = A3(
-			elm$url$Url$Builder$crossOrigin,
+		var url = _Utils_update(
 			instanceUrl,
-			urlPath,
-			_List_fromArray(
-				[
-					A2(elm$url$Url$Builder$int, 'limit', 40)
-				]));
+			{
+				path: urlPath,
+				query: elm$core$Maybe$Just('limit=40')
+			});
 		var headers = function () {
 			if (authToken.$ === 'Nothing') {
 				return _List_Nil;
@@ -6838,7 +6839,7 @@ var author$project$Update$getTimeline = F3(
 				method: 'GET',
 				timeout: elm$core$Maybe$Nothing,
 				tracker: elm$core$Maybe$Nothing,
-				url: url
+				url: elm$url$Url$toString(url)
 			});
 	});
 var elm$core$Maybe$withDefault = F2(
@@ -6909,6 +6910,20 @@ var elm$core$Task$Perform = function (a) {
 	return {$: 'Perform', a: a};
 };
 var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
+var elm$core$List$map = F2(
+	function (f, xs) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, acc) {
+					return A2(
+						elm$core$List$cons,
+						f(x),
+						acc);
+				}),
+			_List_Nil,
+			xs);
+	});
 var elm$core$Task$map = F2(
 	function (func, taskA) {
 		return A2(
@@ -10407,16 +10422,11 @@ var elm$core$String$dropLeft = F2(
 	});
 var elm$core$String$startsWith = _String_startsWith;
 var elm$url$Url$Http = {$: 'Http'};
-var elm$url$Url$Https = {$: 'Https'};
 var elm$core$String$indexes = _String_indexes;
 var elm$core$String$isEmpty = function (string) {
 	return string === '';
 };
 var elm$core$String$toInt = _String_toInt;
-var elm$url$Url$Url = F6(
-	function (protocol, host, port_, path, query, fragment) {
-		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
-	});
 var elm$url$Url$chompBeforePath = F5(
 	function (protocol, path, params, frag, str) {
 		if (elm$core$String$isEmpty(str) || A2(elm$core$String$contains, '@', str)) {
@@ -10806,7 +10816,9 @@ var elm$http$Http$post = function (r) {
 		{body: r.body, expect: r.expect, headers: _List_Nil, method: 'POST', timeout: elm$core$Maybe$Nothing, tracker: elm$core$Maybe$Nothing, url: r.url});
 };
 var elm$http$Http$stringBody = _Http_pair;
+var elm$url$Url$percentEncode = _Url_percentEncode;
 var author$project$Auth$authenticate = function (model) {
+	var url = model.server.url;
 	var postParams = 'client_id=' + (model.server.clientId + ('&grant_type=password&username=' + (elm$url$Url$percentEncode(
 		A2(elm$core$Maybe$withDefault, '', model.userEmail)) + ('&scope=read+write+follow' + ('&password=' + elm$url$Url$percentEncode(
 		A2(elm$core$Maybe$withDefault, '', model.password)))))));
@@ -10817,7 +10829,10 @@ var author$project$Auth$authenticate = function (model) {
 				elm$http$Http$expectJson,
 				A2(elm$core$Basics$composeL, author$project$Types$Auth, author$project$Types$AuthReturn),
 				author$project$Auth$oauthResponseDecoder),
-			url: model.server.url + '/oauth/token'
+			url: elm$url$Url$toString(
+				_Utils_update(
+					url,
+					{path: '/oauth/token'}))
 		});
 };
 var author$project$Ports$localStorageRemoveItem = _Platform_outgoingPort('localStorageRemoveItem', elm$json$Json$Encode$string);
@@ -10840,11 +10855,17 @@ var author$project$Auth$storeAuthToken = function (token) {
 	return author$project$Ports$localStorageSetItem(
 		_Utils_Tuple2('authToken', token));
 };
+var author$project$Types$MastodonServer = F2(
+	function (url, clientId) {
+		return {clientId: clientId, url: url};
+	});
 var author$project$Types$servers = _List_fromArray(
 	[
 		author$project$Types$defaultServer,
-		A2(author$project$Types$MastodonServer, 'https://mastodon.social', '7b07523894c7441f0334bcc79ff100abe91f187cc21befeb3ade360df581d37e'),
-		A2(author$project$Types$MastodonServer, 'https://pawoo.net', 'e0becd2b4d162124a074e168908f83cec9f2d83bdbd141c3da5884ce60804045')
+		A2(
+		author$project$Types$MastodonServer,
+		A6(elm$url$Url$Url, elm$url$Url$Https, 'pawoo.net', elm$core$Maybe$Nothing, '', elm$core$Maybe$Nothing, elm$core$Maybe$Nothing),
+		'e0becd2b4d162124a074e168908f83cec9f2d83bdbd141c3da5884ce60804045')
 	]);
 var elm$core$List$filter = F2(
 	function (isGood, list) {
@@ -10871,7 +10892,9 @@ var author$project$Types$lookupServer = function (url) {
 		A2(
 			elm$core$List$filter,
 			function (s) {
-				return _Utils_eq(s.url, url);
+				return _Utils_eq(
+					elm$url$Url$toString(s.url),
+					url);
 			},
 			author$project$Types$servers));
 };
@@ -10908,7 +10931,10 @@ var author$project$Update$fetchCurrentUserDetails = F2(
 				method: 'GET',
 				timeout: elm$core$Maybe$Nothing,
 				tracker: elm$core$Maybe$Nothing,
-				url: instanceUrl + '/api/v1/accounts/verify_credentials'
+				url: elm$url$Url$toString(
+					_Utils_update(
+						instanceUrl,
+						{path: 'api/v1/accounts/verify_credentials'}))
 			});
 	});
 var author$project$Update$updateAuth = F2(
@@ -11045,7 +11071,7 @@ var author$project$Update$shareImage = function (model) {
 	var body = A2(
 		elm$http$Http$stringBody,
 		'application/x-www-form-urlencoded',
-		'apiurl=' + (model.server.url + ('&text=' + (model.shareText + ('&token=' + (A2(elm$core$Maybe$withDefault, '', model.authToken) + ('&path=' + imagePath)))))));
+		'apiurl=' + (elm$url$Url$toString(model.server.url) + ('&text=' + (model.shareText + ('&token=' + (A2(elm$core$Maybe$withDefault, '', model.authToken) + ('&path=' + imagePath)))))));
 	return elm$http$Http$request(
 		{
 			body: body,
@@ -11083,7 +11109,7 @@ var author$project$Update$uploadImage = function (model) {
 		{
 			authToken: A2(elm$core$Maybe$withDefault, '', model.authToken),
 			inputElementId: 'file-upload',
-			serverUrl: model.server.url,
+			serverUrl: elm$url$Url$toString(model.server.url),
 			text: model.shareText
 		});
 };
@@ -11166,50 +11192,6 @@ var author$project$Update$updateShare = F2(
 		}
 	});
 var elm$browser$Browser$Navigation$load = _Browser_load;
-var elm$url$Url$addPort = F2(
-	function (maybePort, starter) {
-		if (maybePort.$ === 'Nothing') {
-			return starter;
-		} else {
-			var port_ = maybePort.a;
-			return starter + (':' + elm$core$String$fromInt(port_));
-		}
-	});
-var elm$url$Url$addPrefixed = F3(
-	function (prefix, maybeSegment, starter) {
-		if (maybeSegment.$ === 'Nothing') {
-			return starter;
-		} else {
-			var segment = maybeSegment.a;
-			return _Utils_ap(
-				starter,
-				_Utils_ap(prefix, segment));
-		}
-	});
-var elm$url$Url$toString = function (url) {
-	var http = function () {
-		var _n0 = url.protocol;
-		if (_n0.$ === 'Http') {
-			return 'http://';
-		} else {
-			return 'https://';
-		}
-	}();
-	return A3(
-		elm$url$Url$addPrefixed,
-		'#',
-		url.fragment,
-		A3(
-			elm$url$Url$addPrefixed,
-			'?',
-			url.query,
-			_Utils_ap(
-				A2(
-					elm$url$Url$addPort,
-					url.port_,
-					_Utils_ap(http, url.host)),
-				url.path)));
-};
 var author$project$Update$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -11431,11 +11413,12 @@ var author$project$View$viewLogin = A2(
 								elm$html$Html$option,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$value(s.url)
+										elm$html$Html$Attributes$value(
+										elm$url$Url$toString(s.url))
 									]),
 								_List_fromArray(
 									[
-										elm$html$Html$text(s.url)
+										elm$html$Html$text(s.url.host)
 									]));
 						},
 						author$project$Types$servers))
@@ -12109,6 +12092,13 @@ var author$project$View$viewSidebar = function (model) {
 							[
 								elm$html$Html$text('Waterfall')
 							]))
+					])),
+				A2(
+				elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text('Server: ' + model.server.url.host)
 					])),
 				A2(author$project$View$viewSidebarLinks, model.username, model.view)
 			]));

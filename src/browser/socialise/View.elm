@@ -10,6 +10,7 @@ import Json.Decode exposing (succeed)
 import Maybe exposing (withDefault)
 import Model exposing (Model)
 import Types exposing (..)
+import Url
 
 
 view : Model -> Browser.Document Msg
@@ -45,6 +46,7 @@ viewSidebar model =
     div
         [ class "sidebar" ]
         [ h1 [] [ a [ href "/" ] [ text "Waterfall" ] ]
+        , p [] [ "Server: " ++ model.server.url.host |> text ]
         , viewSidebarLinks model.username model.view
         ]
 
@@ -189,7 +191,7 @@ viewLogin =
             [ label [ for "instanceUrl" ] [ text "Instance URL" ]
             , select
                 [ onInput (Auth << ServerSelect) ]
-                (List.map (\s -> option [ value s.url ] [ text s.url ]) servers)
+                (List.map (\s -> option [ value (Url.toString s.url) ] [ text s.url.host ]) servers)
             ]
         , div []
             [ label [ for "user-email" ] [ text "Email address" ]
