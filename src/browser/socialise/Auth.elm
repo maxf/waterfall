@@ -35,15 +35,17 @@ authenticate model =
     let
         postParams : String
         postParams =
-            "client_id="
+            ""
+                ++ "client_id="
                 ++ model.server.clientId
                 ++ "&client_secret="
                 ++ model.server.clientSecret
-                ++ "&grant_type=password&username="
-                ++ Url.percentEncode (model.userEmail |> withDefault "")
+                ++ "&grant_type=authorization_code"
                 ++ "&scope=read+write+follow"
-                ++ "&password="
-                ++ Url.percentEncode (model.password |> withDefault "")
+                ++ "&code="
+                ++ (model.authCode |> withDefault "")
+                ++ "&redirect_uri="
+                ++ (model.baseUrl |> Url.toString)
 
         url =
             model.server.url

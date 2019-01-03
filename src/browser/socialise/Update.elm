@@ -1,4 +1,4 @@
-module Update exposing (getStatus, getTimeline, photoHashParts, update)
+module Update exposing (getStatus, getTimeline, photoHashParts, update, fetchCurrentUserDetails)
 
 import Auth exposing (authenticate, clearAuthToken, storeAuthToken)
 import Browser
@@ -418,7 +418,6 @@ httpErrorMessage error =
 
         Http.BadBody text ->
             "Bad payload: " ++ text
-
 
 fetchCurrentUserDetails : String -> Url -> Cmd Msg
 fetchCurrentUserDetails authToken instanceUrl =

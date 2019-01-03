@@ -13,6 +13,7 @@ type alias Model =
     { baseUrl : Url
     , server : MastodonServer
     , authToken : Maybe String
+    , authCode : Maybe String
     , userEmail : Maybe String
     , username : Maybe String
     , userId : Maybe String
@@ -31,6 +32,7 @@ initialModel key url view =
     { baseUrl = { url | fragment = Nothing }
     , server = defaultServer
     , authToken = Nothing
+    , authCode = Nothing
     , userEmail = Nothing
     , username = Nothing
     , userId = Nothing

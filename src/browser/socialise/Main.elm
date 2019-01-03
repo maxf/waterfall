@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Auth exposing (checkAuthToken)
+import Auth exposing (checkAuthToken, storeAuthToken, authenticate)
 import Browser
 import Browser.Navigation as Nav
 import Model exposing (Model, initialModel)
@@ -10,10 +10,12 @@ import Ports
         , localStorageRetrievedItem
         , statusPosted
         )
-import String exposing (startsWith, contains)
+import String exposing (contains, startsWith)
 import Types exposing (..)
-import Update exposing (getStatus, getTimeline, photoHashParts, update)
+import Update exposing (fetchCurrentUserDetails, getStatus, getTimeline, photoHashParts, update)
 import Url
+import Url.Parser exposing ((</>), (<?>), Parser, fragment, map, oneOf, parse, query, string, top)
+import Url.Parser.Query as Query
 import View exposing (view)
 
 
@@ -29,72 +31,110 @@ main =
         }
 
 
+
+--type alias UrlData = { params : QueryStringParams, fragment : Maybe String }
+
+
+type alias Fragment =
+    Maybe String
+
+
+type alias QueryStringParams =
+    { code : Maybe String
+    , state : Maybe String
+    }
+
+
+type alias UrlData =
+    { queryStringParams : QueryStringParams, fragment : Fragment }
+
+
+queryStringParser : Query.Parser QueryStringParams
+queryStringParser =
+    Query.map2 QueryStringParams (Query.string "code") (Query.string "state")
+
+
+codeIdentityParser : Parser (QueryStringParams -> Fragment -> a) a
+codeIdentityParser =
+    top </> query queryStringParser </> fragment identity
+
+
+urlParser : Parser (UrlData -> a) a
+urlParser =
+    map UrlData codeIdentityParser
+
+
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
-    let
-        fragment =
-            url.fragment |> Maybe.withDefault ""
-    in
-    if url.query |> Maybe.withDefault "" |> contains "code=" then
-        -- this is an auth response
-        -- http://localhost:8080/?code=3656c0c88c5efa583324be2b3fd83b2e4a088ae6667bb8f12d2e86dbe75b8bb8&state=meh#public
-        -- we need to extract the query-string parameters. We should use Url.Parser eventually
-        let
-            code = "blah blah"
-            model =
-                initialModel key url HomePage
-        in
-            ({ model | authToken = Just code }, Cmd.none)
+    case parse urlParser url of
+        Nothing ->
+            ( initialModel key url PublicTimeline, checkAuthToken )
 
+        Just { queryStringParams, fragment } ->
+            case queryStringParams.code of
+                Just code ->
+                    let
+                        model =
+                            initialModel key url HomePage
+                        newModel =
+                            { model | authCode = Just code }
+                    in
+                    ( newModel, authenticate newModel )
 
-    else if fragment |> startsWith "home" then
-        ( initialModel key url HomePage, checkAuthToken )
+                Nothing ->
+                    case fragment of
+                        Nothing ->
+                            ( initialModel key url PublicTimeline, checkAuthToken )
 
-    else if fragment |> startsWith "me" then
-        ( initialModel key url ProfilePage, checkAuthToken )
+                        Just "home" ->
+                            ( initialModel key url HomePage, checkAuthToken )
 
-    else if fragment |> startsWith "user:" then
-        let
-            userId =
-                String.dropLeft 5 fragment
+                        Just "me" ->
+                            ( initialModel key url ProfilePage, checkAuthToken )
 
-            model =
-                initialModel key url (UserPage userId)
-        in
-        ( model
-        , getTimeline model.server.url model.authToken (UserPage userId)
-        )
+                        Just frag ->
+                            if frag |> startsWith "user:" then
+                                let
+                                    userId =
+                                        String.dropLeft 5 frag
 
-    else if fragment |> startsWith "photo:" then
-        case photoHashParts fragment of
-            Ok ( statusId, attachmentId ) ->
-                let
-                    model =
-                        initialModel key url (PhotoPage statusId attachmentId)
-                in
-                ( model
-                , getStatus model.server.url model.authToken statusId
-                )
+                                    model =
+                                        initialModel key url (UserPage userId)
+                                in
+                                ( model
+                                , getTimeline model.server.url model.authToken (UserPage userId)
+                                )
 
-            Err _ ->
-                ( initialModel key url PublicTimeline
-                , Cmd.none
-                )
+                            else if frag |> startsWith "photo:" then
+                                case photoHashParts frag of
+                                    Ok ( statusId, attachmentId ) ->
+                                        let
+                                            model =
+                                                initialModel key url (PhotoPage statusId attachmentId)
+                                        in
+                                        ( model
+                                        , getStatus model.server.url model.authToken statusId
+                                        )
 
-    else if fragment |> startsWith "share:" then
-        ( initialModel key url (SharePathPage (String.dropLeft 6 fragment))
-        , checkAuthToken
-        )
+                                    Err _ ->
+                                        ( initialModel key url PublicTimeline
+                                        , Cmd.none
+                                        )
 
-    else if fragment |> startsWith "upload:" then
-        ( initialModel key url (ShareUploadPage Nothing)
-        , checkAuthToken
-        )
+                            else if frag |> startsWith "share:" then
+                                ( initialModel key url (SharePathPage (String.dropLeft 6 frag))
+                                , checkAuthToken
+                                )
 
-    else
-        ( initialModel key url PublicTimeline
-        , Nav.pushUrl key "#public"
-        )
+                            else if frag |> startsWith "upload:" then
+                                ( initialModel key url (ShareUploadPage Nothing)
+                                , checkAuthToken
+                                )
+
+                            else
+                                ( initialModel key url PublicTimeline
+                                , checkAuthToken
+                                )
 
 
 subscriptions : Model -> Sub Msg

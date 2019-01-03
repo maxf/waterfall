@@ -204,7 +204,6 @@ accountDecoder =
         |> required "acct" string
         |> required "display_name" string
 
-
 statusDecoder : Decoder Status
 statusDecoder =
     succeed Status
