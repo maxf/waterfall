@@ -11255,24 +11255,6 @@ var author$project$Update$fetchCurrentUserDetails = F2(
 var author$project$Update$updateAuth = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 'UserEmail':
-				var email = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							userEmail: elm$core$Maybe$Just(email)
-						}),
-					elm$core$Platform$Cmd$none);
-			case 'Password':
-				var password = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							password: elm$core$Maybe$Just(password)
-						}),
-					elm$core$Platform$Cmd$none);
 			case 'ServerSelect':
 				var url = msg.a;
 				return _Utils_Tuple2(
@@ -11630,203 +11612,6 @@ var author$project$Update$update = F2(
 		}
 	});
 var author$project$Types$CloseMessage = {$: 'CloseMessage'};
-var author$project$Types$AuthSubmit = {$: 'AuthSubmit'};
-var author$project$Types$Password = function (a) {
-	return {$: 'Password', a: a};
-};
-var author$project$Types$ServerSelect = function (a) {
-	return {$: 'ServerSelect', a: a};
-};
-var author$project$Types$UserEmail = function (a) {
-	return {$: 'UserEmail', a: a};
-};
-var elm$html$Html$form = _VirtualDom_node('form');
-var elm$html$Html$h1 = _VirtualDom_node('h1');
-var elm$html$Html$input = _VirtualDom_node('input');
-var elm$html$Html$label = _VirtualDom_node('label');
-var elm$html$Html$option = _VirtualDom_node('option');
-var elm$html$Html$select = _VirtualDom_node('select');
-var elm$html$Html$Attributes$for = elm$html$Html$Attributes$stringProperty('htmlFor');
-var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
-var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
-var elm$html$Html$Events$alwaysStop = function (x) {
-	return _Utils_Tuple2(x, true);
-};
-var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
-	return {$: 'MayStopPropagation', a: a};
-};
-var elm$html$Html$Events$stopPropagationOn = F2(
-	function (event, decoder) {
-		return A2(
-			elm$virtual_dom$VirtualDom$on,
-			event,
-			elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
-	});
-var elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
-	});
-var elm$html$Html$Events$targetValue = A2(
-	elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'value']),
-	elm$json$Json$Decode$string);
-var elm$html$Html$Events$onInput = function (tagger) {
-	return A2(
-		elm$html$Html$Events$stopPropagationOn,
-		'input',
-		A2(
-			elm$json$Json$Decode$map,
-			elm$html$Html$Events$alwaysStop,
-			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
-};
-var elm$html$Html$Events$alwaysPreventDefault = function (msg) {
-	return _Utils_Tuple2(msg, true);
-};
-var elm$virtual_dom$VirtualDom$MayPreventDefault = function (a) {
-	return {$: 'MayPreventDefault', a: a};
-};
-var elm$html$Html$Events$preventDefaultOn = F2(
-	function (event, decoder) {
-		return A2(
-			elm$virtual_dom$VirtualDom$on,
-			event,
-			elm$virtual_dom$VirtualDom$MayPreventDefault(decoder));
-	});
-var elm$html$Html$Events$onSubmit = function (msg) {
-	return A2(
-		elm$html$Html$Events$preventDefaultOn,
-		'submit',
-		A2(
-			elm$json$Json$Decode$map,
-			elm$html$Html$Events$alwaysPreventDefault,
-			elm$json$Json$Decode$succeed(msg)));
-};
-var author$project$View$viewLogin = A2(
-	elm$html$Html$div,
-	_List_Nil,
-	_List_fromArray(
-		[
-			A2(
-			elm$html$Html$h1,
-			_List_Nil,
-			_List_fromArray(
-				[
-					elm$html$Html$text('Log in')
-				])),
-			A2(
-			elm$html$Html$form,
-			_List_fromArray(
-				[
-					elm$html$Html$Events$onSubmit(
-					author$project$Types$Auth(author$project$Types$AuthSubmit))
-				]),
-			_List_fromArray(
-				[
-					A2(
-					elm$html$Html$label,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$for('instanceUrl')
-						]),
-					_List_fromArray(
-						[
-							elm$html$Html$text('Instance URL')
-						])),
-					A2(
-					elm$html$Html$select,
-					_List_fromArray(
-						[
-							elm$html$Html$Events$onInput(
-							A2(elm$core$Basics$composeL, author$project$Types$Auth, author$project$Types$ServerSelect))
-						]),
-					A2(
-						elm$core$List$map,
-						function (s) {
-							return A2(
-								elm$html$Html$option,
-								_List_fromArray(
-									[
-										elm$html$Html$Attributes$value(
-										elm$url$Url$toString(s.url))
-									]),
-								_List_fromArray(
-									[
-										elm$html$Html$text(s.url.host)
-									]));
-						},
-						author$project$Types$servers))
-				])),
-			A2(
-			elm$html$Html$div,
-			_List_Nil,
-			_List_fromArray(
-				[
-					A2(
-					elm$html$Html$label,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$for('user-email')
-						]),
-					_List_fromArray(
-						[
-							elm$html$Html$text('Email address')
-						])),
-					A2(
-					elm$html$Html$input,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$type_('text'),
-							elm$html$Html$Attributes$id('user-email'),
-							elm$html$Html$Events$onInput(
-							A2(elm$core$Basics$composeL, author$project$Types$Auth, author$project$Types$UserEmail))
-						]),
-					_List_Nil)
-				])),
-			A2(
-			elm$html$Html$div,
-			_List_Nil,
-			_List_fromArray(
-				[
-					A2(
-					elm$html$Html$label,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$for('password')
-						]),
-					_List_fromArray(
-						[
-							elm$html$Html$text('Password')
-						])),
-					A2(
-					elm$html$Html$input,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$type_('password'),
-							elm$html$Html$Attributes$id('password'),
-							elm$html$Html$Events$onInput(
-							A2(elm$core$Basics$composeL, author$project$Types$Auth, author$project$Types$Password))
-						]),
-					_List_Nil)
-				])),
-			A2(
-			elm$html$Html$div,
-			_List_Nil,
-			_List_fromArray(
-				[
-					A2(
-					elm$html$Html$button,
-					_List_fromArray(
-						[
-							elm$html$Html$Events$onClick(
-							author$project$Types$Auth(author$project$Types$AuthSubmit))
-						]),
-					_List_fromArray(
-						[
-							elm$html$Html$text('Log in')
-						]))
-				]))
-		]));
 var elm$html$Html$main_ = _VirtualDom_node('main');
 var author$project$View$viewStatusContent = function (content) {
 	if (content.$ === 'Nothing') {
@@ -11891,13 +11676,47 @@ var author$project$Types$ShareTextInput = function (a) {
 	return {$: 'ShareTextInput', a: a};
 };
 var elm$html$Html$br = _VirtualDom_node('br');
+var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$img = _VirtualDom_node('img');
+var elm$html$Html$input = _VirtualDom_node('input');
 var elm$html$Html$Attributes$placeholder = elm$html$Html$Attributes$stringProperty('placeholder');
 var elm$html$Html$Attributes$src = function (url) {
 	return A2(
 		elm$html$Html$Attributes$stringProperty,
 		'src',
 		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
+var elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
+	});
+var elm$html$Html$Events$targetValue = A2(
+	elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	elm$json$Json$Decode$string);
+var elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			elm$json$Json$Decode$map,
+			elm$html$Html$Events$alwaysStop,
+			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
 };
 var author$project$View$viewSharePath = function (path) {
 	return A2(
@@ -12116,11 +11935,7 @@ var author$project$View$viewMain = function (model) {
 			var path = _n0.a;
 			var _n2 = model.authToken;
 			if (_n2.$ === 'Nothing') {
-				return A2(
-					elm$html$Html$div,
-					_List_Nil,
-					_List_fromArray(
-						[author$project$View$viewLogin]));
+				return A2(elm$html$Html$div, _List_Nil, _List_Nil);
 			} else {
 				return author$project$View$viewSharePath(path);
 			}
@@ -12129,11 +11944,7 @@ var author$project$View$viewMain = function (model) {
 				var _n3 = _n0.a;
 				var _n4 = model.authToken;
 				if (_n4.$ === 'Nothing') {
-					return A2(
-						elm$html$Html$div,
-						_List_Nil,
-						_List_fromArray(
-							[author$project$View$viewLogin]));
+					return A2(elm$html$Html$div, _List_Nil, _List_Nil);
 				} else {
 					return author$project$View$viewShareUpload;
 				}
@@ -12141,11 +11952,7 @@ var author$project$View$viewMain = function (model) {
 				var dataUrl = _n0.a.a;
 				var _n5 = model.authToken;
 				if (_n5.$ === 'Nothing') {
-					return A2(
-						elm$html$Html$div,
-						_List_Nil,
-						_List_fromArray(
-							[author$project$View$viewLogin]));
+					return A2(elm$html$Html$div, _List_Nil, _List_Nil);
 				} else {
 					return author$project$View$viewShareUploaded(dataUrl);
 				}
@@ -12439,4 +12246,4 @@ var elm$browser$Browser$application = _Browser_application;
 var author$project$Main$main = elm$browser$Browser$application(
 	{init: author$project$Main$init, onUrlChange: author$project$Types$UrlHasChanged, onUrlRequest: author$project$Types$LinkWasClicked, subscriptions: author$project$Main$subscriptions, update: author$project$Update$update, view: author$project$View$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Types.Msg","aliases":{"Types.Account":{"args":[],"type":"{ id : String.String, acct : String.String, displayName : String.String }"},"Types.Attachment":{"args":[],"type":"{ id : Types.AttachmentId, type_ : Types.AttachmentType, url : String.String, previewUrl : String.String }"},"Types.Status":{"args":[],"type":"{ id : Types.StatusId, url : Maybe.Maybe String.String, account : Types.Account, content : Maybe.Maybe String.String, attachments : List.List Types.Attachment, sensitive : Basics.Bool }"},"Url.Url":{"args":[],"type":"{ protocol : Url.Protocol, host : String.String, port_ : Maybe.Maybe Basics.Int, path : String.String, query : Maybe.Maybe String.String, fragment : Maybe.Maybe String.String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String.String }"},"Types.ImagePortData":{"args":[],"type":"{ contents : String.String, filename : String.String }"}},"unions":{"Types.Msg":{"args":[],"tags":{"Auth":["Types.AuthMsg"],"Share":["Types.ShareMsg"],"TimelineFetched":["Result.Result Http.Error (List.List Types.Status)"],"PhotoFetched":["Result.Result Http.Error Types.Status"],"CloseMessage":[],"ViewPhoto":["Types.Status","Types.Attachment"],"UrlHasChanged":["Url.Url"],"LinkWasClicked":["Browser.UrlRequest"],"UserClickedLogin":[]}},"Types.AttachmentId":{"args":[],"tags":{"AttachmentId":["String.String"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Video":[],"Gifv":[],"Unknown":[]}},"Types.AuthMsg":{"args":[],"tags":{"UserEmail":["String.String"],"ServerSelect":["String.String"],"Password":["String.String"],"AuthSubmit":[],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"UserDetailsFetched":["Result.Result Http.Error Types.Account"],"AuthTokenRetrievedFromLocalStorage":["( String.String, Maybe.Maybe String.String )"],"Logout":[]}},"Types.ShareMsg":{"args":[],"tags":{"ShareTextInput":["String.String"],"ShareImage":[],"UploadImage":[],"StatusPosted":["Maybe.Maybe String.String"],"ImageSelected":[],"FormImageRead":["Types.ImagePortData"],"ImageShared":["Result.Result Http.Error String.String"]}},"Types.StatusId":{"args":[],"tags":{"StatusId":["String.String"]}},"Browser.UrlRequest":{"args":[],"tags":{"Internal":["Url.Url"],"External":["String.String"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Url.Protocol":{"args":[],"tags":{"Http":[],"Https":[]}}}}})}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Types.Msg","aliases":{"Types.Account":{"args":[],"type":"{ id : String.String, acct : String.String, displayName : String.String }"},"Types.Attachment":{"args":[],"type":"{ id : Types.AttachmentId, type_ : Types.AttachmentType, url : String.String, previewUrl : String.String }"},"Types.Status":{"args":[],"type":"{ id : Types.StatusId, url : Maybe.Maybe String.String, account : Types.Account, content : Maybe.Maybe String.String, attachments : List.List Types.Attachment, sensitive : Basics.Bool }"},"Url.Url":{"args":[],"type":"{ protocol : Url.Protocol, host : String.String, port_ : Maybe.Maybe Basics.Int, path : String.String, query : Maybe.Maybe String.String, fragment : Maybe.Maybe String.String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String.String }"},"Types.ImagePortData":{"args":[],"type":"{ contents : String.String, filename : String.String }"}},"unions":{"Types.Msg":{"args":[],"tags":{"Auth":["Types.AuthMsg"],"Share":["Types.ShareMsg"],"TimelineFetched":["Result.Result Http.Error (List.List Types.Status)"],"PhotoFetched":["Result.Result Http.Error Types.Status"],"CloseMessage":[],"ViewPhoto":["Types.Status","Types.Attachment"],"UrlHasChanged":["Url.Url"],"LinkWasClicked":["Browser.UrlRequest"],"UserClickedLogin":[]}},"Types.AttachmentId":{"args":[],"tags":{"AttachmentId":["String.String"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Video":[],"Gifv":[],"Unknown":[]}},"Types.AuthMsg":{"args":[],"tags":{"ServerSelect":["String.String"],"AuthSubmit":[],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"UserDetailsFetched":["Result.Result Http.Error Types.Account"],"AuthTokenRetrievedFromLocalStorage":["( String.String, Maybe.Maybe String.String )"],"Logout":[]}},"Types.ShareMsg":{"args":[],"tags":{"ShareTextInput":["String.String"],"ShareImage":[],"UploadImage":[],"StatusPosted":["Maybe.Maybe String.String"],"ImageSelected":[],"FormImageRead":["Types.ImagePortData"],"ImageShared":["Result.Result Http.Error String.String"]}},"Types.StatusId":{"args":[],"tags":{"StatusId":["String.String"]}},"Browser.UrlRequest":{"args":[],"tags":{"Internal":["Url.Url"],"External":["String.String"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Url.Protocol":{"args":[],"tags":{"Http":[],"Https":[]}}}}})}});}(this));

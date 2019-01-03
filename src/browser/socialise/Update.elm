@@ -16,12 +16,6 @@ import Url exposing (..)
 updateAuth : AuthMsg -> Model -> ( Model, Cmd Msg )
 updateAuth msg model =
     case msg of
-        UserEmail email ->
-            ( { model | userEmail = Just email }, Cmd.none )
-
-        Password password ->
-            ( { model | password = Just password }, Cmd.none )
-
         ServerSelect url ->
             ( changeServerUrl model url, Cmd.none )
 

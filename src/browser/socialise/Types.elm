@@ -9,9 +9,7 @@ import Url exposing (..)
 
 
 type AuthMsg
-    = UserEmail String
-    | ServerSelect String
-    | Password String
+    = ServerSelect String
     | AuthSubmit
     | AuthReturn (Result Http.Error AuthResponse)
     | UserDetailsFetched (Result Http.Error Account)

@@ -88,7 +88,7 @@ viewMain model =
         SharePathPage path ->
             case model.authToken of
                 Nothing ->
-                    div [] [ viewLogin ]
+                    div [] []
 
                 _ ->
                     viewSharePath path
@@ -96,7 +96,7 @@ viewMain model =
         ShareUploadPage Nothing ->
             case model.authToken of
                 Nothing ->
-                    div [] [ viewLogin ]
+                    div [] []
 
                 _ ->
                     viewShareUpload
@@ -104,7 +104,7 @@ viewMain model =
         ShareUploadPage (Just dataUrl) ->
             case model.authToken of
                 Nothing ->
-                    div [] [ viewLogin ]
+                    div [] []
 
                 _ ->
                     viewShareUploaded dataUrl
@@ -180,39 +180,6 @@ viewPhoto status attachmentId =
 
         _ ->
             div [] []
-
-
-viewLogin : Html Msg
-viewLogin =
-    div []
-        [ h1 [] [ text "Log in" ]
-        , Html.form [ onSubmit (Auth AuthSubmit) ]
-            [ label [ for "instanceUrl" ] [ text "Instance URL" ]
-            , select
-                [ onInput (Auth << ServerSelect) ]
-                (List.map (\s -> option [ value (Url.toString s.url) ] [ text s.url.host ]) servers)
-            ]
-        , div []
-            [ label [ for "user-email" ] [ text "Email address" ]
-            , input
-                [ type_ "text"
-                , id "user-email"
-                , onInput (Auth << UserEmail)
-                ]
-                []
-            ]
-        , div []
-            [ label [ for "password" ] [ text "Password" ]
-            , input
-                [ type_ "password"
-                , id "password"
-                , onInput (Auth << Password)
-                ]
-                []
-            ]
-        , div []
-            [ button [ onClick (Auth AuthSubmit) ] [ text "Log in" ] ]
-        ]
 
 
 viewTimeline : List Status -> Html Msg
