@@ -11612,6 +11612,65 @@ var author$project$Update$update = F2(
 		}
 	});
 var author$project$Types$CloseMessage = {$: 'CloseMessage'};
+var elm$html$Html$img = _VirtualDom_node('img');
+var elm$html$Html$source = _VirtualDom_node('source');
+var elm$html$Html$video = _VirtualDom_node('video');
+var elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var author$project$View$attachmentMarkup = function (image) {
+	var _n0 = image.type_;
+	switch (_n0.$) {
+		case 'Image':
+			return A2(
+				elm$html$Html$img,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('photo'),
+						elm$html$Html$Attributes$src(image.url)
+					]),
+				_List_Nil);
+		case 'Video':
+			return A2(
+				elm$html$Html$video,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$source,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$src(image.url)
+							]),
+						_List_Nil)
+					]));
+		case 'Gifv':
+			return A2(
+				elm$html$Html$video,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$source,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$src(image.url)
+							]),
+						_List_Nil)
+					]));
+		default:
+			return A2(
+				elm$html$Html$span,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text('Can\'t show this content')
+					]));
+	}
+};
 var elm$html$Html$main_ = _VirtualDom_node('main');
 var author$project$View$viewStatusContent = function (content) {
 	if (content.$ === 'Nothing') {
@@ -11640,13 +11699,13 @@ var author$project$View$viewPhoto = F2(
 			status.attachments);
 		if (attachment.b && (!attachment.b.b)) {
 			var image = attachment.a;
-			var markup = A2(
+			var markup = status.sensitive ? A2(
 				elm$html$Html$div,
 				_List_Nil,
 				_List_fromArray(
 					[
 						elm$html$Html$text('Sensitive content')
-					]));
+					])) : author$project$View$attachmentMarkup(image);
 			return A2(
 				elm$html$Html$div,
 				_List_fromArray(
@@ -11677,15 +11736,8 @@ var author$project$Types$ShareTextInput = function (a) {
 };
 var elm$html$Html$br = _VirtualDom_node('br');
 var elm$html$Html$h1 = _VirtualDom_node('h1');
-var elm$html$Html$img = _VirtualDom_node('img');
 var elm$html$Html$input = _VirtualDom_node('input');
 var elm$html$Html$Attributes$placeholder = elm$html$Html$Attributes$stringProperty('placeholder');
-var elm$html$Html$Attributes$src = function (url) {
-	return A2(
-		elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
 var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
 var elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
@@ -11863,7 +11915,25 @@ var author$project$View$viewAttachment = F2(
 						elm$html$Html$Events$onClick(
 						A2(author$project$Types$ViewPhoto, status, attachment))
 					]),
-				_List_Nil);
+				status.sensitive ? _List_fromArray(
+					[
+						A2(
+						elm$html$Html$span,
+						_List_Nil,
+						_List_fromArray(
+							[
+								elm$html$Html$text('Sensitive content')
+							]))
+					]) : _List_fromArray(
+					[
+						A2(
+						elm$html$Html$img,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$src(attachment.previewUrl)
+							]),
+						_List_Nil)
+					]));
 		}
 	});
 var author$project$View$viewStatus = function (status) {
