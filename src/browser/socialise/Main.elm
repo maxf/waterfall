@@ -65,7 +65,12 @@ urlParser =
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
-init flags url key =
+init _ url key =
+    ( initialModel key url, checkAuthToken )
+
+
+{-
+
     case parse urlParser url of
         Nothing ->
             ( initialModel key url PublicTimeline, checkAuthToken )
@@ -135,7 +140,7 @@ init flags url key =
                                 ( initialModel key url PublicTimeline
                                 , checkAuthToken
                                 )
-
+--}
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =

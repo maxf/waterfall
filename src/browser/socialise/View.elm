@@ -2,6 +2,7 @@ module View exposing (view)
 
 --import Html.Attributes.Extra exposing (..)
 
+import Auth exposing (loginUrl)
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -66,7 +67,7 @@ viewSidebarLinks username pageType =
                         [ text "Log out" ]
                     ]
                 , ul []
-                    [ li [] [ a [ href "#home" ] [ text "Timeline" ] ]
+                    [ li [] [ a [ href "#home" ] [ text "Home" ] ]
                     , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
                     , li [] [ a [ href "#me" ] [ text "My photos" ] ]
                     , li [] [ a [ href "#upload" ] [ text "Upload" ] ]
@@ -77,6 +78,13 @@ viewSidebarLinks username pageType =
 viewMain : Model -> Html Msg
 viewMain model =
     case model.view of
+
+        LoginPage ->
+            div []
+                [ h1 [] [ text "Welcome to Waterfall" ]
+                , p [] [ a [ href (loginUrl model) ] [ text "Log in using mastodon" ] ]
+                ]
+
         PhotoPage _ attachmentId ->
             case ( model.currentStatus, attachmentId ) of
                 ( Just status, photoId ) ->
@@ -112,7 +120,7 @@ viewMain model =
         HomePage ->
             let
                 title =
-                    (model.username |> withDefault "") ++ "'s timeline"
+                    (model.username |> withDefault "") ++ "'s home"
             in
             div []
                 [ h1 [] [ text title ]
@@ -136,6 +144,7 @@ viewMain model =
                 [ h1 [] [ text "Your pictures" ]
                 , viewTimeline model.timeline
                 ]
+
 
 attachmentMarkup : Attachment -> Html Msg
 attachmentMarkup image =

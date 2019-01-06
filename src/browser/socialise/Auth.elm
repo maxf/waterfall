@@ -1,4 +1,4 @@
-module Auth exposing (authenticate, checkAuthToken, clearAuthToken, oauthResponseDecoder, storeAuthToken)
+module Auth exposing (authenticate, checkAuthToken, clearAuthToken, oauthResponseDecoder, storeAuthToken, loginUrl)
 
 import Http
 import Json.Decode
@@ -13,6 +13,25 @@ import Ports
         )
 import Types exposing (..)
 import Url
+
+loginUrl : Model -> String
+loginUrl model =
+    let
+        serverUrl =
+            model.server.url
+
+        redirectUrl =
+            model.baseUrl |> Url.toString
+
+        query =
+            "response_type=code&client_id=" ++ model.server.clientId ++ "&redirect_uri=" ++ redirectUrl ++ "&scope=read+write+follow+push&state=meh"
+            -- https://authorization-server.com/auth?response_type=code&client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=photos&state=1234zyx
+    in
+        { serverUrl
+            | path = "/oauth/authorize"
+            , query = Just query
+        }
+        |> Url.toString
 
 
 checkAuthToken : Cmd msg

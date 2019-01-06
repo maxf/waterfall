@@ -1,6 +1,6 @@
-module Update exposing (getStatus, getTimeline, photoHashParts, update, fetchCurrentUserDetails)
+module Update exposing (fetchCurrentUserDetails, getStatus, getTimeline, photoHashParts, update)
 
-import Auth exposing (authenticate, clearAuthToken, storeAuthToken)
+import Auth exposing (authenticate, clearAuthToken, loginUrl, storeAuthToken)
 import Browser
 import Browser.Navigation as Nav
 import Http
@@ -52,23 +52,27 @@ updateAuth msg model =
                     { model
                         | username = Just account.acct
                         , userId = Just account.id
+                        , view = screenType -- determine from URL now? Then we need to store fragmnentm
+                          -- or we set the type from the fragment before checking auth and we change it if
+                          -- auth fails
                     }
             in
-            ( newModel
-            , Nav.replaceUrl model.key "#home"
-            )
+            ( newModel, nextCommand newModel )
 
+        -- After loading the page, the auth token was requested from local storage
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->
             case token of
+                -- No token found, show the login page
                 Nothing ->
                     let
                         newModel =
-                            { model | view = PublicTimeline }
+                            { model | view = LoginPage }
                     in
                     ( newModel, nextCommand newModel )
 
+                -- We've got a token, fetch the user's details
                 Just tokenValue ->
-                    ( { model | authToken = token, password = Nothing }
+                    ( { model | authToken = token }
                     , fetchCurrentUserDetails tokenValue model.server.url
                     )
 
@@ -130,12 +134,15 @@ updateShare msg model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        -- Authentication messages
         Auth authMsg ->
             updateAuth authMsg model
 
+        -- Share messages
         Share shareMsg ->
             updateShare shareMsg model
 
+        -- Other messages
         TimelineFetched (Ok timeline) ->
             ( { model
                 | timeline =
@@ -195,29 +202,11 @@ update msg model =
                     ( model, Nav.load href )
 
         UserClickedLogin ->
-            let
-                serverUrl =
-                    model.server.url
+            ( model, Nav.load (loginUrl model) )
 
-                redirectUrl =
-                    model.baseUrl |> toString
-
-                query =
-                    "response_type=code&client_id=" ++ model.server.clientId ++ "&redirect_uri=" ++ redirectUrl ++ "&scope=read+write+follow+push&state=meh"
-            -- https://authorization-server.com/auth?response_type=code&client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=photos&state=1234zyx
-
-                url =
-                    { serverUrl
-                        | path = "/oauth/authorize"
-                        , query = Just query
-                    }
-
-            in
-                (model, Nav.load (Debug.log ">>" (url |> toString)))
 
 
 -- URL change update model
-
 
 screenType : Url -> Screen
 screenType url =
@@ -294,11 +283,11 @@ nextCommand model =
                         Nothing ->
                             Cmd.none
 
-                        Just _ ->
+                        Just userId ->
                             getTimeline
                                 model.server.url
                                 model.authToken
-                                model.view
+                                (UserPage userId)
 
         other ->
             getTimeline model.server.url model.authToken other
@@ -412,6 +401,7 @@ httpErrorMessage error =
 
         Http.BadBody text ->
             "Bad payload: " ++ text
+
 
 fetchCurrentUserDetails : String -> Url -> Cmd Msg
 fetchCurrentUserDetails authToken instanceUrl =

@@ -154,7 +154,7 @@ type Screen
     | PhotoPage StatusId AttachmentId -- <statusId> <attachmentId>
     | SharePathPage String -- <path of photo to share on server>
     | ShareUploadPage (Maybe String) -- <data of the image loaded>
-
+    | LoginPage
 
 
 -- Decoders

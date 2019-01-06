@@ -17,7 +17,6 @@ type alias Model =
     , userEmail : Maybe String
     , username : Maybe String
     , userId : Maybe String
-    , password : Maybe String
     , message : Maybe String
     , timeline : List Status
     , view : Screen
@@ -27,8 +26,8 @@ type alias Model =
     }
 
 
-initialModel : Nav.Key -> Url -> Screen -> Model
-initialModel key url view =
+initialModel : Nav.Key -> Url -> Model
+initialModel key url =
     { baseUrl = { url | fragment = Nothing }
     , server = defaultServer
     , authToken = Nothing
@@ -36,10 +35,9 @@ initialModel key url view =
     , userEmail = Nothing
     , username = Nothing
     , userId = Nothing
-    , password = Nothing
     , message = Nothing
     , timeline = []
-    , view = view
+    , view = LoginPage
     , shareText = ""
     , currentStatus = Nothing
     , key = key
