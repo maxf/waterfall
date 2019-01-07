@@ -33,7 +33,7 @@ view model =
             [ class "outer" ]
             [ div
                 [ class "columns" ]
-                [ viewSidebar model
+                [ (if model.view /= LoginPage then viewSidebar model else div [] [])
                 , div [ id "photos" ] [ viewMain model ]
                 ]
             , message
@@ -67,7 +67,7 @@ viewSidebarLinks username pageType =
                         [ text "Log out" ]
                     ]
                 , ul []
-                    [ li [] [ a [ href "#home" ] [ text "Home" ] ]
+                    [ li [] [ a [ href "/" ] [ text "Home" ] ]
                     , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
                     , li [] [ a [ href "#me" ] [ text "My photos" ] ]
                     , li [] [ a [ href "#upload" ] [ text "Upload" ] ]
@@ -127,11 +127,9 @@ viewMain model =
                 , viewTimeline model.timeline
                 ]
 
-        PublicTimeline ->
+        ErrorPage ->
             div []
-                [ h1 [] [ text "Public timeline" ]
-                , viewTimeline model.timeline
-                ]
+                [ h1 [] [ text "Error" ] ]
 
         UserPage userId ->
             div []

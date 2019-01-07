@@ -1,4 +1,4 @@
-module Update exposing (fetchCurrentUserDetails, getStatus, getTimeline, photoHashParts, update)
+module Update exposing (fetchCurrentUserDetails, getStatus, getTimeline, update)
 
 import Auth exposing (authenticate, clearAuthToken, loginUrl, storeAuthToken)
 import Browser
@@ -7,7 +7,6 @@ import Http
 import Maybe exposing (withDefault)
 import Model exposing (Model, changeServerUrl)
 import Ports exposing (..)
-import Regex exposing (Regex, find, fromString)
 import String exposing (fromInt)
 import Types exposing (..)
 import Url exposing (..)
@@ -50,14 +49,11 @@ updateAuth msg model =
             let
                 newModel =
                     { model
-                        | username = Just account.acct
+                        | username = Just (Debug.log ">user" account.acct)
                         , userId = Just account.id
-                        , view = screenType -- determine from URL now? Then we need to store fragmnentm
-                          -- or we set the type from the fragment before checking auth and we change it if
-                          -- auth fails
                     }
             in
-            ( newModel, nextCommand newModel )
+            ( newModel, Cmd.batch [ Nav.replaceUrl model.key "/", nextCommand newModel ] )
 
         -- After loading the page, the auth token was requested from local storage
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->
@@ -66,7 +62,7 @@ updateAuth msg model =
                 Nothing ->
                     let
                         newModel =
-                            { model | view = LoginPage }
+                            { model | view = (Debug.log ">" LoginPage) }
                     in
                     ( newModel, nextCommand newModel )
 
@@ -83,7 +79,7 @@ updateAuth msg model =
                 , userEmail = Nothing
                 , username = Nothing
               }
-            , Cmd.batch [ clearAuthToken, Nav.replaceUrl model.key "#public" ]
+            , Cmd.batch [ clearAuthToken, Nav.replaceUrl model.key "/" ]
             )
 
 
@@ -105,7 +101,7 @@ updateShare msg model =
 
         -- A status was posted
         StatusPosted Nothing ->
-            ( { model | message = Nothing }, Nav.replaceUrl model.key "#home" )
+            ( { model | message = Nothing }, Nav.replaceUrl model.key "/" )
 
         StatusPosted (Just error) ->
             ( { model | message = Just error }, Cmd.none )
@@ -128,7 +124,7 @@ updateShare msg model =
             )
 
         ImageShared (Ok _) ->
-            ( { model | message = Nothing }, Nav.replaceUrl model.key "#home" )
+            ( { model | message = Nothing }, Nav.replaceUrl model.key "/" )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -187,56 +183,28 @@ update msg model =
             )
 
         UrlHasChanged location ->
+{-
             let
                 newModel =
                     { model | view = screenType location }
             in
             ( newModel, nextCommand newModel )
+-}
+            ( model, Cmd.none )
 
         LinkWasClicked urlRequest ->
+{-
             case urlRequest of
                 Browser.Internal url ->
                     ( model, Nav.pushUrl model.key (Url.toString url) )
 
                 Browser.External href ->
                     ( model, Nav.load href )
+-}
+            ( model, Cmd.none )
 
         UserClickedLogin ->
             ( model, Nav.load (loginUrl model) )
-
-
-
--- URL change update model
-
-screenType : Url -> Screen
-screenType url =
-    case url.fragment of
-        Nothing ->
-            PublicTimeline
-
-        Just "home" ->
-            HomePage
-
-        Just "me" ->
-            ProfilePage
-
-        Just fragment ->
-            if String.startsWith "user:" fragment then
-                UserPage (String.dropLeft 5 fragment)
-
-            else if String.startsWith "upload" fragment then
-                ShareUploadPage Nothing
-
-            else if String.startsWith "photo:" fragment then
-                case photoHashParts fragment of
-                    Ok ( statusId, attachmentId ) ->
-                        PhotoPage statusId attachmentId
-
-                    Err _ ->
-                        PublicTimeline
-
-            else
-                PublicTimeline
 
 
 
@@ -249,7 +217,7 @@ nextCommand model =
         SharePathPage _ ->
             case model.authToken of
                 Nothing ->
-                    Nav.replaceUrl model.key "#login"
+                    Nav.replaceUrl model.key "/"
 
                 _ ->
                     Cmd.none
@@ -257,7 +225,7 @@ nextCommand model =
         ShareUploadPage _ ->
             case model.authToken of
                 Nothing ->
-                    Nav.replaceUrl model.key "#login"
+                    Nav.replaceUrl model.key "/"
 
                 _ ->
                     Cmd.none
@@ -268,7 +236,7 @@ nextCommand model =
         HomePage ->
             case model.authToken of
                 Nothing ->
-                    Nav.replaceUrl model.key "#login"
+                    Nav.replaceUrl model.key "/"
 
                 _ ->
                     getTimeline model.server.url model.authToken HomePage
@@ -276,7 +244,7 @@ nextCommand model =
         ProfilePage ->
             case model.authToken of
                 Nothing ->
-                    Nav.replaceUrl model.key "#login"
+                    Nav.replaceUrl model.key "/"
 
                 Just _ ->
                     case model.userId of
@@ -289,6 +257,9 @@ nextCommand model =
                                 model.authToken
                                 (UserPage userId)
 
+        LoginPage ->
+            Cmd.none
+
         other ->
             getTimeline model.server.url model.authToken other
 
@@ -296,26 +267,6 @@ nextCommand model =
 
 -- parse photo hash
 
-
-photoUrlRegex : Regex
-photoUrlRegex =
-    Regex.fromString "photo:([^:]+):(.*)"
-        |> Maybe.withDefault Regex.never
-
-
-photoHashParts : String -> Result String ( StatusId, AttachmentId )
-photoHashParts hash =
-    case find photoUrlRegex hash of
-        [ match ] ->
-            case match.submatches of
-                [ Just photoId, Just attachmentId ] ->
-                    Ok ( StatusId photoId, AttachmentId attachmentId )
-
-                _ ->
-                    Err "no photo URL parts matched"
-
-        _ ->
-            Err "no matches found in photo URL"
 
 
 
@@ -353,9 +304,6 @@ getTimeline instanceUrl authToken pageType =
     let
         urlPath =
             case pageType of
-                PublicTimeline ->
-                    "/api/v1/timelines/public"
-
                 UserPage id ->
                     "/api/v1/accounts/" ++ id ++ "/statuses"
 
