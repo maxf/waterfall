@@ -6821,8 +6821,112 @@ var author$project$Types$defaultServer = {
 	clientSecret: '5ab52772ae48cdf47ad2ffc4bb651de8d15f590b9a3888c887c56478043de061',
 	url: A6(elm$url$Url$Url, elm$url$Url$Https, 'mastodon.social', elm$core$Maybe$Nothing, '', elm$core$Maybe$Nothing, elm$core$Maybe$Nothing)
 };
-var author$project$Model$initialModel = F3(
-	function (key, url, view) {
+var author$project$Types$HomePage = {$: 'HomePage'};
+var author$project$Types$PhotoPage = F2(
+	function (a, b) {
+		return {$: 'PhotoPage', a: a, b: b};
+	});
+var author$project$Types$ProfilePage = {$: 'ProfilePage'};
+var author$project$Types$PublicTimeline = {$: 'PublicTimeline'};
+var author$project$Types$ShareUploadPage = function (a) {
+	return {$: 'ShareUploadPage', a: a};
+};
+var author$project$Types$UserPage = function (a) {
+	return {$: 'UserPage', a: a};
+};
+var author$project$Types$AttachmentId = function (a) {
+	return {$: 'AttachmentId', a: a};
+};
+var author$project$Types$StatusId = function (a) {
+	return {$: 'StatusId', a: a};
+};
+var elm$regex$Regex$Match = F4(
+	function (match, index, number, submatches) {
+		return {index: index, match: match, number: number, submatches: submatches};
+	});
+var elm$regex$Regex$fromStringWith = _Regex_fromStringWith;
+var elm$regex$Regex$fromString = function (string) {
+	return A2(
+		elm$regex$Regex$fromStringWith,
+		{caseInsensitive: false, multiline: false},
+		string);
+};
+var elm$regex$Regex$never = _Regex_never;
+var author$project$Types$photoUrlRegex = A2(
+	elm$core$Maybe$withDefault,
+	elm$regex$Regex$never,
+	elm$regex$Regex$fromString('photo:([^:]+):(.*)'));
+var elm$regex$Regex$find = _Regex_findAtMost(_Regex_infinity);
+var author$project$Types$photoHashParts = function (hash) {
+	var _n0 = A2(elm$regex$Regex$find, author$project$Types$photoUrlRegex, hash);
+	if (_n0.b && (!_n0.b.b)) {
+		var match = _n0.a;
+		var _n1 = match.submatches;
+		if ((((_n1.b && (_n1.a.$ === 'Just')) && _n1.b.b) && (_n1.b.a.$ === 'Just')) && (!_n1.b.b.b)) {
+			var photoId = _n1.a.a;
+			var _n2 = _n1.b;
+			var attachmentId = _n2.a.a;
+			return elm$core$Result$Ok(
+				_Utils_Tuple2(
+					author$project$Types$StatusId(photoId),
+					author$project$Types$AttachmentId(attachmentId)));
+		} else {
+			return elm$core$Result$Err('no photo URL parts matched');
+		}
+	} else {
+		return elm$core$Result$Err('no matches found in photo URL');
+	}
+};
+var elm$core$String$length = _String_length;
+var elm$core$String$slice = _String_slice;
+var elm$core$String$dropLeft = F2(
+	function (n, string) {
+		return (n < 1) ? string : A3(
+			elm$core$String$slice,
+			n,
+			elm$core$String$length(string),
+			string);
+	});
+var elm$core$String$startsWith = _String_startsWith;
+var author$project$Types$screenType = function (url) {
+	var _n0 = url.fragment;
+	if (_n0.$ === 'Nothing') {
+		return author$project$Types$PublicTimeline;
+	} else {
+		switch (_n0.a) {
+			case 'home':
+				return author$project$Types$HomePage;
+			case 'me':
+				return author$project$Types$ProfilePage;
+			default:
+				var fragment = _n0.a;
+				if (A2(elm$core$String$startsWith, 'user:', fragment)) {
+					return author$project$Types$UserPage(
+						A2(elm$core$String$dropLeft, 5, fragment));
+				} else {
+					if (A2(elm$core$String$startsWith, 'upload', fragment)) {
+						return author$project$Types$ShareUploadPage(elm$core$Maybe$Nothing);
+					} else {
+						if (A2(elm$core$String$startsWith, 'photo:', fragment)) {
+							var _n1 = author$project$Types$photoHashParts(fragment);
+							if (_n1.$ === 'Ok') {
+								var _n2 = _n1.a;
+								var statusId = _n2.a;
+								var attachmentId = _n2.b;
+								return A2(author$project$Types$PhotoPage, statusId, attachmentId);
+							} else {
+								return author$project$Types$PublicTimeline;
+							}
+						} else {
+							return author$project$Types$PublicTimeline;
+						}
+					}
+				}
+		}
+	}
+};
+var author$project$Model$initialModel = F2(
+	function (key, url) {
 		return {
 			authCode: elm$core$Maybe$Nothing,
 			authToken: elm$core$Maybe$Nothing,
@@ -6832,40 +6936,281 @@ var author$project$Model$initialModel = F3(
 			currentStatus: elm$core$Maybe$Nothing,
 			key: key,
 			message: elm$core$Maybe$Nothing,
-			password: elm$core$Maybe$Nothing,
 			server: author$project$Types$defaultServer,
 			shareText: '',
 			timeline: _List_Nil,
 			userEmail: elm$core$Maybe$Nothing,
 			userId: elm$core$Maybe$Nothing,
 			username: elm$core$Maybe$Nothing,
-			view: view
+			view: author$project$Types$screenType(url)
 		};
 	});
-var author$project$Types$HomePage = {$: 'HomePage'};
-var author$project$Types$PhotoPage = F2(
-	function (a, b) {
-		return {$: 'PhotoPage', a: a, b: b};
+var elm$url$Url$Parser$getFirstMatch = function (states) {
+	getFirstMatch:
+	while (true) {
+		if (!states.b) {
+			return elm$core$Maybe$Nothing;
+		} else {
+			var state = states.a;
+			var rest = states.b;
+			var _n1 = state.unvisited;
+			if (!_n1.b) {
+				return elm$core$Maybe$Just(state.value);
+			} else {
+				if ((_n1.a === '') && (!_n1.b.b)) {
+					return elm$core$Maybe$Just(state.value);
+				} else {
+					var $temp$states = rest;
+					states = $temp$states;
+					continue getFirstMatch;
+				}
+			}
+		}
+	}
+};
+var elm$url$Url$Parser$removeFinalEmpty = function (segments) {
+	if (!segments.b) {
+		return _List_Nil;
+	} else {
+		if ((segments.a === '') && (!segments.b.b)) {
+			return _List_Nil;
+		} else {
+			var segment = segments.a;
+			var rest = segments.b;
+			return A2(
+				elm$core$List$cons,
+				segment,
+				elm$url$Url$Parser$removeFinalEmpty(rest));
+		}
+	}
+};
+var elm$url$Url$Parser$preparePath = function (path) {
+	var _n0 = A2(elm$core$String$split, '/', path);
+	if (_n0.b && (_n0.a === '')) {
+		var segments = _n0.b;
+		return elm$url$Url$Parser$removeFinalEmpty(segments);
+	} else {
+		var segments = _n0;
+		return elm$url$Url$Parser$removeFinalEmpty(segments);
+	}
+};
+var elm$url$Url$percentDecode = _Url_percentDecode;
+var elm$url$Url$Parser$addToParametersHelp = F2(
+	function (value, maybeList) {
+		if (maybeList.$ === 'Nothing') {
+			return elm$core$Maybe$Just(
+				_List_fromArray(
+					[value]));
+		} else {
+			var list = maybeList.a;
+			return elm$core$Maybe$Just(
+				A2(elm$core$List$cons, value, list));
+		}
 	});
-var author$project$Types$ProfilePage = {$: 'ProfilePage'};
-var author$project$Types$PublicTimeline = {$: 'PublicTimeline'};
-var author$project$Types$SharePathPage = function (a) {
-	return {$: 'SharePathPage', a: a};
+var elm$url$Url$Parser$addParam = F2(
+	function (segment, dict) {
+		var _n0 = A2(elm$core$String$split, '=', segment);
+		if ((_n0.b && _n0.b.b) && (!_n0.b.b.b)) {
+			var rawKey = _n0.a;
+			var _n1 = _n0.b;
+			var rawValue = _n1.a;
+			var _n2 = elm$url$Url$percentDecode(rawKey);
+			if (_n2.$ === 'Nothing') {
+				return dict;
+			} else {
+				var key = _n2.a;
+				var _n3 = elm$url$Url$percentDecode(rawValue);
+				if (_n3.$ === 'Nothing') {
+					return dict;
+				} else {
+					var value = _n3.a;
+					return A3(
+						elm$core$Dict$update,
+						key,
+						elm$url$Url$Parser$addToParametersHelp(value),
+						dict);
+				}
+			}
+		} else {
+			return dict;
+		}
+	});
+var elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
+	if (maybeQuery.$ === 'Nothing') {
+		return elm$core$Dict$empty;
+	} else {
+		var qry = maybeQuery.a;
+		return A3(
+			elm$core$List$foldr,
+			elm$url$Url$Parser$addParam,
+			elm$core$Dict$empty,
+			A2(elm$core$String$split, '&', qry));
+	}
 };
-var author$project$Types$ShareUploadPage = function (a) {
-	return {$: 'ShareUploadPage', a: a};
+var elm$url$Url$Parser$parse = F2(
+	function (_n0, url) {
+		var parser = _n0.a;
+		return elm$url$Url$Parser$getFirstMatch(
+			parser(
+				A5(
+					elm$url$Url$Parser$State,
+					_List_Nil,
+					elm$url$Url$Parser$preparePath(url.path),
+					elm$url$Url$Parser$prepareQuery(url.query),
+					url.fragment,
+					elm$core$Basics$identity)));
+	});
+var author$project$Main$init = F3(
+	function (_n0, url, key) {
+		var _n1 = A2(elm$url$Url$Parser$parse, author$project$Main$urlParser, url);
+		if (_n1.$ === 'Nothing') {
+			return _Utils_Tuple2(
+				A2(author$project$Model$initialModel, key, url),
+				author$project$Auth$checkAuthToken);
+		} else {
+			var queryStringParams = _n1.a.queryStringParams;
+			var fragment = _n1.a.fragment;
+			var _n2 = queryStringParams.code;
+			if (_n2.$ === 'Just') {
+				var code = _n2.a;
+				var model = A2(author$project$Model$initialModel, key, url);
+				var newModel = _Utils_update(
+					model,
+					{
+						authCode: elm$core$Maybe$Just(code)
+					});
+				return _Utils_Tuple2(
+					newModel,
+					author$project$Auth$authenticate(newModel));
+			} else {
+				return _Utils_Tuple2(
+					A2(author$project$Model$initialModel, key, url),
+					author$project$Auth$checkAuthToken);
+			}
+		}
+	});
+var elm$json$Json$Decode$andThen = _Json_andThen;
+var author$project$Ports$formImageRetrieved = _Platform_incomingPort(
+	'formImageRetrieved',
+	A2(
+		elm$json$Json$Decode$andThen,
+		function (filename) {
+			return A2(
+				elm$json$Json$Decode$andThen,
+				function (contents) {
+					return elm$json$Json$Decode$succeed(
+						{contents: contents, filename: filename});
+				},
+				A2(elm$json$Json$Decode$field, 'contents', elm$json$Json$Decode$string));
+		},
+		A2(elm$json$Json$Decode$field, 'filename', elm$json$Json$Decode$string)));
+var elm$json$Json$Decode$index = _Json_decodeIndex;
+var elm$json$Json$Decode$map = _Json_map1;
+var elm$json$Json$Decode$null = _Json_decodeNull;
+var elm$json$Json$Decode$oneOf = _Json_oneOf;
+var author$project$Ports$localStorageRetrievedItem = _Platform_incomingPort(
+	'localStorageRetrievedItem',
+	A2(
+		elm$json$Json$Decode$andThen,
+		function (x0) {
+			return A2(
+				elm$json$Json$Decode$andThen,
+				function (x1) {
+					return elm$json$Json$Decode$succeed(
+						_Utils_Tuple2(x0, x1));
+				},
+				A2(
+					elm$json$Json$Decode$index,
+					1,
+					elm$json$Json$Decode$oneOf(
+						_List_fromArray(
+							[
+								elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
+								A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
+							]))));
+		},
+		A2(elm$json$Json$Decode$index, 0, elm$json$Json$Decode$string)));
+var author$project$Ports$statusPosted = _Platform_incomingPort(
+	'statusPosted',
+	elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
+				A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
+			])));
+var author$project$Types$AuthTokenRetrievedFromLocalStorage = function (a) {
+	return {$: 'AuthTokenRetrievedFromLocalStorage', a: a};
 };
-var author$project$Types$UserPage = function (a) {
-	return {$: 'UserPage', a: a};
+var author$project$Types$FormImageRead = function (a) {
+	return {$: 'FormImageRead', a: a};
+};
+var author$project$Types$Share = function (a) {
+	return {$: 'Share', a: a};
+};
+var author$project$Types$StatusPosted = function (a) {
+	return {$: 'StatusPosted', a: a};
+};
+var elm$core$Platform$Sub$batch = _Platform_batch;
+var author$project$Main$subscriptions = function (_n0) {
+	return elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				author$project$Ports$localStorageRetrievedItem(
+				A2(elm$core$Basics$composeL, author$project$Types$Auth, author$project$Types$AuthTokenRetrievedFromLocalStorage)),
+				author$project$Ports$formImageRetrieved(
+				A2(elm$core$Basics$composeL, author$project$Types$Share, author$project$Types$FormImageRead)),
+				author$project$Ports$statusPosted(
+				A2(elm$core$Basics$composeL, author$project$Types$Share, author$project$Types$StatusPosted))
+			]));
+};
+var author$project$Types$LinkWasClicked = function (a) {
+	return {$: 'LinkWasClicked', a: a};
+};
+var author$project$Types$UrlHasChanged = function (a) {
+	return {$: 'UrlHasChanged', a: a};
+};
+var author$project$Auth$loginUrl = function (model) {
+	var serverUrl = model.server.url;
+	var redirectUrl = elm$url$Url$toString(model.baseUrl);
+	var query = 'response_type=code&client_id=' + (model.server.clientId + ('&redirect_uri=' + (redirectUrl + '&scope=read+write+follow+push&state=meh')));
+	return elm$url$Url$toString(
+		_Utils_update(
+			serverUrl,
+			{
+				path: '/oauth/authorize',
+				query: elm$core$Maybe$Just(query)
+			}));
+};
+var author$project$Types$attachmentIdToString = function (_n0) {
+	var aid = _n0.a;
+	return aid;
+};
+var author$project$Types$statusIdToString = function (_n0) {
+	var sid = _n0.a;
+	return sid;
+};
+var author$project$Update$httpErrorMessage = function (error) {
+	switch (error.$) {
+		case 'BadUrl':
+			var string = error.a;
+			return 'Bad URL: ' + string;
+		case 'Timeout':
+			return 'Timeout';
+		case 'NetworkError':
+			return 'Network error';
+		case 'BadStatus':
+			var code = error.a;
+			return 'Bad status: ' + elm$core$String$fromInt(code);
+		default:
+			var text = error.a;
+			return 'Bad payload: ' + text;
+	}
 };
 var author$project$Types$PhotoFetched = function (a) {
 	return {$: 'PhotoFetched', a: a};
 };
-var elm$json$Json$Decode$andThen = _Json_andThen;
 var elm$json$Json$Decode$decodeValue = _Json_run;
 var elm$json$Json$Decode$fail = _Json_fail;
-var elm$json$Json$Decode$null = _Json_decodeNull;
-var elm$json$Json$Decode$oneOf = _Json_oneOf;
 var elm$json$Json$Decode$value = _Json_decodeValue;
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder = F3(
 	function (pathDecoder, valDecoder, fallback) {
@@ -6935,10 +7280,6 @@ var author$project$Types$Attachment = F4(
 	function (id, type_, url, previewUrl) {
 		return {id: id, previewUrl: previewUrl, type_: type_, url: url};
 	});
-var author$project$Types$AttachmentId = function (a) {
-	return {$: 'AttachmentId', a: a};
-};
-var elm$json$Json$Decode$map = _Json_map1;
 var author$project$Types$attachmentIdDecoder = A2(
 	elm$json$Json$Decode$map,
 	function (s) {
@@ -6978,9 +7319,6 @@ var author$project$Types$attachmentDecoder = A3(
 				'id',
 				author$project$Types$attachmentIdDecoder,
 				elm$json$Json$Decode$succeed(author$project$Types$Attachment)))));
-var author$project$Types$StatusId = function (a) {
-	return {$: 'StatusId', a: a};
-};
 var author$project$Types$statusIdDecoder = A2(
 	elm$json$Json$Decode$map,
 	function (s) {
@@ -7103,377 +7441,6 @@ var author$project$Update$getTimeline = F3(
 				url: elm$url$Url$toString(url)
 			});
 	});
-var elm$regex$Regex$Match = F4(
-	function (match, index, number, submatches) {
-		return {index: index, match: match, number: number, submatches: submatches};
-	});
-var elm$regex$Regex$fromStringWith = _Regex_fromStringWith;
-var elm$regex$Regex$fromString = function (string) {
-	return A2(
-		elm$regex$Regex$fromStringWith,
-		{caseInsensitive: false, multiline: false},
-		string);
-};
-var elm$regex$Regex$never = _Regex_never;
-var author$project$Update$photoUrlRegex = A2(
-	elm$core$Maybe$withDefault,
-	elm$regex$Regex$never,
-	elm$regex$Regex$fromString('photo:([^:]+):(.*)'));
-var elm$regex$Regex$find = _Regex_findAtMost(_Regex_infinity);
-var author$project$Update$photoHashParts = function (hash) {
-	var _n0 = A2(elm$regex$Regex$find, author$project$Update$photoUrlRegex, hash);
-	if (_n0.b && (!_n0.b.b)) {
-		var match = _n0.a;
-		var _n1 = match.submatches;
-		if ((((_n1.b && (_n1.a.$ === 'Just')) && _n1.b.b) && (_n1.b.a.$ === 'Just')) && (!_n1.b.b.b)) {
-			var photoId = _n1.a.a;
-			var _n2 = _n1.b;
-			var attachmentId = _n2.a.a;
-			return elm$core$Result$Ok(
-				_Utils_Tuple2(
-					author$project$Types$StatusId(photoId),
-					author$project$Types$AttachmentId(attachmentId)));
-		} else {
-			return elm$core$Result$Err('no photo URL parts matched');
-		}
-	} else {
-		return elm$core$Result$Err('no matches found in photo URL');
-	}
-};
-var elm$core$Platform$Cmd$batch = _Platform_batch;
-var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
-var elm$core$String$length = _String_length;
-var elm$core$String$slice = _String_slice;
-var elm$core$String$dropLeft = F2(
-	function (n, string) {
-		return (n < 1) ? string : A3(
-			elm$core$String$slice,
-			n,
-			elm$core$String$length(string),
-			string);
-	});
-var elm$core$String$startsWith = _String_startsWith;
-var elm$url$Url$Parser$getFirstMatch = function (states) {
-	getFirstMatch:
-	while (true) {
-		if (!states.b) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var state = states.a;
-			var rest = states.b;
-			var _n1 = state.unvisited;
-			if (!_n1.b) {
-				return elm$core$Maybe$Just(state.value);
-			} else {
-				if ((_n1.a === '') && (!_n1.b.b)) {
-					return elm$core$Maybe$Just(state.value);
-				} else {
-					var $temp$states = rest;
-					states = $temp$states;
-					continue getFirstMatch;
-				}
-			}
-		}
-	}
-};
-var elm$url$Url$Parser$removeFinalEmpty = function (segments) {
-	if (!segments.b) {
-		return _List_Nil;
-	} else {
-		if ((segments.a === '') && (!segments.b.b)) {
-			return _List_Nil;
-		} else {
-			var segment = segments.a;
-			var rest = segments.b;
-			return A2(
-				elm$core$List$cons,
-				segment,
-				elm$url$Url$Parser$removeFinalEmpty(rest));
-		}
-	}
-};
-var elm$url$Url$Parser$preparePath = function (path) {
-	var _n0 = A2(elm$core$String$split, '/', path);
-	if (_n0.b && (_n0.a === '')) {
-		var segments = _n0.b;
-		return elm$url$Url$Parser$removeFinalEmpty(segments);
-	} else {
-		var segments = _n0;
-		return elm$url$Url$Parser$removeFinalEmpty(segments);
-	}
-};
-var elm$url$Url$percentDecode = _Url_percentDecode;
-var elm$url$Url$Parser$addToParametersHelp = F2(
-	function (value, maybeList) {
-		if (maybeList.$ === 'Nothing') {
-			return elm$core$Maybe$Just(
-				_List_fromArray(
-					[value]));
-		} else {
-			var list = maybeList.a;
-			return elm$core$Maybe$Just(
-				A2(elm$core$List$cons, value, list));
-		}
-	});
-var elm$url$Url$Parser$addParam = F2(
-	function (segment, dict) {
-		var _n0 = A2(elm$core$String$split, '=', segment);
-		if ((_n0.b && _n0.b.b) && (!_n0.b.b.b)) {
-			var rawKey = _n0.a;
-			var _n1 = _n0.b;
-			var rawValue = _n1.a;
-			var _n2 = elm$url$Url$percentDecode(rawKey);
-			if (_n2.$ === 'Nothing') {
-				return dict;
-			} else {
-				var key = _n2.a;
-				var _n3 = elm$url$Url$percentDecode(rawValue);
-				if (_n3.$ === 'Nothing') {
-					return dict;
-				} else {
-					var value = _n3.a;
-					return A3(
-						elm$core$Dict$update,
-						key,
-						elm$url$Url$Parser$addToParametersHelp(value),
-						dict);
-				}
-			}
-		} else {
-			return dict;
-		}
-	});
-var elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
-	if (maybeQuery.$ === 'Nothing') {
-		return elm$core$Dict$empty;
-	} else {
-		var qry = maybeQuery.a;
-		return A3(
-			elm$core$List$foldr,
-			elm$url$Url$Parser$addParam,
-			elm$core$Dict$empty,
-			A2(elm$core$String$split, '&', qry));
-	}
-};
-var elm$url$Url$Parser$parse = F2(
-	function (_n0, url) {
-		var parser = _n0.a;
-		return elm$url$Url$Parser$getFirstMatch(
-			parser(
-				A5(
-					elm$url$Url$Parser$State,
-					_List_Nil,
-					elm$url$Url$Parser$preparePath(url.path),
-					elm$url$Url$Parser$prepareQuery(url.query),
-					url.fragment,
-					elm$core$Basics$identity)));
-	});
-var author$project$Main$init = F3(
-	function (flags, url, key) {
-		var _n0 = A2(elm$url$Url$Parser$parse, author$project$Main$urlParser, url);
-		if (_n0.$ === 'Nothing') {
-			return _Utils_Tuple2(
-				A3(author$project$Model$initialModel, key, url, author$project$Types$PublicTimeline),
-				author$project$Auth$checkAuthToken);
-		} else {
-			var queryStringParams = _n0.a.queryStringParams;
-			var fragment = _n0.a.fragment;
-			var _n1 = queryStringParams.code;
-			if (_n1.$ === 'Just') {
-				var code = _n1.a;
-				var model = A3(author$project$Model$initialModel, key, url, author$project$Types$HomePage);
-				var newModel = _Utils_update(
-					model,
-					{
-						authCode: elm$core$Maybe$Just(code)
-					});
-				return _Utils_Tuple2(
-					newModel,
-					author$project$Auth$authenticate(newModel));
-			} else {
-				if (fragment.$ === 'Nothing') {
-					return _Utils_Tuple2(
-						A3(author$project$Model$initialModel, key, url, author$project$Types$PublicTimeline),
-						author$project$Auth$checkAuthToken);
-				} else {
-					switch (fragment.a) {
-						case 'home':
-							return _Utils_Tuple2(
-								A3(author$project$Model$initialModel, key, url, author$project$Types$HomePage),
-								author$project$Auth$checkAuthToken);
-						case 'me':
-							return _Utils_Tuple2(
-								A3(author$project$Model$initialModel, key, url, author$project$Types$ProfilePage),
-								author$project$Auth$checkAuthToken);
-						default:
-							var frag = fragment.a;
-							if (A2(elm$core$String$startsWith, 'user:', frag)) {
-								var userId = A2(elm$core$String$dropLeft, 5, frag);
-								var model = A3(
-									author$project$Model$initialModel,
-									key,
-									url,
-									author$project$Types$UserPage(userId));
-								return _Utils_Tuple2(
-									model,
-									A3(
-										author$project$Update$getTimeline,
-										model.server.url,
-										model.authToken,
-										author$project$Types$UserPage(userId)));
-							} else {
-								if (A2(elm$core$String$startsWith, 'photo:', frag)) {
-									var _n3 = author$project$Update$photoHashParts(frag);
-									if (_n3.$ === 'Ok') {
-										var _n4 = _n3.a;
-										var statusId = _n4.a;
-										var attachmentId = _n4.b;
-										var model = A3(
-											author$project$Model$initialModel,
-											key,
-											url,
-											A2(author$project$Types$PhotoPage, statusId, attachmentId));
-										return _Utils_Tuple2(
-											model,
-											A3(author$project$Update$getStatus, model.server.url, model.authToken, statusId));
-									} else {
-										return _Utils_Tuple2(
-											A3(author$project$Model$initialModel, key, url, author$project$Types$PublicTimeline),
-											elm$core$Platform$Cmd$none);
-									}
-								} else {
-									if (A2(elm$core$String$startsWith, 'share:', frag)) {
-										return _Utils_Tuple2(
-											A3(
-												author$project$Model$initialModel,
-												key,
-												url,
-												author$project$Types$SharePathPage(
-													A2(elm$core$String$dropLeft, 6, frag))),
-											author$project$Auth$checkAuthToken);
-									} else {
-										if (A2(elm$core$String$startsWith, 'upload:', frag)) {
-											return _Utils_Tuple2(
-												A3(
-													author$project$Model$initialModel,
-													key,
-													url,
-													author$project$Types$ShareUploadPage(elm$core$Maybe$Nothing)),
-												author$project$Auth$checkAuthToken);
-										} else {
-											return _Utils_Tuple2(
-												A3(author$project$Model$initialModel, key, url, author$project$Types$PublicTimeline),
-												author$project$Auth$checkAuthToken);
-										}
-									}
-								}
-							}
-					}
-				}
-			}
-		}
-	});
-var author$project$Ports$formImageRetrieved = _Platform_incomingPort(
-	'formImageRetrieved',
-	A2(
-		elm$json$Json$Decode$andThen,
-		function (filename) {
-			return A2(
-				elm$json$Json$Decode$andThen,
-				function (contents) {
-					return elm$json$Json$Decode$succeed(
-						{contents: contents, filename: filename});
-				},
-				A2(elm$json$Json$Decode$field, 'contents', elm$json$Json$Decode$string));
-		},
-		A2(elm$json$Json$Decode$field, 'filename', elm$json$Json$Decode$string)));
-var elm$json$Json$Decode$index = _Json_decodeIndex;
-var author$project$Ports$localStorageRetrievedItem = _Platform_incomingPort(
-	'localStorageRetrievedItem',
-	A2(
-		elm$json$Json$Decode$andThen,
-		function (x0) {
-			return A2(
-				elm$json$Json$Decode$andThen,
-				function (x1) {
-					return elm$json$Json$Decode$succeed(
-						_Utils_Tuple2(x0, x1));
-				},
-				A2(
-					elm$json$Json$Decode$index,
-					1,
-					elm$json$Json$Decode$oneOf(
-						_List_fromArray(
-							[
-								elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
-								A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
-							]))));
-		},
-		A2(elm$json$Json$Decode$index, 0, elm$json$Json$Decode$string)));
-var author$project$Ports$statusPosted = _Platform_incomingPort(
-	'statusPosted',
-	elm$json$Json$Decode$oneOf(
-		_List_fromArray(
-			[
-				elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
-				A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
-			])));
-var author$project$Types$AuthTokenRetrievedFromLocalStorage = function (a) {
-	return {$: 'AuthTokenRetrievedFromLocalStorage', a: a};
-};
-var author$project$Types$FormImageRead = function (a) {
-	return {$: 'FormImageRead', a: a};
-};
-var author$project$Types$Share = function (a) {
-	return {$: 'Share', a: a};
-};
-var author$project$Types$StatusPosted = function (a) {
-	return {$: 'StatusPosted', a: a};
-};
-var elm$core$Platform$Sub$batch = _Platform_batch;
-var author$project$Main$subscriptions = function (_n0) {
-	return elm$core$Platform$Sub$batch(
-		_List_fromArray(
-			[
-				author$project$Ports$localStorageRetrievedItem(
-				A2(elm$core$Basics$composeL, author$project$Types$Auth, author$project$Types$AuthTokenRetrievedFromLocalStorage)),
-				author$project$Ports$formImageRetrieved(
-				A2(elm$core$Basics$composeL, author$project$Types$Share, author$project$Types$FormImageRead)),
-				author$project$Ports$statusPosted(
-				A2(elm$core$Basics$composeL, author$project$Types$Share, author$project$Types$StatusPosted))
-			]));
-};
-var author$project$Types$LinkWasClicked = function (a) {
-	return {$: 'LinkWasClicked', a: a};
-};
-var author$project$Types$UrlHasChanged = function (a) {
-	return {$: 'UrlHasChanged', a: a};
-};
-var author$project$Types$attachmentIdToString = function (_n0) {
-	var aid = _n0.a;
-	return aid;
-};
-var author$project$Types$statusIdToString = function (_n0) {
-	var sid = _n0.a;
-	return sid;
-};
-var author$project$Update$httpErrorMessage = function (error) {
-	switch (error.$) {
-		case 'BadUrl':
-			var string = error.a;
-			return 'Bad URL: ' + string;
-		case 'Timeout':
-			return 'Timeout';
-		case 'NetworkError':
-			return 'Network error';
-		case 'BadStatus':
-			var code = error.a;
-			return 'Bad status: ' + elm$core$String$fromInt(code);
-		default:
-			var text = error.a;
-			return 'Bad payload: ' + text;
-	}
-};
 var elm$browser$Browser$External = function (a) {
 	return {$: 'External', a: a};
 };
@@ -10403,6 +10370,8 @@ var elm$browser$Debugger$Overlay$BadImport = function (a) {
 };
 var elm$browser$Debugger$Report$CorruptHistory = {$: 'CorruptHistory'};
 var elm$browser$Debugger$Overlay$corruptImport = elm$browser$Debugger$Overlay$BadImport(elm$browser$Debugger$Report$CorruptHistory);
+var elm$core$Platform$Cmd$batch = _Platform_batch;
+var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var elm$browser$Debugger$Main$loadNewHistory = F3(
 	function (rawHistory, update, model) {
 		var pureUserUpdate = F2(
@@ -11104,49 +11073,19 @@ var author$project$Update$nextCommand = function (model) {
 				if (_n5.$ === 'Nothing') {
 					return elm$core$Platform$Cmd$none;
 				} else {
-					return A3(author$project$Update$getTimeline, model.server.url, model.authToken, model.view);
+					var userId = _n5.a;
+					return A3(
+						author$project$Update$getTimeline,
+						model.server.url,
+						model.authToken,
+						author$project$Types$UserPage(userId));
 				}
 			}
+		case 'LoginPage':
+			return elm$core$Platform$Cmd$none;
 		default:
 			var other = _n0;
 			return A3(author$project$Update$getTimeline, model.server.url, model.authToken, other);
-	}
-};
-var author$project$Update$screenType = function (url) {
-	var _n0 = url.fragment;
-	if (_n0.$ === 'Nothing') {
-		return author$project$Types$PublicTimeline;
-	} else {
-		switch (_n0.a) {
-			case 'home':
-				return author$project$Types$HomePage;
-			case 'me':
-				return author$project$Types$ProfilePage;
-			default:
-				var fragment = _n0.a;
-				if (A2(elm$core$String$startsWith, 'user:', fragment)) {
-					return author$project$Types$UserPage(
-						A2(elm$core$String$dropLeft, 5, fragment));
-				} else {
-					if (A2(elm$core$String$startsWith, 'upload', fragment)) {
-						return author$project$Types$ShareUploadPage(elm$core$Maybe$Nothing);
-					} else {
-						if (A2(elm$core$String$startsWith, 'photo:', fragment)) {
-							var _n1 = author$project$Update$photoHashParts(fragment);
-							if (_n1.$ === 'Ok') {
-								var _n2 = _n1.a;
-								var statusId = _n2.a;
-								var attachmentId = _n2.b;
-								return A2(author$project$Types$PhotoPage, statusId, attachmentId);
-							} else {
-								return author$project$Types$PublicTimeline;
-							}
-						} else {
-							return author$project$Types$PublicTimeline;
-						}
-					}
-				}
-		}
 	}
 };
 var author$project$Ports$localStorageRemoveItem = _Platform_outgoingPort('localStorageRemoveItem', elm$json$Json$Encode$string);
@@ -11227,6 +11166,7 @@ var author$project$Model$changeServerUrl = F2(
 				{server: s});
 		}
 	});
+var author$project$Types$LoginPage = {$: 'LoginPage'};
 var author$project$Types$UserDetailsFetched = function (a) {
 	return {$: 'UserDetailsFetched', a: a};
 };
@@ -11252,6 +11192,7 @@ var author$project$Update$fetchCurrentUserDetails = F2(
 						{path: '/api/v1/accounts/verify_credentials'}))
 			});
 	});
+var elm$core$Debug$log = _Debug_log;
 var author$project$Update$updateAuth = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -11308,11 +11249,17 @@ var author$project$Update$updateAuth = F2(
 						model,
 						{
 							userId: elm$core$Maybe$Just(account.id),
-							username: elm$core$Maybe$Just(account.acct)
+							username: elm$core$Maybe$Just(
+								A2(elm$core$Debug$log, '>user', account.acct))
 						});
 					return _Utils_Tuple2(
 						newModel,
-						A2(elm$browser$Browser$Navigation$replaceUrl, model.key, '#home'));
+						elm$core$Platform$Cmd$batch(
+							_List_fromArray(
+								[
+									A2(elm$browser$Browser$Navigation$replaceUrl, model.key, '/#home'),
+									author$project$Update$nextCommand(newModel)
+								])));
 				}
 			case 'AuthTokenRetrievedFromLocalStorage':
 				var _n1 = msg.a;
@@ -11320,7 +11267,9 @@ var author$project$Update$updateAuth = F2(
 				if (token.$ === 'Nothing') {
 					var newModel = _Utils_update(
 						model,
-						{view: author$project$Types$PublicTimeline});
+						{
+							view: A2(elm$core$Debug$log, '>', author$project$Types$LoginPage)
+						});
 					return _Utils_Tuple2(
 						newModel,
 						author$project$Update$nextCommand(newModel));
@@ -11329,7 +11278,7 @@ var author$project$Update$updateAuth = F2(
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{authToken: token, password: elm$core$Maybe$Nothing}),
+							{authToken: token}),
 						A2(author$project$Update$fetchCurrentUserDetails, tokenValue, model.server.url));
 				}
 			default:
@@ -11341,7 +11290,7 @@ var author$project$Update$updateAuth = F2(
 						_List_fromArray(
 							[
 								author$project$Auth$clearAuthToken,
-								A2(elm$browser$Browser$Navigation$replaceUrl, model.key, '#public')
+								A2(elm$browser$Browser$Navigation$replaceUrl, model.key, '/')
 							])));
 		}
 	});
@@ -11490,7 +11439,6 @@ var author$project$Update$updateShare = F2(
 	});
 var elm$browser$Browser$Navigation$load = _Browser_load;
 var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
-var elm$core$Debug$log = _Debug_log;
 var author$project$Update$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -11571,7 +11519,7 @@ var author$project$Update$update = F2(
 				var newModel = _Utils_update(
 					model,
 					{
-						view: author$project$Update$screenType(location)
+						view: author$project$Types$screenType(location)
 					});
 				return _Utils_Tuple2(
 					newModel,
@@ -11593,22 +11541,10 @@ var author$project$Update$update = F2(
 						elm$browser$Browser$Navigation$load(href));
 				}
 			default:
-				var serverUrl = model.server.url;
-				var redirectUrl = elm$url$Url$toString(model.baseUrl);
-				var query = 'response_type=code&client_id=' + (model.server.clientId + ('&redirect_uri=' + (redirectUrl + '&scope=read+write+follow+push&state=meh')));
-				var url = _Utils_update(
-					serverUrl,
-					{
-						path: '/oauth/authorize',
-						query: elm$core$Maybe$Just(query)
-					});
 				return _Utils_Tuple2(
 					model,
 					elm$browser$Browser$Navigation$load(
-						A2(
-							elm$core$Debug$log,
-							'>>',
-							elm$url$Url$toString(url))));
+						author$project$Auth$loginUrl(model)));
 		}
 	});
 var author$project$Types$CloseMessage = {$: 'CloseMessage'};
@@ -11991,6 +11927,37 @@ var author$project$View$viewTimeline = function (timeline) {
 var author$project$View$viewMain = function (model) {
 	var _n0 = model.view;
 	switch (_n0.$) {
+		case 'LoginPage':
+			return A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$h1,
+						_List_Nil,
+						_List_fromArray(
+							[
+								elm$html$Html$text('Welcome to Waterfall')
+							])),
+						A2(
+						elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$a,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$href(
+										author$project$Auth$loginUrl(model))
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Log in using mastodon')
+									]))
+							]))
+					]));
 		case 'PhotoPage':
 			var attachmentId = _n0.b;
 			var _n1 = _Utils_Tuple2(model.currentStatus, attachmentId);
@@ -12028,7 +11995,7 @@ var author$project$View$viewMain = function (model) {
 				}
 			}
 		case 'HomePage':
-			var title = A2(elm$core$Maybe$withDefault, '', model.username) + '\'s timeline';
+			var title = A2(elm$core$Maybe$withDefault, '', model.username) + '\'s home';
 			return A2(
 				elm$html$Html$div,
 				_List_Nil,
@@ -12165,7 +12132,7 @@ var author$project$View$viewSidebarLinks = F2(
 											]),
 										_List_fromArray(
 											[
-												elm$html$Html$text('Timeline')
+												elm$html$Html$text('Home')
 											]))
 									])),
 								A2(
@@ -12294,7 +12261,7 @@ var author$project$View$view = function (model) {
 							]),
 						_List_fromArray(
 							[
-								author$project$View$viewSidebar(model),
+								(!_Utils_eq(model.view, author$project$Types$LoginPage)) ? author$project$View$viewSidebar(model) : A2(elm$html$Html$div, _List_Nil, _List_Nil),
 								A2(
 								elm$html$Html$div,
 								_List_fromArray(

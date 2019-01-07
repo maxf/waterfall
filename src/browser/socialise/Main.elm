@@ -12,7 +12,7 @@ import Ports
         )
 import String exposing (contains, startsWith)
 import Types exposing (..)
-import Update exposing (fetchCurrentUserDetails, getStatus, getTimeline, photoHashParts, update)
+import Update exposing (fetchCurrentUserDetails, getStatus, getTimeline, update)
 import Url
 import Url.Parser exposing ((</>), (<?>), Parser, fragment, map, oneOf, parse, query, string, top)
 import Url.Parser.Query as Query
@@ -66,7 +66,23 @@ urlParser =
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
-    ( initialModel key url, checkAuthToken )
+    case parse urlParser url of
+        Nothing ->
+            ( initialModel key url, checkAuthToken )
+
+        Just { queryStringParams, fragment } ->
+            case queryStringParams.code of
+                Just code ->
+                    let
+                        model =
+                            initialModel key url
+                        newModel =
+                            { model | authCode = Just code }
+                    in
+                    ( newModel, authenticate newModel )
+
+                Nothing ->
+                    ( initialModel key url, checkAuthToken )
 
 
 {-

@@ -5,7 +5,6 @@ import Types exposing (..)
 import Url exposing (Url)
 
 
-
 -- Model
 
 
@@ -37,7 +36,7 @@ initialModel key url =
     , userId = Nothing
     , message = Nothing
     , timeline = []
-    , view = LoginPage
+    , view = screenType url
     , shareText = ""
     , currentStatus = Nothing
     , key = key

@@ -1,4 +1,4 @@
-module Update exposing (fetchCurrentUserDetails, getStatus, getTimeline, photoHashParts, update)
+module Update exposing (fetchCurrentUserDetails, getStatus, getTimeline, update)
 
 import Auth exposing (authenticate, clearAuthToken, loginUrl, storeAuthToken)
 import Browser
@@ -7,7 +7,6 @@ import Http
 import Maybe exposing (withDefault)
 import Model exposing (Model, changeServerUrl)
 import Ports exposing (..)
-import Regex exposing (Regex, find, fromString)
 import String exposing (fromInt)
 import Types exposing (..)
 import Url exposing (..)
@@ -50,14 +49,11 @@ updateAuth msg model =
             let
                 newModel =
                     { model
-                        | username = Just account.acct
+                        | username = Just (Debug.log ">user" account.acct)
                         , userId = Just account.id
-                        , view = screenType -- determine from URL now? Then we need to store fragmnentm
-                          -- or we set the type from the fragment before checking auth and we change it if
-                          -- auth fails
                     }
             in
-            ( newModel, nextCommand newModel )
+            ( newModel, Cmd.batch [ Nav.replaceUrl model.key "/#home", nextCommand newModel ] )
 
         -- After loading the page, the auth token was requested from local storage
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->
@@ -66,7 +62,7 @@ updateAuth msg model =
                 Nothing ->
                     let
                         newModel =
-                            { model | view = LoginPage }
+                            { model | view = (Debug.log ">" LoginPage) }
                     in
                     ( newModel, nextCommand newModel )
 
@@ -83,7 +79,7 @@ updateAuth msg model =
                 , userEmail = Nothing
                 , username = Nothing
               }
-            , Cmd.batch [ clearAuthToken, Nav.replaceUrl model.key "#public" ]
+            , Cmd.batch [ clearAuthToken, Nav.replaceUrl model.key "/" ]
             )
 
 
@@ -206,40 +202,6 @@ update msg model =
 
 
 
--- URL change update model
-
-screenType : Url -> Screen
-screenType url =
-    case url.fragment of
-        Nothing ->
-            PublicTimeline
-
-        Just "home" ->
-            HomePage
-
-        Just "me" ->
-            ProfilePage
-
-        Just fragment ->
-            if String.startsWith "user:" fragment then
-                UserPage (String.dropLeft 5 fragment)
-
-            else if String.startsWith "upload" fragment then
-                ShareUploadPage Nothing
-
-            else if String.startsWith "photo:" fragment then
-                case photoHashParts fragment of
-                    Ok ( statusId, attachmentId ) ->
-                        PhotoPage statusId attachmentId
-
-                    Err _ ->
-                        PublicTimeline
-
-            else
-                PublicTimeline
-
-
-
 -- URL change generate command
 
 
@@ -289,6 +251,9 @@ nextCommand model =
                                 model.authToken
                                 (UserPage userId)
 
+        LoginPage ->
+            Cmd.none
+
         other ->
             getTimeline model.server.url model.authToken other
 
@@ -296,26 +261,6 @@ nextCommand model =
 
 -- parse photo hash
 
-
-photoUrlRegex : Regex
-photoUrlRegex =
-    Regex.fromString "photo:([^:]+):(.*)"
-        |> Maybe.withDefault Regex.never
-
-
-photoHashParts : String -> Result String ( StatusId, AttachmentId )
-photoHashParts hash =
-    case find photoUrlRegex hash of
-        [ match ] ->
-            case match.submatches of
-                [ Just photoId, Just attachmentId ] ->
-                    Ok ( StatusId photoId, AttachmentId attachmentId )
-
-                _ ->
-                    Err "no photo URL parts matched"
-
-        _ ->
-            Err "no matches found in photo URL"
 
 
 

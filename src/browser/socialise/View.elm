@@ -33,7 +33,7 @@ view model =
             [ class "outer" ]
             [ div
                 [ class "columns" ]
-                [ viewSidebar model
+                [ (if model.view /= LoginPage then viewSidebar model else div [] [])
                 , div [ id "photos" ] [ viewMain model ]
                 ]
             , message
