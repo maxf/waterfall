@@ -26,7 +26,7 @@ type alias Model =
 
 initialModel : Nav.Key -> Url -> Model
 initialModel key url =
-    { baseUrl = { url | fragment = Nothing }
+    { baseUrl = { url | fragment = Nothing, query = Nothing }
     , server = defaultServer
     , authToken = Nothing
     , authCode = Nothing

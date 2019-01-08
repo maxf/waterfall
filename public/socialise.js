@@ -6933,7 +6933,7 @@ var author$project$Model$initialModel = F2(
 			authToken: elm$core$Maybe$Nothing,
 			baseUrl: _Utils_update(
 				url,
-				{fragment: elm$core$Maybe$Nothing}),
+				{fragment: elm$core$Maybe$Nothing, query: elm$core$Maybe$Nothing}),
 			currentStatus: elm$core$Maybe$Nothing,
 			key: key,
 			message: elm$core$Maybe$Nothing,
@@ -11039,7 +11039,6 @@ var author$project$Update$getStatus = F3(
 						{path: '/api/v1/statuses/' + statusId}))
 			});
 	});
-var elm$core$Debug$log = _Debug_log;
 var author$project$Update$nextCommand = function (model) {
 	var _n0 = model.view;
 	switch (_n0.$) {
@@ -11061,7 +11060,7 @@ var author$project$Update$nextCommand = function (model) {
 			var statusId = _n0.a;
 			return A3(author$project$Update$getStatus, model.server.url, model.authToken, statusId);
 		case 'HomePage':
-			var _n3 = A2(elm$core$Debug$log, 'auth', model.authToken);
+			var _n3 = model.authToken;
 			if (_n3.$ === 'Nothing') {
 				return elm$core$Platform$Cmd$none;
 			} else {
@@ -11256,8 +11255,7 @@ var author$project$Update$updateAuth = F2(
 						model,
 						{
 							userId: elm$core$Maybe$Just(account.id),
-							username: elm$core$Maybe$Just(
-								A2(elm$core$Debug$log, '>user', account.acct))
+							username: elm$core$Maybe$Just(account.acct)
 						});
 					return _Utils_Tuple2(
 						newModel,
@@ -11269,9 +11267,7 @@ var author$project$Update$updateAuth = F2(
 				if (token.$ === 'Nothing') {
 					var newModel = _Utils_update(
 						model,
-						{
-							view: A2(elm$core$Debug$log, '>', author$project$Types$LoginPage)
-						});
+						{view: author$project$Types$LoginPage});
 					return _Utils_Tuple2(
 						newModel,
 						author$project$Update$nextCommand(newModel));
@@ -11507,7 +11503,7 @@ var author$project$Update$update = F2(
 						'#photo:' + (author$project$Types$statusIdToString(status.id) + (':' + author$project$Types$attachmentIdToString(attachment.id)))));
 			case 'UrlHasChanged':
 				var location = msg.a;
-				var _n1 = A2(elm$core$Debug$log, '>frag', location.fragment);
+				var _n1 = location.fragment;
 				if (_n1.$ === 'Nothing') {
 					var _n2 = model.authToken;
 					if (_n2.$ === 'Nothing') {
@@ -11520,9 +11516,7 @@ var author$project$Update$update = F2(
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
-								{
-									view: A2(elm$core$Debug$log, '>>>>>', author$project$Types$HomePage)
-								}),
+								{view: author$project$Types$HomePage}),
 							A3(author$project$Update$getTimeline, model.server.url, model.authToken, author$project$Types$HomePage));
 					}
 				} else {

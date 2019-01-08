@@ -49,7 +49,7 @@ updateAuth msg model =
             let
                 newModel =
                     { model
-                        | username = Just (Debug.log ">user" account.acct)
+                        | username = Just account.acct
                         , userId = Just account.id
                     }
             in
@@ -64,7 +64,7 @@ updateAuth msg model =
                 Nothing ->
                     let
                         newModel =
-                            { model | view = Debug.log ">" LoginPage }
+                            { model | view = LoginPage }
                     in
                     ( newModel, nextCommand newModel )
 
@@ -175,13 +175,13 @@ update msg model =
             )
 
         UrlHasChanged location ->
-            case (Debug.log ">frag" location.fragment) of
+            case location.fragment of
                 Nothing ->
                     case model.authToken of
                         Nothing ->
                             ( { model | view = LoginPage }, Cmd.none )
                         Just _ ->
-                            ( { model | view = (Debug.log ">>>>>" HomePage) }
+                            ( { model | view = HomePage }
                             , getTimeline model.server.url model.authToken HomePage
                             )
 
@@ -239,7 +239,7 @@ nextCommand model =
             getStatus model.server.url model.authToken statusId
 
         HomePage ->
-            case (Debug.log "auth" model.authToken) of
+            case model.authToken of
                 Nothing ->
                     Cmd.none
 
