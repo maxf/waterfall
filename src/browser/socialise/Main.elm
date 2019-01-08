@@ -12,7 +12,7 @@ import Ports
         )
 import String exposing (contains, startsWith)
 import Types exposing (..)
-import Update exposing (fetchCurrentUserDetails, getStatus, getTimeline, update)
+import Update exposing (fetchCurrentUserDetails, fetchOtherUserDetails, getStatus, getTimeline, update)
 import Url
 import Url.Parser exposing ((</>), (<?>), Parser, fragment, map, oneOf, parse, query, string, top)
 import Url.Parser.Query as Query
@@ -80,17 +80,31 @@ init _ url key =
                 Just code ->
                     -- this is an auth redirect page
                     let
-                        model =
-                            initialModel key url
-
                         newModel =
-                            { model | authCode = Just code }
+                            { startModel | authCode = Just code }
                     in
                     ( newModel, authenticate newModel )
 
                 Nothing ->
                     -- any other page
-                    ( initialModel key url, checkAuthToken )
+                    case fragment of
+                        Nothing ->
+                            ( startModel, checkAuthToken )
+
+                        Just frag ->
+                            if frag |> startsWith "user:" then
+                                let
+                                    acct =
+                                        String.dropLeft 5 frag
+
+                                    model =
+                                        initialModel key url
+                                in
+                                    ( { model | view = UserPage acct }
+                                    , fetchOtherUserDetails model.server.url acct
+                                    )
+                            else
+                                ( startModel, checkAuthToken )
 
 
 

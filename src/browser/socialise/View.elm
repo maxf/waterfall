@@ -227,7 +227,7 @@ viewStatus status =
         , div
             [ class "account" ]
             [ a
-                [ href ("#user:" ++ status.account.id) ]
+                [ href ("#user:" ++ status.account.acct) ]
                 [ text status.account.acct ]
             ]
         ]

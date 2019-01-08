@@ -1,4 +1,4 @@
-module Update exposing (fetchCurrentUserDetails, getStatus, getTimeline, update)
+module Update exposing (fetchCurrentUserDetails, fetchOtherUserDetails, getStatus, getTimeline, update)
 
 import Auth exposing (authenticate, clearAuthToken, loginUrl, storeAuthToken)
 import Browser
@@ -53,9 +53,9 @@ updateAuth msg model =
                         , userId = Just account.id
                     }
             in
-                -- we're coming from an auth redirect page, so go to / to remove the
-                -- query string
-                ( newModel, Nav.replaceUrl model.key "/" )
+            -- we're coming from an auth redirect page, so go to / to remove the
+            -- query string
+            ( newModel, Nav.replaceUrl model.key "/" )
 
         -- After loading the page, the auth token was requested from local storage
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->
@@ -180,6 +180,7 @@ update msg model =
                     case model.authToken of
                         Nothing ->
                             ( { model | view = LoginPage }, Cmd.none )
+
                         Just _ ->
                             ( { model | view = HomePage }
                             , getTimeline model.server.url model.authToken HomePage
@@ -199,7 +200,6 @@ update msg model =
                     in
                     ( newModel, nextCommand newModel )
 
-
         LinkWasClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
@@ -211,6 +211,8 @@ update msg model =
         UserClickedLogin ->
             ( model, Nav.load (loginUrl model) )
 
+        ReceivedOtherUserDetails _ ->
+            ( model, Cmd.none )
 
 
 -- URL change generate command
@@ -303,6 +305,28 @@ getStatus instanceUrl authToken (StatusId statusId) =
 
 
 
+-- fetch the timeline of a specific user identified by their acct (eg maxf@mastodon.social)
+
+
+fetchOtherUserDetails : Url -> String -> Cmd Msg
+fetchOtherUserDetails instanceUrl acct =
+    let
+        url =
+            { instanceUrl
+                | path = "/.well-known/webfinger"
+                , query = Just ("resource=acct:" ++ acct ++ "@" ++ instanceUrl.host)
+            }
+    in
+    Http.get
+{-        { url = url |> toString
+        , expect = Http.expectJson ReceivedOtherUserDetails accountWebFingerDecoder
+        }-}
+        { url = "https://mastodon.social/users/maxf.atom"
+        , expect = Http.expectString ReceivedOtherUserDetails
+        }
+
+
+
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#timelines
 
 
@@ -311,8 +335,11 @@ getTimeline instanceUrl authToken pageType =
     let
         urlPath =
             case pageType of
-                UserPage id ->
-                    "/api/v1/accounts/" ++ id ++ "/statuses"
+                UserPage acct ->
+                    -- First we need to look up the user's ID by calling
+                    -- https://mastodon.social/.well-known/webfinger?resource=acct:maxf@mastodon.social
+                    -- then use the id
+                    "/api/v1/accounts/" ++ acct ++ "/statuses"
 
                 _ ->
                     "/api/v1/timelines/home"
