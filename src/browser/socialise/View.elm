@@ -127,9 +127,11 @@ viewMain model =
                 , viewTimeline model.timeline
                 ]
 
-        ErrorPage ->
+        ErrorPage message ->
             div []
-                [ h1 [] [ text "Error" ] ]
+                [ h1 [] [ text "Error" ]
+                , p [] [ text message ]
+                ]
 
         LogoutPage ->
             div []
@@ -238,8 +240,8 @@ viewAttachment status attachment =
             span [] []
 
         _ ->
-            span
-                [ onClick (ViewPhoto status attachment) ]
+            a
+                [ href ("#photo:" ++ (status.id |> statusIdToString) ++ ":" ++ (attachment.id |> attachmentIdToString)) ]
                 (if status.sensitive then
                      [ span [] [ text "Sensitive content" ] ]
                  else

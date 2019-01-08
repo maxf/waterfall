@@ -271,7 +271,7 @@ nextCommand model =
         UserPage userId ->
             getTimeline model.server.url model.authToken (UserPage userId)
 
-        ErrorPage ->
+        ErrorPage _ ->
             Cmd.none
 
 

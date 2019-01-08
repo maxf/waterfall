@@ -154,7 +154,7 @@ type Screen
     | ShareUploadPage (Maybe String) -- <data of the image loaded>
     | LoginPage
     | LogoutPage
-    | ErrorPage
+    | ErrorPage String -- Error page with message
 
 
 
@@ -206,8 +206,8 @@ screenType url =
                     Ok ( statusId, attachmentId ) ->
                         PhotoPage statusId attachmentId
 
-                    Err _ ->
-                        ErrorPage
+                    Err message ->
+                        ErrorPage message
 
             else
                 HomePage

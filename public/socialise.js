@@ -6821,7 +6821,9 @@ var author$project$Types$defaultServer = {
 	clientSecret: '5ab52772ae48cdf47ad2ffc4bb651de8d15f590b9a3888c887c56478043de061',
 	url: A6(elm$url$Url$Url, elm$url$Url$Https, 'mastodon.social', elm$core$Maybe$Nothing, '', elm$core$Maybe$Nothing, elm$core$Maybe$Nothing)
 };
-var author$project$Types$ErrorPage = {$: 'ErrorPage'};
+var author$project$Types$ErrorPage = function (a) {
+	return {$: 'ErrorPage', a: a};
+};
 var author$project$Types$HomePage = {$: 'HomePage'};
 var author$project$Types$LogoutPage = {$: 'LogoutPage'};
 var author$project$Types$PhotoPage = F2(
@@ -6916,7 +6918,8 @@ var author$project$Types$screenType = function (url) {
 								var attachmentId = _n2.b;
 								return A2(author$project$Types$PhotoPage, statusId, attachmentId);
 							} else {
-								return author$project$Types$ErrorPage;
+								var message = _n1.a;
+								return author$project$Types$ErrorPage(message);
 							}
 						} else {
 							return author$project$Types$HomePage;
@@ -11848,10 +11851,6 @@ var author$project$View$viewShareUploaded = function (dataUrl) {
 					]))
 			]));
 };
-var author$project$Types$ViewPhoto = F2(
-	function (a, b) {
-		return {$: 'ViewPhoto', a: a, b: b};
-	});
 var author$project$View$viewAttachment = F2(
 	function (status, attachment) {
 		var _n0 = attachment.type_;
@@ -11859,11 +11858,11 @@ var author$project$View$viewAttachment = F2(
 			return A2(elm$html$Html$span, _List_Nil, _List_Nil);
 		} else {
 			return A2(
-				elm$html$Html$span,
+				elm$html$Html$a,
 				_List_fromArray(
 					[
-						elm$html$Html$Events$onClick(
-						A2(author$project$Types$ViewPhoto, status, attachment))
+						elm$html$Html$Attributes$href(
+						'#photo:' + (author$project$Types$statusIdToString(status.id) + (':' + author$project$Types$attachmentIdToString(attachment.id))))
 					]),
 				status.sensitive ? _List_fromArray(
 					[
@@ -12025,6 +12024,7 @@ var author$project$View$viewMain = function (model) {
 						author$project$View$viewTimeline(model.timeline)
 					]));
 		case 'ErrorPage':
+			var message = _n0.a;
 			return A2(
 				elm$html$Html$div,
 				_List_Nil,
@@ -12036,6 +12036,13 @@ var author$project$View$viewMain = function (model) {
 						_List_fromArray(
 							[
 								elm$html$Html$text('Error')
+							])),
+						A2(
+						elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								elm$html$Html$text(message)
 							]))
 					]));
 		case 'LogoutPage':
