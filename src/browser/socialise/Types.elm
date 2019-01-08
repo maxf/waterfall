@@ -150,12 +150,65 @@ type alias Attachment =
 type Screen
     = HomePage
     | ProfilePage
-    | PublicTimeline
     | UserPage String -- <user id>
     | PhotoPage StatusId AttachmentId -- <statusId> <attachmentId>
     | SharePathPage String -- <path of photo to share on server>
     | ShareUploadPage (Maybe String) -- <data of the image loaded>
     | LoginPage
+    | ErrorPage
+
+
+
+-- URL change update model
+
+photoUrlRegex : Regex
+photoUrlRegex =
+    Regex.fromString "photo:([^:]+):(.*)"
+        |> Maybe.withDefault Regex.never
+
+
+photoHashParts : String -> Result String ( StatusId, AttachmentId )
+photoHashParts hash =
+    case find photoUrlRegex hash of
+        [ match ] ->
+            case match.submatches of
+                [ Just photoId, Just attachmentId ] ->
+                    Ok ( StatusId photoId, AttachmentId attachmentId )
+
+                _ ->
+                    Err "no photo URL parts matched"
+
+        _ ->
+            Err "no matches found in photo URL"
+
+
+
+screenType : Url -> Screen
+screenType url =
+    case url.fragment of
+        Nothing ->
+            HomePage
+
+        Just "me" ->
+            ProfilePage
+
+        Just fragment ->
+            if String.startsWith "user:" fragment then
+                UserPage (String.dropLeft 5 fragment)
+
+            else if String.startsWith "upload" fragment then
+                ShareUploadPage Nothing
+
+            else if String.startsWith "photo:" fragment then
+                case photoHashParts fragment of
+                    Ok ( statusId, attachmentId ) ->
+                        PhotoPage statusId attachmentId
+
+                    Err _ ->
+                        ErrorPage
+
+            else
+                HomePage
 
 
 

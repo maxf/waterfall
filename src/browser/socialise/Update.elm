@@ -101,7 +101,7 @@ updateShare msg model =
 
         -- A status was posted
         StatusPosted Nothing ->
-            ( { model | message = Nothing }, Nav.replaceUrl model.key "#home" )
+            ( { model | message = Nothing }, Nav.replaceUrl model.key "/" )
 
         StatusPosted (Just error) ->
             ( { model | message = Just error }, Cmd.none )
@@ -124,7 +124,7 @@ updateShare msg model =
             )
 
         ImageShared (Ok _) ->
-            ( { model | message = Nothing }, Nav.replaceUrl model.key "#home" )
+            ( { model | message = Nothing }, Nav.replaceUrl model.key "/" )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -183,19 +183,25 @@ update msg model =
             )
 
         UrlHasChanged location ->
+{-
             let
                 newModel =
                     { model | view = screenType location }
             in
             ( newModel, nextCommand newModel )
+-}
+            ( model, Cmd.none )
 
         LinkWasClicked urlRequest ->
+{-
             case urlRequest of
                 Browser.Internal url ->
                     ( model, Nav.pushUrl model.key (Url.toString url) )
 
                 Browser.External href ->
                     ( model, Nav.load href )
+-}
+            ( model, Cmd.none )
 
         UserClickedLogin ->
             ( model, Nav.load (loginUrl model) )
@@ -211,7 +217,7 @@ nextCommand model =
         SharePathPage _ ->
             case model.authToken of
                 Nothing ->
-                    Nav.replaceUrl model.key "#login"
+                    Nav.replaceUrl model.key "/"
 
                 _ ->
                     Cmd.none
@@ -219,7 +225,7 @@ nextCommand model =
         ShareUploadPage _ ->
             case model.authToken of
                 Nothing ->
-                    Nav.replaceUrl model.key "#login"
+                    Nav.replaceUrl model.key "/"
 
                 _ ->
                     Cmd.none
@@ -230,7 +236,7 @@ nextCommand model =
         HomePage ->
             case model.authToken of
                 Nothing ->
-                    Nav.replaceUrl model.key "#login"
+                    Nav.replaceUrl model.key "/"
 
                 _ ->
                     getTimeline model.server.url model.authToken HomePage
@@ -238,7 +244,7 @@ nextCommand model =
         ProfilePage ->
             case model.authToken of
                 Nothing ->
-                    Nav.replaceUrl model.key "#login"
+                    Nav.replaceUrl model.key "/"
 
                 Just _ ->
                     case model.userId of
@@ -298,9 +304,6 @@ getTimeline instanceUrl authToken pageType =
     let
         urlPath =
             case pageType of
-                PublicTimeline ->
-                    "/api/v1/timelines/public"
-
                 UserPage id ->
                     "/api/v1/accounts/" ++ id ++ "/statuses"
 
