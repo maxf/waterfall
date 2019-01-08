@@ -1,7 +1,6 @@
 module Types exposing (Account, Attachment, AttachmentId(..), AttachmentType(..), AuthMsg(..), AuthResponse, ImagePortData, MastodonServer, Msg(..), Screen(..), ShareMsg(..), Status, StatusId(..), accountDecoder, attachmentDecoder, attachmentIdDecoder, attachmentIdToString, attachmentTypeDecoder, defaultServer, lookupServer, servers, screenType, statusDecoder, statusIdDecoder, statusIdToString, timelineDecoder)
 
 import Browser
-import Browser.Navigation as Nav
 import Http
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (..)
@@ -15,7 +14,6 @@ type AuthMsg
     | AuthReturn (Result Http.Error AuthResponse)
     | UserDetailsFetched (Result Http.Error Account)
     | AuthTokenRetrievedFromLocalStorage ( String, Maybe String )
-    | Logout
 
 
 type ShareMsg
@@ -155,6 +153,7 @@ type Screen
     | SharePathPage String -- <path of photo to share on server>
     | ShareUploadPage (Maybe String) -- <data of the image loaded>
     | LoginPage
+    | LogoutPage
     | ErrorPage
 
 
@@ -192,6 +191,9 @@ screenType url =
         Just "me" ->
             ProfilePage
 
+        Just "logout" ->
+            LogoutPage
+
         Just fragment ->
             if String.startsWith "user:" fragment then
                 UserPage (String.dropLeft 5 fragment)
@@ -209,63 +211,6 @@ screenType url =
 
             else
                 HomePage
-
-
-
--- URL change update model
-
-photoUrlRegex : Regex
-photoUrlRegex =
-    Regex.fromString "photo:([^:]+):(.*)"
-        |> Maybe.withDefault Regex.never
-
-
-photoHashParts : String -> Result String ( StatusId, AttachmentId )
-photoHashParts hash =
-    case find photoUrlRegex hash of
-        [ match ] ->
-            case match.submatches of
-                [ Just photoId, Just attachmentId ] ->
-                    Ok ( StatusId photoId, AttachmentId attachmentId )
-
-                _ ->
-                    Err "no photo URL parts matched"
-
-        _ ->
-            Err "no matches found in photo URL"
-
-
-
-screenType : Url -> Screen
-screenType url =
-    case url.fragment of
-        Nothing ->
-            PublicTimeline
-
-        Just "home" ->
-            HomePage
-
-        Just "me" ->
-            ProfilePage
-
-        Just fragment ->
-            if String.startsWith "user:" fragment then
-                UserPage (String.dropLeft 5 fragment)
-
-            else if String.startsWith "upload" fragment then
-                ShareUploadPage Nothing
-
-            else if String.startsWith "photo:" fragment then
-                case photoHashParts fragment of
-                    Ok ( statusId, attachmentId ) ->
-                        PhotoPage statusId attachmentId
-
-                    Err _ ->
-                        PublicTimeline
-
-            else
-                PublicTimeline
-
 
 -- Decoders
 

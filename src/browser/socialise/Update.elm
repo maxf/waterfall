@@ -5,7 +5,7 @@ import Browser
 import Browser.Navigation as Nav
 import Http
 import Maybe exposing (withDefault)
-import Model exposing (Model, changeServerUrl)
+import Model exposing (Model, changeServerUrl, initialModel)
 import Ports exposing (..)
 import String exposing (fromInt)
 import Types exposing (..)
@@ -53,7 +53,9 @@ updateAuth msg model =
                         , userId = Just account.id
                     }
             in
-            ( newModel, Cmd.batch [ Nav.replaceUrl model.key "/#home", nextCommand newModel ] )
+                -- we're coming from an auth redirect page, so go to / to remove the
+                -- query string
+                ( newModel, Nav.replaceUrl model.key "/" )
 
         -- After loading the page, the auth token was requested from local storage
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->
@@ -62,7 +64,7 @@ updateAuth msg model =
                 Nothing ->
                     let
                         newModel =
-                            { model | view = (Debug.log ">" LoginPage) }
+                            { model | view = Debug.log ">" LoginPage }
                     in
                     ( newModel, nextCommand newModel )
 
@@ -71,16 +73,6 @@ updateAuth msg model =
                     ( { model | authToken = token }
                     , fetchCurrentUserDetails tokenValue model.server.url
                     )
-
-        Logout ->
-            ( { model
-                | authToken = Nothing
-                , userId = Nothing
-                , userEmail = Nothing
-                , username = Nothing
-              }
-            , Cmd.batch [ clearAuthToken, Nav.replaceUrl model.key "/" ]
-            )
 
 
 updateShare : ShareMsg -> Model -> ( Model, Cmd Msg )
@@ -183,25 +175,38 @@ update msg model =
             )
 
         UrlHasChanged location ->
-{-
-            let
-                newModel =
-                    { model | view = screenType location }
-            in
-            ( newModel, nextCommand newModel )
--}
-            ( model, Cmd.none )
+            case (Debug.log ">frag" location.fragment) of
+                Nothing ->
+                    case model.authToken of
+                        Nothing ->
+                            ( { model | view = LoginPage }, Cmd.none )
+                        Just _ ->
+                            ( { model | view = (Debug.log ">>>>>" HomePage) }
+                            , getTimeline model.server.url model.authToken HomePage
+                            )
+
+                Just "logout" ->
+                    let
+                        startModel =
+                            initialModel model.key model.baseUrl
+                    in
+                    ( { startModel | view = LoginPage }, clearAuthToken )
+
+                _ ->
+                    let
+                        newModel =
+                            { model | view = screenType location }
+                    in
+                    ( newModel, nextCommand newModel )
+
 
         LinkWasClicked urlRequest ->
-{-
             case urlRequest of
                 Browser.Internal url ->
                     ( model, Nav.pushUrl model.key (Url.toString url) )
 
                 Browser.External href ->
                     ( model, Nav.load href )
--}
-            ( model, Cmd.none )
 
         UserClickedLogin ->
             ( model, Nav.load (loginUrl model) )
@@ -234,9 +239,9 @@ nextCommand model =
             getStatus model.server.url model.authToken statusId
 
         HomePage ->
-            case model.authToken of
+            case (Debug.log "auth" model.authToken) of
                 Nothing ->
-                    Nav.replaceUrl model.key "/"
+                    Cmd.none
 
                 _ ->
                     getTimeline model.server.url model.authToken HomePage
@@ -260,16 +265,18 @@ nextCommand model =
         LoginPage ->
             Cmd.none
 
-        other ->
-            getTimeline model.server.url model.authToken other
+        LogoutPage ->
+            clearAuthToken
+
+        UserPage userId ->
+            getTimeline model.server.url model.authToken (UserPage userId)
+
+        ErrorPage ->
+            Cmd.none
 
 
 
 -- parse photo hash
-
-
-
-
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#fetching-a-status
 
 

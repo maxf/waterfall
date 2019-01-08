@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Auth exposing (checkAuthToken, storeAuthToken, authenticate)
+import Auth exposing (authenticate, checkAuthToken, storeAuthToken)
 import Browser
 import Browser.Navigation as Nav
 import Model exposing (Model, initialModel)
@@ -66,97 +66,108 @@ urlParser =
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
+    let
+        startModel =
+            initialModel key url
+    in
     case parse urlParser url of
         Nothing ->
-            ( initialModel key url, checkAuthToken )
+            -- Bad URL. Redirect to home
+            ( startModel, Nav.replaceUrl key "/" )
 
         Just { queryStringParams, fragment } ->
             case queryStringParams.code of
                 Just code ->
+                    -- this is an auth redirect page
                     let
                         model =
                             initialModel key url
+
                         newModel =
                             { model | authCode = Just code }
                     in
                     ( newModel, authenticate newModel )
 
                 Nothing ->
+                    -- any other page
                     ( initialModel key url, checkAuthToken )
+
 
 
 {-
 
-    case parse urlParser url of
-        Nothing ->
-            ( initialModel key url PublicTimeline, checkAuthToken )
+       case parse urlParser url of
+           Nothing ->
+               ( initialModel key url PublicTimeline, checkAuthToken )
 
-        Just { queryStringParams, fragment } ->
-            case queryStringParams.code of
-                Just code ->
-                    let
-                        model =
-                            initialModel key url HomePage
-                        newModel =
-                            { model | authCode = Just code }
-                    in
-                    ( newModel, authenticate newModel )
+           Just { queryStringParams, fragment } ->
+               case queryStringParams.code of
+                   Just code ->
+                       let
+                           model =
+                               initialModel key url HomePage
+                           newModel =
+                               { model | authCode = Just code }
+                       in
+                       ( newModel, authenticate newModel )
 
-                Nothing ->
-                    case fragment of
-                        Nothing ->
-                            ( initialModel key url PublicTimeline, checkAuthToken )
+                   Nothing ->
+                       case fragment of
+                           Nothing ->
+                               ( initialModel key url PublicTimeline, checkAuthToken )
 
-                        Just "home" ->
-                            ( initialModel key url HomePage, checkAuthToken )
+                           Just "home" ->
+                               ( initialModel key url HomePage, checkAuthToken )
 
-                        Just "me" ->
-                            ( initialModel key url ProfilePage, checkAuthToken )
+                           Just "me" ->
+                               ( initialModel key url ProfilePage, checkAuthToken )
 
-                        Just frag ->
-                            if frag |> startsWith "user:" then
-                                let
-                                    userId =
-                                        String.dropLeft 5 frag
+                           Just frag ->
+                               if frag |> startsWith "user:" then
+                                   let
+                                       userId =
+                                           String.dropLeft 5 frag
 
-                                    model =
-                                        initialModel key url (UserPage userId)
-                                in
-                                ( model
-                                , getTimeline model.server.url model.authToken (UserPage userId)
-                                )
+                                       model =
+                                           initialModel key url (UserPage userId)
+                                   in
+                                   ( model
+                                   , getTimeline model.server.url model.authToken (UserPage userId)
+                                   )
 
-                            else if frag |> startsWith "photo:" then
-                                case photoHashParts frag of
-                                    Ok ( statusId, attachmentId ) ->
-                                        let
-                                            model =
-                                                initialModel key url (PhotoPage statusId attachmentId)
-                                        in
-                                        ( model
-                                        , getStatus model.server.url model.authToken statusId
-                                        )
+                               else if frag |> startsWith "photo:" then
+                                   case photoHashParts frag of
+                                       Ok ( statusId, attachmentId ) ->
+                                           let
+                                               model =
+                                                   initialModel key url (PhotoPage statusId attachmentId)
+                                           in
+                                           ( model
+                                           , getStatus model.server.url model.authToken statusId
+                                           )
 
-                                    Err _ ->
-                                        ( initialModel key url PublicTimeline
-                                        , Cmd.none
-                                        )
+                                       Err _ ->
+                                           ( initialModel key url PublicTimeline
+                                           , Cmd.none
+                                           )
 
-                            else if frag |> startsWith "share:" then
-                                ( initialModel key url (SharePathPage (String.dropLeft 6 frag))
-                                , checkAuthToken
-                                )
+                               else if frag |> startsWith "share:" then
+                                   ( initialModel key url (SharePathPage (String.dropLeft 6 frag))
+                                   , checkAuthToken
+                                   )
 
-                            else if frag |> startsWith "upload:" then
-                                ( initialModel key url (ShareUploadPage Nothing)
-                                , checkAuthToken
-                                )
+                               else if frag |> startsWith "upload:" then
+                                   ( initialModel key url (ShareUploadPage Nothing)
+                                   , checkAuthToken
+                                   )
 
-                            else
-                                ( initialModel key url PublicTimeline
-                                , checkAuthToken
-                                )
---}
+                               else
+                                   ( initialModel key url PublicTimeline
+                                   , checkAuthToken
+                                   )
+   -
+-}
+
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =

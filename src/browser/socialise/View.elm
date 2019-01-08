@@ -56,14 +56,14 @@ viewSidebarLinks : Maybe String -> Screen -> Html Msg
 viewSidebarLinks username pageType =
     case username of
         Nothing ->
-            div [] [ a [ onClick UserClickedLogin ] [ text "Log in" ] ]
+            div [] [ a [ href "/" ] [ text "Log in" ] ]
 
         Just name ->
             div []
                 [ div []
                     [ span [ class "username" ] [ text name ]
-                    , span
-                        [ onClick (Auth Logout), class "logout" ]
+                    , a
+                        [ href "#logout", class "logout" ]
                         [ text "Log out" ]
                     ]
                 , ul []
@@ -130,6 +130,10 @@ viewMain model =
         ErrorPage ->
             div []
                 [ h1 [] [ text "Error" ] ]
+
+        LogoutPage ->
+            div []
+                [ h1 [] [ text "You have logged out" ] ]
 
         UserPage userId ->
             div []

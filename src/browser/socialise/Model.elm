@@ -24,7 +24,6 @@ type alias Model =
     , key : Nav.Key
     }
 
-
 initialModel : Nav.Key -> Url -> Model
 initialModel key url =
     { baseUrl = { url | fragment = Nothing }
