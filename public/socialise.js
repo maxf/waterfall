@@ -2488,6 +2488,23 @@ function _Http_track(router, xhr, tracker)
 	});
 }
 
+function _Url_percentEncode(string)
+{
+	return encodeURIComponent(string);
+}
+
+function _Url_percentDecode(string)
+{
+	try
+	{
+		return elm$core$Maybe$Just(decodeURIComponent(string));
+	}
+	catch (e)
+	{
+		return elm$core$Maybe$Nothing;
+	}
+}
+
 // CREATE
 
 var _Regex_never = /.^/;
@@ -5146,24 +5163,7 @@ function _Browser_load(url)
 		}
 	}));
 }
-
-
-function _Url_percentEncode(string)
-{
-	return encodeURIComponent(string);
-}
-
-function _Url_percentDecode(string)
-{
-	try
-	{
-		return elm$core$Maybe$Just(decodeURIComponent(string));
-	}
-	catch (e)
-	{
-		return elm$core$Maybe$Nothing;
-	}
-}var elm$core$Basics$apR = F2(
+var elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
 	});
@@ -6811,6 +6811,129 @@ var elm$url$Url$Parser$map = F2(
 			});
 	});
 var author$project$Main$urlParser = A2(elm$url$Url$Parser$map, author$project$Main$UrlData, author$project$Main$codeIdentityParser);
+var elm$url$Url$Parser$getFirstMatch = function (states) {
+	getFirstMatch:
+	while (true) {
+		if (!states.b) {
+			return elm$core$Maybe$Nothing;
+		} else {
+			var state = states.a;
+			var rest = states.b;
+			var _n1 = state.unvisited;
+			if (!_n1.b) {
+				return elm$core$Maybe$Just(state.value);
+			} else {
+				if ((_n1.a === '') && (!_n1.b.b)) {
+					return elm$core$Maybe$Just(state.value);
+				} else {
+					var $temp$states = rest;
+					states = $temp$states;
+					continue getFirstMatch;
+				}
+			}
+		}
+	}
+};
+var elm$url$Url$Parser$removeFinalEmpty = function (segments) {
+	if (!segments.b) {
+		return _List_Nil;
+	} else {
+		if ((segments.a === '') && (!segments.b.b)) {
+			return _List_Nil;
+		} else {
+			var segment = segments.a;
+			var rest = segments.b;
+			return A2(
+				elm$core$List$cons,
+				segment,
+				elm$url$Url$Parser$removeFinalEmpty(rest));
+		}
+	}
+};
+var elm$url$Url$Parser$preparePath = function (path) {
+	var _n0 = A2(elm$core$String$split, '/', path);
+	if (_n0.b && (_n0.a === '')) {
+		var segments = _n0.b;
+		return elm$url$Url$Parser$removeFinalEmpty(segments);
+	} else {
+		var segments = _n0;
+		return elm$url$Url$Parser$removeFinalEmpty(segments);
+	}
+};
+var elm$url$Url$percentDecode = _Url_percentDecode;
+var elm$url$Url$Parser$addToParametersHelp = F2(
+	function (value, maybeList) {
+		if (maybeList.$ === 'Nothing') {
+			return elm$core$Maybe$Just(
+				_List_fromArray(
+					[value]));
+		} else {
+			var list = maybeList.a;
+			return elm$core$Maybe$Just(
+				A2(elm$core$List$cons, value, list));
+		}
+	});
+var elm$url$Url$Parser$addParam = F2(
+	function (segment, dict) {
+		var _n0 = A2(elm$core$String$split, '=', segment);
+		if ((_n0.b && _n0.b.b) && (!_n0.b.b.b)) {
+			var rawKey = _n0.a;
+			var _n1 = _n0.b;
+			var rawValue = _n1.a;
+			var _n2 = elm$url$Url$percentDecode(rawKey);
+			if (_n2.$ === 'Nothing') {
+				return dict;
+			} else {
+				var key = _n2.a;
+				var _n3 = elm$url$Url$percentDecode(rawValue);
+				if (_n3.$ === 'Nothing') {
+					return dict;
+				} else {
+					var value = _n3.a;
+					return A3(
+						elm$core$Dict$update,
+						key,
+						elm$url$Url$Parser$addToParametersHelp(value),
+						dict);
+				}
+			}
+		} else {
+			return dict;
+		}
+	});
+var elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
+	if (maybeQuery.$ === 'Nothing') {
+		return elm$core$Dict$empty;
+	} else {
+		var qry = maybeQuery.a;
+		return A3(
+			elm$core$List$foldr,
+			elm$url$Url$Parser$addParam,
+			elm$core$Dict$empty,
+			A2(elm$core$String$split, '&', qry));
+	}
+};
+var elm$url$Url$Parser$parse = F2(
+	function (_n0, url) {
+		var parser = _n0.a;
+		return elm$url$Url$Parser$getFirstMatch(
+			parser(
+				A5(
+					elm$url$Url$Parser$State,
+					_List_Nil,
+					elm$url$Url$Parser$preparePath(url.path),
+					elm$url$Url$Parser$prepareQuery(url.query),
+					url.fragment,
+					elm$core$Basics$identity)));
+	});
+var author$project$Main$queryStringAndFragment = function (url) {
+	return A2(
+		elm$url$Url$Parser$parse,
+		author$project$Main$urlParser,
+		_Utils_update(
+			url,
+			{path: ''}));
+};
 var elm$url$Url$Https = {$: 'Https'};
 var elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
@@ -6977,6 +7100,407 @@ var author$project$Update$fetchOtherUserDetails = F2(
 				url: 'https://mastodon.social/users/maxf.atom'
 			});
 	});
+var elm$core$Debug$log = _Debug_log;
+var author$project$Main$init = F3(
+	function (_n0, url, key) {
+		var startModel = A2(author$project$Model$initialModel, key, url);
+		var _n1 = A2(elm$core$Debug$log, 'init', 'start');
+		var _n2 = author$project$Main$queryStringAndFragment(url);
+		if (_n2.$ === 'Nothing') {
+			var _n3 = A2(elm$core$Debug$log, 'init', '1');
+			return _Utils_Tuple2(startModel, author$project$Auth$checkAuthToken);
+		} else {
+			var queryStringParams = _n2.a.queryStringParams;
+			var fragment = _n2.a.fragment;
+			var _n4 = A2(elm$core$Debug$log, 'init', '2');
+			var _n5 = queryStringParams.code;
+			if (_n5.$ === 'Just') {
+				var code = _n5.a;
+				var newModel = _Utils_update(
+					startModel,
+					{
+						authCode: elm$core$Maybe$Just(code)
+					});
+				var _n6 = A2(elm$core$Debug$log, 'init', '3');
+				return _Utils_Tuple2(
+					newModel,
+					author$project$Auth$authenticate(newModel));
+			} else {
+				if (fragment.$ === 'Nothing') {
+					var _n8 = A2(elm$core$Debug$log, 'init', '4');
+					return _Utils_Tuple2(startModel, author$project$Auth$checkAuthToken);
+				} else {
+					var frag = fragment.a;
+					if (A2(elm$core$String$startsWith, 'user:', frag)) {
+						var model = A2(author$project$Model$initialModel, key, url);
+						var acct = A2(elm$core$String$dropLeft, 5, frag);
+						var _n9 = A2(elm$core$Debug$log, 'user', acct);
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{
+									view: author$project$Types$UserPage(acct)
+								}),
+							A2(author$project$Update$fetchOtherUserDetails, model.server.url, acct));
+					} else {
+						var _n10 = A2(elm$core$Debug$log, 'init', '5');
+						return _Utils_Tuple2(startModel, author$project$Auth$checkAuthToken);
+					}
+				}
+			}
+		}
+	});
+var elm$json$Json$Decode$andThen = _Json_andThen;
+var author$project$Ports$formImageRetrieved = _Platform_incomingPort(
+	'formImageRetrieved',
+	A2(
+		elm$json$Json$Decode$andThen,
+		function (filename) {
+			return A2(
+				elm$json$Json$Decode$andThen,
+				function (contents) {
+					return elm$json$Json$Decode$succeed(
+						{contents: contents, filename: filename});
+				},
+				A2(elm$json$Json$Decode$field, 'contents', elm$json$Json$Decode$string));
+		},
+		A2(elm$json$Json$Decode$field, 'filename', elm$json$Json$Decode$string)));
+var elm$json$Json$Decode$index = _Json_decodeIndex;
+var elm$json$Json$Decode$map = _Json_map1;
+var elm$json$Json$Decode$null = _Json_decodeNull;
+var elm$json$Json$Decode$oneOf = _Json_oneOf;
+var author$project$Ports$localStorageRetrievedItem = _Platform_incomingPort(
+	'localStorageRetrievedItem',
+	A2(
+		elm$json$Json$Decode$andThen,
+		function (x0) {
+			return A2(
+				elm$json$Json$Decode$andThen,
+				function (x1) {
+					return elm$json$Json$Decode$succeed(
+						_Utils_Tuple2(x0, x1));
+				},
+				A2(
+					elm$json$Json$Decode$index,
+					1,
+					elm$json$Json$Decode$oneOf(
+						_List_fromArray(
+							[
+								elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
+								A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
+							]))));
+		},
+		A2(elm$json$Json$Decode$index, 0, elm$json$Json$Decode$string)));
+var author$project$Ports$statusPosted = _Platform_incomingPort(
+	'statusPosted',
+	elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
+				A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
+			])));
+var author$project$Types$AuthTokenRetrievedFromLocalStorage = function (a) {
+	return {$: 'AuthTokenRetrievedFromLocalStorage', a: a};
+};
+var author$project$Types$FormImageRead = function (a) {
+	return {$: 'FormImageRead', a: a};
+};
+var author$project$Types$Share = function (a) {
+	return {$: 'Share', a: a};
+};
+var author$project$Types$StatusPosted = function (a) {
+	return {$: 'StatusPosted', a: a};
+};
+var elm$core$Platform$Sub$batch = _Platform_batch;
+var author$project$Main$subscriptions = function (_n0) {
+	return elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				author$project$Ports$localStorageRetrievedItem(
+				A2(elm$core$Basics$composeL, author$project$Types$Auth, author$project$Types$AuthTokenRetrievedFromLocalStorage)),
+				author$project$Ports$formImageRetrieved(
+				A2(elm$core$Basics$composeL, author$project$Types$Share, author$project$Types$FormImageRead)),
+				author$project$Ports$statusPosted(
+				A2(elm$core$Basics$composeL, author$project$Types$Share, author$project$Types$StatusPosted))
+			]));
+};
+var author$project$Types$LinkWasClicked = function (a) {
+	return {$: 'LinkWasClicked', a: a};
+};
+var author$project$Types$UrlHasChanged = function (a) {
+	return {$: 'UrlHasChanged', a: a};
+};
+var author$project$Ports$localStorageRemoveItem = _Platform_outgoingPort('localStorageRemoveItem', elm$json$Json$Encode$string);
+var author$project$Auth$clearAuthToken = author$project$Ports$localStorageRemoveItem('authToken');
+var author$project$Auth$loginUrl = function (model) {
+	var serverUrl = model.server.url;
+	var redirectUrl = elm$url$Url$toString(model.baseUrl);
+	var query = 'response_type=code&client_id=' + (model.server.clientId + ('&redirect_uri=' + (redirectUrl + '&scope=read+write+follow+push&state=meh')));
+	return elm$url$Url$toString(
+		_Utils_update(
+			serverUrl,
+			{
+				path: '/oauth/authorize',
+				query: elm$core$Maybe$Just(query)
+			}));
+};
+var author$project$Types$LoginPage = {$: 'LoginPage'};
+var author$project$Types$attachmentIdToString = function (_n0) {
+	var aid = _n0.a;
+	return aid;
+};
+var author$project$Types$statusIdToString = function (_n0) {
+	var sid = _n0.a;
+	return sid;
+};
+var author$project$Types$TimelineFetched = function (a) {
+	return {$: 'TimelineFetched', a: a};
+};
+var elm$json$Json$Decode$decodeValue = _Json_run;
+var elm$json$Json$Decode$fail = _Json_fail;
+var elm$json$Json$Decode$value = _Json_decodeValue;
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder = F3(
+	function (pathDecoder, valDecoder, fallback) {
+		var nullOr = function (decoder) {
+			return elm$json$Json$Decode$oneOf(
+				_List_fromArray(
+					[
+						decoder,
+						elm$json$Json$Decode$null(fallback)
+					]));
+		};
+		var handleResult = function (input) {
+			var _n0 = A2(elm$json$Json$Decode$decodeValue, pathDecoder, input);
+			if (_n0.$ === 'Ok') {
+				var rawValue = _n0.a;
+				var _n1 = A2(
+					elm$json$Json$Decode$decodeValue,
+					nullOr(valDecoder),
+					rawValue);
+				if (_n1.$ === 'Ok') {
+					var finalResult = _n1.a;
+					return elm$json$Json$Decode$succeed(finalResult);
+				} else {
+					var finalErr = _n1.a;
+					return elm$json$Json$Decode$fail(
+						elm$json$Json$Decode$errorToString(finalErr));
+				}
+			} else {
+				return elm$json$Json$Decode$succeed(fallback);
+			}
+		};
+		return A2(elm$json$Json$Decode$andThen, handleResult, elm$json$Json$Decode$value);
+	});
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional = F4(
+	function (key, valDecoder, fallback, decoder) {
+		return A2(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder,
+				A2(elm$json$Json$Decode$field, key, elm$json$Json$Decode$value),
+				valDecoder,
+				fallback),
+			decoder);
+	});
+var author$project$Types$Status = F6(
+	function (id, url, account, content, attachments, sensitive) {
+		return {account: account, attachments: attachments, content: content, id: id, sensitive: sensitive, url: url};
+	});
+var author$project$Types$Account = F3(
+	function (id, acct, displayName) {
+		return {acct: acct, displayName: displayName, id: id};
+	});
+var author$project$Types$accountDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'display_name',
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'acct',
+		elm$json$Json$Decode$string,
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'id',
+			elm$json$Json$Decode$string,
+			elm$json$Json$Decode$succeed(author$project$Types$Account))));
+var author$project$Types$Attachment = F4(
+	function (id, type_, url, previewUrl) {
+		return {id: id, previewUrl: previewUrl, type_: type_, url: url};
+	});
+var author$project$Types$attachmentIdDecoder = A2(
+	elm$json$Json$Decode$map,
+	function (s) {
+		return author$project$Types$AttachmentId(s);
+	},
+	elm$json$Json$Decode$string);
+var author$project$Types$Gifv = {$: 'Gifv'};
+var author$project$Types$Image = {$: 'Image'};
+var author$project$Types$Unknown = {$: 'Unknown'};
+var author$project$Types$Video = {$: 'Video'};
+var author$project$Types$attachmentTypeDecoder = function (s) {
+	switch (s) {
+		case 'image':
+			return elm$json$Json$Decode$succeed(author$project$Types$Image);
+		case 'video':
+			return elm$json$Json$Decode$succeed(author$project$Types$Video);
+		case 'gifv':
+			return elm$json$Json$Decode$succeed(author$project$Types$Gifv);
+		default:
+			return elm$json$Json$Decode$succeed(author$project$Types$Unknown);
+	}
+};
+var author$project$Types$attachmentDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'preview_url',
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'url',
+		elm$json$Json$Decode$string,
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'type',
+			A2(elm$json$Json$Decode$andThen, author$project$Types$attachmentTypeDecoder, elm$json$Json$Decode$string),
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'id',
+				author$project$Types$attachmentIdDecoder,
+				elm$json$Json$Decode$succeed(author$project$Types$Attachment)))));
+var author$project$Types$statusIdDecoder = A2(
+	elm$json$Json$Decode$map,
+	function (s) {
+		return author$project$Types$StatusId(s);
+	},
+	elm$json$Json$Decode$string);
+var elm$json$Json$Decode$bool = _Json_decodeBool;
+var elm$json$Json$Decode$list = _Json_decodeList;
+var elm$json$Json$Decode$nullable = function (decoder) {
+	return elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
+				A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, decoder)
+			]));
+};
+var author$project$Types$statusDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'sensitive',
+	elm$json$Json$Decode$bool,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'media_attachments',
+		elm$json$Json$Decode$list(author$project$Types$attachmentDecoder),
+		A4(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+			'content',
+			elm$json$Json$Decode$nullable(elm$json$Json$Decode$string),
+			elm$core$Maybe$Nothing,
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'account',
+				author$project$Types$accountDecoder,
+				A4(
+					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+					'url',
+					elm$json$Json$Decode$nullable(elm$json$Json$Decode$string),
+					elm$core$Maybe$Nothing,
+					A3(
+						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'id',
+						author$project$Types$statusIdDecoder,
+						elm$json$Json$Decode$succeed(author$project$Types$Status)))))));
+var author$project$Types$timelineDecoder = elm$json$Json$Decode$list(author$project$Types$statusDecoder);
+var elm$http$Http$Header = F2(
+	function (a, b) {
+		return {$: 'Header', a: a, b: b};
+	});
+var elm$http$Http$header = elm$http$Http$Header;
+var author$project$Update$getTimeline = F3(
+	function (instanceUrl, authToken, pageType) {
+		var urlPath = function () {
+			if (pageType.$ === 'UserPage') {
+				var acct = pageType.a;
+				return '/api/v1/accounts/' + (acct + '/statuses');
+			} else {
+				return '/api/v1/timelines/home';
+			}
+		}();
+		var url = _Utils_update(
+			instanceUrl,
+			{
+				path: urlPath,
+				query: elm$core$Maybe$Just('limit=40&local=true')
+			});
+		var headers = function () {
+			if (authToken.$ === 'Nothing') {
+				return _List_Nil;
+			} else {
+				var token = authToken.a;
+				return _List_fromArray(
+					[
+						A2(elm$http$Http$header, 'Authorization', 'Bearer ' + token)
+					]);
+			}
+		}();
+		return elm$http$Http$request(
+			{
+				body: elm$http$Http$emptyBody,
+				expect: A2(elm$http$Http$expectJson, author$project$Types$TimelineFetched, author$project$Types$timelineDecoder),
+				headers: headers,
+				method: 'GET',
+				timeout: elm$core$Maybe$Nothing,
+				tracker: elm$core$Maybe$Nothing,
+				url: elm$url$Url$toString(url)
+			});
+	});
+var author$project$Update$httpErrorMessage = function (error) {
+	switch (error.$) {
+		case 'BadUrl':
+			var string = error.a;
+			return 'Bad URL: ' + string;
+		case 'Timeout':
+			return 'Timeout';
+		case 'NetworkError':
+			return 'Network error';
+		case 'BadStatus':
+			var code = error.a;
+			return 'Bad status: ' + elm$core$String$fromInt(code);
+		default:
+			var text = error.a;
+			return 'Bad payload: ' + text;
+	}
+};
+var author$project$Types$PhotoFetched = function (a) {
+	return {$: 'PhotoFetched', a: a};
+};
+var author$project$Update$getStatus = F3(
+	function (instanceUrl, authToken, _n0) {
+		var statusId = _n0.a;
+		var headers = function () {
+			if (authToken.$ === 'Nothing') {
+				return _List_Nil;
+			} else {
+				var token = authToken.a;
+				return _List_fromArray(
+					[
+						A2(elm$http$Http$header, 'Authorization', 'Bearer ' + token)
+					]);
+			}
+		}();
+		return elm$http$Http$request(
+			{
+				body: elm$http$Http$emptyBody,
+				expect: A2(elm$http$Http$expectJson, author$project$Types$PhotoFetched, author$project$Types$statusDecoder),
+				headers: headers,
+				method: 'GET',
+				timeout: elm$core$Maybe$Nothing,
+				tracker: elm$core$Maybe$Nothing,
+				url: elm$url$Url$toString(
+					_Utils_update(
+						instanceUrl,
+						{path: '/api/v1/statuses/' + statusId}))
+			});
+	});
 var elm$browser$Browser$External = function (a) {
 	return {$: 'External', a: a};
 };
@@ -7049,7 +7573,6 @@ var elm$core$Task$perform = F2(
 			elm$core$Task$Perform(
 				A2(elm$core$Task$map, toMessage, task)));
 	});
-var elm$json$Json$Decode$map = _Json_map1;
 var elm$browser$Debugger$Expando$ArraySeq = {$: 'ArraySeq'};
 var elm$browser$Debugger$Expando$Constructor = F3(
 	function (a, b, c) {
@@ -8933,7 +9456,6 @@ var elm$browser$Debugger$Metadata$Alias = F2(
 	function (args, tipe) {
 		return {args: args, tipe: tipe};
 	});
-var elm$json$Json$Decode$list = _Json_decodeList;
 var elm$browser$Debugger$Metadata$decodeAlias = A3(
 	elm$json$Json$Decode$map2,
 	elm$browser$Debugger$Metadata$Alias,
@@ -9118,7 +9640,6 @@ var elm$browser$Debugger$Metadata$isPortable = function (_n0) {
 			A2(elm$browser$Debugger$Metadata$Error, types.message, problems));
 	}
 };
-var elm$json$Json$Decode$decodeValue = _Json_run;
 var elm$browser$Debugger$Metadata$decode = function (value) {
 	var _n0 = A2(elm$json$Json$Decode$decodeValue, elm$browser$Debugger$Metadata$decoder, value);
 	if (_n0.$ === 'Err') {
@@ -9868,7 +10389,6 @@ var elm$browser$Debugger$Main$download = F2(
 			A2(_Debugger_download, historyLength, json));
 	});
 var elm$browser$Debugger$History$jsToElm = _Debugger_unsafeCoerce;
-var elm$json$Json$Decode$value = _Json_decodeValue;
 var elm$browser$Debugger$History$decoder = F2(
 	function (initialModel, update) {
 		var addMessage = F2(
@@ -10577,526 +11097,26 @@ var elm$url$Url$fromString = function (str) {
 		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
 };
 var elm$browser$Browser$Navigation$replaceUrl = _Browser_replaceUrl;
-var elm$url$Url$Parser$getFirstMatch = function (states) {
-	getFirstMatch:
-	while (true) {
-		if (!states.b) {
-			return elm$core$Maybe$Nothing;
-		} else {
-			var state = states.a;
-			var rest = states.b;
-			var _n1 = state.unvisited;
-			if (!_n1.b) {
-				return elm$core$Maybe$Just(state.value);
-			} else {
-				if ((_n1.a === '') && (!_n1.b.b)) {
-					return elm$core$Maybe$Just(state.value);
-				} else {
-					var $temp$states = rest;
-					states = $temp$states;
-					continue getFirstMatch;
-				}
-			}
-		}
-	}
+var author$project$Update$goToHomePage = function (model) {
+	return A2(
+		elm$browser$Browser$Navigation$replaceUrl,
+		model.key,
+		elm$url$Url$toString(model.baseUrl));
 };
-var elm$url$Url$Parser$removeFinalEmpty = function (segments) {
-	if (!segments.b) {
-		return _List_Nil;
-	} else {
-		if ((segments.a === '') && (!segments.b.b)) {
-			return _List_Nil;
-		} else {
-			var segment = segments.a;
-			var rest = segments.b;
-			return A2(
-				elm$core$List$cons,
-				segment,
-				elm$url$Url$Parser$removeFinalEmpty(rest));
-		}
-	}
-};
-var elm$url$Url$Parser$preparePath = function (path) {
-	var _n0 = A2(elm$core$String$split, '/', path);
-	if (_n0.b && (_n0.a === '')) {
-		var segments = _n0.b;
-		return elm$url$Url$Parser$removeFinalEmpty(segments);
-	} else {
-		var segments = _n0;
-		return elm$url$Url$Parser$removeFinalEmpty(segments);
-	}
-};
-var elm$url$Url$percentDecode = _Url_percentDecode;
-var elm$url$Url$Parser$addToParametersHelp = F2(
-	function (value, maybeList) {
-		if (maybeList.$ === 'Nothing') {
-			return elm$core$Maybe$Just(
-				_List_fromArray(
-					[value]));
-		} else {
-			var list = maybeList.a;
-			return elm$core$Maybe$Just(
-				A2(elm$core$List$cons, value, list));
-		}
-	});
-var elm$url$Url$Parser$addParam = F2(
-	function (segment, dict) {
-		var _n0 = A2(elm$core$String$split, '=', segment);
-		if ((_n0.b && _n0.b.b) && (!_n0.b.b.b)) {
-			var rawKey = _n0.a;
-			var _n1 = _n0.b;
-			var rawValue = _n1.a;
-			var _n2 = elm$url$Url$percentDecode(rawKey);
-			if (_n2.$ === 'Nothing') {
-				return dict;
-			} else {
-				var key = _n2.a;
-				var _n3 = elm$url$Url$percentDecode(rawValue);
-				if (_n3.$ === 'Nothing') {
-					return dict;
-				} else {
-					var value = _n3.a;
-					return A3(
-						elm$core$Dict$update,
-						key,
-						elm$url$Url$Parser$addToParametersHelp(value),
-						dict);
-				}
-			}
-		} else {
-			return dict;
-		}
-	});
-var elm$url$Url$Parser$prepareQuery = function (maybeQuery) {
-	if (maybeQuery.$ === 'Nothing') {
-		return elm$core$Dict$empty;
-	} else {
-		var qry = maybeQuery.a;
-		return A3(
-			elm$core$List$foldr,
-			elm$url$Url$Parser$addParam,
-			elm$core$Dict$empty,
-			A2(elm$core$String$split, '&', qry));
-	}
-};
-var elm$url$Url$Parser$parse = F2(
-	function (_n0, url) {
-		var parser = _n0.a;
-		return elm$url$Url$Parser$getFirstMatch(
-			parser(
-				A5(
-					elm$url$Url$Parser$State,
-					_List_Nil,
-					elm$url$Url$Parser$preparePath(url.path),
-					elm$url$Url$Parser$prepareQuery(url.query),
-					url.fragment,
-					elm$core$Basics$identity)));
-	});
-var author$project$Main$init = F3(
-	function (_n0, url, key) {
-		var startModel = A2(author$project$Model$initialModel, key, url);
-		var _n1 = A2(elm$url$Url$Parser$parse, author$project$Main$urlParser, url);
-		if (_n1.$ === 'Nothing') {
-			return _Utils_Tuple2(
-				startModel,
-				A2(elm$browser$Browser$Navigation$replaceUrl, key, '/'));
-		} else {
-			var queryStringParams = _n1.a.queryStringParams;
-			var fragment = _n1.a.fragment;
-			var _n2 = queryStringParams.code;
-			if (_n2.$ === 'Just') {
-				var code = _n2.a;
-				var newModel = _Utils_update(
-					startModel,
-					{
-						authCode: elm$core$Maybe$Just(code)
-					});
-				return _Utils_Tuple2(
-					newModel,
-					author$project$Auth$authenticate(newModel));
-			} else {
-				if (fragment.$ === 'Nothing') {
-					return _Utils_Tuple2(startModel, author$project$Auth$checkAuthToken);
-				} else {
-					var frag = fragment.a;
-					if (A2(elm$core$String$startsWith, 'user:', frag)) {
-						var model = A2(author$project$Model$initialModel, key, url);
-						var acct = A2(elm$core$String$dropLeft, 5, frag);
-						return _Utils_Tuple2(
-							_Utils_update(
-								model,
-								{
-									view: author$project$Types$UserPage(acct)
-								}),
-							A2(author$project$Update$fetchOtherUserDetails, model.server.url, acct));
-					} else {
-						return _Utils_Tuple2(startModel, author$project$Auth$checkAuthToken);
-					}
-				}
-			}
-		}
-	});
-var elm$json$Json$Decode$andThen = _Json_andThen;
-var author$project$Ports$formImageRetrieved = _Platform_incomingPort(
-	'formImageRetrieved',
-	A2(
-		elm$json$Json$Decode$andThen,
-		function (filename) {
-			return A2(
-				elm$json$Json$Decode$andThen,
-				function (contents) {
-					return elm$json$Json$Decode$succeed(
-						{contents: contents, filename: filename});
-				},
-				A2(elm$json$Json$Decode$field, 'contents', elm$json$Json$Decode$string));
-		},
-		A2(elm$json$Json$Decode$field, 'filename', elm$json$Json$Decode$string)));
-var elm$json$Json$Decode$index = _Json_decodeIndex;
-var elm$json$Json$Decode$null = _Json_decodeNull;
-var elm$json$Json$Decode$oneOf = _Json_oneOf;
-var author$project$Ports$localStorageRetrievedItem = _Platform_incomingPort(
-	'localStorageRetrievedItem',
-	A2(
-		elm$json$Json$Decode$andThen,
-		function (x0) {
-			return A2(
-				elm$json$Json$Decode$andThen,
-				function (x1) {
-					return elm$json$Json$Decode$succeed(
-						_Utils_Tuple2(x0, x1));
-				},
-				A2(
-					elm$json$Json$Decode$index,
-					1,
-					elm$json$Json$Decode$oneOf(
-						_List_fromArray(
-							[
-								elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
-								A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
-							]))));
-		},
-		A2(elm$json$Json$Decode$index, 0, elm$json$Json$Decode$string)));
-var author$project$Ports$statusPosted = _Platform_incomingPort(
-	'statusPosted',
-	elm$json$Json$Decode$oneOf(
-		_List_fromArray(
-			[
-				elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
-				A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
-			])));
-var author$project$Types$AuthTokenRetrievedFromLocalStorage = function (a) {
-	return {$: 'AuthTokenRetrievedFromLocalStorage', a: a};
-};
-var author$project$Types$FormImageRead = function (a) {
-	return {$: 'FormImageRead', a: a};
-};
-var author$project$Types$Share = function (a) {
-	return {$: 'Share', a: a};
-};
-var author$project$Types$StatusPosted = function (a) {
-	return {$: 'StatusPosted', a: a};
-};
-var elm$core$Platform$Sub$batch = _Platform_batch;
-var author$project$Main$subscriptions = function (_n0) {
-	return elm$core$Platform$Sub$batch(
-		_List_fromArray(
-			[
-				author$project$Ports$localStorageRetrievedItem(
-				A2(elm$core$Basics$composeL, author$project$Types$Auth, author$project$Types$AuthTokenRetrievedFromLocalStorage)),
-				author$project$Ports$formImageRetrieved(
-				A2(elm$core$Basics$composeL, author$project$Types$Share, author$project$Types$FormImageRead)),
-				author$project$Ports$statusPosted(
-				A2(elm$core$Basics$composeL, author$project$Types$Share, author$project$Types$StatusPosted))
-			]));
-};
-var author$project$Types$LinkWasClicked = function (a) {
-	return {$: 'LinkWasClicked', a: a};
-};
-var author$project$Types$UrlHasChanged = function (a) {
-	return {$: 'UrlHasChanged', a: a};
-};
-var author$project$Ports$localStorageRemoveItem = _Platform_outgoingPort('localStorageRemoveItem', elm$json$Json$Encode$string);
-var author$project$Auth$clearAuthToken = author$project$Ports$localStorageRemoveItem('authToken');
-var author$project$Auth$loginUrl = function (model) {
-	var serverUrl = model.server.url;
-	var redirectUrl = elm$url$Url$toString(model.baseUrl);
-	var query = 'response_type=code&client_id=' + (model.server.clientId + ('&redirect_uri=' + (redirectUrl + '&scope=read+write+follow+push&state=meh')));
-	return elm$url$Url$toString(
-		_Utils_update(
-			serverUrl,
-			{
-				path: '/oauth/authorize',
-				query: elm$core$Maybe$Just(query)
-			}));
-};
-var author$project$Types$LoginPage = {$: 'LoginPage'};
-var author$project$Types$attachmentIdToString = function (_n0) {
-	var aid = _n0.a;
-	return aid;
-};
-var author$project$Types$statusIdToString = function (_n0) {
-	var sid = _n0.a;
-	return sid;
-};
-var author$project$Types$TimelineFetched = function (a) {
-	return {$: 'TimelineFetched', a: a};
-};
-var elm$json$Json$Decode$fail = _Json_fail;
-var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder = F3(
-	function (pathDecoder, valDecoder, fallback) {
-		var nullOr = function (decoder) {
-			return elm$json$Json$Decode$oneOf(
-				_List_fromArray(
-					[
-						decoder,
-						elm$json$Json$Decode$null(fallback)
-					]));
-		};
-		var handleResult = function (input) {
-			var _n0 = A2(elm$json$Json$Decode$decodeValue, pathDecoder, input);
-			if (_n0.$ === 'Ok') {
-				var rawValue = _n0.a;
-				var _n1 = A2(
-					elm$json$Json$Decode$decodeValue,
-					nullOr(valDecoder),
-					rawValue);
-				if (_n1.$ === 'Ok') {
-					var finalResult = _n1.a;
-					return elm$json$Json$Decode$succeed(finalResult);
-				} else {
-					var finalErr = _n1.a;
-					return elm$json$Json$Decode$fail(
-						elm$json$Json$Decode$errorToString(finalErr));
-				}
-			} else {
-				return elm$json$Json$Decode$succeed(fallback);
-			}
-		};
-		return A2(elm$json$Json$Decode$andThen, handleResult, elm$json$Json$Decode$value);
-	});
-var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional = F4(
-	function (key, valDecoder, fallback, decoder) {
-		return A2(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder,
-				A2(elm$json$Json$Decode$field, key, elm$json$Json$Decode$value),
-				valDecoder,
-				fallback),
-			decoder);
-	});
-var author$project$Types$Status = F6(
-	function (id, url, account, content, attachments, sensitive) {
-		return {account: account, attachments: attachments, content: content, id: id, sensitive: sensitive, url: url};
-	});
-var author$project$Types$Account = F3(
-	function (id, acct, displayName) {
-		return {acct: acct, displayName: displayName, id: id};
-	});
-var author$project$Types$accountDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'display_name',
-	elm$json$Json$Decode$string,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'acct',
-		elm$json$Json$Decode$string,
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'id',
-			elm$json$Json$Decode$string,
-			elm$json$Json$Decode$succeed(author$project$Types$Account))));
-var author$project$Types$Attachment = F4(
-	function (id, type_, url, previewUrl) {
-		return {id: id, previewUrl: previewUrl, type_: type_, url: url};
-	});
-var author$project$Types$attachmentIdDecoder = A2(
-	elm$json$Json$Decode$map,
-	function (s) {
-		return author$project$Types$AttachmentId(s);
-	},
-	elm$json$Json$Decode$string);
-var author$project$Types$Gifv = {$: 'Gifv'};
-var author$project$Types$Image = {$: 'Image'};
-var author$project$Types$Unknown = {$: 'Unknown'};
-var author$project$Types$Video = {$: 'Video'};
-var author$project$Types$attachmentTypeDecoder = function (s) {
-	switch (s) {
-		case 'image':
-			return elm$json$Json$Decode$succeed(author$project$Types$Image);
-		case 'video':
-			return elm$json$Json$Decode$succeed(author$project$Types$Video);
-		case 'gifv':
-			return elm$json$Json$Decode$succeed(author$project$Types$Gifv);
-		default:
-			return elm$json$Json$Decode$succeed(author$project$Types$Unknown);
-	}
-};
-var author$project$Types$attachmentDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'preview_url',
-	elm$json$Json$Decode$string,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'url',
-		elm$json$Json$Decode$string,
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'type',
-			A2(elm$json$Json$Decode$andThen, author$project$Types$attachmentTypeDecoder, elm$json$Json$Decode$string),
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'id',
-				author$project$Types$attachmentIdDecoder,
-				elm$json$Json$Decode$succeed(author$project$Types$Attachment)))));
-var author$project$Types$statusIdDecoder = A2(
-	elm$json$Json$Decode$map,
-	function (s) {
-		return author$project$Types$StatusId(s);
-	},
-	elm$json$Json$Decode$string);
-var elm$json$Json$Decode$bool = _Json_decodeBool;
-var elm$json$Json$Decode$nullable = function (decoder) {
-	return elm$json$Json$Decode$oneOf(
-		_List_fromArray(
-			[
-				elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
-				A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, decoder)
-			]));
-};
-var author$project$Types$statusDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'sensitive',
-	elm$json$Json$Decode$bool,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'media_attachments',
-		elm$json$Json$Decode$list(author$project$Types$attachmentDecoder),
-		A4(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
-			'content',
-			elm$json$Json$Decode$nullable(elm$json$Json$Decode$string),
-			elm$core$Maybe$Nothing,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'account',
-				author$project$Types$accountDecoder,
-				A4(
-					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
-					'url',
-					elm$json$Json$Decode$nullable(elm$json$Json$Decode$string),
-					elm$core$Maybe$Nothing,
-					A3(
-						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-						'id',
-						author$project$Types$statusIdDecoder,
-						elm$json$Json$Decode$succeed(author$project$Types$Status)))))));
-var author$project$Types$timelineDecoder = elm$json$Json$Decode$list(author$project$Types$statusDecoder);
-var elm$http$Http$Header = F2(
-	function (a, b) {
-		return {$: 'Header', a: a, b: b};
-	});
-var elm$http$Http$header = elm$http$Http$Header;
-var author$project$Update$getTimeline = F3(
-	function (instanceUrl, authToken, pageType) {
-		var urlPath = function () {
-			if (pageType.$ === 'UserPage') {
-				var acct = pageType.a;
-				return '/api/v1/accounts/' + (acct + '/statuses');
-			} else {
-				return '/api/v1/timelines/home';
-			}
-		}();
-		var url = _Utils_update(
-			instanceUrl,
-			{
-				path: urlPath,
-				query: elm$core$Maybe$Just('limit=40&local=true')
-			});
-		var headers = function () {
-			if (authToken.$ === 'Nothing') {
-				return _List_Nil;
-			} else {
-				var token = authToken.a;
-				return _List_fromArray(
-					[
-						A2(elm$http$Http$header, 'Authorization', 'Bearer ' + token)
-					]);
-			}
-		}();
-		return elm$http$Http$request(
-			{
-				body: elm$http$Http$emptyBody,
-				expect: A2(elm$http$Http$expectJson, author$project$Types$TimelineFetched, author$project$Types$timelineDecoder),
-				headers: headers,
-				method: 'GET',
-				timeout: elm$core$Maybe$Nothing,
-				tracker: elm$core$Maybe$Nothing,
-				url: elm$url$Url$toString(url)
-			});
-	});
-var author$project$Update$httpErrorMessage = function (error) {
-	switch (error.$) {
-		case 'BadUrl':
-			var string = error.a;
-			return 'Bad URL: ' + string;
-		case 'Timeout':
-			return 'Timeout';
-		case 'NetworkError':
-			return 'Network error';
-		case 'BadStatus':
-			var code = error.a;
-			return 'Bad status: ' + elm$core$String$fromInt(code);
-		default:
-			var text = error.a;
-			return 'Bad payload: ' + text;
-	}
-};
-var author$project$Types$PhotoFetched = function (a) {
-	return {$: 'PhotoFetched', a: a};
-};
-var author$project$Update$getStatus = F3(
-	function (instanceUrl, authToken, _n0) {
-		var statusId = _n0.a;
-		var headers = function () {
-			if (authToken.$ === 'Nothing') {
-				return _List_Nil;
-			} else {
-				var token = authToken.a;
-				return _List_fromArray(
-					[
-						A2(elm$http$Http$header, 'Authorization', 'Bearer ' + token)
-					]);
-			}
-		}();
-		return elm$http$Http$request(
-			{
-				body: elm$http$Http$emptyBody,
-				expect: A2(elm$http$Http$expectJson, author$project$Types$PhotoFetched, author$project$Types$statusDecoder),
-				headers: headers,
-				method: 'GET',
-				timeout: elm$core$Maybe$Nothing,
-				tracker: elm$core$Maybe$Nothing,
-				url: elm$url$Url$toString(
-					_Utils_update(
-						instanceUrl,
-						{path: '/api/v1/statuses/' + statusId}))
-			});
-	});
 var author$project$Update$nextCommand = function (model) {
 	var _n0 = model.view;
 	switch (_n0.$) {
 		case 'SharePathPage':
 			var _n1 = model.authToken;
 			if (_n1.$ === 'Nothing') {
-				return A2(elm$browser$Browser$Navigation$replaceUrl, model.key, '/');
+				return author$project$Update$goToHomePage(model);
 			} else {
 				return elm$core$Platform$Cmd$none;
 			}
 		case 'ShareUploadPage':
 			var _n2 = model.authToken;
 			if (_n2.$ === 'Nothing') {
-				return A2(elm$browser$Browser$Navigation$replaceUrl, model.key, '/');
+				return author$project$Update$goToHomePage(model);
 			} else {
 				return elm$core$Platform$Cmd$none;
 			}
@@ -11113,7 +11133,7 @@ var author$project$Update$nextCommand = function (model) {
 		case 'ProfilePage':
 			var _n4 = model.authToken;
 			if (_n4.$ === 'Nothing') {
-				return A2(elm$browser$Browser$Navigation$replaceUrl, model.key, '/');
+				return author$project$Update$goToHomePage(model);
 			} else {
 				var _n5 = model.userId;
 				if (_n5.$ === 'Nothing') {
@@ -11303,7 +11323,7 @@ var author$project$Update$updateAuth = F2(
 						});
 					return _Utils_Tuple2(
 						newModel,
-						A2(elm$browser$Browser$Navigation$replaceUrl, model.key, '/'));
+						author$project$Update$goToHomePage(model));
 				}
 			default:
 				var _n1 = msg.a;
@@ -11417,7 +11437,7 @@ var author$project$Update$updateShare = F2(
 						_Utils_update(
 							model,
 							{message: elm$core$Maybe$Nothing}),
-						A2(elm$browser$Browser$Navigation$replaceUrl, model.key, '/'));
+						author$project$Update$goToHomePage(model));
 				} else {
 					var error = msg.a.a;
 					return _Utils_Tuple2(
@@ -11458,7 +11478,7 @@ var author$project$Update$updateShare = F2(
 						_Utils_update(
 							model,
 							{message: elm$core$Maybe$Nothing}),
-						A2(elm$browser$Browser$Navigation$replaceUrl, model.key, '/'));
+						author$project$Update$goToHomePage(model));
 				}
 		}
 	});

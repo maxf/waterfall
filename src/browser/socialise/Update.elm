@@ -55,7 +55,7 @@ updateAuth msg model =
             in
             -- we're coming from an auth redirect page, so go to / to remove the
             -- query string
-            ( newModel, Nav.replaceUrl model.key "/" )
+            ( newModel, goToHomePage model )
 
         -- After loading the page, the auth token was requested from local storage
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->
@@ -93,7 +93,7 @@ updateShare msg model =
 
         -- A status was posted
         StatusPosted Nothing ->
-            ( { model | message = Nothing }, Nav.replaceUrl model.key "/" )
+            ( { model | message = Nothing }, goToHomePage model )
 
         StatusPosted (Just error) ->
             ( { model | message = Just error }, Cmd.none )
@@ -116,7 +116,7 @@ updateShare msg model =
             )
 
         ImageShared (Ok _) ->
-            ( { model | message = Nothing }, Nav.replaceUrl model.key "/" )
+            ( { model | message = Nothing }, goToHomePage model )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -215,6 +215,10 @@ update msg model =
             ( model, Cmd.none )
 
 
+goToHomePage : Model -> Cmd Msg
+goToHomePage model =
+    Nav.replaceUrl model.key (toString model.baseUrl)
+
 -- URL change generate command
 
 
@@ -224,7 +228,7 @@ nextCommand model =
         SharePathPage _ ->
             case model.authToken of
                 Nothing ->
-                    Nav.replaceUrl model.key "/"
+                    goToHomePage model
 
                 _ ->
                     Cmd.none
@@ -232,7 +236,7 @@ nextCommand model =
         ShareUploadPage _ ->
             case model.authToken of
                 Nothing ->
-                    Nav.replaceUrl model.key "/"
+                    goToHomePage model
 
                 _ ->
                     Cmd.none
@@ -251,7 +255,7 @@ nextCommand model =
         ProfilePage ->
             case model.authToken of
                 Nothing ->
-                    Nav.replaceUrl model.key "/"
+                    goToHomePage model
 
                 Just _ ->
                     case model.userId of

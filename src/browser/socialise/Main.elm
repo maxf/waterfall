@@ -14,7 +14,7 @@ import String exposing (contains, startsWith)
 import Types exposing (..)
 import Update exposing (fetchCurrentUserDetails, fetchOtherUserDetails, getStatus, getTimeline, update)
 import Url
-import Url.Parser exposing ((</>), (<?>), Parser, fragment, map, oneOf, parse, query, string, top)
+import Url.Parser exposing ((</>), (<?>), Parser, fragment, map, oneOf, parse, query, s, string, top)
 import Url.Parser.Query as Query
 import View exposing (view)
 
@@ -57,6 +57,8 @@ queryStringParser =
 codeIdentityParser : Parser (QueryStringParams -> Fragment -> a) a
 codeIdentityParser =
     top </> query queryStringParser </> fragment identity
+--    query queryStringParser </> fragment identity
+--    s "waterfall" <?> queryStringParser </> fragment identity
 
 
 urlParser : Parser (UrlData -> a) a
@@ -64,24 +66,39 @@ urlParser =
     map UrlData codeIdentityParser
 
 
+queryStringAndFragment : Url.Url -> Maybe UrlData
+queryStringAndFragment url =
+    parse urlParser { url | path = "" }
+
+
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
     let
         startModel =
             initialModel key url
+        _ = Debug.log "init" "start"
     in
-    case parse urlParser url of
+    case queryStringAndFragment url of
         Nothing ->
-            -- Bad URL. Redirect to home
-            ( startModel, Nav.replaceUrl key "/" )
+            -- just the hostname+path, proceed to home page
+            let
+                _ = Debug.log "init" "1"
+            in
+            ( startModel, checkAuthToken )
 
         Just { queryStringParams, fragment } ->
+            let
+                _ = Debug.log "init" "2"
+            in
             case queryStringParams.code of
                 Just code ->
                     -- this is an auth redirect page
                     let
                         newModel =
                             { startModel | authCode = Just code }
+                        _ = Debug.log "init" "3"
+
+
                     in
                     ( newModel, authenticate newModel )
 
@@ -89,6 +106,9 @@ init _ url key =
                     -- any other page
                     case fragment of
                         Nothing ->
+                            let
+                                _ = Debug.log "init" "4"
+                            in
                             ( startModel, checkAuthToken )
 
                         Just frag ->
@@ -99,13 +119,18 @@ init _ url key =
 
                                     model =
                                         initialModel key url
+
+                                    _ =
+                                        Debug.log "user" acct
                                 in
                                     ( { model | view = UserPage acct }
                                     , fetchOtherUserDetails model.server.url acct
                                     )
                             else
+                                let
+                                    _ = Debug.log "init" "5"
+                                in
                                 ( startModel, checkAuthToken )
-
 
 
 {-
