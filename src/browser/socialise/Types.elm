@@ -1,4 +1,4 @@
-module Types exposing (Account, Attachment, AttachmentId(..), AttachmentType(..), AuthMsg(..), AuthResponse, ImagePortData, MastodonServer, Msg(..), Screen(..), ShareMsg(..), Status, StatusId(..), accountDecoder, accountWebFingerDecoder, attachmentDecoder, attachmentIdDecoder, attachmentIdToString, attachmentTypeDecoder, defaultServer, lookupServer, servers, screenType, statusDecoder, statusIdDecoder, statusIdToString, timelineDecoder)
+module Types exposing (Account, Attachment, AttachmentId(..), AttachmentType(..), AuthMsg(..), AuthResponse, ImagePortData, MastodonServer, Msg(..), Screen(..), ShareMsg(..), Status, StatusId(..), accountDecoder, attachmentDecoder, attachmentIdDecoder, attachmentIdToString, attachmentTypeDecoder, defaultServer, lookupServer, screenType, servers, statusDecoder, statusIdDecoder, statusIdToString, timelineDecoder, webFingerDecoder)
 
 import Browser
 import Http
@@ -37,7 +37,7 @@ type Msg
     | UrlHasChanged Url
     | LinkWasClicked Browser.UrlRequest
     | UserClickedLogin
-    | ReceivedOtherUserDetails (Result Http.Error String)
+    | ReceivedOtherUserId (Result Http.Error (Maybe String))
 
 
 type alias AuthResponse =
@@ -161,6 +161,7 @@ type Screen
 
 -- URL change update model
 
+
 photoUrlRegex : Regex
 photoUrlRegex =
     Regex.fromString "photo:([^:]+):(.*)"
@@ -180,7 +181,6 @@ photoHashParts hash =
 
         _ ->
             Err "no matches found in photo URL"
-
 
 
 screenType : Url -> Screen
@@ -212,6 +212,8 @@ screenType url =
 
             else
                 HomePage
+
+
 
 -- Decoders
 
@@ -258,6 +260,7 @@ accountDecoder =
         |> required "acct" string
         |> required "display_name" string
 
+
 statusDecoder : Decoder Status
 statusDecoder =
     succeed Status
@@ -269,46 +272,74 @@ statusDecoder =
         |> required "sensitive" bool
 
 
--- get an Account from a webFingerResponse
 
+-- get an Account from a webFingerResponse
 {-
-{
-  "subject": "acct:maxf@mastodon.social",
-  "aliases": [
-    "https://mastodon.social/@maxf",
-    "https://mastodon.social/users/maxf"
-  ],
-  "links": [
-    {
-      "rel": "http://webfinger.net/rel/profile-page",
-      "type": "text/html",
-      "href": "https://mastodon.social/@maxf"
-    },
-    {
-      "rel": "http://schemas.google.com/g/2010#updates-from",
-      "type": "application/atom+xml",
-      "href": "https://mastodon.social/users/maxf.atom"
-    },
-    {
-      "rel": "self",
-      "type": "application/activity+json",
-      "href": "https://mastodon.social/users/maxf"
-    },
-    {
-      "rel": "salmon",
-      "href": "https://mastodon.social/api/salmon/580456"
-    },
-  ...
-  ]
-}
+   {
+     "subject": "acct:maxf@mastodon.social",
+     "aliases": [
+       "https://mastodon.social/@maxf",
+       "https://mastodon.social/users/maxf"
+     ],
+     "links": [
+       {
+         "rel": "http://webfinger.net/rel/profile-page",
+         "type": "text/html",
+         "href": "https://mastodon.social/@maxf"
+       },
+       {
+         "rel": "http://schemas.google.com/g/2010#updates-from",
+         "type": "application/atom+xml",
+         "href": "https://mastodon.social/users/maxf.atom"
+       },
+       {
+         "rel": "self",
+         "type": "application/activity+json",
+         "href": "https://mastodon.social/users/maxf"
+       },
+       {
+         "rel": "salmon",
+         "href": "https://mastodon.social/api/salmon/580456"
+       },
+     ...
+     ]
+   }
 -}
 
-accountWebFingerDecoder : Decoder Account
-accountWebFingerDecoder =
-    succeed Account
-        |> required "id" string
-        |> required "acct" string
-        |> required "display_name" string
+
+type alias WebFingerRel =
+    { rel : String
+    , href : String
+    }
+
+
+webFingerRelDecoder =
+    Json.Decode.succeed WebFingerRel
+        |> required "rel" string
+        |> optional "href" string ""
+
+
+userIdFromSalmonUrl : String -> String
+userIdFromSalmonUrl url =
+    String.split "/" url
+        |> List.reverse
+        |> List.head
+        |> Maybe.withDefault ""
+
+
+userIdFromWebFinger : List WebFingerRel -> Maybe String
+userIdFromWebFinger list =
+    list
+        |> List.filter (\item -> item.rel == "salmon")
+        |> List.head
+        |> Maybe.map .href
+        |> Maybe.map userIdFromSalmonUrl
+
+
+webFingerDecoder : Decoder (Maybe String)
+webFingerDecoder =
+    map userIdFromWebFinger (field "links" (list webFingerRelDecoder))
+
 
 statusIdDecoder : Decoder StatusId
 statusIdDecoder =

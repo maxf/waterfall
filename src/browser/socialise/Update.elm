@@ -211,13 +211,27 @@ update msg model =
         UserClickedLogin ->
             ( model, Nav.load (loginUrl model) )
 
-        ReceivedOtherUserDetails _ ->
-            ( model, Cmd.none )
+        ReceivedOtherUserId (Ok userId) ->
+            case userId of
+                Nothing ->
+                    ( { model | view = ErrorPage "User not found" }, Cmd.none )
+
+                Just id ->
+                    ( { model | view = UserPage id }
+                    , getTimeline model.server.url model.authToken (UserPage id)
+                    )
+
+        ReceivedOtherUserId (Err message) ->
+            ( { model | view = ErrorPage (httpErrorMessage message) }
+            , Cmd.none
+            )
 
 
 goToHomePage : Model -> Cmd Msg
 goToHomePage model =
     Nav.replaceUrl model.key (toString model.baseUrl)
+
+
 
 -- URL change generate command
 
@@ -322,11 +336,8 @@ fetchOtherUserDetails instanceUrl acct =
             }
     in
     Http.get
-{-        { url = url |> toString
-        , expect = Http.expectJson ReceivedOtherUserDetails accountWebFingerDecoder
-        }-}
-        { url = "https://mastodon.social/users/maxf.atom"
-        , expect = Http.expectString ReceivedOtherUserDetails
+        { url = url |> toString
+        , expect = Http.expectJson ReceivedOtherUserId webFingerDecoder
         }
 
 
@@ -339,11 +350,8 @@ getTimeline instanceUrl authToken pageType =
     let
         urlPath =
             case pageType of
-                UserPage acct ->
-                    -- First we need to look up the user's ID by calling
-                    -- https://mastodon.social/.well-known/webfinger?resource=acct:maxf@mastodon.social
-                    -- then use the id
-                    "/api/v1/accounts/" ++ acct ++ "/statuses"
+                UserPage userId ->
+                    "/api/v1/accounts/" ++ userId ++ "/statuses"
 
                 _ ->
                     "/api/v1/timelines/home"

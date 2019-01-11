@@ -5,6 +5,7 @@ import Types exposing (..)
 import Url exposing (Url)
 
 
+
 -- Model
 
 
@@ -23,6 +24,7 @@ type alias Model =
     , currentStatus : Maybe Status
     , key : Nav.Key
     }
+
 
 initialModel : Nav.Key -> Url -> Model
 initialModel key url =
