@@ -12194,7 +12194,7 @@ var author$project$View$viewMain = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								elm$html$Html$text('User' + userId)
+								elm$html$Html$text('User ' + userId)
 							])),
 						author$project$View$viewTimeline(model.timeline)
 					]));
