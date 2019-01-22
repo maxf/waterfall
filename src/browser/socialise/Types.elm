@@ -1,4 +1,4 @@
-module Types exposing (Account, Attachment, AttachmentId(..), AttachmentType(..), AuthMsg(..), AuthResponse, ImagePortData, MastodonServer, Msg(..), Screen(..), ShareMsg(..), Status, StatusId(..), accountDecoder, attachmentDecoder, attachmentIdDecoder, attachmentIdToString, attachmentTypeDecoder, defaultServer, lookupServer, screenType, servers, statusDecoder, statusIdDecoder, statusIdToString, timelineDecoder, webFingerDecoder)
+module Types exposing (Account, Attachment, AttachmentId(..), AttachmentType(..), AuthMsg(..), AuthResponse, Fragment, ImagePortData, MastodonServer, Msg(..), Screen(..), ShareMsg(..), Status, StatusId(..), accountDecoder, attachmentDecoder, attachmentIdDecoder, attachmentIdToString, attachmentTypeDecoder, defaultServer, lookupServer, photoHashParts, screenType, servers, statusDecoder, statusIdDecoder, statusIdToString, timelineDecoder, webFingerDecoder)
 
 import Browser
 import Http
@@ -55,6 +55,10 @@ type alias ImagePortData =
     { contents : String
     , filename : String
     }
+
+
+type alias Fragment =
+    Maybe String
 
 
 defaultServer : MastodonServer

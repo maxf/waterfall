@@ -10,9 +10,8 @@ import Ports
         , localStorageRetrievedItem
         , statusPosted
         )
-import String exposing (contains, startsWith)
 import Types exposing (..)
-import Update exposing (fetchCurrentUserDetails, fetchOtherUserDetails, getStatus, getTimeline, update)
+import Update exposing (fetchCurrentUserDetails, fetchOtherUserId, fragmentRouter, getStatus, getTimeline, update)
 import Url
 import Url.Parser exposing ((</>), (<?>), Parser, fragment, map, oneOf, parse, query, s, string, top)
 import Url.Parser.Query as Query
@@ -35,10 +34,6 @@ main =
 --type alias UrlData = { params : QueryStringParams, fragment : Maybe String }
 
 
-type alias Fragment =
-    Maybe String
-
-
 type alias QueryStringParams =
     { code : Maybe String
     , state : Maybe String
@@ -57,6 +52,9 @@ queryStringParser =
 codeIdentityParser : Parser (QueryStringParams -> Fragment -> a) a
 codeIdentityParser =
     top </> query queryStringParser </> fragment identity
+
+
+
 --    query queryStringParser </> fragment identity
 --    s "waterfall" <?> queryStringParser </> fragment identity
 
@@ -76,61 +74,26 @@ init _ url key =
     let
         startModel =
             initialModel key url
-        _ = Debug.log "init" "start"
     in
     case queryStringAndFragment url of
         Nothing ->
             -- just the hostname+path, proceed to home page
-            let
-                _ = Debug.log "init" "1"
-            in
             ( startModel, checkAuthToken )
 
         Just { queryStringParams, fragment } ->
-            let
-                _ = Debug.log "init" "2"
-            in
             case queryStringParams.code of
                 Just code ->
                     -- this is an auth redirect page
                     let
                         newModel =
                             { startModel | authCode = Just code }
-                        _ = Debug.log "init" "3"
-
-
                     in
                     ( newModel, authenticate newModel )
 
                 Nothing ->
                     -- any other page
-                    case fragment of
-                        Nothing ->
-                            let
-                                _ = Debug.log "init" "4"
-                            in
-                            ( startModel, checkAuthToken )
+                    fragmentRouter (initialModel key url) fragment
 
-                        Just frag ->
-                            if frag |> startsWith "user:" then
-                                let
-                                    acct =
-                                        String.dropLeft 5 frag
-
-                                    model =
-                                        initialModel key url
-
-                                    _ =
-                                        Debug.log "user" acct
-                                in
-                                    ( { model | view = UserPage acct }
-                                    , fetchOtherUserDetails model.server.url acct
-                                    )
-                            else
-                                let
-                                    _ = Debug.log "init" "5"
-                                in
-                                ( startModel, checkAuthToken )
 
 
 {-

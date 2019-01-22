@@ -23,6 +23,8 @@ type alias Model =
     , shareText : String
     , currentStatus : Maybe Status
     , key : Nav.Key
+    , otherUserId : Maybe String
+    , otherUsername : Maybe String
     }
 
 
@@ -41,6 +43,8 @@ initialModel key url =
     , shareText = ""
     , currentStatus = Nothing
     , key = key
+    , otherUserId = Nothing
+    , otherUsername = Nothing
     }
 
 

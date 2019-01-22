@@ -1,13 +1,13 @@
-module Update exposing (fetchCurrentUserDetails, fetchOtherUserDetails, getStatus, getTimeline, update)
+module Update exposing (fetchCurrentUserDetails, fetchOtherUserId, fragmentRouter, getStatus, getTimeline, update)
 
-import Auth exposing (authenticate, clearAuthToken, loginUrl, storeAuthToken)
+import Auth exposing (authenticate, checkAuthToken, clearAuthToken, loginUrl, storeAuthToken)
 import Browser
 import Browser.Navigation as Nav
 import Http
 import Maybe exposing (withDefault)
 import Model exposing (Model, changeServerUrl, initialModel)
 import Ports exposing (..)
-import String exposing (fromInt)
+import String exposing (contains, fromInt, startsWith)
 import Types exposing (..)
 import Url exposing (..)
 
@@ -62,11 +62,7 @@ updateAuth msg model =
             case token of
                 -- No token found, show the login page
                 Nothing ->
-                    let
-                        newModel =
-                            { model | view = LoginPage }
-                    in
-                    ( newModel, nextCommand newModel )
+                    ( { model | view = LoginPage }, Cmd.none )
 
                 -- We've got a token, fetch the user's details
                 Just tokenValue ->
@@ -193,12 +189,8 @@ update msg model =
                     in
                     ( { startModel | view = LoginPage }, clearAuthToken )
 
-                _ ->
-                    let
-                        newModel =
-                            { model | view = screenType location }
-                    in
-                    ( newModel, nextCommand newModel )
+                Just fragment ->
+                    fragmentRouter model (Just fragment)
 
         LinkWasClicked urlRequest ->
             case urlRequest of
@@ -214,10 +206,12 @@ update msg model =
         ReceivedOtherUserId (Ok userId) ->
             case userId of
                 Nothing ->
-                    ( { model | view = ErrorPage "User not found" }, Cmd.none )
+                    ( { model | view = ErrorPage "User not found" }
+                    , Cmd.none
+                    )
 
                 Just id ->
-                    ( { model | view = UserPage id }
+                    ( { model | view = UserPage id, otherUserId = Just id }
                     , getTimeline model.server.url model.authToken (UserPage id)
                     )
 
@@ -236,65 +230,38 @@ goToHomePage model =
 -- URL change generate command
 
 
-nextCommand : Model -> Cmd Msg
-nextCommand model =
-    case model.view of
-        SharePathPage _ ->
-            case model.authToken of
-                Nothing ->
-                    goToHomePage model
+fragmentRouter : Model -> Fragment -> ( Model, Cmd Msg )
+fragmentRouter model fragment =
+    case fragment of
+        Nothing ->
+            ( { model | view = HomePage }, checkAuthToken )
 
-                _ ->
-                    Cmd.none
+        Just "logout" ->
+            ( { model | view = LoginPage }, clearAuthToken )
 
-        ShareUploadPage _ ->
-            case model.authToken of
-                Nothing ->
-                    goToHomePage model
+        Just frag ->
+            if frag |> startsWith "user:" then
+                let
+                    acct =
+                        String.dropLeft 5 frag
+                in
+                ( { model | otherUsername = Just acct, view = UserPage acct }
+                , fetchOtherUserId model.server.url acct
+                )
 
-                _ ->
-                    Cmd.none
+            else if frag |> startsWith "photo:" then
+                case photoHashParts frag of
+                    Ok ( statusId, attachmentId ) ->
+                        ( { model | view = PhotoPage statusId attachmentId }
+                        , getStatus model.server.url model.authToken statusId
+                        )
 
-        PhotoPage statusId _ ->
-            getStatus model.server.url model.authToken statusId
-
-        HomePage ->
-            case model.authToken of
-                Nothing ->
-                    Cmd.none
-
-                _ ->
-                    getTimeline model.server.url model.authToken HomePage
-
-        ProfilePage ->
-            case model.authToken of
-                Nothing ->
-                    goToHomePage model
-
-                Just _ ->
-                    case model.userId of
-                        Nothing ->
-                            Cmd.none
-
-                        Just userId ->
-                            getTimeline
-                                model.server.url
-                                model.authToken
-                                (UserPage userId)
-
-        LoginPage ->
-            Cmd.none
-
-        LogoutPage ->
-            clearAuthToken
-
-        UserPage userId ->
-            getTimeline model.server.url model.authToken (UserPage userId)
-
-        ErrorPage _ ->
-            Cmd.none
-
-
+                    Err message ->
+                        ( { model | view = ErrorPage message }
+                        , Cmd.none
+                        )
+            else
+                ( model, checkAuthToken )
 
 -- parse photo hash
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#fetching-a-status
@@ -326,8 +293,8 @@ getStatus instanceUrl authToken (StatusId statusId) =
 -- fetch the timeline of a specific user identified by their acct (eg maxf@mastodon.social)
 
 
-fetchOtherUserDetails : Url -> String -> Cmd Msg
-fetchOtherUserDetails instanceUrl acct =
+fetchOtherUserId : Url -> String -> Cmd Msg
+fetchOtherUserId instanceUrl acct =
     let
         url =
             { instanceUrl
