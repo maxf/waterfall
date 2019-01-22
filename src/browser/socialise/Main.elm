@@ -76,28 +76,19 @@ init _ url key =
     let
         startModel =
             initialModel key url
-        _ = Debug.log "init" "start"
     in
     case queryStringAndFragment url of
         Nothing ->
             -- just the hostname+path, proceed to home page
-            let
-                _ = Debug.log "init" "1"
-            in
             ( startModel, checkAuthToken )
 
         Just { queryStringParams, fragment } ->
-            let
-                _ = Debug.log "init" "2"
-            in
             case queryStringParams.code of
                 Just code ->
                     -- this is an auth redirect page
                     let
                         newModel =
                             { startModel | authCode = Just code }
-                        _ = Debug.log "init" "3"
-
 
                     in
                     ( newModel, authenticate newModel )
@@ -106,9 +97,6 @@ init _ url key =
                     -- any other page
                     case fragment of
                         Nothing ->
-                            let
-                                _ = Debug.log "init" "4"
-                            in
                             ( startModel, checkAuthToken )
 
                         Just frag ->
@@ -120,16 +108,11 @@ init _ url key =
                                     model =
                                         initialModel key url
 
-                                    _ =
-                                        Debug.log "user" acct
                                 in
                                     ( { model | view = UserPage acct }
-                                    , fetchOtherUserDetails model.server.url acct
+                                    , Cmd.batch [ checkAuthToken, fetchOtherUserDetails model.server.url acct]
                                     )
                             else
-                                let
-                                    _ = Debug.log "init" "5"
-                                in
                                 ( startModel, checkAuthToken )
 
 

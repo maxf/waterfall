@@ -56,6 +56,9 @@ updateAuth msg model =
             -- we're coming from an auth redirect page, so go to / to remove the
             -- query string
             ( newModel, goToHomePage model )
+        -- TODO: above wrong. Not always an auth redirect
+                -- if it's an auth redirect page (ie, there's a query string ?code=) -> goTohomepage model
+                -- otherwise: Cmd.none
 
         -- After loading the page, the auth token was requested from local storage
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->

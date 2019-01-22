@@ -7221,50 +7221,48 @@ var author$project$Update$fetchOtherUserDetails = F2(
 				url: elm$url$Url$toString(url)
 			});
 	});
-var elm$core$Debug$log = _Debug_log;
+var elm$core$Platform$Cmd$batch = _Platform_batch;
 var author$project$Main$init = F3(
 	function (_n0, url, key) {
 		var startModel = A2(author$project$Model$initialModel, key, url);
-		var _n1 = A2(elm$core$Debug$log, 'init', 'start');
-		var _n2 = author$project$Main$queryStringAndFragment(url);
-		if (_n2.$ === 'Nothing') {
-			var _n3 = A2(elm$core$Debug$log, 'init', '1');
+		var _n1 = author$project$Main$queryStringAndFragment(url);
+		if (_n1.$ === 'Nothing') {
 			return _Utils_Tuple2(startModel, author$project$Auth$checkAuthToken);
 		} else {
-			var queryStringParams = _n2.a.queryStringParams;
-			var fragment = _n2.a.fragment;
-			var _n4 = A2(elm$core$Debug$log, 'init', '2');
-			var _n5 = queryStringParams.code;
-			if (_n5.$ === 'Just') {
-				var code = _n5.a;
+			var queryStringParams = _n1.a.queryStringParams;
+			var fragment = _n1.a.fragment;
+			var _n2 = queryStringParams.code;
+			if (_n2.$ === 'Just') {
+				var code = _n2.a;
 				var newModel = _Utils_update(
 					startModel,
 					{
 						authCode: elm$core$Maybe$Just(code)
 					});
-				var _n6 = A2(elm$core$Debug$log, 'init', '3');
 				return _Utils_Tuple2(
 					newModel,
 					author$project$Auth$authenticate(newModel));
 			} else {
 				if (fragment.$ === 'Nothing') {
-					var _n8 = A2(elm$core$Debug$log, 'init', '4');
 					return _Utils_Tuple2(startModel, author$project$Auth$checkAuthToken);
 				} else {
 					var frag = fragment.a;
 					if (A2(elm$core$String$startsWith, 'user:', frag)) {
 						var model = A2(author$project$Model$initialModel, key, url);
 						var acct = A2(elm$core$String$dropLeft, 5, frag);
-						var _n9 = A2(elm$core$Debug$log, 'user', acct);
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
 								{
 									view: author$project$Types$UserPage(acct)
 								}),
-							A2(author$project$Update$fetchOtherUserDetails, model.server.url, acct));
+							elm$core$Platform$Cmd$batch(
+								_List_fromArray(
+									[
+										author$project$Auth$checkAuthToken,
+										A2(author$project$Update$fetchOtherUserDetails, model.server.url, acct)
+									])));
 					} else {
-						var _n10 = A2(elm$core$Debug$log, 'init', '5');
 						return _Utils_Tuple2(startModel, author$project$Auth$checkAuthToken);
 					}
 				}
@@ -10500,7 +10498,6 @@ var elm$browser$Debugger$Overlay$BadImport = function (a) {
 };
 var elm$browser$Debugger$Report$CorruptHistory = {$: 'CorruptHistory'};
 var elm$browser$Debugger$Overlay$corruptImport = elm$browser$Debugger$Overlay$BadImport(elm$browser$Debugger$Report$CorruptHistory);
-var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var elm$browser$Debugger$Main$loadNewHistory = F3(
 	function (rawHistory, update, model) {
@@ -12218,7 +12215,7 @@ var author$project$View$viewMain = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								elm$html$Html$text('User' + userId)
+								elm$html$Html$text('User ' + userId)
 							])),
 						author$project$View$viewTimeline(model.timeline)
 					]));
