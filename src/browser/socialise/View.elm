@@ -33,7 +33,11 @@ view model =
             [ class "outer" ]
             [ div
                 [ class "columns" ]
-                [ (if model.view /= LoginPage then viewSidebar model else div [] [])
+                [ if model.view /= LoginPage then
+                    viewSidebar model
+
+                  else
+                    div [] []
                 , div [ id "photos" ] [ viewMain model ]
                 ]
             , message
@@ -78,7 +82,6 @@ viewSidebarLinks username pageType =
 viewMain : Model -> Html Msg
 viewMain model =
     case model.view of
-
         LoginPage ->
             div []
                 [ h1 [] [ text "Welcome to Waterfall" ]
@@ -139,7 +142,7 @@ viewMain model =
 
         UserPage userId ->
             div []
-                [ h1 [] [ "User" ++ userId |> text ]
+                [ h1 [] [ "User " ++ userId |> text ]
                 , viewTimeline model.timeline
                 ]
 
@@ -181,6 +184,7 @@ viewPhoto status attachmentId =
                 markup =
                     if status.sensitive then
                         div [] [ text "Sensitive content" ]
+
                     else
                         attachmentMarkup image
             in
@@ -243,10 +247,12 @@ viewAttachment status attachment =
             a
                 [ href ("#photo:" ++ (status.id |> statusIdToString) ++ ":" ++ (attachment.id |> attachmentIdToString)) ]
                 (if status.sensitive then
-                     [ span [] [ text "Sensitive content" ] ]
+                    [ span [] [ text "Sensitive content" ] ]
+
                  else
-                     [ img [ src attachment.previewUrl ] [] ]
+                    [ img [ src attachment.previewUrl ] [] ]
                 )
+
 
 viewSharePath : String -> Html Msg
 viewSharePath path =
