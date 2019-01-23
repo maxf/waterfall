@@ -5,7 +5,7 @@ import Browser
 import Browser.Navigation as Nav
 import Http
 import Maybe exposing (withDefault)
-import Model exposing (Model, changeServerUrl, initialModel)
+import Model exposing (Model, baseUrl, changeServerUrl, initialModel)
 import Ports exposing (..)
 import String exposing (contains, fromInt, startsWith)
 import Types exposing (..)
@@ -53,12 +53,7 @@ updateAuth msg model =
                         , userId = Just account.id
                     }
             in
-            -- we're coming from an auth redirect page, so go to / to remove the
-            -- query string
-            ( newModel, goToHomePage model )
-        -- TODO: above wrong. Not always an auth redirect
-                -- if it's an auth redirect page (ie, there's a query string ?code=) -> goTohomepage model
-                -- otherwise: Cmd.none
+            fragmentRouter newModel
 
         -- After loading the page, the auth token was requested from local storage
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->
@@ -174,26 +169,32 @@ update msg model =
             )
 
         UrlHasChanged location ->
+            let
+                newModel =
+                    { model | currentUrl = location }
+            in
             case location.fragment of
                 Nothing ->
                     case model.authToken of
                         Nothing ->
-                            ( { model | view = LoginPage }, Cmd.none )
+                            ( { newModel | view = LoginPage }
+                            , Cmd.none
+                            )
 
                         Just _ ->
-                            ( { model | view = HomePage }
+                            ( { newModel | view = HomePage }
                             , getTimeline model.server.url model.authToken HomePage
                             )
 
                 Just "logout" ->
                     let
                         startModel =
-                            initialModel model.key model.baseUrl
+                            initialModel model.key model.currentUrl
                     in
                     ( { startModel | view = LoginPage }, clearAuthToken )
 
                 Just fragment ->
-                    fragmentRouter model (Just fragment)
+                    fragmentRouter newModel
 
         LinkWasClicked urlRequest ->
             case urlRequest of
@@ -226,18 +227,20 @@ update msg model =
 
 goToHomePage : Model -> Cmd Msg
 goToHomePage model =
-    Nav.replaceUrl model.key (toString model.baseUrl)
+    Nav.replaceUrl model.key (baseUrl model)
 
 
 
 -- URL change generate command
 
 
-fragmentRouter : Model -> Fragment -> ( Model, Cmd Msg )
-fragmentRouter model fragment =
-    case fragment of
+fragmentRouter : Model -> ( Model, Cmd Msg )
+fragmentRouter model =
+    case model.currentUrl.fragment of
         Nothing ->
-            ( { model | view = HomePage }, checkAuthToken )
+            ( { model | view = HomePage }
+            , getTimeline model.server.url model.authToken HomePage
+            )
 
         Just "logout" ->
             ( { model | view = LoginPage }, clearAuthToken )
@@ -263,9 +266,85 @@ fragmentRouter model fragment =
                         ( { model | view = ErrorPage message }
                         , Cmd.none
                         )
-            else
-                ( model, checkAuthToken )
 
+            else
+                ( model, Cmd.none )
+
+
+
+{-
+
+       case parse urlParser url of
+           Nothing ->
+               ( initialModel key url PublicTimeline, checkAuthToken )
+
+           Just { queryStringParams, fragment } ->
+               case queryStringParams.code of
+                   Just code ->
+                       let
+                           model =
+                               initialModel key url HomePage
+                           newModel =
+                               { model | authCode = Just code }
+                       in
+                       ( newModel, authenticate newModel )
+
+                   Nothing ->
+                       case fragment of
+                           Nothing ->
+                               ( initialModel key url PublicTimeline, checkAuthToken )
+
+                           Just "home" ->
+                               ( initialModel key url HomePage, checkAuthToken )
+
+                           Just "me" ->
+                               ( initialModel key url ProfilePage, checkAuthToken )
+
+                           Just frag ->
+                               if frag |> startsWith "user:" then
+                                   let
+                                       userId =
+                                           String.dropLeft 5 frag
+
+                                       model =
+                                           initialModel key url (UserPage userId)
+                                   in
+                                   ( model
+                                   , getTimeline model.server.url model.authToken (UserPage userId)
+                                   )
+
+                               else if frag |> startsWith "photo:" then
+                                   case photoHashParts frag of
+                                       Ok ( statusId, attachmentId ) ->
+                                           let
+                                               model =
+                                                   initialModel key url (PhotoPage statusId attachmentId)
+                                           in
+                                           ( model
+                                           , getStatus model.server.url model.authToken statusId
+                                           )
+
+                                       Err _ ->
+                                           ( initialModel key url PublicTimeline
+                                           , Cmd.none
+                                           )
+
+                               else if frag |> startsWith "share:" then
+                                   ( initialModel key url (SharePathPage (String.dropLeft 6 frag))
+                                   , checkAuthToken
+                                   )
+
+                               else if frag |> startsWith "upload:" then
+                                   ( initialModel key url (ShareUploadPage Nothing)
+                                   , checkAuthToken
+                                   )
+
+                               else
+                                   ( initialModel key url PublicTimeline
+                                   , checkAuthToken
+                                   )
+   -
+-}
 -- parse photo hash
 -- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#fetching-a-status
 

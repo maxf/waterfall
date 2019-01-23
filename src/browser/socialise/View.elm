@@ -33,7 +33,7 @@ view model =
             [ class "outer" ]
             [ div
                 [ class "columns" ]
-                [ if model.view /= LoginPage then
+                [ if model.view /= LoginPage && model.view /= StartingPage then
                     viewSidebar model
 
                   else
@@ -151,6 +151,9 @@ viewMain model =
                 [ h1 [] [ text "Your pictures" ]
                 , viewTimeline model.timeline
                 ]
+
+        StartingPage ->
+            div [] []
 
 
 attachmentMarkup : Attachment -> Html Msg

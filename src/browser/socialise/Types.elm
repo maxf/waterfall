@@ -151,7 +151,8 @@ type alias Attachment =
 
 
 type Screen
-    = HomePage
+    = StartingPage
+    | HomePage
     | ProfilePage
     | UserPage String -- <user id>
     | PhotoPage StatusId AttachmentId -- <statusId> <attachmentId>

@@ -4,7 +4,7 @@ import Http
 import Json.Decode
 import Json.Decode.Pipeline
 import Maybe exposing (withDefault)
-import Model exposing (Model)
+import Model exposing (Model, baseUrl)
 import Ports
     exposing
         ( localStorageGetItem
@@ -21,7 +21,7 @@ loginUrl model =
             model.server.url
 
         redirectUrl =
-            model.baseUrl |> Url.toString
+            baseUrl model
 
         query =
             "response_type=code&client_id=" ++ model.server.clientId ++ "&redirect_uri=" ++ redirectUrl ++ "&scope=read+write+follow+push&state=meh"
@@ -64,7 +64,7 @@ authenticate model =
                 ++ "&code="
                 ++ (model.authCode |> withDefault "")
                 ++ "&redirect_uri="
-                ++ (model.baseUrl |> Url.toString)
+                ++ baseUrl model
 
         url =
             model.server.url

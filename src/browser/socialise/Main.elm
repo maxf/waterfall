@@ -77,7 +77,7 @@ init _ url key =
     in
     case queryStringAndFragment url of
         Nothing ->
-            -- just the hostname+path, proceed to home page
+            -- parsing the URL failed
             ( startModel, checkAuthToken )
 
         Just { queryStringParams, fragment } ->
@@ -91,8 +91,9 @@ init _ url key =
                     ( newModel, authenticate newModel )
 
                 Nothing ->
-                    -- any other page
-                    fragmentRouter (initialModel key url) fragment
+                    -- any other page, first check if a user is logged in
+                    ( initialModel key url, checkAuthToken )
+
 
 
 {-

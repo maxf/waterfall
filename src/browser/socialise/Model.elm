@@ -1,4 +1,4 @@
-module Model exposing (Model, changeServerUrl, initialModel)
+module Model exposing (Model, baseUrl, changeServerUrl, initialModel)
 
 import Browser.Navigation as Nav
 import Types exposing (..)
@@ -10,7 +10,7 @@ import Url exposing (Url)
 
 
 type alias Model =
-    { baseUrl : Url
+    { currentUrl : Url -- full URL of this page
     , server : MastodonServer
     , authToken : Maybe String
     , authCode : Maybe String
@@ -30,7 +30,7 @@ type alias Model =
 
 initialModel : Nav.Key -> Url -> Model
 initialModel key url =
-    { baseUrl = { url | fragment = Nothing, query = Nothing }
+    { currentUrl = url
     , server = defaultServer
     , authToken = Nothing
     , authCode = Nothing
@@ -39,13 +39,22 @@ initialModel key url =
     , userId = Nothing
     , message = Nothing
     , timeline = []
-    , view = screenType url
+    , view = StartingPage
     , shareText = ""
     , currentStatus = Nothing
     , key = key
     , otherUserId = Nothing
     , otherUsername = Nothing
     }
+
+
+baseUrl : Model -> String
+baseUrl model =
+    model.currentUrl
+        |> Url.toString
+        |> String.split "?"
+        |> List.head
+        |> Maybe.withDefault ""
 
 
 changeServerUrl : Model -> String -> Model
