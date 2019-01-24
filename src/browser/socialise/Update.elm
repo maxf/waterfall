@@ -30,10 +30,10 @@ updateAuth msg model =
             )
 
         AuthReturn (Ok response) ->
-            ( { model | authToken = Just response.token, message = Nothing }
+            ( model
             , Cmd.batch
                 [ storeAuthToken response.token
-                , fetchCurrentUserDetails response.token model.server.url
+                , Nav.load "/"
                 ]
             )
 
@@ -58,9 +58,8 @@ updateAuth msg model =
         -- After loading the page, the auth token was requested from local storage
         AuthTokenRetrievedFromLocalStorage ( _, token ) ->
             case token of
-                -- No token found, show the login page
                 Nothing ->
-                    ( { model | view = LoginPage }, Cmd.none )
+                    fragmentRouter model
 
                 -- We've got a token, fetch the user's details
                 Just tokenValue ->
@@ -191,7 +190,9 @@ update msg model =
                         startModel =
                             initialModel model.key model.currentUrl
                     in
-                    ( { startModel | view = LoginPage }, clearAuthToken )
+                    ( { startModel | view = LoginPage }
+                    , Cmd.batch [ clearAuthToken, Nav.pushUrl model.key "/" ]
+                    )
 
                 Just fragment ->
                     fragmentRouter newModel

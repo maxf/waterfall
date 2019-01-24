@@ -8,4 +8,6 @@
 -- sub: `localStorageRetrievedItem` -> Msg `AuthTokenRetrievedFromLocalStorage`
 --- if no token -> go to login page ### CHANGE to just go to router
 --- if token -> fn: `fetchCurrentuserdetails`
----- Http.request verify_credentials -> Msg `UserDetailsFetched` -> go to router.
+---- Http.request verify_credentials -> Msg `UserDetailsFetched`
+----- if ?code= -> go to home page
+----- otherwise router

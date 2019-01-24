@@ -7650,89 +7650,6 @@ var author$project$Update$fetchCurrentUserDetails = F2(
 						{path: '/api/v1/accounts/verify_credentials'}))
 			});
 	});
-var author$project$Update$updateAuth = F2(
-	function (msg, model) {
-		switch (msg.$) {
-			case 'ServerSelect':
-				var url = msg.a;
-				return _Utils_Tuple2(
-					A2(author$project$Model$changeServerUrl, model, url),
-					elm$core$Platform$Cmd$none);
-			case 'AuthSubmit':
-				return _Utils_Tuple2(
-					model,
-					author$project$Auth$authenticate(model));
-			case 'AuthReturn':
-				if (msg.a.$ === 'Err') {
-					var error = msg.a.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								message: elm$core$Maybe$Just(
-									'auth error: ' + author$project$Update$httpErrorMessage(error))
-							}),
-						elm$core$Platform$Cmd$none);
-				} else {
-					var response = msg.a.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								authToken: elm$core$Maybe$Just(response.token),
-								message: elm$core$Maybe$Nothing
-							}),
-						elm$core$Platform$Cmd$batch(
-							_List_fromArray(
-								[
-									author$project$Auth$storeAuthToken(response.token),
-									A2(author$project$Update$fetchCurrentUserDetails, response.token, model.server.url)
-								])));
-				}
-			case 'UserDetailsFetched':
-				if (msg.a.$ === 'Err') {
-					var e = msg.a.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								message: elm$core$Maybe$Just(
-									'account fetch error: ' + author$project$Update$httpErrorMessage(e))
-							}),
-						elm$core$Platform$Cmd$none);
-				} else {
-					var account = msg.a.a;
-					var newModel = _Utils_update(
-						model,
-						{
-							userId: elm$core$Maybe$Just(account.id),
-							username: elm$core$Maybe$Just(account.acct)
-						});
-					return author$project$Update$fragmentRouter(newModel);
-				}
-			default:
-				var _n1 = msg.a;
-				var token = _n1.b;
-				if (token.$ === 'Nothing') {
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{view: author$project$Types$LoginPage}),
-						elm$core$Platform$Cmd$none);
-				} else {
-					var tokenValue = token.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{authToken: token}),
-						A2(author$project$Update$fetchCurrentUserDetails, tokenValue, model.server.url));
-				}
-		}
-	});
-var author$project$Ports$getImageFromForm = _Platform_outgoingPort('getImageFromForm', elm$json$Json$Encode$string);
-var author$project$Types$ShareUploadPage = function (a) {
-	return {$: 'ShareUploadPage', a: a};
-};
 var elm$browser$Browser$External = function (a) {
 	return {$: 'External', a: a};
 };
@@ -11317,6 +11234,81 @@ var elm$url$Url$fromString = function (str) {
 		elm$url$Url$Https,
 		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
 };
+var elm$browser$Browser$Navigation$load = _Browser_load;
+var author$project$Update$updateAuth = F2(
+	function (msg, model) {
+		switch (msg.$) {
+			case 'ServerSelect':
+				var url = msg.a;
+				return _Utils_Tuple2(
+					A2(author$project$Model$changeServerUrl, model, url),
+					elm$core$Platform$Cmd$none);
+			case 'AuthSubmit':
+				return _Utils_Tuple2(
+					model,
+					author$project$Auth$authenticate(model));
+			case 'AuthReturn':
+				if (msg.a.$ === 'Err') {
+					var error = msg.a.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								message: elm$core$Maybe$Just(
+									'auth error: ' + author$project$Update$httpErrorMessage(error))
+							}),
+						elm$core$Platform$Cmd$none);
+				} else {
+					var response = msg.a.a;
+					return _Utils_Tuple2(
+						model,
+						elm$core$Platform$Cmd$batch(
+							_List_fromArray(
+								[
+									author$project$Auth$storeAuthToken(response.token),
+									elm$browser$Browser$Navigation$load('/')
+								])));
+				}
+			case 'UserDetailsFetched':
+				if (msg.a.$ === 'Err') {
+					var e = msg.a.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								message: elm$core$Maybe$Just(
+									'account fetch error: ' + author$project$Update$httpErrorMessage(e))
+							}),
+						elm$core$Platform$Cmd$none);
+				} else {
+					var account = msg.a.a;
+					var newModel = _Utils_update(
+						model,
+						{
+							userId: elm$core$Maybe$Just(account.id),
+							username: elm$core$Maybe$Just(account.acct)
+						});
+					return author$project$Update$fragmentRouter(newModel);
+				}
+			default:
+				var _n1 = msg.a;
+				var token = _n1.b;
+				if (token.$ === 'Nothing') {
+					return author$project$Update$fragmentRouter(model);
+				} else {
+					var tokenValue = token.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{authToken: token}),
+						A2(author$project$Update$fetchCurrentUserDetails, tokenValue, model.server.url));
+				}
+		}
+	});
+var author$project$Ports$getImageFromForm = _Platform_outgoingPort('getImageFromForm', elm$json$Json$Encode$string);
+var author$project$Types$ShareUploadPage = function (a) {
+	return {$: 'ShareUploadPage', a: a};
+};
 var elm$browser$Browser$Navigation$replaceUrl = _Browser_replaceUrl;
 var author$project$Update$goToHomePage = function (model) {
 	return A2(
@@ -11466,7 +11458,6 @@ var author$project$Update$updateShare = F2(
 				}
 		}
 	});
-var elm$browser$Browser$Navigation$load = _Browser_load;
 var elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var author$project$Update$update = F2(
 	function (msg, model) {
@@ -11571,7 +11562,12 @@ var author$project$Update$update = F2(
 							_Utils_update(
 								startModel,
 								{view: author$project$Types$LoginPage}),
-							author$project$Auth$clearAuthToken);
+							elm$core$Platform$Cmd$batch(
+								_List_fromArray(
+									[
+										author$project$Auth$clearAuthToken,
+										A2(elm$browser$Browser$Navigation$pushUrl, model.key, '/')
+									])));
 					} else {
 						var fragment = _n1.a;
 						return author$project$Update$fragmentRouter(newModel);
