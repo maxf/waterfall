@@ -73,7 +73,7 @@ viewSidebarLinks username pageType =
                 , ul []
                     [ li [] [ a [ href "/" ] [ text "Home" ] ]
                     , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
-                    , li [] [ a [ href "#me" ] [ text "My photos" ] ]
+                    , li [] [ a [ href ("#user:" ++ name) ] [ text "My photos" ] ]
                     , li [] [ a [ href "#upload" ] [ text "Upload" ] ]
                     ]
                 ]
@@ -86,6 +86,14 @@ viewMain model =
             div []
                 [ h1 [] [ text "Welcome to Waterfall" ]
                 , p [] [ a [ href (loginUrl model) ] [ text "Log in using mastodon" ] ]
+                , p []
+                    [ text "Or see some sample user pages: "
+                    , a [ href "#user:maxf" ] [ text "@maxf" ]
+                    , text " "
+                    , a [ href "#user:Edent" ] [ text "@Edent" ]
+                    , text " "
+                    , a [ href "#user:xkcdremix@botsin.space" ] [ text "@xkcdremix@botsin.space" ]
+                    ]
                 ]
 
         PhotoPage _ attachmentId ->

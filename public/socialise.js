@@ -7488,11 +7488,20 @@ var elm$core$String$startsWith = _String_startsWith;
 var author$project$Update$fragmentRouter = function (model) {
 	var _n0 = model.currentUrl.fragment;
 	if (_n0.$ === 'Nothing') {
-		return _Utils_Tuple2(
-			_Utils_update(
-				model,
-				{view: author$project$Types$HomePage}),
-			A3(author$project$Update$getTimeline, model.server.url, model.authToken, author$project$Types$HomePage));
+		var _n1 = model.authToken;
+		if (_n1.$ === 'Nothing') {
+			return _Utils_Tuple2(
+				_Utils_update(
+					model,
+					{view: author$project$Types$LoginPage}),
+				elm$core$Platform$Cmd$none);
+		} else {
+			return _Utils_Tuple2(
+				_Utils_update(
+					model,
+					{view: author$project$Types$HomePage}),
+				A3(author$project$Update$getTimeline, model.server.url, model.authToken, author$project$Types$HomePage));
+		}
 	} else {
 		if (_n0.a === 'logout') {
 			return _Utils_Tuple2(
@@ -7514,11 +7523,11 @@ var author$project$Update$fragmentRouter = function (model) {
 					A2(author$project$Update$fetchOtherUserId, model.server.url, acct));
 			} else {
 				if (A2(elm$core$String$startsWith, 'photo:', frag)) {
-					var _n1 = author$project$Types$photoHashParts(frag);
-					if (_n1.$ === 'Ok') {
-						var _n2 = _n1.a;
-						var statusId = _n2.a;
-						var attachmentId = _n2.b;
+					var _n2 = author$project$Types$photoHashParts(frag);
+					if (_n2.$ === 'Ok') {
+						var _n3 = _n2.a;
+						var statusId = _n3.a;
+						var attachmentId = _n3.b;
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
@@ -7527,7 +7536,7 @@ var author$project$Update$fragmentRouter = function (model) {
 								}),
 							A3(author$project$Update$getStatus, model.server.url, model.authToken, statusId));
 					} else {
-						var message = _n1.a;
+						var message = _n2.a;
 						return _Utils_Tuple2(
 							_Utils_update(
 								model,
@@ -12038,6 +12047,45 @@ var author$project$View$viewMain = function (model) {
 									[
 										elm$html$Html$text('Log in using mastodon')
 									]))
+							])),
+						A2(
+						elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								elm$html$Html$text('Or see some sample user pages: '),
+								A2(
+								elm$html$Html$a,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$href('#user:maxf')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('@maxf')
+									])),
+								elm$html$Html$text(' '),
+								A2(
+								elm$html$Html$a,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$href('#user:Edent')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('@Edent')
+									])),
+								elm$html$Html$text(' '),
+								A2(
+								elm$html$Html$a,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$href('#user:xkcdremix@botsin.space')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('@xkcdremix@botsin.space')
+									]))
 							]))
 					]));
 		case 'PhotoPage':
@@ -12262,7 +12310,7 @@ var author$project$View$viewSidebarLinks = F2(
 										elm$html$Html$a,
 										_List_fromArray(
 											[
-												elm$html$Html$Attributes$href('#me')
+												elm$html$Html$Attributes$href('#user:' + name)
 											]),
 										_List_fromArray(
 											[
