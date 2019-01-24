@@ -239,9 +239,15 @@ fragmentRouter : Model -> ( Model, Cmd Msg )
 fragmentRouter model =
     case model.currentUrl.fragment of
         Nothing ->
-            ( { model | view = HomePage }
-            , getTimeline model.server.url model.authToken HomePage
-            )
+            case model.authToken of
+                Nothing ->
+                    ( { model | view = LoginPage }
+                    , Cmd.none
+                    )
+                Just _ ->
+                    ( { model | view = HomePage }
+                    , getTimeline model.server.url model.authToken HomePage
+                    )
 
         Just "logout" ->
             ( { model | view = LoginPage }, clearAuthToken )
