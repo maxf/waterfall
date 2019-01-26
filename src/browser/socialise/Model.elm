@@ -52,11 +52,11 @@ initialModel key url =
 
 baseUrl : Model -> String
 baseUrl model =
-    model.currentUrl
-        |> Url.toString
-        |> String.split "?"
-        |> List.head
-        |> Maybe.withDefault ""
+    let
+        url = model.currentUrl
+    in
+        { url | query = Nothing, fragment = Nothing }
+            |> Url.toString
 
 
 changeServerUrl : Model -> String -> Model

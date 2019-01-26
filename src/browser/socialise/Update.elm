@@ -33,7 +33,7 @@ updateAuth msg model =
             ( model
             , Cmd.batch
                 [ storeAuthToken response.token
-                , Nav.load "/"
+                , Nav.load (baseUrl model)
                 ]
             )
 
@@ -192,7 +192,10 @@ update msg model =
                             initialModel model.key model.currentUrl
                     in
                     ( { startModel | view = LoginPage }
-                    , Cmd.batch [ clearAuthToken, Nav.pushUrl model.key "/" ]
+                    , Cmd.batch
+                        [ clearAuthToken
+                        , Nav.pushUrl model.key (baseUrl model)
+                        ]
                     )
 
                 Just fragment ->

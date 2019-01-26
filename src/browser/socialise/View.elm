@@ -9,7 +9,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick, onInput, onSubmit)
 import Json.Decode exposing (succeed)
 import Maybe exposing (withDefault)
-import Model exposing (Model)
+import Model exposing (Model, baseUrl)
 import Types exposing (..)
 import Url
 
@@ -52,15 +52,15 @@ viewSidebar model =
         [ class "sidebar" ]
         [ h1 [] [ a [ href "/" ] [ text "Waterfall" ] ]
         , p [] [ model.server.url.host |> text ]
-        , viewSidebarLinks model.username model.view
+        , viewSidebarLinks model
         ]
 
 
-viewSidebarLinks : Maybe String -> Screen -> Html Msg
-viewSidebarLinks username pageType =
-    case username of
+viewSidebarLinks : Model -> Html Msg
+viewSidebarLinks model =
+    case model.username of
         Nothing ->
-            div [] [ a [ href "/" ] [ text "Log in" ] ]
+            div [] [ a [ href (baseUrl model) ] [ text "Log in" ] ]
 
         Just name ->
             div []
@@ -72,7 +72,7 @@ viewSidebarLinks username pageType =
                         [ text "Log out" ]
                     ]
                 , ul []
-                    [ li [] [ a [ href "/" ] [ text "Home" ] ]
+                    [ li [] [ a [ href (baseUrl model) ] [ text "Home" ] ]
                     , li [] [ a [ href "#public" ] [ text "Public photos" ] ]
                     , li [] [ a [ href ("#user:" ++ name) ] [ text "My photos" ] ]
                     , li [] [ a [ href "#upload" ] [ text "Upload" ] ]
