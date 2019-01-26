@@ -51,6 +51,7 @@ updateAuth msg model =
                     { model
                         | username = Just account.acct
                         , userId = Just account.id
+                        , userAvatar = Just account.avatarUrl
                     }
             in
             fragmentRouter newModel

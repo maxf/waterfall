@@ -65,7 +65,8 @@ viewSidebarLinks username pageType =
         Just name ->
             div []
                 [ div []
-                    [ span [ class "username" ] [ text name ]
+                    [ img [ class "avatar", src (model.userAvatar |> Maybe.withDefault "") ] []
+                    , span [ class "username" ] [ text name ]
                     , a
                         [ href "#logout", class "logout" ]
                         [ text "Log out" ]

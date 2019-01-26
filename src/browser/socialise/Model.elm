@@ -17,6 +17,7 @@ type alias Model =
     , userEmail : Maybe String
     , username : Maybe String
     , userId : Maybe String
+    , userAvatar : Maybe String
     , message : Maybe String
     , timeline : List Status
     , view : Screen
@@ -37,6 +38,7 @@ initialModel key url =
     , userEmail = Nothing
     , username = Nothing
     , userId = Nothing
+    , userAvatar = Nothing
     , message = Nothing
     , timeline = []
     , view = StartingPage

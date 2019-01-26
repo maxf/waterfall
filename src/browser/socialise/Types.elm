@@ -92,6 +92,7 @@ type alias Account =
     { id : String -- The ID of the account
     , acct : String -- username, includes @domain for remote users
     , displayName : String -- The account's display name
+    , avatarUrl : String
     }
 
 
@@ -264,6 +265,7 @@ accountDecoder =
         |> required "id" string
         |> required "acct" string
         |> required "display_name" string
+        |> required "avatar_static" string
 
 
 statusDecoder : Decoder Status
