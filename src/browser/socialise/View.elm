@@ -62,7 +62,7 @@ viewSidebarLinks : Model -> Html Msg
 viewSidebarLinks model =
     case model.username of
         Nothing ->
-            div [] [ a [ href (loginUrl model) ] [ text "Log in" ] ]
+            div [ class "button", onClick UserClickedLogin ] [ text "Log in" ]
 
         Just name ->
             div []
@@ -88,12 +88,11 @@ viewMain model =
         LoginPage ->
             div []
                 [ h1 [] [ text "Welcome to Waterfall" ]
-                , p [] [ a [ href (loginUrl model) ] [ text "Log in using mastodon" ] ]
                 , p []
-                    [ text "Or see some sample user pages: "
-                    , a [ href "#user:maxf" ] [ text "@maxf" ]
+                    [ text "See some sample user pages: "
+                    , a [ class "user", href "#user:maxf" ] [ text "@maxf" ]
                     , text " "
-                    , a [ href "#user:Edent" ] [ text "@Edent" ]
+                    , a [ class "user", href "#user:Edent" ] [ text "@Edent" ]
                     , text " "
                     ]
                 ]
@@ -241,8 +240,8 @@ viewStatus status =
         , div
             [ class "account" ]
             [ a
-                [ href ("#user:" ++ status.account.acct) ]
-                [ text status.account.acct ]
+                [ class "user", href ("#user:" ++ status.account.acct) ]
+                [ text ("@" ++ status.account.acct) ]
             ]
         ]
 

@@ -234,3 +234,15 @@ a:link, a:visited {
 .share img {
     width: 300px;
 }
+
+.button {
+  cursor: pointer;
+  background-color: #666;
+  padding: .3em;
+  border-radius: 5px;
+}
+
+.user:link, .user:visited {
+  color: #dd1;
+  cursor: pointer;
+}

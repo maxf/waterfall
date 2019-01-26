@@ -12013,11 +12013,12 @@ var author$project$View$viewStatus = function (status) {
 						elm$html$Html$a,
 						_List_fromArray(
 							[
+								elm$html$Html$Attributes$class('user'),
 								elm$html$Html$Attributes$href('#user:' + status.account.acct)
 							]),
 						_List_fromArray(
 							[
-								elm$html$Html$text(status.account.acct)
+								elm$html$Html$text('@' + status.account.acct)
 							]))
 					]))
 			]));
@@ -12058,28 +12059,12 @@ var author$project$View$viewMain = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
+								elm$html$Html$text('See some sample user pages: '),
 								A2(
 								elm$html$Html$a,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$href(
-										author$project$Auth$loginUrl(model))
-									]),
-								_List_fromArray(
-									[
-										elm$html$Html$text('Log in using mastodon')
-									]))
-							])),
-						A2(
-						elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								elm$html$Html$text('Or see some sample user pages: '),
-								A2(
-								elm$html$Html$a,
-								_List_fromArray(
-									[
+										elm$html$Html$Attributes$class('user'),
 										elm$html$Html$Attributes$href('#user:maxf')
 									]),
 								_List_fromArray(
@@ -12091,6 +12076,7 @@ var author$project$View$viewMain = function (model) {
 								elm$html$Html$a,
 								_List_fromArray(
 									[
+										elm$html$Html$Attributes$class('user'),
 										elm$html$Html$Attributes$href('#user:Edent')
 									]),
 								_List_fromArray(
@@ -12224,25 +12210,20 @@ var author$project$View$viewMain = function (model) {
 			return A2(elm$html$Html$div, _List_Nil, _List_Nil);
 	}
 };
+var author$project$Types$UserClickedLogin = {$: 'UserClickedLogin'};
 var author$project$View$viewSidebarLinks = function (model) {
 	var _n0 = model.username;
 	if (_n0.$ === 'Nothing') {
 		return A2(
 			elm$html$Html$div,
-			_List_Nil,
 			_List_fromArray(
 				[
-					A2(
-					elm$html$Html$a,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$href(
-							author$project$Auth$loginUrl(model))
-						]),
-					_List_fromArray(
-						[
-							elm$html$Html$text('Log in')
-						]))
+					elm$html$Html$Attributes$class('button'),
+					elm$html$Html$Events$onClick(author$project$Types$UserClickedLogin)
+				]),
+			_List_fromArray(
+				[
+					elm$html$Html$text('Log in')
 				]));
 	} else {
 		var name = _n0.a;
