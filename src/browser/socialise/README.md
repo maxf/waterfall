@@ -3,7 +3,7 @@
 - `/?code=` return from auth
 
 - anything else
--- fn: `checkAuthToken`
+-- fn: `checkIfAuthenticated`
 -- port: `localStorageGetitem`
 -- sub: `localStorageRetrievedItem` -> Msg `AuthTokenRetrievedFromLocalStorage`
 --- if no token -> go to router

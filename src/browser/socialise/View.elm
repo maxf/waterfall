@@ -1,17 +1,14 @@
 module View exposing (view)
 
---import Html.Attributes.Extra exposing (..)
-
 import Auth exposing (loginUrl)
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (on, onClick, onInput, onSubmit)
+import Html.Events exposing (on, onClick, onInput)
 import Json.Decode exposing (succeed)
 import Maybe exposing (withDefault)
 import Model exposing (Model, baseUrl)
 import Types exposing (..)
-import Url
 
 
 view : Model -> Browser.Document Msg
@@ -227,7 +224,7 @@ viewStatusContent content =
         Nothing ->
             div [] []
 
-        Just html ->
+        Just _ ->
             main_
                 [ class "content"
 

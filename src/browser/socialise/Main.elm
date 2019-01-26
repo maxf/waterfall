@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Auth exposing (authenticate, checkAuthToken, storeAuthToken)
+import Auth exposing (authenticate, checkIfAuthenticated)
 import Browser
 import Browser.Navigation as Nav
 import Model exposing (Model, initialModel)
@@ -11,9 +11,9 @@ import Ports
         , statusPosted
         )
 import Types exposing (..)
-import Update exposing (fetchCurrentUserDetails, fetchOtherUserId, fragmentRouter, getStatus, getTimeline, update)
+import Update exposing (update)
 import Url
-import Url.Parser exposing ((</>), (<?>), Parser, fragment, map, oneOf, parse, query, s, string, top)
+import Url.Parser exposing ((</>), Parser, fragment, map, parse, query, string, top)
 import Url.Parser.Query as Query
 import View exposing (view)
 
@@ -31,9 +31,6 @@ main =
 
 
 
---type alias UrlData = { params : QueryStringParams, fragment : Maybe String }
-
-
 type alias QueryStringParams =
     { code : Maybe String
     , state : Maybe String
@@ -41,7 +38,9 @@ type alias QueryStringParams =
 
 
 type alias UrlData =
-    { queryStringParams : QueryStringParams, fragment : Fragment }
+    { queryStringParams : QueryStringParams
+    , fragment : Fragment
+    }
 
 
 queryStringParser : Query.Parser QueryStringParams
@@ -52,11 +51,6 @@ queryStringParser =
 codeIdentityParser : Parser (QueryStringParams -> Fragment -> a) a
 codeIdentityParser =
     top </> query queryStringParser </> fragment identity
-
-
-
---    query queryStringParser </> fragment identity
---    s "waterfall" <?> queryStringParser </> fragment identity
 
 
 urlParser : Parser (UrlData -> a) a
@@ -78,7 +72,7 @@ init _ url key =
     case queryStringAndFragment url of
         Nothing ->
             -- parsing the URL failed
-            ( startModel, checkAuthToken )
+            ( startModel, checkIfAuthenticated )
 
         Just { queryStringParams, fragment } ->
             case queryStringParams.code of
@@ -92,83 +86,7 @@ init _ url key =
 
                 Nothing ->
                     -- any other page, first check if a user is logged in
-                    ( initialModel key url, checkAuthToken )
-
-
-
-{-
-
-       case parse urlParser url of
-           Nothing ->
-               ( initialModel key url PublicTimeline, checkAuthToken )
-
-           Just { queryStringParams, fragment } ->
-               case queryStringParams.code of
-                   Just code ->
-                       let
-                           model =
-                               initialModel key url HomePage
-                           newModel =
-                               { model | authCode = Just code }
-                       in
-                       ( newModel, authenticate newModel )
-
-                   Nothing ->
-                       case fragment of
-                           Nothing ->
-                               ( initialModel key url PublicTimeline, checkAuthToken )
-
-                           Just "home" ->
-                               ( initialModel key url HomePage, checkAuthToken )
-
-                           Just "me" ->
-                               ( initialModel key url ProfilePage, checkAuthToken )
-
-                           Just frag ->
-                               if frag |> startsWith "user:" then
-                                   let
-                                       userId =
-                                           String.dropLeft 5 frag
-
-                                       model =
-                                           initialModel key url (UserPage userId)
-                                   in
-                                   ( model
-                                   , getTimeline model.server.url model.authToken (UserPage userId)
-                                   )
-
-                               else if frag |> startsWith "photo:" then
-                                   case photoHashParts frag of
-                                       Ok ( statusId, attachmentId ) ->
-                                           let
-                                               model =
-                                                   initialModel key url (PhotoPage statusId attachmentId)
-                                           in
-                                           ( model
-                                           , getStatus model.server.url model.authToken statusId
-                                           )
-
-                                       Err _ ->
-                                           ( initialModel key url PublicTimeline
-                                           , Cmd.none
-                                           )
-
-                               else if frag |> startsWith "share:" then
-                                   ( initialModel key url (SharePathPage (String.dropLeft 6 frag))
-                                   , checkAuthToken
-                                   )
-
-                               else if frag |> startsWith "upload:" then
-                                   ( initialModel key url (ShareUploadPage Nothing)
-                                   , checkAuthToken
-                                   )
-
-                               else
-                                   ( initialModel key url PublicTimeline
-                                   , checkAuthToken
-                                   )
-   -
--}
+                    ( initialModel key url, checkIfAuthenticated )
 
 
 subscriptions : Model -> Sub Msg

@@ -5,10 +5,6 @@ import Types exposing (..)
 import Url exposing (Url)
 
 
-
--- Model
-
-
 type alias Model =
     { currentUrl : Url -- full URL of this page
     , server : MastodonServer

@@ -6628,7 +6628,7 @@ var author$project$Auth$authenticate = function (model) {
 };
 var elm$json$Json$Encode$string = _Json_wrap;
 var author$project$Ports$localStorageGetItem = _Platform_outgoingPort('localStorageGetItem', elm$json$Json$Encode$string);
-var author$project$Auth$checkAuthToken = author$project$Ports$localStorageGetItem('authToken');
+var author$project$Auth$checkIfAuthenticated = author$project$Ports$localStorageGetItem('authToken');
 var author$project$Main$UrlData = F2(
 	function (queryStringParams, fragment) {
 		return {fragment: fragment, queryStringParams: queryStringParams};
@@ -6961,7 +6961,7 @@ var author$project$Main$init = F3(
 		var startModel = A2(author$project$Model$initialModel, key, url);
 		var _n1 = author$project$Main$queryStringAndFragment(url);
 		if (_n1.$ === 'Nothing') {
-			return _Utils_Tuple2(startModel, author$project$Auth$checkAuthToken);
+			return _Utils_Tuple2(startModel, author$project$Auth$checkIfAuthenticated);
 		} else {
 			var queryStringParams = _n1.a.queryStringParams;
 			var fragment = _n1.a.fragment;
@@ -6979,7 +6979,7 @@ var author$project$Main$init = F3(
 			} else {
 				return _Utils_Tuple2(
 					A2(author$project$Model$initialModel, key, url),
-					author$project$Auth$checkAuthToken);
+					author$project$Auth$checkIfAuthenticated);
 			}
 		}
 	});
@@ -7068,7 +7068,7 @@ var author$project$Auth$clearAuthToken = author$project$Ports$localStorageRemove
 var author$project$Auth$loginUrl = function (model) {
 	var serverUrl = model.server.url;
 	var redirectUrl = author$project$Model$baseUrl(model);
-	var query = 'response_type=code&client_id=' + (model.server.clientId + ('&redirect_uri=' + (redirectUrl + '&scope=read+write+follow+push&state=meh')));
+	var query = 'response_type=code&client_id=' + (model.server.clientId + ('&redirect_uri=' + (redirectUrl + ('&scope=read+write+follow+push' + '&state=meh'))));
 	return elm$url$Url$toString(
 		_Utils_update(
 			serverUrl,
@@ -11584,7 +11584,6 @@ var author$project$Update$update = F2(
 										author$project$Model$baseUrl(model))
 									])));
 					} else {
-						var fragment = _n1.a;
 						return author$project$Update$fragmentRouter(newModel);
 					}
 				}
@@ -11713,7 +11712,6 @@ var author$project$View$viewStatusContent = function (content) {
 	if (content.$ === 'Nothing') {
 		return A2(elm$html$Html$div, _List_Nil, _List_Nil);
 	} else {
-		var html = content.a;
 		return A2(
 			elm$html$Html$main_,
 			_List_fromArray(

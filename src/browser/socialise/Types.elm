@@ -84,20 +84,12 @@ lookupServer url =
     List.head (List.filter (\s -> toString s.url == url) servers)
 
 
-
--- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#account
-
-
 type alias Account =
     { id : String -- The ID of the account
     , acct : String -- username, includes @domain for remote users
     , displayName : String -- The account's display name
     , avatarUrl : String
     }
-
-
-
--- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#status
 
 
 type StatusId
@@ -115,12 +107,8 @@ type alias Status =
     , account : Account
     , content : Maybe String
     , attachments : List Attachment
-    , sensitive : Bool -- Whether media attachments should be hidden by default
+    , sensitive : Bool
     }
-
-
-
--- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#attachment
 
 
 type AttachmentType
@@ -147,10 +135,6 @@ type alias Attachment =
     }
 
 
-
--- type of UI displayed on screen
-
-
 type Screen
     = StartingPage
     | HomePage
@@ -162,10 +146,6 @@ type Screen
     | LoginPage
     | LogoutPage
     | ErrorPage String -- Error page with message
-
-
-
--- URL change update model
 
 
 photoUrlRegex : Regex
@@ -218,10 +198,6 @@ screenType url =
 
             else
                 HomePage
-
-
-
--- Decoders
 
 
 timelineDecoder : Decoder (List Status)
@@ -279,47 +255,13 @@ statusDecoder =
         |> required "sensitive" bool
 
 
-
--- get an Account from a webFingerResponse
-{-
-   {
-     "subject": "acct:maxf@mastodon.social",
-     "aliases": [
-       "https://mastodon.social/@maxf",
-       "https://mastodon.social/users/maxf"
-     ],
-     "links": [
-       {
-         "rel": "http://webfinger.net/rel/profile-page",
-         "type": "text/html",
-         "href": "https://mastodon.social/@maxf"
-       },
-       {
-         "rel": "http://schemas.google.com/g/2010#updates-from",
-         "type": "application/atom+xml",
-         "href": "https://mastodon.social/users/maxf.atom"
-       },
-       {
-         "rel": "self",
-         "type": "application/activity+json",
-         "href": "https://mastodon.social/users/maxf"
-       },
-       {
-         "rel": "salmon",
-         "href": "https://mastodon.social/api/salmon/580456"
-       },
-     ...
-     ]
-   }
--}
-
-
 type alias WebFingerRel =
     { rel : String
     , href : String
     }
 
 
+webFingerRelDecoder : Json.Decode.Decoder WebFingerRel
 webFingerRelDecoder =
     Json.Decode.succeed WebFingerRel
         |> required "rel" string

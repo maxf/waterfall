@@ -1,13 +1,13 @@
 module Update exposing (fetchCurrentUserDetails, fetchOtherUserId, fragmentRouter, getStatus, getTimeline, update)
 
-import Auth exposing (authenticate, checkAuthToken, clearAuthToken, loginUrl, storeAuthToken)
+import Auth exposing (authenticate, clearAuthToken, loginUrl, storeAuthToken)
 import Browser
 import Browser.Navigation as Nav
 import Http
 import Maybe exposing (withDefault)
 import Model exposing (Model, baseUrl, changeServerUrl, initialModel)
 import Ports exposing (..)
-import String exposing (contains, fromInt, startsWith)
+import String exposing (fromInt, startsWith)
 import Types exposing (..)
 import Url exposing (..)
 
@@ -198,7 +198,7 @@ update msg model =
                         ]
                     )
 
-                Just fragment ->
+                Just _ ->
                     fragmentRouter newModel
 
         LinkWasClicked urlRequest ->
@@ -282,84 +282,6 @@ fragmentRouter model =
                 ( model, Cmd.none )
 
 
-
-{-
-
-       case parse urlParser url of
-           Nothing ->
-               ( initialModel key url PublicTimeline, checkAuthToken )
-
-           Just { queryStringParams, fragment } ->
-               case queryStringParams.code of
-                   Just code ->
-                       let
-                           model =
-                               initialModel key url HomePage
-                           newModel =
-                               { model | authCode = Just code }
-                       in
-                       ( newModel, authenticate newModel )
-
-                   Nothing ->
-                       case fragment of
-                           Nothing ->
-                               ( initialModel key url PublicTimeline, checkAuthToken )
-
-                           Just "home" ->
-                               ( initialModel key url HomePage, checkAuthToken )
-
-                           Just "me" ->
-                               ( initialModel key url ProfilePage, checkAuthToken )
-
-                           Just frag ->
-                               if frag |> startsWith "user:" then
-                                   let
-                                       userId =
-                                           String.dropLeft 5 frag
-
-                                       model =
-                                           initialModel key url (UserPage userId)
-                                   in
-                                   ( model
-                                   , getTimeline model.server.url model.authToken (UserPage userId)
-                                   )
-
-                               else if frag |> startsWith "photo:" then
-                                   case photoHashParts frag of
-                                       Ok ( statusId, attachmentId ) ->
-                                           let
-                                               model =
-                                                   initialModel key url (PhotoPage statusId attachmentId)
-                                           in
-                                           ( model
-                                           , getStatus model.server.url model.authToken statusId
-                                           )
-
-                                       Err _ ->
-                                           ( initialModel key url PublicTimeline
-                                           , Cmd.none
-                                           )
-
-                               else if frag |> startsWith "share:" then
-                                   ( initialModel key url (SharePathPage (String.dropLeft 6 frag))
-                                   , checkAuthToken
-                                   )
-
-                               else if frag |> startsWith "upload:" then
-                                   ( initialModel key url (ShareUploadPage Nothing)
-                                   , checkAuthToken
-                                   )
-
-                               else
-                                   ( initialModel key url PublicTimeline
-                                   , checkAuthToken
-                                   )
-   -
--}
--- parse photo hash
--- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#fetching-a-status
-
-
 getStatus : Url -> Maybe String -> StatusId -> Cmd Msg
 getStatus instanceUrl authToken (StatusId statusId) =
     let
@@ -383,9 +305,6 @@ getStatus instanceUrl authToken (StatusId statusId) =
 
 
 
--- fetch the timeline of a specific user identified by their acct (eg maxf@mastodon.social)
-
-
 fetchOtherUserId : Url -> String -> Cmd Msg
 fetchOtherUserId instanceUrl acct =
     let
@@ -402,7 +321,6 @@ fetchOtherUserId instanceUrl acct =
 
 
 
--- https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md#timelines
 
 
 getTimeline : Url -> Maybe String -> Screen -> Cmd Msg

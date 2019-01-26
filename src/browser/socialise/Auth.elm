@@ -1,4 +1,4 @@
-module Auth exposing (authenticate, checkAuthToken, clearAuthToken, oauthResponseDecoder, storeAuthToken, loginUrl)
+module Auth exposing (authenticate, checkIfAuthenticated, clearAuthToken, loginUrl, oauthResponseDecoder, storeAuthToken)
 
 import Http
 import Json.Decode
@@ -14,6 +14,7 @@ import Ports
 import Types exposing (..)
 import Url
 
+
 loginUrl : Model -> String
 loginUrl model =
     let
@@ -24,18 +25,22 @@ loginUrl model =
             baseUrl model
 
         query =
-            "response_type=code&client_id=" ++ model.server.clientId ++ "&redirect_uri=" ++ redirectUrl ++ "&scope=read+write+follow+push&state=meh"
-            -- https://authorization-server.com/auth?response_type=code&client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=photos&state=1234zyx
+            "response_type=code&client_id="
+                ++ model.server.clientId
+                ++ "&redirect_uri="
+                ++ redirectUrl
+                ++ "&scope=read+write+follow+push"
+                ++ "&state=meh"
     in
-        { serverUrl
-            | path = "/oauth/authorize"
-            , query = Just query
-        }
+    { serverUrl
+        | path = "/oauth/authorize"
+        , query = Just query
+    }
         |> Url.toString
 
 
-checkAuthToken : Cmd msg
-checkAuthToken =
+checkIfAuthenticated : Cmd msg
+checkIfAuthenticated =
     localStorageGetItem "authToken"
 
 
@@ -70,9 +75,12 @@ authenticate model =
             model.server.url
     in
     Http.post
-        { url = Url.toString { url | path = "/oauth/token" }
-        , body = Http.stringBody "application/x-www-form-urlencoded" postParams
-        , expect = Http.expectJson (Auth << AuthReturn) oauthResponseDecoder
+        { url =
+              Url.toString { url | path = "/oauth/token" }
+        , body =
+            Http.stringBody "application/x-www-form-urlencoded" postParams
+        , expect =
+            Http.expectJson (Auth << AuthReturn) oauthResponseDecoder
         }
 
 
