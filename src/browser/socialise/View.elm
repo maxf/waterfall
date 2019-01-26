@@ -8,6 +8,7 @@ import Html.Events exposing (on, onClick, onInput)
 import Json.Decode exposing (succeed)
 import Maybe exposing (withDefault)
 import Model exposing (Model, baseUrl)
+import Regex
 import Types exposing (..)
 
 
@@ -26,19 +27,19 @@ view model =
     in
     { title = "Waterfall"
     , body =
-        [ div
-            [ class "outer" ]
-            [ div
-                [ class "columns" ]
-                [ if model.view /= LoginPage && model.view /= StartingPage then
-                    viewSidebar model
-
-                  else
-                    div [] []
-                , div [ id "photos" ] [ viewMain model ]
+        [ if model.view /= StartingPage then
+            div
+                [ class "outer" ]
+                [ div
+                    [ class "columns" ]
+                    [ viewSidebar model
+                    , div [ id "photos" ] [ viewMain model ]
+                    ]
+                , message
                 ]
-            , message
-            ]
+
+          else
+            div [] []
         ]
     }
 
@@ -47,8 +48,12 @@ viewSidebar : Model -> Html Msg
 viewSidebar model =
     div
         [ class "sidebar" ]
-        [ h1 [] [ a [ href "/" ] [ text "Waterfall" ] ]
-        , p [] [ model.server.url.host |> text ]
+        [ div
+            [ class "logo" ]
+            [ a [ href (baseUrl model) ] [ text "Waterfall" ]
+            , br [] []
+            , span [ class "server" ] [ text model.server.url.host ]
+            ]
         , viewSidebarLinks model
         ]
 
@@ -57,7 +62,7 @@ viewSidebarLinks : Model -> Html Msg
 viewSidebarLinks model =
     case model.username of
         Nothing ->
-            div [] [ a [ href (baseUrl model) ] [ text "Log in" ] ]
+            div [] [ a [ href (loginUrl model) ] [ text "Log in" ] ]
 
         Just name ->
             div []
@@ -90,7 +95,6 @@ viewMain model =
                     , text " "
                     , a [ href "#user:Edent" ] [ text "@Edent" ]
                     , text " "
-                    , a [ href "#user:xkcdremix@botsin.space" ] [ text "@xkcdremix@botsin.space" ]
                     ]
                 ]
 
@@ -148,7 +152,7 @@ viewMain model =
 
         UserPage userId ->
             div []
-                [ h1 [] [ "User " ++ userId |> text ]
+                [ h1 [] [ "User " ++ (model.otherUsername |> withDefault "") |> text ]
                 , viewTimeline model.timeline
                 ]
 
@@ -224,13 +228,10 @@ viewStatusContent content =
         Nothing ->
             div [] []
 
-        Just _ ->
+        Just html ->
             main_
-                [ class "content"
-
-                {--, innerHtml html --}
-                ]
-                [ text "here is the content" ]
+                [ class "content" ]
+                [ html |> stripTags |> text ]
 
 
 viewStatus : Status -> Html Msg
@@ -308,3 +309,20 @@ viewShareUploaded dataUrl =
         , br [] []
         , button [ onClick (Share UploadImage) ] [ text "Share" ]
         ]
+
+
+htmlTagRegex : Maybe Regex.Regex
+htmlTagRegex =
+    Regex.fromString "<\\/?[^>]+>"
+
+
+stripTags : String -> String
+stripTags string =
+    case htmlTagRegex of
+        Nothing ->
+            string
+                |> Debug.log "Error, not a regex"
+
+        Just regex ->
+            string
+                |> Regex.replace regex (always "")

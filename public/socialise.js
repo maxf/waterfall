@@ -11707,11 +11707,28 @@ var author$project$View$attachmentMarkup = function (image) {
 					]));
 	}
 };
+var author$project$View$htmlTagRegex = elm$regex$Regex$fromString('<\\/?[^>]+>');
+var elm$core$Debug$log = _Debug_log;
+var elm$regex$Regex$replace = _Regex_replaceAtMost(_Regex_infinity);
+var author$project$View$stripTags = function (string) {
+	var _n0 = author$project$View$htmlTagRegex;
+	if (_n0.$ === 'Nothing') {
+		return A2(elm$core$Debug$log, 'Error, not a regex', string);
+	} else {
+		var regex = _n0.a;
+		return A3(
+			elm$regex$Regex$replace,
+			regex,
+			elm$core$Basics$always(''),
+			string);
+	}
+};
 var elm$html$Html$main_ = _VirtualDom_node('main');
 var author$project$View$viewStatusContent = function (content) {
 	if (content.$ === 'Nothing') {
 		return A2(elm$html$Html$div, _List_Nil, _List_Nil);
 	} else {
+		var html = content.a;
 		return A2(
 			elm$html$Html$main_,
 			_List_fromArray(
@@ -11720,7 +11737,8 @@ var author$project$View$viewStatusContent = function (content) {
 				]),
 			_List_fromArray(
 				[
-					elm$html$Html$text('here is the content')
+					elm$html$Html$text(
+					author$project$View$stripTags(html))
 				]));
 	}
 };
@@ -12079,17 +12097,7 @@ var author$project$View$viewMain = function (model) {
 									[
 										elm$html$Html$text('@Edent')
 									])),
-								elm$html$Html$text(' '),
-								A2(
-								elm$html$Html$a,
-								_List_fromArray(
-									[
-										elm$html$Html$Attributes$href('#user:xkcdremix@botsin.space')
-									]),
-								_List_fromArray(
-									[
-										elm$html$Html$text('@xkcdremix@botsin.space')
-									]))
+								elm$html$Html$text(' ')
 							]))
 					]));
 		case 'PhotoPage':
@@ -12192,7 +12200,8 @@ var author$project$View$viewMain = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								elm$html$Html$text('User ' + userId)
+								elm$html$Html$text(
+								'User ' + A2(elm$core$Maybe$withDefault, '', model.otherUsername))
 							])),
 						author$project$View$viewTimeline(model.timeline)
 					]));
@@ -12228,7 +12237,7 @@ var author$project$View$viewSidebarLinks = function (model) {
 					_List_fromArray(
 						[
 							elm$html$Html$Attributes$href(
-							author$project$Model$baseUrl(model))
+							author$project$Auth$loginUrl(model))
 						]),
 					_List_fromArray(
 						[
@@ -12362,27 +12371,35 @@ var author$project$View$viewSidebar = function (model) {
 		_List_fromArray(
 			[
 				A2(
-				elm$html$Html$h1,
-				_List_Nil,
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('logo')
+					]),
 				_List_fromArray(
 					[
 						A2(
 						elm$html$Html$a,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$href('/')
+								elm$html$Html$Attributes$href(
+								author$project$Model$baseUrl(model))
 							]),
 						_List_fromArray(
 							[
 								elm$html$Html$text('Waterfall')
+							])),
+						A2(elm$html$Html$br, _List_Nil, _List_Nil),
+						A2(
+						elm$html$Html$span,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('server')
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text(model.server.url.host)
 							]))
-					])),
-				A2(
-				elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text(model.server.url.host)
 					])),
 				author$project$View$viewSidebarLinks(model)
 			]));
@@ -12410,7 +12427,7 @@ var author$project$View$view = function (model) {
 	return {
 		body: _List_fromArray(
 			[
-				A2(
+				(!_Utils_eq(model.view, author$project$Types$StartingPage)) ? A2(
 				elm$html$Html$div,
 				_List_fromArray(
 					[
@@ -12426,7 +12443,7 @@ var author$project$View$view = function (model) {
 							]),
 						_List_fromArray(
 							[
-								((!_Utils_eq(model.view, author$project$Types$LoginPage)) && (!_Utils_eq(model.view, author$project$Types$StartingPage))) ? author$project$View$viewSidebar(model) : A2(elm$html$Html$div, _List_Nil, _List_Nil),
+								author$project$View$viewSidebar(model),
 								A2(
 								elm$html$Html$div,
 								_List_fromArray(
@@ -12439,7 +12456,7 @@ var author$project$View$view = function (model) {
 									]))
 							])),
 						message
-					]))
+					])) : A2(elm$html$Html$div, _List_Nil, _List_Nil)
 			]),
 		title: 'Waterfall'
 	};
