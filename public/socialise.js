@@ -7500,7 +7500,7 @@ var author$project$Update$fragmentRouter = function (model) {
 			return _Utils_Tuple2(
 				_Utils_update(
 					model,
-					{view: author$project$Types$HomePage}),
+					{timeline: _List_Nil, view: author$project$Types$HomePage}),
 				A3(author$project$Update$getTimeline, model.server.url, model.authToken, author$project$Types$HomePage));
 		}
 	} else {
@@ -7519,6 +7519,7 @@ var author$project$Update$fragmentRouter = function (model) {
 						model,
 						{
 							otherUsername: elm$core$Maybe$Just(acct),
+							timeline: _List_Nil,
 							view: author$project$Types$UserPage(acct)
 						}),
 					A2(author$project$Update$fetchOtherUserId, model.server.url, acct));
@@ -11564,7 +11565,7 @@ var author$project$Update$update = F2(
 						return _Utils_Tuple2(
 							_Utils_update(
 								newModel,
-								{view: author$project$Types$HomePage}),
+								{timeline: _List_Nil, view: author$project$Types$HomePage}),
 							A3(author$project$Update$getTimeline, model.server.url, model.authToken, author$project$Types$HomePage));
 					}
 				} else {

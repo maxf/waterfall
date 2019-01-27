@@ -182,7 +182,7 @@ update msg model =
                             )
 
                         Just _ ->
-                            ( { newModel | view = HomePage }
+                            ( { newModel | view = HomePage, timeline = [] }
                             , getTimeline model.server.url model.authToken HomePage
                             )
 
@@ -249,7 +249,7 @@ fragmentRouter model =
                     , Cmd.none
                     )
                 Just _ ->
-                    ( { model | view = HomePage }
+                    ( { model | view = HomePage, timeline = [] }
                     , getTimeline model.server.url model.authToken HomePage
                     )
 
@@ -262,7 +262,7 @@ fragmentRouter model =
                     acct =
                         String.dropLeft 5 frag
                 in
-                ( { model | otherUsername = Just acct, view = UserPage acct }
+                ( { model | otherUsername = Just acct, timeline = [], view = UserPage acct }
                 , fetchOtherUserId model.server.url acct
                 )
 
