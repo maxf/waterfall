@@ -11953,28 +11953,19 @@ var author$project$View$viewShareUploaded = function (dataUrl) {
 			]));
 };
 var author$project$View$viewAttachment = F2(
-	function (status, attachment) {
+	function (statusId, attachment) {
 		var _n0 = attachment.type_;
 		if (_n0.$ === 'Unknown') {
 			return A2(elm$html$Html$span, _List_Nil, _List_Nil);
 		} else {
+			var attachmentHref = '#photo:' + (author$project$Types$statusIdToString(statusId) + (':' + author$project$Types$attachmentIdToString(attachment.id)));
 			return A2(
 				elm$html$Html$a,
 				_List_fromArray(
 					[
-						elm$html$Html$Attributes$href(
-						'#photo:' + (author$project$Types$statusIdToString(status.id) + (':' + author$project$Types$attachmentIdToString(attachment.id))))
+						elm$html$Html$Attributes$href(attachmentHref)
 					]),
-				status.sensitive ? _List_fromArray(
-					[
-						A2(
-						elm$html$Html$span,
-						_List_Nil,
-						_List_fromArray(
-							[
-								elm$html$Html$text('Sensitive content')
-							]))
-					]) : _List_fromArray(
+				_List_fromArray(
 					[
 						A2(
 						elm$html$Html$img,
@@ -11986,6 +11977,25 @@ var author$project$View$viewAttachment = F2(
 					]));
 		}
 	});
+var author$project$View$viewAttachments = function (status) {
+	if (status.sensitive) {
+		return A2(
+			elm$html$Html$span,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text('Sensitive content')
+				]));
+	} else {
+		var firstAttachment = elm$core$List$head(status.attachments);
+		if (firstAttachment.$ === 'Nothing') {
+			return A2(elm$html$Html$div, _List_Nil, _List_Nil);
+		} else {
+			var attachment = firstAttachment.a;
+			return A2(author$project$View$viewAttachment, status.id, attachment);
+		}
+	}
+};
 var author$project$View$viewStatus = F2(
 	function (pageType, status) {
 		var userName = _Utils_eq(pageType, author$project$Types$HomePage) ? A2(
@@ -12019,10 +12029,10 @@ var author$project$View$viewStatus = F2(
 					A2(
 					elm$html$Html$div,
 					_List_Nil,
-					A2(
-						elm$core$List$map,
-						author$project$View$viewAttachment(status),
-						status.attachments)),
+					_List_fromArray(
+						[
+							author$project$View$viewAttachments(status)
+						])),
 					userName
 				]));
 	});

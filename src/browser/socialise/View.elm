@@ -244,30 +244,51 @@ viewStatus pageType status =
                         [ class "user", href ("#user:" ++ status.account.acct) ]
                         [ text ("@" ++ status.account.acct) ]
                     ]
+
             else
                 div [] []
     in
     div [ class "status" ]
-        [ div [] (List.map (viewAttachment status) status.attachments)
+        --        [ div [] (List.map (viewAttachment status) status.attachments)
+        [ div [] [ viewAttachments status ]
         , userName
         ]
 
 
-viewAttachment : Status -> Attachment -> Html Msg
-viewAttachment status attachment =
+viewAttachments : Status -> Html Msg
+viewAttachments status =
+    if status.sensitive then
+        span [] [ text "Sensitive content" ]
+
+    else
+        let
+            firstAttachment =
+                List.head status.attachments
+        in
+            case firstAttachment of
+                Nothing ->
+                    div [] []
+                Just attachment ->
+                    viewAttachment status.id attachment
+
+
+viewAttachment : StatusId -> Attachment -> Html Msg
+viewAttachment statusId attachment =
     case attachment.type_ of
         Unknown ->
             span [] []
 
         _ ->
+            let
+                attachmentHref =
+                    "#photo:"
+                        ++ (statusId |> statusIdToString)
+                        ++ ":"
+                        ++ (attachment.id |> attachmentIdToString)
+            in
             a
-                [ href ("#photo:" ++ (status.id |> statusIdToString) ++ ":" ++ (attachment.id |> attachmentIdToString)) ]
-                (if status.sensitive then
-                    [ span [] [ text "Sensitive content" ] ]
-
-                 else
-                    [ img [ src attachment.previewUrl ] [] ]
-                )
+                [ href attachmentHref ]
+                [ img [ src attachment.previewUrl ] [] ]
 
 
 viewSharePath : String -> Html Msg
