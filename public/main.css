@@ -243,6 +243,6 @@ a:link, a:visited {
 }
 
 .user:link, .user:visited {
-  color: #dd1;
+  color: #ccff00;
   cursor: pointer;
 }
