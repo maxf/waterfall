@@ -11985,59 +11985,65 @@ var author$project$View$viewAttachment = F2(
 					]));
 		}
 	});
-var author$project$View$viewStatus = function (status) {
-	return A2(
-		elm$html$Html$div,
-		_List_fromArray(
-			[
-				elm$html$Html$Attributes$class('status')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				elm$html$Html$div,
-				_List_Nil,
-				A2(
-					elm$core$List$map,
-					author$project$View$viewAttachment(status),
-					status.attachments)),
-				A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('account')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$a,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('user'),
-								elm$html$Html$Attributes$href('#user:' + status.account.acct)
-							]),
-						_List_fromArray(
-							[
-								elm$html$Html$text('@' + status.account.acct)
-							]))
-					]))
-			]));
-};
-var author$project$View$viewTimeline = function (timeline) {
-	var timelineOnlyAttachments = A2(
-		elm$core$List$filter,
-		function (s) {
-			return !_Utils_eq(s.attachments, _List_Nil);
-		},
-		timeline);
-	return A2(
-		elm$html$Html$div,
-		_List_fromArray(
-			[
-				elm$html$Html$Attributes$class('timeline')
-			]),
-		A2(elm$core$List$map, author$project$View$viewStatus, timelineOnlyAttachments));
-};
+var author$project$View$viewStatus = F2(
+	function (pageType, status) {
+		var userName = _Utils_eq(pageType, author$project$Types$HomePage) ? A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('account')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$a,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('user'),
+							elm$html$Html$Attributes$href('#user:' + status.account.acct)
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('@' + status.account.acct)
+						]))
+				])) : A2(elm$html$Html$div, _List_Nil, _List_Nil);
+		return A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('status')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_Nil,
+					A2(
+						elm$core$List$map,
+						author$project$View$viewAttachment(status),
+						status.attachments)),
+					userName
+				]));
+	});
+var author$project$View$viewTimeline = F2(
+	function (timeline, pageType) {
+		var timelineOnlyAttachments = A2(
+			elm$core$List$filter,
+			function (s) {
+				return !_Utils_eq(s.attachments, _List_Nil);
+			},
+			timeline);
+		return A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('timeline')
+				]),
+			A2(
+				elm$core$List$map,
+				author$project$View$viewStatus(pageType),
+				timelineOnlyAttachments));
+	});
 var author$project$View$viewMain = function (model) {
 	var _n0 = model.view;
 	switch (_n0.$) {
@@ -12136,7 +12142,7 @@ var author$project$View$viewMain = function (model) {
 							[
 								elm$html$Html$text(title)
 							])),
-						author$project$View$viewTimeline(model.timeline)
+						A2(author$project$View$viewTimeline, model.timeline, model.view)
 					]));
 		case 'ErrorPage':
 			var message = _n0.a;
@@ -12189,7 +12195,7 @@ var author$project$View$viewMain = function (model) {
 								elm$html$Html$text(
 								'User ' + A2(elm$core$Maybe$withDefault, '', model.otherUsername))
 							])),
-						author$project$View$viewTimeline(model.timeline)
+						A2(author$project$View$viewTimeline, model.timeline, model.view)
 					]));
 		case 'ProfilePage':
 			return A2(
@@ -12204,7 +12210,7 @@ var author$project$View$viewMain = function (model) {
 							[
 								elm$html$Html$text('Your pictures')
 							])),
-						author$project$View$viewTimeline(model.timeline)
+						A2(author$project$View$viewTimeline, model.timeline, model.view)
 					]));
 		default:
 			return A2(elm$html$Html$div, _List_Nil, _List_Nil);

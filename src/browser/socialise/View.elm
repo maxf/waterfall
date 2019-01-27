@@ -136,7 +136,7 @@ viewMain model =
             in
             div []
                 [ h1 [] [ text title ]
-                , viewTimeline model.timeline
+                , viewTimeline model.timeline model.view
                 ]
 
         ErrorPage message ->
@@ -152,13 +152,13 @@ viewMain model =
         UserPage userId ->
             div []
                 [ h1 [] [ "User " ++ (model.otherUsername |> withDefault "") |> text ]
-                , viewTimeline model.timeline
+                , viewTimeline model.timeline model.view
                 ]
 
         ProfilePage ->
             div []
                 [ h1 [] [ text "Your pictures" ]
-                , viewTimeline model.timeline
+                , viewTimeline model.timeline model.view
                 ]
 
         StartingPage ->
@@ -211,14 +211,14 @@ viewPhoto status attachmentId =
             div [] []
 
 
-viewTimeline : List Status -> Html Msg
-viewTimeline timeline =
+viewTimeline : List Status -> Screen -> Html Msg
+viewTimeline timeline pageType =
     let
         timelineOnlyAttachments =
             List.filter (\s -> s.attachments /= []) timeline
     in
     div [ class "timeline" ]
-        (List.map viewStatus timelineOnlyAttachments)
+        (List.map (viewStatus pageType) timelineOnlyAttachments)
 
 
 viewStatusContent : Maybe String -> Html Msg
@@ -233,16 +233,23 @@ viewStatusContent content =
                 [ html |> stripTags |> text ]
 
 
-viewStatus : Status -> Html Msg
-viewStatus status =
+viewStatus : Screen -> Status -> Html Msg
+viewStatus pageType status =
+    let
+        userName =
+            if pageType == HomePage then
+                div
+                    [ class "account" ]
+                    [ a
+                        [ class "user", href ("#user:" ++ status.account.acct) ]
+                        [ text ("@" ++ status.account.acct) ]
+                    ]
+            else
+                div [] []
+    in
     div [ class "status" ]
         [ div [] (List.map (viewAttachment status) status.attachments)
-        , div
-            [ class "account" ]
-            [ a
-                [ class "user", href ("#user:" ++ status.account.acct) ]
-                [ text ("@" ++ status.account.acct) ]
-            ]
+        , userName
         ]
 
 
