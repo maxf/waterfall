@@ -12204,7 +12204,7 @@ var author$project$View$viewMain = function (model) {
 						_List_fromArray(
 							[
 								elm$html$Html$text(
-								'User ' + A2(elm$core$Maybe$withDefault, '', model.otherUsername))
+								('@' + A2(elm$core$Maybe$withDefault, '', model.otherUsername)) + '\'s pictures')
 							])),
 						A2(author$project$View$viewTimeline, model.timeline, model.view)
 					]));

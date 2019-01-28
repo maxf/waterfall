@@ -151,7 +151,7 @@ viewMain model =
 
         UserPage userId ->
             div []
-                [ h1 [] [ "User " ++ (model.otherUsername |> withDefault "") |> text ]
+                [ h1 [] [ ("@" ++ (model.otherUsername |> withDefault "")) ++ "'s pictures" |> text ]
                 , viewTimeline model.timeline model.view
                 ]
 
