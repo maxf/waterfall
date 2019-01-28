@@ -233,25 +233,34 @@ viewStatusContent content =
                 [ html |> stripTags |> text ]
 
 
+statusCaption : Screen -> Status -> Html Msg
+statusCaption pageType status =
+    let
+        userInfo =
+            if pageType == HomePage then
+                a [ class "user", href ("#user:" ++ status.account.acct) ]
+                    [ text ("@" ++ status.account.acct) ]
+            else
+                text ""
+
+        albumInfo =
+            if List.length status.attachments > 1 then
+                span [] [ text <| String.fromInt (List.length status.attachments) ++ " photos" ]
+            else
+                span [] []
+    in
+    div [ class "account" ]
+        [
+         userInfo
+        , albumInfo
+        ]
+
+
 viewStatus : Screen -> Status -> Html Msg
 viewStatus pageType status =
-    let
-        userName =
-            if pageType == HomePage then
-                div
-                    [ class "account" ]
-                    [ a
-                        [ class "user", href ("#user:" ++ status.account.acct) ]
-                        [ text ("@" ++ status.account.acct) ]
-                    ]
-
-            else
-                div [] []
-    in
     div [ class "status" ]
-        --        [ div [] (List.map (viewAttachment status) status.attachments)
         [ div [] [ viewAttachments status ]
-        , userName
+        , statusCaption pageType status
         ]
 
 
@@ -265,11 +274,12 @@ viewAttachments status =
             firstAttachment =
                 List.head status.attachments
         in
-            case firstAttachment of
-                Nothing ->
-                    div [] []
-                Just attachment ->
-                    viewAttachment status.id attachment
+        case firstAttachment of
+            Nothing ->
+                div [] []
+
+            Just attachment ->
+                viewAttachment status.id attachment
 
 
 viewAttachment : StatusId -> Attachment -> Html Msg
