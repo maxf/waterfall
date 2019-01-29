@@ -5,6 +5,7 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick, onInput)
+import Html.Extra exposing (viewIfLazy)
 import Json.Decode exposing (succeed)
 import Maybe exposing (withDefault)
 import Model exposing (Model, baseUrl)
@@ -233,34 +234,40 @@ viewStatusContent content =
                 [ html |> stripTags |> text ]
 
 
-statusCaption : Screen -> Status -> Html Msg
-statusCaption pageType status =
+viewStatusCaption : Screen -> Status -> Html Msg
+viewStatusCaption pageType status =
     let
-        userInfo =
-            if pageType == HomePage then
-                a [ class "user", href ("#user:" ++ status.account.acct) ]
-                    [ text ("@" ++ status.account.acct) ]
-            else
-                text ""
+        attachmentCount =
+            viewIfLazy
+                (List.length status.attachments > 1)
+                (\() ->
+                    li [ title (String.fromInt (List.length status.attachments) ++ " photos") ]
+                        [ text "🗇" ]
+                )
 
-        albumInfo =
-            if List.length status.attachments > 1 then
-                span [] [ text <| String.fromInt (List.length status.attachments) ++ " photos" ]
-            else
-                span [] []
+        userName =
+            viewIfLazy
+                (pageType == HomePage)
+                (\() ->
+                    li []
+                        [ a [ class "user", href ("#user:" ++ status.account.acct) ]
+                            [ text ("@" ++ status.account.acct) ]
+                        ]
+                )
+
+        captionElements =
+            [ userName
+            , attachmentCount
+            ]
     in
-    div [ class "account" ]
-        [
-         userInfo
-        , albumInfo
-        ]
+    ul [ class "statusInfo" ] captionElements
 
 
 viewStatus : Screen -> Status -> Html Msg
 viewStatus pageType status =
     div [ class "status" ]
         [ div [] [ viewAttachments status ]
-        , statusCaption pageType status
+        , viewStatusCaption pageType status
         ]
 
 
@@ -348,6 +355,10 @@ viewShareUploaded dataUrl =
         ]
 
 
+
+-- Utility functions
+
+
 htmlTagRegex : Maybe Regex.Regex
 htmlTagRegex =
     Regex.fromString "<\\/?[^>]+>"
@@ -363,3 +374,12 @@ stripTags string =
         Just regex ->
             string
                 |> Regex.replace regex (always "")
+
+
+nodeIf : Bool -> Html Msg -> Maybe (Html Msg)
+nodeIf condition markup =
+    if condition then
+        Just markup
+
+    else
+        Nothing

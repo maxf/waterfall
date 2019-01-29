@@ -11952,37 +11952,6 @@ var author$project$View$viewShareUploaded = function (dataUrl) {
 					]))
 			]));
 };
-var author$project$View$statusCaption = F2(
-	function (pageType, status) {
-		var userInfo = _Utils_eq(pageType, author$project$Types$HomePage) ? A2(
-			elm$html$Html$a,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('user'),
-					elm$html$Html$Attributes$href('#user:' + status.account.acct)
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text('@' + status.account.acct)
-				])) : elm$html$Html$text('');
-		var albumInfo = (elm$core$List$length(status.attachments) > 1) ? A2(
-			elm$html$Html$span,
-			_List_Nil,
-			_List_fromArray(
-				[
-					elm$html$Html$text(
-					elm$core$String$fromInt(
-						elm$core$List$length(status.attachments)) + ' photos')
-				])) : A2(elm$html$Html$span, _List_Nil, _List_Nil);
-		return A2(
-			elm$html$Html$div,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('account')
-				]),
-			_List_fromArray(
-				[userInfo, albumInfo]));
-	});
 var author$project$View$viewAttachment = F2(
 	function (statusId, attachment) {
 		var _n0 = attachment.type_;
@@ -12027,6 +11996,62 @@ var author$project$View$viewAttachments = function (status) {
 		}
 	}
 };
+var elm_community$html_extra$Html$Extra$nothing = elm$html$Html$text('');
+var elm_community$html_extra$Html$Extra$viewIfLazy = F2(
+	function (condition, htmlF) {
+		return condition ? htmlF(_Utils_Tuple0) : elm_community$html_extra$Html$Extra$nothing;
+	});
+var author$project$View$viewStatusCaption = F2(
+	function (pageType, status) {
+		var userName = A2(
+			elm_community$html_extra$Html$Extra$viewIfLazy,
+			_Utils_eq(pageType, author$project$Types$HomePage),
+			function (_n1) {
+				return A2(
+					elm$html$Html$li,
+					_List_Nil,
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$a,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('user'),
+									elm$html$Html$Attributes$href('#user:' + status.account.acct)
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text('@' + status.account.acct)
+								]))
+						]));
+			});
+		var attachmentCount = A2(
+			elm_community$html_extra$Html$Extra$viewIfLazy,
+			elm$core$List$length(status.attachments) > 1,
+			function (_n0) {
+				return A2(
+					elm$html$Html$li,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$title(
+							elm$core$String$fromInt(
+								elm$core$List$length(status.attachments)) + ' photos')
+						]),
+					_List_fromArray(
+						[
+							elm$html$Html$text('🗇')
+						]));
+			});
+		var captionElements = _List_fromArray(
+			[userName, attachmentCount]);
+		return A2(
+			elm$html$Html$ul,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('statusInfo')
+				]),
+			captionElements);
+	});
 var author$project$View$viewStatus = F2(
 	function (pageType, status) {
 		return A2(
@@ -12044,7 +12069,7 @@ var author$project$View$viewStatus = F2(
 						[
 							author$project$View$viewAttachments(status)
 						])),
-					A2(author$project$View$statusCaption, pageType, status)
+					A2(author$project$View$viewStatusCaption, pageType, status)
 				]));
 	});
 var author$project$View$viewTimeline = F2(
