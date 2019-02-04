@@ -141,7 +141,7 @@ update msg model =
             , Cmd.none
             )
 
-        PhotoFetched (Err e) ->
+        StatusFetched (Err e) ->
             ( { model
                 | message =
                     Just ("timeline error: " ++ httpErrorMessage e)
@@ -149,7 +149,7 @@ update msg model =
             , Cmd.none
             )
 
-        PhotoFetched (Ok status) ->
+        StatusFetched (Ok status) ->
             ( { model | currentStatus = Just status }
             , Cmd.none
             )
@@ -167,6 +167,14 @@ update msg model =
                     ++ attachmentIdToString attachment.id
                 )
             )
+
+        ViewStatus status ->
+            ( { model | view = StatusPage status.id }
+            , Nav.pushUrl
+                model.key
+                ("#status:" ++ statusIdToString status.id)
+            )
+
 
         UrlHasChanged location ->
             let
@@ -266,6 +274,15 @@ fragmentRouter model =
                 , fetchOtherUserId model.server.url acct
                 )
 
+            else if frag |> startsWith "status:" then
+                let
+                    statusId =
+                        StatusId (String.dropLeft 7 frag)
+                in
+                    ( { model | view = StatusPage statusId }
+                    , getStatus model.server.url model.authToken statusId
+                    )
+
             else if frag |> startsWith "photo:" then
                 case photoHashParts frag of
                     Ok ( statusId, attachmentId ) ->
@@ -298,7 +315,7 @@ getStatus instanceUrl authToken (StatusId statusId) =
         , headers = headers
         , url = { instanceUrl | path = "/api/v1/statuses/" ++ statusId } |> toString
         , body = Http.emptyBody
-        , expect = Http.expectJson PhotoFetched statusDecoder
+        , expect = Http.expectJson StatusFetched statusDecoder
         , timeout = Nothing
         , tracker = Nothing
         }

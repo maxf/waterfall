@@ -98,6 +98,13 @@ viewMain model =
                     ]
                 ]
 
+        StatusPage _ ->
+            case model.currentStatus of
+                Nothing ->
+                    text ""
+                Just status ->
+                    viewStatus status
+
         PhotoPage _ attachmentId ->
             case ( model.currentStatus, attachmentId ) of
                 ( Just status, photoId ) ->
@@ -182,6 +189,27 @@ attachmentMarkup image =
             span [] [ text "Can't show this content" ]
 
 
+
+viewAlbum : Status -> Html Msg
+viewAlbum status =
+    div []
+        (List.map
+             (viewPhoto status)
+             (List.map .id status.attachments))
+
+
+viewStatusAttachment : Attachment -> Html Msg
+viewStatusAttachment attachment =
+    img [ src attachment.url ] []
+
+viewStatus : Status -> Html Msg
+viewStatus status =
+    div [ class "lightbox" ]
+        [ div [ class "lightbox-inner" ]
+              (List.map viewStatusAttachment status.attachments)
+        ]
+
+
 viewPhoto : Status -> AttachmentId -> Html Msg
 viewPhoto status attachmentId =
     let
@@ -204,7 +232,7 @@ viewPhoto status attachmentId =
             div [ class "lightbox" ]
                 [ div [ class "lightbox-inner" ]
                     [ markup
-                    , viewStatusContent status.content
+                    , viewThumbnailContent status.content
                     ]
                 ]
 
@@ -215,15 +243,15 @@ viewPhoto status attachmentId =
 viewTimeline : List Status -> Screen -> Html Msg
 viewTimeline timeline pageType =
     let
-        timelineOnlyAttachments =
+        statusesWithAttachments =
             List.filter (\s -> s.attachments /= []) timeline
     in
     div [ class "timeline" ]
-        (List.map (viewStatus pageType) timelineOnlyAttachments)
+        (List.map (viewThumbnail pageType) statusesWithAttachments)
 
 
-viewStatusContent : Maybe String -> Html Msg
-viewStatusContent content =
+viewThumbnailContent : Maybe String -> Html Msg
+viewThumbnailContent content =
     case content of
         Nothing ->
             div [] []
@@ -234,8 +262,8 @@ viewStatusContent content =
                 [ html |> stripTags |> text ]
 
 
-viewStatusCaption : Screen -> Status -> Html Msg
-viewStatusCaption pageType status =
+viewThumbnailCaption : Screen -> Status -> Html Msg
+viewThumbnailCaption pageType status =
     let
         attachmentCount =
             viewIfLazy
@@ -263,11 +291,11 @@ viewStatusCaption pageType status =
     ul [ class "statusInfo" ] captionElements
 
 
-viewStatus : Screen -> Status -> Html Msg
-viewStatus pageType status =
+viewThumbnail : Screen -> Status -> Html Msg
+viewThumbnail pageType status =
     div [ class "status" ]
         [ div [] [ viewAttachments status ]
-        , viewStatusCaption pageType status
+        , viewThumbnailCaption pageType status
         ]
 
 
@@ -298,10 +326,8 @@ viewAttachment statusId attachment =
         _ ->
             let
                 attachmentHref =
-                    "#photo:"
+                    "#status:"
                         ++ (statusId |> statusIdToString)
-                        ++ ":"
-                        ++ (attachment.id |> attachmentIdToString)
             in
             a
                 [ href attachmentHref ]

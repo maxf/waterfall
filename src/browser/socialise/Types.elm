@@ -31,8 +31,9 @@ type Msg
     = Auth AuthMsg
     | Share ShareMsg
     | TimelineFetched (Result Http.Error (List Status))
-    | PhotoFetched (Result Http.Error Status)
+    | StatusFetched (Result Http.Error Status)
     | CloseMessage
+    | ViewStatus Status
     | ViewPhoto Status Attachment
     | UrlHasChanged Url
     | LinkWasClicked Browser.UrlRequest
@@ -140,6 +141,7 @@ type Screen
     | HomePage
     | ProfilePage
     | UserPage String -- <user id>
+    | StatusPage StatusId
     | PhotoPage StatusId AttachmentId -- <statusId> <attachmentId>
     | SharePathPage String -- <path of photo to share on server>
     | ShareUploadPage (Maybe String) -- <data of the image loaded>
