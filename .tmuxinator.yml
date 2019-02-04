@@ -8,10 +8,6 @@ windows:
   - main:
       layout: main-vertical
       panes:
-        - emacs26 -nw .
-#        - cd src/browser/socialise && find . -name \*.elm | entr -r sh -c 'clear; elm-analyse;'
-#        - cd src/browser/organise && find . -name \*.elm | entr -r sh -c 'clear; elm-analyse;'
+        - emacs -nw .
         - cd src/browser/socialise && find . -name \*.elm | entr -r sh -c 'clear; tmux clear-history; ./build.sh'
-#        - cd src/browser/organise && find . -name \*.elm | entr -r sh -c 'clear; ./build.sh;'
-#        - ./node_modules/.bin/nodemon src/server/app.js
         -
