@@ -30,7 +30,6 @@ main =
         }
 
 
-
 type alias QueryStringParams =
     { code : Maybe String
     , state : Maybe String

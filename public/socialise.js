@@ -11984,6 +11984,7 @@ var author$project$View$viewStatusAttachment = function (attachment) {
 		elm$html$Html$img,
 		_List_fromArray(
 			[
+				elm$html$Html$Attributes$class('attachment-thumb'),
 				elm$html$Html$Attributes$src(attachment.url)
 			]),
 		_List_Nil);
@@ -11991,20 +11992,8 @@ var author$project$View$viewStatusAttachment = function (attachment) {
 var author$project$View$viewStatus = function (status) {
 	return A2(
 		elm$html$Html$div,
-		_List_fromArray(
-			[
-				elm$html$Html$Attributes$class('lightbox')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('lightbox-inner')
-					]),
-				A2(elm$core$List$map, author$project$View$viewStatusAttachment, status.attachments))
-			]));
+		_List_Nil,
+		A2(elm$core$List$map, author$project$View$viewStatusAttachment, status.attachments));
 };
 var author$project$View$viewAttachment = F2(
 	function (statusId, attachment) {
@@ -12102,7 +12091,7 @@ var author$project$View$viewThumbnailCaption = F2(
 			elm$html$Html$ul,
 			_List_fromArray(
 				[
-					elm$html$Html$Attributes$class('statusInfo')
+					elm$html$Html$Attributes$class('statusThumbInfo')
 				]),
 			captionElements);
 	});
@@ -12112,7 +12101,7 @@ var author$project$View$viewThumbnail = F2(
 			elm$html$Html$div,
 			_List_fromArray(
 				[
-					elm$html$Html$Attributes$class('status')
+					elm$html$Html$Attributes$class('statusThumb')
 				]),
 			_List_fromArray(
 				[

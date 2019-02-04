@@ -190,25 +190,14 @@ attachmentMarkup image =
 
 
 
-viewAlbum : Status -> Html Msg
-viewAlbum status =
-    div []
-        (List.map
-             (viewPhoto status)
-             (List.map .id status.attachments))
-
-
 viewStatusAttachment : Attachment -> Html Msg
 viewStatusAttachment attachment =
-    img [ src attachment.url ] []
+    img [ class "attachment-thumb", src attachment.url ] []
 
 viewStatus : Status -> Html Msg
 viewStatus status =
-    div [ class "lightbox" ]
-        [ div [ class "lightbox-inner" ]
-              (List.map viewStatusAttachment status.attachments)
-        ]
-
+    div []
+        (List.map viewStatusAttachment status.attachments)
 
 viewPhoto : Status -> AttachmentId -> Html Msg
 viewPhoto status attachmentId =
@@ -288,12 +277,12 @@ viewThumbnailCaption pageType status =
             , attachmentCount
             ]
     in
-    ul [ class "statusInfo" ] captionElements
+    ul [ class "statusThumbInfo" ] captionElements
 
 
 viewThumbnail : Screen -> Status -> Html Msg
 viewThumbnail pageType status =
-    div [ class "status" ]
+    div [ class "statusThumb" ]
         [ div [] [ viewAttachments status ]
         , viewThumbnailCaption pageType status
         ]
