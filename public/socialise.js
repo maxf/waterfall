@@ -7534,6 +7534,7 @@ var author$project$Update$fragmentRouter = function (model) {
 						_Utils_update(
 							model,
 							{
+								currentStatus: elm$core$Maybe$Nothing,
 								view: author$project$Types$StatusPage(statusId)
 							}),
 						A3(author$project$Update$getStatus, model.server.url, model.authToken, statusId));

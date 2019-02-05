@@ -279,7 +279,7 @@ fragmentRouter model =
                     statusId =
                         StatusId (String.dropLeft 7 frag)
                 in
-                    ( { model | view = StatusPage statusId }
+                    ( { model | view = StatusPage statusId, currentStatus = Nothing }
                     , getStatus model.server.url model.authToken statusId
                     )
 
