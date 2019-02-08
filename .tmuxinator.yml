@@ -10,4 +10,4 @@ windows:
       panes:
         - emacs -nw .
         - cd src/browser/socialise && find . -name \*.elm | entr -r sh -c 'clear; tmux clear-history; ./build.sh'
-        -
+        - cd .. && http-server .
