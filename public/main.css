@@ -91,12 +91,6 @@ h1 {
   max-height: 100vh;
   color: white;
 }
-#photos li {
-  display: inline-block;
-  list-style-type: none;
-  margin: .3em;
-  vertical-align: middle;
-}
 .contact-print {
   background: #222;
   padding: 8px;
@@ -196,15 +190,20 @@ h1 {
 }
 
 .content {
-  position: absolute;
-  top: 10px;
   left: 10px;
   background: rgba(0,0,0,0.7);
-  font-size: 1.5em;
+  font-size: 20px;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 }
 
-.content p {
-  margin: 0.1em 0.2em 0.1em 0.2em;
+.content > li {
+  display: inline;
+}
+
+.content > li + li {
+  margin-left: 1em;
 }
 
 .statusThumbInfo {
@@ -270,4 +269,8 @@ a:link, a:visited {
   color: #ccff00;
   cursor: pointer;
   border-right: 1em;
+}
+
+.status {
+  position: relative;
 }

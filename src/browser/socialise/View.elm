@@ -101,7 +101,8 @@ viewMain model =
         StatusPage _ ->
             case model.currentStatus of
                 Nothing ->
-                    text ""
+                    nothing
+
                 Just status ->
                     viewStatus status
 
@@ -189,19 +190,54 @@ attachmentMarkup image =
             span [] [ text "Can't show this content" ]
 
 
+viewStatusContent : Status -> Html Msg
+viewStatusContent status =
+    let
+        content =
+            case status.content of
+                Nothing ->
+                    nothing
+                Just message ->
+                    li [] [ message |> stripTags |> text ]
+
+        favourites =
+            if status.favouritesCount /= 0 then
+                li [] [ "❤️" ++ (String.fromInt status.favouritesCount) |> text ]
+            else
+                nothing
+
+        reblogs =
+            if status.reblogsCount /= 0 then
+                li [] [ "🔁" ++ (String.fromInt status.reblogsCount) |> text ]
+            else
+                nothing
+
+        user =
+            li []
+                [ a [ class "user", href ("#user:" ++ status.account.acct) ]
+                      [ text ("@" ++ status.account.acct) ]
+                ]
+
+    in
+    ul [ class "content" ] [ user, favourites, reblogs, br [] [], content ]
+
 
 viewStatusAttachment : Attachment -> Html Msg
 viewStatusAttachment attachment =
     img [ class "attachment-thumb", src attachment.url ] []
 
+
 viewStatus : Status -> Html Msg
 viewStatus status =
-    div []
+    div [ class "status" ]
         (if status.sensitive then
             [ text "Sensitive content" ]
-        else
-            (List.map viewStatusAttachment status.attachments)
+         else
+             ((viewStatusContent status)
+             ::
+             List.map viewStatusAttachment status.attachments)
         )
+
 
 viewPhoto : Status -> AttachmentId -> Html Msg
 viewPhoto status attachmentId =
@@ -402,3 +438,8 @@ nodeIf condition markup =
 
     else
         Nothing
+
+
+nothing : Html Msg
+nothing =
+    text ""

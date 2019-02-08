@@ -109,6 +109,8 @@ type alias Status =
     , content : Maybe String
     , attachments : List Attachment
     , sensitive : Bool
+    , favouritesCount : Int
+    , reblogsCount : Int
     }
 
 
@@ -255,7 +257,8 @@ statusDecoder =
         |> optional "content" (nullable string) Nothing
         |> required "media_attachments" (list attachmentDecoder)
         |> required "sensitive" bool
-
+        |> required "favourites_count" int
+        |> required "reblogs_count" int
 
 type alias WebFingerRel =
     { rel : String
