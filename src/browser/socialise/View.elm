@@ -312,12 +312,25 @@ viewThumbnailCaption pageType status =
                         ]
                 )
 
-        captionElements =
-            [ userName
-            , attachmentCount
-            ]
+        favourites =
+            if status.favouritesCount /= 0 then
+                li [] [ "❤️" ++ (String.fromInt status.favouritesCount) |> text ]
+            else
+                nothing
+
+        reblogs =
+            if status.reblogsCount /= 0 then
+                li [] [ "🔁" ++ (String.fromInt status.reblogsCount) |> text ]
+            else
+                nothing
+
     in
-    ul [ class "statusThumbInfo" ] captionElements
+    ul [ class "statusThumbInfo" ]
+        [ userName
+        , attachmentCount
+        , favourites
+        , reblogs
+        ]
 
 
 viewThumbnail : Screen -> Status -> Html Msg

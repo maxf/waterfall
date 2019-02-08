@@ -215,8 +215,12 @@ h1 {
   padding: 0;
 }
 
-.statusThumbInfo li {
+.statusThumbInfo > li {
   display: inline;
+}
+
+.statusThumbInfo > li + li {
+  margin-left: .5em;
 }
 
 a:link, a:visited {
