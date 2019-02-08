@@ -197,7 +197,11 @@ viewStatusAttachment attachment =
 viewStatus : Status -> Html Msg
 viewStatus status =
     div []
-        (List.map viewStatusAttachment status.attachments)
+        (if status.sensitive then
+            [ text "Sensitive content" ]
+        else
+            (List.map viewStatusAttachment status.attachments)
+        )
 
 viewPhoto : Status -> AttachmentId -> Html Msg
 viewPhoto status attachmentId =
