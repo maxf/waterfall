@@ -34,7 +34,6 @@ type Msg
     | StatusFetched (Result Http.Error Status)
     | CloseMessage
     | ViewStatus Status
-    | ViewPhoto Status Attachment
     | UrlHasChanged Url
     | LinkWasClicked Browser.UrlRequest
     | UserClickedLogin
@@ -144,7 +143,6 @@ type Screen
     | ProfilePage
     | UserPage String -- <user id>
     | StatusPage StatusId
-    | PhotoPage StatusId AttachmentId -- <statusId> <attachmentId>
     | PublicTimeline
     | SharePathPage String -- <path of photo to share on server>
     | ShareUploadPage (Maybe String) -- <data of the image loaded>
@@ -192,14 +190,6 @@ screenType url =
 
             else if String.startsWith "upload" fragment then
                 ShareUploadPage Nothing
-
-            else if String.startsWith "photo:" fragment then
-                case photoHashParts fragment of
-                    Ok ( statusId, attachmentId ) ->
-                        PhotoPage statusId attachmentId
-
-                    Err message ->
-                        ErrorPage message
 
             else
                 HomePage

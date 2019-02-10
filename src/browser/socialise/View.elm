@@ -106,14 +106,6 @@ viewMain model =
                 Just status ->
                     viewStatus status
 
-        PhotoPage _ attachmentId ->
-            case ( model.currentStatus, attachmentId ) of
-                ( Just status, photoId ) ->
-                    viewPhoto status photoId
-
-                _ ->
-                    div [] []
-
         SharePathPage path ->
             case model.authToken of
                 Nothing ->
@@ -180,17 +172,26 @@ viewMain model =
             div [] []
 
 
+thumbMarkup : Attachment -> Html Msg
+thumbMarkup image =
+    case image.type_  of
+        Unknown ->
+            span [] [ text "Unknown content type" ]
+
+        _ ->
+            img [ class "photo", src image.previewUrl ] []
+
 attachmentMarkup : Attachment -> Html Msg
 attachmentMarkup image =
-    case image.type_ of
+    case image.type_  of
         Image ->
             img [ class "photo", src image.url ] []
 
         Video ->
-            video [] [ source [ src image.url ] [] ]
+            video [ class "photo" ] [ source [ src image.url ] [] ]
 
         Gifv ->
-            video [] [ source [ src image.url ] [] ]
+            video [ class "photo" ] [ source [ src image.url ] [] ]
 
         _ ->
             span [] [ text "Can't show this content" ]
@@ -228,11 +229,6 @@ viewStatusContent status =
     ul [ class "content" ] [ user, favourites, reblogs, br [] [], content ]
 
 
-viewStatusAttachment : Attachment -> Html Msg
-viewStatusAttachment attachment =
-    img [ class "attachment-thumb", src attachment.url ] []
-
-
 viewStatus : Status -> Html Msg
 viewStatus status =
     div [ class "status" ]
@@ -241,38 +237,8 @@ viewStatus status =
          else
              ((viewStatusContent status)
              ::
-             List.map viewStatusAttachment status.attachments)
+             List.map attachmentMarkup status.attachments)
         )
-
-
-viewPhoto : Status -> AttachmentId -> Html Msg
-viewPhoto status attachmentId =
-    let
-        attachment : List Attachment
-        attachment =
-            List.filter
-                (\a -> a.id == attachmentId)
-                status.attachments
-    in
-    case attachment of
-        [ image ] ->
-            let
-                markup =
-                    if status.sensitive then
-                        div [] [ text "Sensitive content" ]
-
-                    else
-                        attachmentMarkup image
-            in
-            div [ class "lightbox" ]
-                [ div [ class "lightbox-inner" ]
-                    [ markup
-                    , viewThumbnailContent status.content
-                    ]
-                ]
-
-        _ ->
-            div [] []
 
 
 viewTimeline : List Status -> Screen -> Html Msg
@@ -371,7 +337,7 @@ viewAttachment : StatusId -> Attachment -> Html Msg
 viewAttachment statusId attachment =
     case attachment.type_ of
         Unknown ->
-            span [] []
+            nothing
 
         _ ->
             let
@@ -381,7 +347,7 @@ viewAttachment statusId attachment =
             in
             a
                 [ href attachmentHref ]
-                [ img [ src attachment.previewUrl ] [] ]
+                [ attachmentMarkup attachment ]
 
 
 viewSharePath : String -> Html Msg

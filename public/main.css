@@ -95,7 +95,7 @@ h1 {
   background: #222;
   padding: 8px;
 }
-.attachment-thumb {
+.photo {
   max-width: 100%;
   max-height: 90vh;
   object-fit: contain;

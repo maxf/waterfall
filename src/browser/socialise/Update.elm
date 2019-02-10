@@ -157,17 +157,6 @@ update msg model =
         CloseMessage ->
             ( { model | message = Nothing }, Cmd.none )
 
-        ViewPhoto status attachment ->
-            ( { model | view = PhotoPage status.id attachment.id }
-            , Nav.pushUrl
-                model.key
-                ("#photo:"
-                    ++ statusIdToString status.id
-                    ++ ":"
-                    ++ attachmentIdToString attachment.id
-                )
-            )
-
         ViewStatus status ->
             ( { model | view = StatusPage status.id }
             , Nav.pushUrl
@@ -288,18 +277,6 @@ fragmentRouter model =
                     ( { model | view = StatusPage statusId, currentStatus = Nothing }
                     , getStatus model.server.url model.authToken statusId
                     )
-
-            else if frag |> startsWith "photo:" then
-                case photoHashParts frag of
-                    Ok ( statusId, attachmentId ) ->
-                        ( { model | view = PhotoPage statusId attachmentId }
-                        , getStatus model.server.url model.authToken statusId
-                        )
-
-                    Err message ->
-                        ( { model | view = ErrorPage message }
-                        , Cmd.none
-                        )
 
             else
                 ( model, Cmd.none )
