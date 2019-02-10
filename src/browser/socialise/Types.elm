@@ -145,6 +145,7 @@ type Screen
     | UserPage String -- <user id>
     | StatusPage StatusId
     | PhotoPage StatusId AttachmentId -- <statusId> <attachmentId>
+    | PublicTimeline
     | SharePathPage String -- <path of photo to share on server>
     | ShareUploadPage (Maybe String) -- <data of the image loaded>
     | LoginPage

@@ -148,6 +148,12 @@ viewMain model =
                 , viewTimeline model.timeline model.view
                 ]
 
+        PublicTimeline ->
+            div []
+                [ h1 [] [ text "Public timeline" ]
+                , viewTimeline model.timeline model.view
+                ]
+
         ErrorPage message ->
             div []
                 [ h1 [] [ text "Error" ]
@@ -273,7 +279,9 @@ viewTimeline : List Status -> Screen -> Html Msg
 viewTimeline timeline pageType =
     let
         statusesWithAttachments =
-            List.filter (\s -> s.attachments /= []) timeline
+            List.filter
+                (\s -> s.attachments /= [] && not s.sensitive)
+                timeline
     in
     div [ class "timeline" ]
         (List.map (viewThumbnail pageType) statusesWithAttachments)
@@ -304,7 +312,7 @@ viewThumbnailCaption pageType status =
 
         userName =
             viewIfLazy
-                (pageType == HomePage)
+                (pageType == HomePage || pageType == PublicTimeline)
                 (\() ->
                     li []
                         [ a [ class "user", href ("#user:" ++ status.account.acct) ]

@@ -264,6 +264,12 @@ fragmentRouter model =
         Just "logout" ->
             ( { model | view = LoginPage }, clearAuthToken )
 
+
+        Just "public" ->
+            ( { model | view = PublicTimeline, timeline = [] }
+            , getTimeline model.server.url model.authToken PublicTimeline
+            )
+
         Just frag ->
             if frag |> startsWith "user:" then
                 let
@@ -345,6 +351,9 @@ getTimeline instanceUrl authToken pageType =
     let
         urlPath =
             case pageType of
+                PublicTimeline ->
+                    "/api/v1/timelines/public"
+
                 UserPage userId ->
                     "/api/v1/accounts/" ++ userId ++ "/statuses"
 
