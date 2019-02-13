@@ -2505,107 +2505,6 @@ function _Url_percentDecode(string)
 	}
 }
 
-// CREATE
-
-var _Regex_never = /.^/;
-
-var _Regex_fromStringWith = F2(function(options, string)
-{
-	var flags = 'g';
-	if (options.multiline) { flags += 'm'; }
-	if (options.caseInsensitive) { flags += 'i'; }
-
-	try
-	{
-		return elm$core$Maybe$Just(new RegExp(string, flags));
-	}
-	catch(error)
-	{
-		return elm$core$Maybe$Nothing;
-	}
-});
-
-
-// USE
-
-var _Regex_contains = F2(function(re, string)
-{
-	return string.match(re) !== null;
-});
-
-
-var _Regex_findAtMost = F3(function(n, re, str)
-{
-	var out = [];
-	var number = 0;
-	var string = str;
-	var lastIndex = re.lastIndex;
-	var prevLastIndex = -1;
-	var result;
-	while (number++ < n && (result = re.exec(string)))
-	{
-		if (prevLastIndex == re.lastIndex) break;
-		var i = result.length - 1;
-		var subs = new Array(i);
-		while (i > 0)
-		{
-			var submatch = result[i];
-			subs[--i] = submatch
-				? elm$core$Maybe$Just(submatch)
-				: elm$core$Maybe$Nothing;
-		}
-		out.push(A4(elm$regex$Regex$Match, result[0], result.index, number, _List_fromArray(subs)));
-		prevLastIndex = re.lastIndex;
-	}
-	re.lastIndex = lastIndex;
-	return _List_fromArray(out);
-});
-
-
-var _Regex_replaceAtMost = F4(function(n, re, replacer, string)
-{
-	var count = 0;
-	function jsReplacer(match)
-	{
-		if (count++ >= n)
-		{
-			return match;
-		}
-		var i = arguments.length - 3;
-		var submatches = new Array(i);
-		while (i > 0)
-		{
-			var submatch = arguments[i];
-			submatches[--i] = submatch
-				? elm$core$Maybe$Just(submatch)
-				: elm$core$Maybe$Nothing;
-		}
-		return replacer(A4(elm$regex$Regex$Match, match, arguments[arguments.length - 2], count, _List_fromArray(submatches)));
-	}
-	return string.replace(re, jsReplacer);
-});
-
-var _Regex_splitAtMost = F3(function(n, re, str)
-{
-	var string = str;
-	var out = [];
-	var start = re.lastIndex;
-	var restoreLastIndex = re.lastIndex;
-	while (n--)
-	{
-		var result = re.exec(string);
-		if (!result) break;
-		out.push(string.slice(start, result.index));
-		start = re.lastIndex;
-	}
-	out.push(string.slice(start));
-	re.lastIndex = restoreLastIndex;
-	return _List_fromArray(out);
-});
-
-var _Regex_infinity = Infinity;
-
-
 
 
 // HELPERS
@@ -5163,6 +5062,107 @@ function _Browser_load(url)
 		}
 	}));
 }
+
+
+// CREATE
+
+var _Regex_never = /.^/;
+
+var _Regex_fromStringWith = F2(function(options, string)
+{
+	var flags = 'g';
+	if (options.multiline) { flags += 'm'; }
+	if (options.caseInsensitive) { flags += 'i'; }
+
+	try
+	{
+		return elm$core$Maybe$Just(new RegExp(string, flags));
+	}
+	catch(error)
+	{
+		return elm$core$Maybe$Nothing;
+	}
+});
+
+
+// USE
+
+var _Regex_contains = F2(function(re, string)
+{
+	return string.match(re) !== null;
+});
+
+
+var _Regex_findAtMost = F3(function(n, re, str)
+{
+	var out = [];
+	var number = 0;
+	var string = str;
+	var lastIndex = re.lastIndex;
+	var prevLastIndex = -1;
+	var result;
+	while (number++ < n && (result = re.exec(string)))
+	{
+		if (prevLastIndex == re.lastIndex) break;
+		var i = result.length - 1;
+		var subs = new Array(i);
+		while (i > 0)
+		{
+			var submatch = result[i];
+			subs[--i] = submatch
+				? elm$core$Maybe$Just(submatch)
+				: elm$core$Maybe$Nothing;
+		}
+		out.push(A4(elm$regex$Regex$Match, result[0], result.index, number, _List_fromArray(subs)));
+		prevLastIndex = re.lastIndex;
+	}
+	re.lastIndex = lastIndex;
+	return _List_fromArray(out);
+});
+
+
+var _Regex_replaceAtMost = F4(function(n, re, replacer, string)
+{
+	var count = 0;
+	function jsReplacer(match)
+	{
+		if (count++ >= n)
+		{
+			return match;
+		}
+		var i = arguments.length - 3;
+		var submatches = new Array(i);
+		while (i > 0)
+		{
+			var submatch = arguments[i];
+			submatches[--i] = submatch
+				? elm$core$Maybe$Just(submatch)
+				: elm$core$Maybe$Nothing;
+		}
+		return replacer(A4(elm$regex$Regex$Match, match, arguments[arguments.length - 2], count, _List_fromArray(submatches)));
+	}
+	return string.replace(re, jsReplacer);
+});
+
+var _Regex_splitAtMost = F3(function(n, re, str)
+{
+	var string = str;
+	var out = [];
+	var start = re.lastIndex;
+	var restoreLastIndex = re.lastIndex;
+	while (n--)
+	{
+		var result = re.exec(string);
+		if (!result) break;
+		out.push(string.slice(start, result.index));
+		start = re.lastIndex;
+	}
+	out.push(string.slice(start));
+	re.lastIndex = restoreLastIndex;
+	return _List_fromArray(out);
+});
+
+var _Regex_infinity = Infinity;
 var elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
@@ -7082,66 +7082,22 @@ var author$project$Types$ErrorPage = function (a) {
 };
 var author$project$Types$HomePage = {$: 'HomePage'};
 var author$project$Types$LoginPage = {$: 'LoginPage'};
-var author$project$Types$PhotoPage = F2(
-	function (a, b) {
-		return {$: 'PhotoPage', a: a, b: b};
-	});
 var author$project$Types$StatusPage = function (a) {
 	return {$: 'StatusPage', a: a};
 };
 var author$project$Types$UserPage = function (a) {
 	return {$: 'UserPage', a: a};
 };
-var author$project$Types$attachmentIdToString = function (_n0) {
-	var aid = _n0.a;
-	return aid;
-};
 var author$project$Types$statusIdToString = function (_n0) {
 	var sid = _n0.a;
 	return sid;
 };
+var author$project$Types$PublicTimeline = {$: 'PublicTimeline'};
+var author$project$Types$ShareUploadPage = function (a) {
+	return {$: 'ShareUploadPage', a: a};
+};
 var author$project$Types$StatusId = function (a) {
 	return {$: 'StatusId', a: a};
-};
-var author$project$Types$AttachmentId = function (a) {
-	return {$: 'AttachmentId', a: a};
-};
-var elm$regex$Regex$Match = F4(
-	function (match, index, number, submatches) {
-		return {index: index, match: match, number: number, submatches: submatches};
-	});
-var elm$regex$Regex$fromStringWith = _Regex_fromStringWith;
-var elm$regex$Regex$fromString = function (string) {
-	return A2(
-		elm$regex$Regex$fromStringWith,
-		{caseInsensitive: false, multiline: false},
-		string);
-};
-var elm$regex$Regex$never = _Regex_never;
-var author$project$Types$photoUrlRegex = A2(
-	elm$core$Maybe$withDefault,
-	elm$regex$Regex$never,
-	elm$regex$Regex$fromString('photo:([^:]+):(.*)'));
-var elm$regex$Regex$find = _Regex_findAtMost(_Regex_infinity);
-var author$project$Types$photoHashParts = function (hash) {
-	var _n0 = A2(elm$regex$Regex$find, author$project$Types$photoUrlRegex, hash);
-	if (_n0.b && (!_n0.b.b)) {
-		var match = _n0.a;
-		var _n1 = match.submatches;
-		if ((((_n1.b && (_n1.a.$ === 'Just')) && _n1.b.b) && (_n1.b.a.$ === 'Just')) && (!_n1.b.b.b)) {
-			var photoId = _n1.a.a;
-			var _n2 = _n1.b;
-			var attachmentId = _n2.a.a;
-			return elm$core$Result$Ok(
-				_Utils_Tuple2(
-					author$project$Types$StatusId(photoId),
-					author$project$Types$AttachmentId(attachmentId)));
-		} else {
-			return elm$core$Result$Err('no photo URL parts matched');
-		}
-	} else {
-		return elm$core$Result$Err('no matches found in photo URL');
-	}
 };
 var author$project$Types$ReceivedOtherUserId = function (a) {
 	return {$: 'ReceivedOtherUserId', a: a};
@@ -7320,6 +7276,9 @@ var author$project$Types$Attachment = F4(
 	function (id, type_, url, previewUrl) {
 		return {id: id, previewUrl: previewUrl, type_: type_, url: url};
 	});
+var author$project$Types$AttachmentId = function (a) {
+	return {$: 'AttachmentId', a: a};
+};
 var author$project$Types$attachmentIdDecoder = A2(
 	elm$json$Json$Decode$map,
 	function (s) {
@@ -7450,11 +7409,14 @@ var author$project$Types$timelineDecoder = elm$json$Json$Decode$list(author$proj
 var author$project$Update$getTimeline = F3(
 	function (instanceUrl, authToken, pageType) {
 		var urlPath = function () {
-			if (pageType.$ === 'UserPage') {
-				var userId = pageType.a;
-				return '/api/v1/accounts/' + (userId + '/statuses');
-			} else {
-				return '/api/v1/timelines/home';
+			switch (pageType.$) {
+				case 'PublicTimeline':
+					return '/api/v1/timelines/public';
+				case 'UserPage':
+					var userId = pageType.a;
+					return '/api/v1/accounts/' + (userId + '/statuses');
+				default:
+					return '/api/v1/timelines/home';
 			}
 		}();
 		var url = _Utils_update(
@@ -7516,66 +7478,56 @@ var author$project$Update$fragmentRouter = function (model) {
 				A3(author$project$Update$getTimeline, model.server.url, model.authToken, author$project$Types$HomePage));
 		}
 	} else {
-		if (_n0.a === 'logout') {
-			return _Utils_Tuple2(
-				_Utils_update(
-					model,
-					{view: author$project$Types$LoginPage}),
-				author$project$Auth$clearAuthToken);
-		} else {
-			var frag = _n0.a;
-			if (A2(elm$core$String$startsWith, 'user:', frag)) {
-				var acct = A2(elm$core$String$dropLeft, 5, frag);
+		switch (_n0.a) {
+			case 'logout':
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{view: author$project$Types$LoginPage}),
+					author$project$Auth$clearAuthToken);
+			case 'public':
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{timeline: _List_Nil, view: author$project$Types$PublicTimeline}),
+					A3(author$project$Update$getTimeline, model.server.url, model.authToken, author$project$Types$PublicTimeline));
+			case 'upload':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							otherUsername: elm$core$Maybe$Just(acct),
-							timeline: _List_Nil,
-							view: author$project$Types$UserPage(acct)
+							view: author$project$Types$ShareUploadPage(elm$core$Maybe$Nothing)
 						}),
-					A2(author$project$Update$fetchOtherUserId, model.server.url, acct));
-			} else {
-				if (A2(elm$core$String$startsWith, 'status:', frag)) {
-					var statusId = author$project$Types$StatusId(
-						A2(elm$core$String$dropLeft, 7, frag));
+					elm$core$Platform$Cmd$none);
+			default:
+				var frag = _n0.a;
+				if (A2(elm$core$String$startsWith, 'user:', frag)) {
+					var acct = A2(elm$core$String$dropLeft, 5, frag);
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
-								currentStatus: elm$core$Maybe$Nothing,
-								view: author$project$Types$StatusPage(statusId)
+								otherUsername: elm$core$Maybe$Just(acct),
+								timeline: _List_Nil,
+								view: author$project$Types$UserPage(acct)
 							}),
-						A3(author$project$Update$getStatus, model.server.url, model.authToken, statusId));
+						A2(author$project$Update$fetchOtherUserId, model.server.url, acct));
 				} else {
-					if (A2(elm$core$String$startsWith, 'photo:', frag)) {
-						var _n2 = author$project$Types$photoHashParts(frag);
-						if (_n2.$ === 'Ok') {
-							var _n3 = _n2.a;
-							var statusId = _n3.a;
-							var attachmentId = _n3.b;
-							return _Utils_Tuple2(
-								_Utils_update(
-									model,
-									{
-										view: A2(author$project$Types$PhotoPage, statusId, attachmentId)
-									}),
-								A3(author$project$Update$getStatus, model.server.url, model.authToken, statusId));
-						} else {
-							var message = _n2.a;
-							return _Utils_Tuple2(
-								_Utils_update(
-									model,
-									{
-										view: author$project$Types$ErrorPage(message)
-									}),
-								elm$core$Platform$Cmd$none);
-						}
+					if (A2(elm$core$String$startsWith, 'status:', frag)) {
+						var statusId = author$project$Types$StatusId(
+							A2(elm$core$String$dropLeft, 7, frag));
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{
+									currentStatus: elm$core$Maybe$Nothing,
+									view: author$project$Types$StatusPage(statusId)
+								}),
+							A3(author$project$Update$getStatus, model.server.url, model.authToken, statusId));
 					} else {
 						return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 					}
 				}
-			}
 		}
 	}
 };
@@ -11344,9 +11296,6 @@ var author$project$Update$updateAuth = F2(
 		}
 	});
 var author$project$Ports$getImageFromForm = _Platform_outgoingPort('getImageFromForm', elm$json$Json$Encode$string);
-var author$project$Types$ShareUploadPage = function (a) {
-	return {$: 'ShareUploadPage', a: a};
-};
 var elm$browser$Browser$Navigation$replaceUrl = _Browser_replaceUrl;
 var author$project$Update$goToHomePage = function (model) {
 	return A2(
@@ -11559,19 +11508,6 @@ var author$project$Update$update = F2(
 						model,
 						{message: elm$core$Maybe$Nothing}),
 					elm$core$Platform$Cmd$none);
-			case 'ViewPhoto':
-				var status = msg.a;
-				var attachment = msg.b;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							view: A2(author$project$Types$PhotoPage, status.id, attachment.id)
-						}),
-					A2(
-						elm$browser$Browser$Navigation$pushUrl,
-						model.key,
-						'#photo:' + (author$project$Types$statusIdToString(status.id) + (':' + author$project$Types$attachmentIdToString(attachment.id)))));
 			case 'ViewStatus':
 				var status = msg.a;
 				return _Utils_Tuple2(
@@ -11687,149 +11623,21 @@ var author$project$Update$update = F2(
 	});
 var author$project$Types$CloseMessage = {$: 'CloseMessage'};
 var author$project$View$nothing = elm$html$Html$text('');
-var elm$html$Html$img = _VirtualDom_node('img');
-var elm$html$Html$source = _VirtualDom_node('source');
-var elm$html$Html$video = _VirtualDom_node('video');
-var elm$html$Html$Attributes$src = function (url) {
-	return A2(
-		elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
-var author$project$View$attachmentMarkup = function (image) {
-	var _n0 = image.type_;
-	switch (_n0.$) {
-		case 'Image':
-			return A2(
-				elm$html$Html$img,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('photo'),
-						elm$html$Html$Attributes$src(image.url)
-					]),
-				_List_Nil);
-		case 'Video':
-			return A2(
-				elm$html$Html$video,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$source,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$src(image.url)
-							]),
-						_List_Nil)
-					]));
-		case 'Gifv':
-			return A2(
-				elm$html$Html$video,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$source,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$src(image.url)
-							]),
-						_List_Nil)
-					]));
-		default:
-			return A2(
-				elm$html$Html$span,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Can\'t show this content')
-					]));
-	}
-};
-var author$project$View$htmlTagRegex = elm$regex$Regex$fromString('<\\/?[^>]+>');
-var elm$core$Debug$log = _Debug_log;
-var elm$regex$Regex$replace = _Regex_replaceAtMost(_Regex_infinity);
-var author$project$View$stripTags = function (string) {
-	var _n0 = author$project$View$htmlTagRegex;
-	if (_n0.$ === 'Nothing') {
-		return A2(elm$core$Debug$log, 'Error, not a regex', string);
-	} else {
-		var regex = _n0.a;
-		return A3(
-			elm$regex$Regex$replace,
-			regex,
-			elm$core$Basics$always(''),
-			string);
-	}
-};
-var elm$html$Html$main_ = _VirtualDom_node('main');
-var author$project$View$viewThumbnailContent = function (content) {
-	if (content.$ === 'Nothing') {
-		return A2(elm$html$Html$div, _List_Nil, _List_Nil);
-	} else {
-		var html = content.a;
-		return A2(
-			elm$html$Html$main_,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('content')
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text(
-					author$project$View$stripTags(html))
-				]));
-	}
-};
-var author$project$View$viewPhoto = F2(
-	function (status, attachmentId) {
-		var attachment = A2(
-			elm$core$List$filter,
-			function (a) {
-				return _Utils_eq(a.id, attachmentId);
-			},
-			status.attachments);
-		if (attachment.b && (!attachment.b.b)) {
-			var image = attachment.a;
-			var markup = status.sensitive ? A2(
-				elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Sensitive content')
-					])) : author$project$View$attachmentMarkup(image);
-			return A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('lightbox')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$div,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('lightbox-inner')
-							]),
-						_List_fromArray(
-							[
-								markup,
-								author$project$View$viewThumbnailContent(status.content)
-							]))
-					]));
-		} else {
-			return A2(elm$html$Html$div, _List_Nil, _List_Nil);
-		}
-	});
 var author$project$Types$ShareImage = {$: 'ShareImage'};
 var author$project$Types$ShareTextInput = function (a) {
 	return {$: 'ShareTextInput', a: a};
 };
 var elm$html$Html$br = _VirtualDom_node('br');
 var elm$html$Html$h1 = _VirtualDom_node('h1');
+var elm$html$Html$img = _VirtualDom_node('img');
 var elm$html$Html$input = _VirtualDom_node('input');
 var elm$html$Html$Attributes$placeholder = elm$html$Html$Attributes$stringProperty('placeholder');
+var elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
 var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
 var elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
@@ -11990,15 +11798,90 @@ var author$project$View$viewShareUploaded = function (dataUrl) {
 					]))
 			]));
 };
-var author$project$View$viewStatusAttachment = function (attachment) {
+var elm$html$Html$source = _VirtualDom_node('source');
+var elm$html$Html$video = _VirtualDom_node('video');
+var author$project$View$attachmentMarkup = function (image) {
+	var _n0 = image.type_;
+	switch (_n0.$) {
+		case 'Image':
+			return A2(
+				elm$html$Html$img,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('photo'),
+						elm$html$Html$Attributes$src(image.url)
+					]),
+				_List_Nil);
+		case 'Video':
+			return A2(
+				elm$html$Html$video,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('photo')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$source,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$src(image.url)
+							]),
+						_List_Nil)
+					]));
+		case 'Gifv':
+			return A2(
+				elm$html$Html$video,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('photo')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$source,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$src(image.url)
+							]),
+						_List_Nil)
+					]));
+		default:
+			return A2(
+				elm$html$Html$span,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text('Can\'t show this content')
+					]));
+	}
+};
+var elm$regex$Regex$Match = F4(
+	function (match, index, number, submatches) {
+		return {index: index, match: match, number: number, submatches: submatches};
+	});
+var elm$regex$Regex$fromStringWith = _Regex_fromStringWith;
+var elm$regex$Regex$fromString = function (string) {
 	return A2(
-		elm$html$Html$img,
-		_List_fromArray(
-			[
-				elm$html$Html$Attributes$class('attachment-thumb'),
-				elm$html$Html$Attributes$src(attachment.url)
-			]),
-		_List_Nil);
+		elm$regex$Regex$fromStringWith,
+		{caseInsensitive: false, multiline: false},
+		string);
+};
+var author$project$View$htmlTagRegex = elm$regex$Regex$fromString('<\\/?[^>]+>');
+var elm$core$Debug$log = _Debug_log;
+var elm$regex$Regex$replace = _Regex_replaceAtMost(_Regex_infinity);
+var author$project$View$stripTags = function (string) {
+	var _n0 = author$project$View$htmlTagRegex;
+	if (_n0.$ === 'Nothing') {
+		return A2(elm$core$Debug$log, 'Error, not a regex', string);
+	} else {
+		var regex = _n0.a;
+		return A3(
+			elm$regex$Regex$replace,
+			regex,
+			elm$core$Basics$always(''),
+			string);
+	}
 };
 var author$project$View$viewStatusContent = function (status) {
 	var user = A2(
@@ -12078,13 +11961,13 @@ var author$project$View$viewStatus = function (status) {
 			]) : A2(
 			elm$core$List$cons,
 			author$project$View$viewStatusContent(status),
-			A2(elm$core$List$map, author$project$View$viewStatusAttachment, status.attachments)));
+			A2(elm$core$List$map, author$project$View$attachmentMarkup, status.attachments)));
 };
 var author$project$View$viewAttachment = F2(
 	function (statusId, attachment) {
 		var _n0 = attachment.type_;
 		if (_n0.$ === 'Unknown') {
-			return A2(elm$html$Html$span, _List_Nil, _List_Nil);
+			return author$project$View$nothing;
 		} else {
 			var attachmentHref = '#status:' + author$project$Types$statusIdToString(statusId);
 			return A2(
@@ -12099,6 +11982,7 @@ var author$project$View$viewAttachment = F2(
 						elm$html$Html$img,
 						_List_fromArray(
 							[
+								elm$html$Html$Attributes$class('photo'),
 								elm$html$Html$Attributes$src(attachment.previewUrl)
 							]),
 						_List_Nil)
@@ -12133,7 +12017,7 @@ var author$project$View$viewThumbnailCaption = F2(
 	function (pageType, status) {
 		var userName = A2(
 			elm_community$html_extra$Html$Extra$viewIfLazy,
-			_Utils_eq(pageType, author$project$Types$HomePage),
+			_Utils_eq(pageType, author$project$Types$HomePage) || _Utils_eq(pageType, author$project$Types$PublicTimeline),
 			function (_n1) {
 				return A2(
 					elm$html$Html$li,
@@ -12220,7 +12104,7 @@ var author$project$View$viewTimeline = F2(
 		var statusesWithAttachments = A2(
 			elm$core$List$filter,
 			function (s) {
-				return !_Utils_eq(s.attachments, _List_Nil);
+				return (!_Utils_eq(s.attachments, _List_Nil)) && (!s.sensitive);
 			},
 			timeline);
 		return A2(
@@ -12290,37 +12174,27 @@ var author$project$View$viewMain = function (model) {
 				var status = _n1.a;
 				return author$project$View$viewStatus(status);
 			}
-		case 'PhotoPage':
-			var attachmentId = _n0.b;
-			var _n2 = _Utils_Tuple2(model.currentStatus, attachmentId);
-			if (_n2.a.$ === 'Just') {
-				var status = _n2.a.a;
-				var photoId = _n2.b;
-				return A2(author$project$View$viewPhoto, status, photoId);
-			} else {
-				return A2(elm$html$Html$div, _List_Nil, _List_Nil);
-			}
 		case 'SharePathPage':
 			var path = _n0.a;
-			var _n3 = model.authToken;
-			if (_n3.$ === 'Nothing') {
+			var _n2 = model.authToken;
+			if (_n2.$ === 'Nothing') {
 				return A2(elm$html$Html$div, _List_Nil, _List_Nil);
 			} else {
 				return author$project$View$viewSharePath(path);
 			}
 		case 'ShareUploadPage':
 			if (_n0.a.$ === 'Nothing') {
-				var _n4 = _n0.a;
-				var _n5 = model.authToken;
-				if (_n5.$ === 'Nothing') {
+				var _n3 = _n0.a;
+				var _n4 = model.authToken;
+				if (_n4.$ === 'Nothing') {
 					return A2(elm$html$Html$div, _List_Nil, _List_Nil);
 				} else {
 					return author$project$View$viewShareUpload;
 				}
 			} else {
 				var dataUrl = _n0.a.a;
-				var _n6 = model.authToken;
-				if (_n6.$ === 'Nothing') {
+				var _n5 = model.authToken;
+				if (_n5.$ === 'Nothing') {
 					return A2(elm$html$Html$div, _List_Nil, _List_Nil);
 				} else {
 					return author$project$View$viewShareUploaded(dataUrl);
@@ -12339,6 +12213,21 @@ var author$project$View$viewMain = function (model) {
 						_List_fromArray(
 							[
 								elm$html$Html$text(title)
+							])),
+						A2(author$project$View$viewTimeline, model.timeline, model.view)
+					]));
+		case 'PublicTimeline':
+			return A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$h1,
+						_List_Nil,
+						_List_fromArray(
+							[
+								elm$html$Html$text('Public timeline')
 							])),
 						A2(author$project$View$viewTimeline, model.timeline, model.view)
 					]));
@@ -12650,4 +12539,4 @@ var elm$browser$Browser$application = _Browser_application;
 var author$project$Main$main = elm$browser$Browser$application(
 	{init: author$project$Main$init, onUrlChange: author$project$Types$UrlHasChanged, onUrlRequest: author$project$Types$LinkWasClicked, subscriptions: author$project$Main$subscriptions, update: author$project$Update$update, view: author$project$View$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Types.Msg","aliases":{"Types.Account":{"args":[],"type":"{ id : String.String, acct : String.String, displayName : String.String, avatarUrl : String.String }"},"Types.Attachment":{"args":[],"type":"{ id : Types.AttachmentId, type_ : Types.AttachmentType, url : String.String, previewUrl : String.String }"},"Types.Status":{"args":[],"type":"{ id : Types.StatusId, url : Maybe.Maybe String.String, account : Types.Account, content : Maybe.Maybe String.String, attachments : List.List Types.Attachment, sensitive : Basics.Bool, favouritesCount : Basics.Int, reblogsCount : Basics.Int }"},"Url.Url":{"args":[],"type":"{ protocol : Url.Protocol, host : String.String, port_ : Maybe.Maybe Basics.Int, path : String.String, query : Maybe.Maybe String.String, fragment : Maybe.Maybe String.String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String.String }"},"Types.ImagePortData":{"args":[],"type":"{ contents : String.String, filename : String.String }"}},"unions":{"Types.Msg":{"args":[],"tags":{"Auth":["Types.AuthMsg"],"Share":["Types.ShareMsg"],"TimelineFetched":["Result.Result Http.Error (List.List Types.Status)"],"StatusFetched":["Result.Result Http.Error Types.Status"],"CloseMessage":[],"ViewStatus":["Types.Status"],"ViewPhoto":["Types.Status","Types.Attachment"],"UrlHasChanged":["Url.Url"],"LinkWasClicked":["Browser.UrlRequest"],"UserClickedLogin":[],"ReceivedOtherUserId":["Result.Result Http.Error (Maybe.Maybe String.String)"]}},"Types.AttachmentId":{"args":[],"tags":{"AttachmentId":["String.String"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Video":[],"Gifv":[],"Unknown":[]}},"Types.AuthMsg":{"args":[],"tags":{"ServerSelect":["String.String"],"AuthSubmit":[],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"UserDetailsFetched":["Result.Result Http.Error Types.Account"],"AuthTokenRetrievedFromLocalStorage":["( String.String, Maybe.Maybe String.String )"]}},"Types.ShareMsg":{"args":[],"tags":{"ShareTextInput":["String.String"],"ShareImage":[],"UploadImage":[],"StatusPosted":["Maybe.Maybe String.String"],"ImageSelected":[],"FormImageRead":["Types.ImagePortData"],"ImageShared":["Result.Result Http.Error String.String"]}},"Types.StatusId":{"args":[],"tags":{"StatusId":["String.String"]}},"Browser.UrlRequest":{"args":[],"tags":{"Internal":["Url.Url"],"External":["String.String"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Url.Protocol":{"args":[],"tags":{"Http":[],"Https":[]}}}}})}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Types.Msg","aliases":{"Types.Account":{"args":[],"type":"{ id : String.String, acct : String.String, displayName : String.String, avatarUrl : String.String }"},"Types.Attachment":{"args":[],"type":"{ id : Types.AttachmentId, type_ : Types.AttachmentType, url : String.String, previewUrl : String.String }"},"Types.Status":{"args":[],"type":"{ id : Types.StatusId, url : Maybe.Maybe String.String, account : Types.Account, content : Maybe.Maybe String.String, attachments : List.List Types.Attachment, sensitive : Basics.Bool, favouritesCount : Basics.Int, reblogsCount : Basics.Int }"},"Url.Url":{"args":[],"type":"{ protocol : Url.Protocol, host : String.String, port_ : Maybe.Maybe Basics.Int, path : String.String, query : Maybe.Maybe String.String, fragment : Maybe.Maybe String.String }"},"Types.AuthResponse":{"args":[],"type":"{ token : String.String }"},"Types.ImagePortData":{"args":[],"type":"{ contents : String.String, filename : String.String }"}},"unions":{"Types.Msg":{"args":[],"tags":{"Auth":["Types.AuthMsg"],"Share":["Types.ShareMsg"],"TimelineFetched":["Result.Result Http.Error (List.List Types.Status)"],"StatusFetched":["Result.Result Http.Error Types.Status"],"CloseMessage":[],"ViewStatus":["Types.Status"],"UrlHasChanged":["Url.Url"],"LinkWasClicked":["Browser.UrlRequest"],"UserClickedLogin":[],"ReceivedOtherUserId":["Result.Result Http.Error (Maybe.Maybe String.String)"]}},"Types.AttachmentId":{"args":[],"tags":{"AttachmentId":["String.String"]}},"Types.AttachmentType":{"args":[],"tags":{"Image":[],"Video":[],"Gifv":[],"Unknown":[]}},"Types.AuthMsg":{"args":[],"tags":{"ServerSelect":["String.String"],"AuthSubmit":[],"AuthReturn":["Result.Result Http.Error Types.AuthResponse"],"UserDetailsFetched":["Result.Result Http.Error Types.Account"],"AuthTokenRetrievedFromLocalStorage":["( String.String, Maybe.Maybe String.String )"]}},"Types.ShareMsg":{"args":[],"tags":{"ShareTextInput":["String.String"],"ShareImage":[],"UploadImage":[],"StatusPosted":["Maybe.Maybe String.String"],"ImageSelected":[],"FormImageRead":["Types.ImagePortData"],"ImageShared":["Result.Result Http.Error String.String"]}},"Types.StatusId":{"args":[],"tags":{"StatusId":["String.String"]}},"Browser.UrlRequest":{"args":[],"tags":{"Internal":["Url.Url"],"External":["String.String"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Url.Protocol":{"args":[],"tags":{"Http":[],"Https":[]}}}}})}});}(this));
