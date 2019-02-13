@@ -185,8 +185,8 @@ h1 {
 
 .statusThumb img {
   height: 300px;
-//  width: 100%;
-//  object-fit: contain;
+  width: 400px;
+  object-fit: contain;
 }
 
 .content {

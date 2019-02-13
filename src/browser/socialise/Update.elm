@@ -259,6 +259,9 @@ fragmentRouter model =
             , getTimeline model.server.url model.authToken PublicTimeline
             )
 
+        Just "upload" ->
+            ( { model | view = ShareUploadPage Nothing }, Cmd.none )
+
         Just frag ->
             if frag |> startsWith "user:" then
                 let

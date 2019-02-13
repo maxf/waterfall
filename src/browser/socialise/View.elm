@@ -253,18 +253,6 @@ viewTimeline timeline pageType =
         (List.map (viewThumbnail pageType) statusesWithAttachments)
 
 
-viewThumbnailContent : Maybe String -> Html Msg
-viewThumbnailContent content =
-    case content of
-        Nothing ->
-            div [] []
-
-        Just html ->
-            main_
-                [ class "content" ]
-                [ html |> stripTags |> text ]
-
-
 viewThumbnailCaption : Screen -> Status -> Html Msg
 viewThumbnailCaption pageType status =
     let
@@ -347,7 +335,7 @@ viewAttachment statusId attachment =
             in
             a
                 [ href attachmentHref ]
-                [ attachmentMarkup attachment ]
+                [ img [ class "photo", src attachment.previewUrl ] [] ]
 
 
 viewSharePath : String -> Html Msg
